@@ -7,19 +7,23 @@ const Detalle = () => {
 
   useEffect(() => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
-      .then(res => res.json())
-      .then(data => setMensajes(data))
-      .catch(err => console.error("Error:", err));
+      .then((res) => res.json())
+      .then((data) => setMensajes(data))
+      .catch((err) => console.error("Error:", err));
   }, [userId]);
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Conversación con {userId}</h2>
-      <Link to="/" className="text-blue-600 underline">Volver al panel</Link>
+      <Link to="/" className="text-blue-600 underline">
+        Volver al panel
+      </Link>
       <div className="mt-4 space-y-4">
         {mensajes.map((msg, idx) => (
           <div key={idx} className="border rounded p-3 bg-white shadow">
-            <p className="text-sm text-gray-500">{new Date(msg.lastInteraction).toLocaleString()}</p>
+            <p className="text-sm text-gray-500">
+              {new Date(msg.lastInteraction).toLocaleString()}
+            </p>
             <p className="text-gray-800">{msg.message}</p>
           </div>
         ))}

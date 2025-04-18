@@ -5,7 +5,7 @@ const App = () => {
   const [data, setData] = useState([])
 
   useEffect(() => {
-    fetch('https://TU_DOMINIO_DEL_ASISTENTE/api/conversaciones')
+    fetch('https://asistente-nextlives.up.railway.app/api/conversaciones')
       .then(res => res.json())
       .then(setData)
   }, [])

@@ -13,21 +13,38 @@ const Detalle = () => {
   }, [userId]);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Conversación con {userId}</h2>
-      <Link to="/" className="text-blue-600 underline">
-        Volver al panel
-      </Link>
-      <div className="mt-4 space-y-4">
-        {mensajes.map((msg, idx) => (
-          <div key={idx} className="border rounded p-3 bg-white shadow">
-            <p className="text-sm text-gray-500">
-              {new Date(msg.lastInteraction).toLocaleString()}
-            </p>
-            <p className="text-gray-800">{msg.message}</p>
-          </div>
-        ))}
-        {mensajes.length === 0 && <p>No hay mensajes para este usuario.</p>}
+    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+      <div className="mb-4">
+        <Link to="/" className="text-blue-600 hover:underline text-sm">← Volver al panel</Link>
+        <h2 className="text-2xl font-bold mt-2">Conversación con {userId}</h2>
+      </div>
+
+      <div className="space-y-3 bg-gray-50 p-4 rounded-md max-h-[70vh] overflow-auto">
+        {mensajes.map((msg, idx) => {
+          const isPanel = msg.origin === "panel" || msg.fromPanel === true;
+          return (
+            <div
+              key={idx}
+              className={`flex ${isPanel ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`rounded-lg px-4 py-2 max-w-xs text-sm shadow ${
+                  isPanel
+                    ? "bg-blue-600 text-white rounded-br-none"
+                    : "bg-gray-200 text-gray-900 rounded-bl-none"
+                }`}
+              >
+                <p className="mb-1">{msg.message}</p>
+                <p className="text-[11px] text-right opacity-70">
+                  {new Date(msg.lastInteraction).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+        {mensajes.length === 0 && (
+          <p className="text-gray-400 text-center">No hay mensajes para este usuario.</p>
+        )}
       </div>
     </div>
   );

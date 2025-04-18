@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
 const Detalle = () => {
@@ -35,11 +35,12 @@ const Detalle = () => {
       ...prev,
       {
         userId,
+        role: "assistant",
         message: respuesta,
         lastInteraction: new Date().toISOString(),
-        fromSlack: true,
       },
     ]);
+
     setRespuesta("");
     setEnviando(false);
   };
@@ -53,28 +54,28 @@ const Detalle = () => {
         ref={chatRef}
         className="flex-1 overflow-y-auto bg-gray-100 rounded-md p-4 space-y-4"
       >
+        {mensajes.length === 0 && (
+          <p className="text-gray-400 text-center">No hay mensajes para este usuario.</p>
+        )}
         {mensajes.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex ${msg.fromSlack ? "justify-end" : "justify-start"}`}
+            className={`flex ${msg.role === "assistant" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[70%] px-4 py-2 rounded-lg shadow text-sm ${
-                msg.fromSlack
+              className={`max-w-[70%] px-4 py-2 rounded-xl shadow text-sm ${
+                msg.role === "assistant"
                   ? "bg-blue-600 text-white"
                   : "bg-white text-gray-800 border"
               }`}
             >
-              <div>{msg.message}</div>
-              <div className="text-[10px] opacity-70 mt-1 text-right">
-                {new Date(msg.lastInteraction).toLocaleString()}
+              <p className="mb-1">{msg.message}</p>
+              <div className="text-[10px] text-right opacity-60">
+                {msg.role === "assistant" ? "Asistente" : "Usuario"} | {new Date(msg.lastInteraction).toLocaleString()}
               </div>
             </div>
           </div>
         ))}
-        {mensajes.length === 0 && (
-          <p className="text-gray-400 text-center">No hay mensajes para este usuario.</p>
-        )}
       </div>
 
       <div className="mt-4 flex items-center gap-2">

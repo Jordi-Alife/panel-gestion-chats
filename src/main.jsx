@@ -5,9 +5,13 @@ const App = () => {
   const [data, setData] = useState([])
 
   useEffect(() => {
-    fetch('https://asistente-nextlives.up.railway.app/api/conversaciones')
+    fetch('https://web-production-51989.up.railway.app/api/conversaciones')
       .then(res => res.json())
-      .then(setData)
+      .then(data => {
+        console.log("Conversaciones recibidas:", data)
+        setData(data)
+      })
+      .catch(err => console.error("Error cargando datos:", err))
   }, [])
 
   return (

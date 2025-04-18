@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 
 const Panel = () => {
@@ -13,53 +14,70 @@ const Panel = () => {
   }, []);
 
   const recibidos = data.length;
-  const enviados = 0; // Esto lo puedes actualizar después
+  const enviados = 0;
   const total = recibidos + enviados;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Panel de Conversaciones</h1>
-
-      <div className="mb-4">
-        <p><strong>Mensajes recibidos</strong>: {recibidos}</p>
-        <p><strong>Mensajes enviados</strong>: {enviados}</p>
-        <p><strong>Total</strong>: {total}</p>
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded shadow p-4">
+          <h2 className="text-sm text-gray-500">Recibidos</h2>
+          <p className="text-2xl font-bold">{recibidos}</p>
+        </div>
+        <div className="bg-white rounded shadow p-4">
+          <h2 className="text-sm text-gray-500">Enviados</h2>
+          <p className="text-2xl font-bold">{enviados}</p>
+        </div>
+        <div className="bg-white rounded shadow p-4">
+          <h2 className="text-sm text-gray-500">Total</h2>
+          <p className="text-2xl font-bold">{total}</p>
+        </div>
       </div>
 
-      <table className="table-auto border-collapse w-full">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2 text-left">Usuario</th>
-            <th className="border px-4 py-2 text-left">Última interacción</th>
-            <th className="border px-4 py-2 text-left">Mensaje</th>
-            <th className="border px-4 py-2 text-left">Ver</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, i) => (
-            <tr key={i}>
-              <td className="border px-4 py-2">{item.userId}</td>
-              <td className="border px-4 py-2">{new Date(item.lastInteraction).toLocaleString()}</td>
-              <td className="border px-4 py-2 truncate max-w-xs">{item.message}</td>
-              <td className="border px-4 py-2">
-                <Link to={`/conversacion/${item.userId}`} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                  Ver
-                </Link>
-              </td>
+      <div className="overflow-auto">
+        <table className="table-auto w-full bg-white rounded shadow overflow-hidden">
+          <thead className="bg-gray-100 text-left">
+            <tr>
+              <th className="px-4 py-2">Usuario</th>
+              <th className="px-4 py-2">Última interacción</th>
+              <th className="px-4 py-2">Mensaje</th>
+              <th className="px-4 py-2">Ver</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((item, i) => (
+              <tr key={i} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2">{item.userId}</td>
+                <td className="px-4 py-2">{new Date(item.lastInteraction).toLocaleString()}</td>
+                <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
+                <td className="px-4 py-2">
+                  <a
+                    href={`/conversacion/${item.userId}`}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Ver
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {data.length === 0 && (
+          <p className="text-gray-400 text-center py-6">No hay conversaciones todavía.</p>
+        )}
+      </div>
     </div>
   );
 };
 
 const App = () => (
   <Router>
-    <Routes>
-      <Route path="/" element={<Panel />} />
-      <Route path="/conversacion/:userId" element={<Detalle />} />
-    </Routes>
+    <DashboardLayout>
+      <Routes>
+        <Route path="/" element={<Panel />} />
+        <Route path="/conversacion/:userId" element={<Detalle />} />
+      </Routes>
+    </DashboardLayout>
   </Router>
 );
 

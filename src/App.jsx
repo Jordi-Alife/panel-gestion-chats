@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
@@ -5,30 +6,53 @@ import Detalle from "./pages/Detalle";
 
 const Panel = () => {
   const [data, setData] = useState([]);
+  const [vistas, setVistas] = useState({});
   const [busqueda, setBusqueda] = useState("");
 
-  const cargarDatos = () => {
+  useEffect(() => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
       .then((res) => res.json())
       .then(setData)
       .catch(console.error);
-  };
 
-  useEffect(() => {
-    cargarDatos();
-    const interval = setInterval(cargarDatos, 10000); // cada 10 segundos
-    return () => clearInterval(interval); // limpieza al desmontar
+    fetch("https://web-production-51989.up.railway.app/api/vistas")
+      .then((res) => res.json())
+      .then(setVistas)
+      .catch(console.error);
   }, []);
 
   const conversacionesPorUsuario = data.reduce((acc, item) => {
-    const actual = acc[item.userId];
-    if (!actual || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
-      acc[item.userId] = item;
+    const actual = acc[item.userId] || { mensajes: [] };
+    actual.mensajes = [...(actual.mensajes || []), item];
+
+    if (
+      !actual.lastInteraction ||
+      new Date(item.lastInteraction) > new Date(actual.lastInteraction)
+    ) {
+      actual.lastInteraction = item.lastInteraction;
+      actual.message = item.message;
     }
+
+    acc[item.userId] = actual;
     return acc;
   }, {});
 
-  const listaAgrupada = Object.values(conversacionesPorUsuario);
+  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(
+    ([userId, info]) => {
+      const ultimaVista = vistas[userId];
+      const nuevos = info.mensajes.filter(
+        (m) =>
+          m.from === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
+
+      return {
+        userId,
+        ...info,
+        nuevos,
+      };
+    }
+  );
 
   const filtrada = listaAgrupada.filter((item) =>
     item.userId.toLowerCase().includes(busqueda.toLowerCase())
@@ -37,12 +61,6 @@ const Panel = () => {
   const recibidos = listaAgrupada.length;
   const enviados = 0;
   const total = recibidos + enviados;
-
-  const getMensajesNuevos = (userId, lastInteraction) => {
-    const lastView = localStorage.getItem(`lastView-${userId}`);
-    if (!lastView) return 1;
-    return new Date(lastInteraction) > new Date(lastView) ? 1 : 0;
-  };
 
   return (
     <div>
@@ -82,33 +100,30 @@ const Panel = () => {
             </tr>
           </thead>
           <tbody>
-            {filtrada.map((item, i) => {
-              const nuevos = getMensajesNuevos(item.userId, item.lastInteraction);
-              return (
-                <tr key={i} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-2 flex items-center gap-2">
-                    {item.userId}
-                    {nuevos > 0 && (
-                      <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                        {nuevos}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {new Date(item.lastInteraction).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
-                  <td className="px-4 py-2">
-                    <Link
-                      to={`/conversacion/${item.userId}`}
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      Ver
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
+            {filtrada.map((item, i) => (
+              <tr key={i} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2 flex items-center gap-2">
+                  {item.userId}
+                  {item.nuevos > 0 && (
+                    <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                      {item.nuevos}
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  {new Date(item.lastInteraction).toLocaleString()}
+                </td>
+                <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
+                <td className="px-4 py-2">
+                  <Link
+                    to={`/conversacion/${item.userId}`}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Ver
+                  </Link>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
         {filtrada.length === 0 && (

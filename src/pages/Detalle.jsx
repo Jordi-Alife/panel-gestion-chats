@@ -1,4 +1,3 @@
-// src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -10,6 +9,7 @@ export default function Detalle() {
 
   useEffect(() => {
     if (!userId) return;
+
     fetch(`/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
@@ -21,9 +21,7 @@ export default function Detalle() {
           }));
         setMensajes(ordenados);
       })
-      .catch(err => {
-        console.error("Error cargando mensajes:", err);
-      });
+      .catch(err => console.error("Error al cargar mensajes:", err));
   }, [userId]);
 
   useEffect(() => {

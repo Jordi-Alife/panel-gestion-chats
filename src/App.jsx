@@ -46,10 +46,17 @@ const Panel = () => {
           (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
 
+      const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
+      const minutosSinResponder =
+        ultimoMensaje?.from === "usuario"
+          ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+          : 0;
+
       return {
         userId,
         ...info,
         nuevos,
+        sinResponder: minutosSinResponder >= 1,
       };
     }
   );
@@ -101,7 +108,12 @@ const Panel = () => {
           </thead>
           <tbody>
             {filtrada.map((item, i) => (
-              <tr key={i} className="border-t hover:bg-gray-50">
+              <tr
+                key={i}
+                className={`border-t hover:bg-gray-50 ${
+                  item.sinResponder ? "bg-gray-100" : ""
+                }`}
+              >
                 <td className="px-4 py-2 flex items-center gap-2">
                   {item.userId}
                   {item.nuevos > 0 && (
@@ -114,13 +126,18 @@ const Panel = () => {
                   {new Date(item.lastInteraction).toLocaleString()}
                 </td>
                 <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-2 flex items-center gap-2">
                   <Link
                     to={`/conversacion/${item.userId}`}
                     className="text-sm text-blue-600 hover:underline"
                   >
                     Ver
                   </Link>
+                  {item.sinResponder && (
+                    <span title="Sin respuesta reciente" className="text-gray-500 text-lg">
+                      💤
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

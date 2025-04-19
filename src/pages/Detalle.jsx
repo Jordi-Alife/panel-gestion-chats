@@ -17,7 +17,6 @@ export default function Detalle() {
             ...msg,
             from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
           }));
-
         setMensajes(ordenados);
       });
   }, [id]);
@@ -39,7 +38,6 @@ export default function Detalle() {
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
     };
-
     setMensajes([...mensajes, nuevoMensaje]);
     setRespuesta('');
 
@@ -51,27 +49,29 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] p-4">
-      <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
-      <h2 className="text-xl font-semibold mb-4">Conversación con <span className="text-gray-800">{id}</span></h2>
+    <div className="flex flex-col h-screen">
+      <div className="p-4">
+        <Link to="/" className="text-blue-600 mb-2 inline-block">&larr; Volver al panel</Link>
+        <h2 className="text-xl font-semibold mb-2">Conversación con <span className="text-gray-800">{id}</span></h2>
+      </div>
 
-      <div className="flex flex-col flex-1 overflow-hidden bg-white rounded border">
+      <div className="flex flex-col flex-1 overflow-hidden">
         <div
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto p-4 space-y-3"
+          className="flex-1 overflow-y-auto px-4 py-2 space-y-2"
         >
           {mensajes.map((msg, i) => {
             const isAsistente = msg.from === 'asistente';
             return (
               <div
                 key={i}
-                className={`max-w-[80%] p-3 rounded-lg text-sm whitespace-pre-wrap ${
+                className={`max-w-[75%] p-3 rounded-lg text-sm break-words ${
                   isAsistente
-                    ? 'bg-blue-500 text-white self-end ml-auto text-left'
-                    : 'bg-gray-200 text-gray-800 self-start mr-auto text-left'
+                    ? 'bg-blue-600 text-white self-end ml-auto'
+                    : 'bg-gray-200 text-gray-800 self-start mr-auto'
                 }`}
               >
-                <p>{msg.message}</p>
+                <p className="whitespace-pre-wrap">{msg.message}</p>
                 <div className="text-xs mt-1 opacity-70 text-right">
                   {isAsistente ? 'Asistente' : 'Usuario'} — {new Date(msg.lastInteraction).toLocaleString()}
                 </div>
@@ -80,12 +80,12 @@ export default function Detalle() {
           })}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex border-t p-4">
+        <form onSubmit={handleSubmit} className="flex p-4 border-t">
           <input
             type="text"
             value={respuesta}
             onChange={(e) => setRespuesta(e.target.value)}
-            className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
+            className="flex-1 border border-gray-300 rounded-l px-4 py-2 focus:outline-none"
             placeholder="Escribe tu respuesta..."
           />
           <button

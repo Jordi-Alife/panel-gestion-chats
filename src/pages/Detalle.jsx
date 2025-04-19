@@ -19,7 +19,13 @@ export default function Detalle() {
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
           .map(msg => ({
             ...msg,
-            from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
+            from: msg.from || (
+              msg.manual ||
+              (typeof msg.message === "string" &&
+                msg.message.startsWith("https://web-production-51989.up.railway.app/uploads"))
+                ? 'asistente'
+                : 'usuario'
+            )
           }));
         setMensajes(ordenados);
       })
@@ -64,12 +70,12 @@ export default function Detalle() {
         userId,
         message: data.imageUrl,
         lastInteraction: new Date().toISOString(),
-        from: 'asistente'
+        from: 'asistente',
+        manual: true
       };
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
       setImagen(null);
-      document.getElementById("fileInput").value = ''; // limpia input file
       return;
     }
 
@@ -139,7 +145,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-lg max-w-xs max-h-80 object-contain mb-2"
+                      className="rounded-lg max-w-[200px] max-h-[200px] object-cover mb-2"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -179,7 +185,6 @@ export default function Detalle() {
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
       >
         <input
-          id="fileInput"
           type="file"
           accept="image/*"
           onChange={(e) => setImagen(e.target.files[0])}

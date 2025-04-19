@@ -1,4 +1,3 @@
-// Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -7,6 +6,7 @@ export default function Detalle() {
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const [imagen, setImagen] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
 
@@ -18,23 +18,10 @@ export default function Detalle() {
       .then(data => {
         const ordenados = data
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-          .map(msg => {
-            // Corregir el origen del mensaje para las imágenes enviadas desde el panel
-            if (!msg.from) {
-              if (
-                msg.message.startsWith('http') &&
-                msg.message.includes('/uploads/')
-              ) {
-                return { ...msg, from: 'asistente' };
-              } else {
-                return {
-                  ...msg,
-                  from: msg.message.startsWith('¡') || msg.message.startsWith('Per ') ? 'asistente' : 'usuario'
-                };
-              }
-            }
-            return msg;
-          });
+          .map(msg => ({
+            ...msg,
+            from: msg.from || (msg.manual ? 'asistente' : 'usuario') // Alineación correcta
+          }));
         setMensajes(ordenados);
       })
       .catch(err => {
@@ -78,11 +65,13 @@ export default function Detalle() {
         userId,
         message: data.imageUrl,
         lastInteraction: new Date().toISOString(),
-        from: 'asistente'
+        from: 'asistente',
+        manual: true
       };
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
-      setImagen(null); // vaciar selección
+      setImagen(null);
+      setPreview(null);
       return;
     }
 
@@ -92,7 +81,8 @@ export default function Detalle() {
       userId,
       message: respuesta,
       lastInteraction: new Date().toISOString(),
-      from: 'asistente'
+      from: 'asistente',
+      manual: true
     };
     setMensajes(prev => [...prev, nuevoMensaje]);
     setRespuesta('');
@@ -113,6 +103,19 @@ export default function Detalle() {
 
   const esURLImagen = (texto) => {
     return typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagen(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const cancelarImagen = () => {
+    setImagen(null);
+    setPreview(null);
   };
 
   return (
@@ -185,6 +188,20 @@ export default function Detalle() {
             );
           })
         )}
+
+        {preview && (
+          <div className="flex justify-end">
+            <div className="max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md bg-blue-600 text-white rounded-br-sm relative">
+              <img src={preview} alt="Previsualización" className="rounded-lg max-w-full mb-2" />
+              <button
+                onClick={cancelarImagen}
+                className="absolute top-1 right-2 text-xs underline"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <form
@@ -194,7 +211,7 @@ export default function Detalle() {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setImagen(e.target.files[0])}
+          onChange={handleImageChange}
           className="text-sm"
         />
         <input

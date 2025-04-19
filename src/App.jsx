@@ -14,13 +14,24 @@ const Panel = () => {
       .catch(console.error);
   }, []);
 
-  const recibidos = data.length;
-  const enviados = 0;
-  const total = recibidos + enviados;
+  // Agrupar por usuario y quedarse solo con el último mensaje
+  const conversacionesPorUsuario = data.reduce((acc, item) => {
+    const actual = acc[item.userId];
+    if (!actual || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
+      acc[item.userId] = item;
+    }
+    return acc;
+  }, {});
 
-  const dataFiltrada = data.filter((item) =>
+  const listaAgrupada = Object.values(conversacionesPorUsuario);
+
+  const filtrada = listaAgrupada.filter((item) =>
     item.userId.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  const recibidos = listaAgrupada.length;
+  const enviados = 0;
+  const total = recibidos + enviados;
 
   return (
     <div>
@@ -60,7 +71,7 @@ const Panel = () => {
             </tr>
           </thead>
           <tbody>
-            {dataFiltrada.map((item, i) => (
+            {filtrada.map((item, i) => (
               <tr key={i} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-2">{item.userId}</td>
                 <td className="px-4 py-2">
@@ -79,7 +90,7 @@ const Panel = () => {
             ))}
           </tbody>
         </table>
-        {dataFiltrada.length === 0 && (
+        {filtrada.length === 0 && (
           <p className="text-gray-400 text-center py-6">
             No hay resultados para la búsqueda.
           </p>

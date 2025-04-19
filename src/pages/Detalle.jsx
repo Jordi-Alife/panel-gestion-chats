@@ -6,6 +6,7 @@ export default function Detalle() {
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const [imagen, setImagen] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
 
@@ -76,6 +77,7 @@ export default function Detalle() {
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
       setImagen(null);
+      setPreviewUrl(null);
       return;
     }
 
@@ -106,6 +108,19 @@ export default function Detalle() {
 
   const esURLImagen = (texto) => {
     return typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+  };
+
+  const handleImagenChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagen(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const cancelarImagen = () => {
+    setImagen(null);
+    setPreviewUrl(null);
   };
 
   return (
@@ -145,7 +160,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-lg max-w-[200px] max-h-[200px] object-cover mb-2"
+                      className="rounded-lg w-full h-auto mb-2"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -178,6 +193,20 @@ export default function Detalle() {
             );
           })
         )}
+
+        {previewUrl && (
+          <div className="flex justify-end">
+            <div className="bg-blue-600 text-white p-2 rounded-2xl max-w-[75%] relative">
+              <img src={previewUrl} alt="Vista previa" className="rounded-lg w-full h-auto" />
+              <button
+                onClick={cancelarImagen}
+                className="absolute top-1 right-1 text-xs text-white bg-red-500 px-2 py-0.5 rounded-full"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <form
@@ -187,7 +216,7 @@ export default function Detalle() {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setImagen(e.target.files[0])}
+          onChange={handleImagenChange}
           className="text-sm"
         />
         <input

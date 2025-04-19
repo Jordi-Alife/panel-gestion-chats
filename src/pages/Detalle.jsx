@@ -1,113 +1,185 @@
-// src/pages/Detalle.jsx
+// index.js
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
+import fetch from "node-fetch";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-export default function Detalle() {
-  const { userId } = useParams();
-  const [mensajes, setMensajes] = useState([]);
-  const [respuesta, setRespuesta] = useState('');
-  const chatRef = useRef(null);
+const HISTORIAL_PATH = "./historial.json";
 
-  useEffect(() => {
-    if (!userId) return;
-    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        const ordenados = data
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-          .map(msg => ({
-            ...msg,
-            from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
-          }));
-        setMensajes(ordenados);
-      })
-      .catch(err => {
-        console.error("Error cargando mensajes:", err);
-      });
-  }, [userId]);
+// Leer historial al iniciar
+let conversaciones = [];
+if (fs.existsSync(HISTORIAL_PATH)) {
+  const data = fs.readFileSync(HISTORIAL_PATH, "utf8");
+  conversaciones = JSON.parse(data);
+}
 
-  useEffect(() => {
-    chatRef.current?.scrollTo({
-      top: chatRef.current.scrollHeight,
-      behavior: 'smooth'
-    });
-  }, [mensajes]);
+// Guardar historial
+function guardarConversaciones() {
+  fs.writeFileSync(HISTORIAL_PATH, JSON.stringify(conversaciones, null, 2));
+}
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!respuesta.trim() || !userId) return;
+const slackResponses = new Map();
 
-    const nuevoMensaje = {
-      userId,
-      message: respuesta,
-      lastInteraction: new Date().toISOString(),
-      from: 'asistente'
-    };
-    setMensajes(prev => [...prev, nuevoMensaje]);
-    setRespuesta('');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = "./uploads";
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, filename);
+  },
+});
+const upload = multer({ storage: storage });
 
-    await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, message: respuesta })
-    });
-  };
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+async function sendToSlack(message, userId = null) {
+  const webhook = process.env.SLACK_WEBHOOK_URL;
+  if (!webhook) return;
+  const text = userId ? `[${userId}] ${message}` : message;
+
+  await fetch(webhook, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text })
+  });
+}
+
+function shouldEscalateToHuman(message) {
+  const lower = message.toLowerCase();
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] p-4">
-      <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
-      <h2 className="text-xl font-semibold mb-4">
-        Conversación con <span className="text-gray-800">{userId || '(ID no encontrado)'}</span>
-      </h2>
-
-      <div
-        ref={chatRef}
-        className="flex-1 overflow-y-auto p-4 space-y-2 bg-white border rounded"
-      >
-        {!userId ? (
-          <p className="text-red-500">Error: No se pudo obtener el ID del usuario.</p>
-        ) : mensajes.length === 0 ? (
-          <p className="text-gray-400 text-sm">No hay mensajes todavía.</p>
-        ) : (
-          mensajes.map((msg, index) => {
-            const isAsistente = msg.from === 'asistente';
-            return (
-              <div
-                key={index}
-                className={`max-w-[75%] px-4 py-2 rounded-lg text-sm ${
-                  isAsistente
-                    ? 'bg-blue-500 text-white ml-auto'
-                    : 'bg-gray-200 text-gray-900 mr-auto'
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{msg.message}</p>
-                <div className="text-[11px] mt-1 text-right opacity-70">
-                  {isAsistente ? 'Asistente' : 'Usuario'} — {new Date(msg.lastInteraction).toLocaleString()}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {userId && (
-        <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
-          <input
-            type="text"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
-            placeholder="Escribe tu respuesta..."
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
-          >
-            Enviar
-          </button>
-        </form>
-      )}
-    </div>
+    lower.includes("hablar con una persona") ||
+    lower.includes("quiero hablar con un humano") ||
+    lower.includes("necesito ayuda humana") ||
+    lower.includes("pasame con un humano") ||
+    lower.includes("quiero hablar con alguien") ||
+    lower.includes("agente humano")
   );
 }
+
+// Subida de archivos
+app.post("/api/upload", upload.single("file"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No se subió ninguna imagen" });
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const userId = req.body.userId || "desconocido";
+  await sendToSlack(`🖼️ Imagen subida por usuario [${userId}]: ${imageUrl}`);
+  res.json({ imageUrl });
+});
+
+// Chat: guarda conversación
+app.post("/api/chat", async (req, res) => {
+  const { message, system, userId } = req.body;
+  const finalUserId = userId || "anon";
+
+  conversaciones.push({
+    userId: finalUserId,
+    lastInteraction: new Date().toISOString(),
+    message,
+    from: "usuario"
+  });
+  guardarConversaciones();
+
+  if (shouldEscalateToHuman(message)) {
+    const alertMessage = `⚠️ Usuario [${finalUserId}] ha solicitado ayuda de un humano:\n${message}`;
+    await sendToSlack(alertMessage, finalUserId);
+    return res.json({ reply: "Voy a derivar tu solicitud a un agente humano. Por favor, espera mientras se realiza la transferencia." });
+  }
+
+  try {
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: system || "Eres un asistente de soporte del canal digital funerario. Responde con claridad, precisión y empatía."
+        },
+        { role: "user", content: message }
+      ]
+    });
+
+    const reply = chatResponse.choices[0].message.content;
+
+    conversaciones.push({
+      userId: finalUserId,
+      lastInteraction: new Date().toISOString(),
+      message: reply,
+      from: "asistente"
+    });
+    guardarConversaciones();
+
+    await sendToSlack(`👤 [${finalUserId}] ${message}\n🤖 ${reply}`, finalUserId);
+    res.json({ reply });
+  } catch (error) {
+    console.error("Error GPT:", error);
+    res.status(500).json({ reply: "Lo siento, ha ocurrido un error al procesar tu mensaje." });
+  }
+});
+
+// Enviar mensaje desde el panel
+app.post("/api/send-to-user", express.json(), async (req, res) => {
+  const { userId, message } = req.body;
+  if (!userId || !message) {
+    return res.status(400).json({ error: "Faltan userId o message" });
+  }
+
+  conversaciones.push({
+    userId,
+    message,
+    lastInteraction: new Date().toISOString(),
+    from: "asistente"
+  });
+  guardarConversaciones();
+
+  if (!slackResponses.has(userId)) slackResponses.set(userId, []);
+  slackResponses.get(userId).push(message);
+
+  console.log(`📨 Mensaje enviado desde el panel a [${userId}]: ${message}`);
+  res.json({ ok: true });
+});
+
+// Historial completo
+app.get("/api/conversaciones", (req, res) => {
+  res.json(conversaciones);
+});
+
+// Historial por usuario
+app.get("/api/conversaciones/:userId", (req, res) => {
+  const { userId } = req.params;
+  const mensajes = conversaciones.filter(m => m.userId === userId);
+  res.json(mensajes);
+});
+
+// Obtener mensajes pendientes desde el panel
+app.get("/api/poll/:userId", (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: "Falta userId" });
+  }
+
+  const mensajes = slackResponses.get(userId) || [];
+
+  // Limpiar después de enviar
+  slackResponses.set(userId, []);
+
+  res.json({ mensajes });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
+});

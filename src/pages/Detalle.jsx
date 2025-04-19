@@ -10,8 +10,12 @@ const Detalle = () => {
   useEffect(() => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
-      .then(setMensajes)
-      .catch(console.error);
+      .then((data) => {
+        const ordenados = data.sort(
+          (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
+        );
+        setMensajes(ordenados);
+      });
   }, [userId]);
 
   useEffect(() => {
@@ -22,16 +26,48 @@ const Detalle = () => {
 
   const enviarRespuesta = async () => {
     if (!respuesta.trim()) return;
+
     await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, message: respuesta }),
     });
+
     setMensajes((prev) => [
       ...prev,
-      { message: respuesta, lastInteraction: new Date().toISOString(), role: "assistant" },
+      {
+        message: respuesta,
+        sender: "admin",
+        lastInteraction: new Date().toISOString(),
+      },
     ]);
     setRespuesta("");
+  };
+
+  const getEstilo = (sender) => {
+    switch (sender) {
+      case "user":
+        return "bg-gray-200 text-gray-900 self-start";
+      case "assistant":
+        return "bg-blue-500 text-white self-end";
+      case "admin":
+        return "bg-green-500 text-white self-end";
+      default:
+        return "bg-white text-gray-800";
+    }
+  };
+
+  const getNombreRemitente = (sender) => {
+    switch (sender) {
+      case "user":
+        return "Usuario";
+      case "assistant":
+        return "Asistente";
+      case "admin":
+        return "Tú";
+      default:
+        return "Desconocido";
+    }
   };
 
   return (
@@ -43,36 +79,31 @@ const Detalle = () => {
 
       <div
         ref={chatRef}
-        className="bg-white rounded-lg shadow p-4 h-96 overflow-y-auto mb-4"
+        className="bg-gray-100 rounded-lg shadow-inner p-4 h-[400px] overflow-y-auto flex flex-col space-y-3"
       >
-        {mensajes.length === 0 && (
-          <p className="text-gray-500 text-center">No hay mensajes para este usuario.</p>
-        )}
-        {mensajes.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`mb-2 flex ${
-              msg.role === "assistant" ? "justify-end" : "justify-start"
-            }`}
-          >
+        {mensajes.length === 0 ? (
+          <p className="text-gray-500 text-center">No hay mensajes aún.</p>
+        ) : (
+          mensajes.map((msg, idx) => (
             <div
-              className={`rounded-xl px-4 py-2 shadow ${
-                msg.role === "assistant"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
+              key={idx}
+              className={`max-w-xs px-4 py-2 rounded-xl shadow ${getEstilo(
+                msg.sender
+              )}`}
             >
-              <p>{msg.message}</p>
-              <p className="text-xs mt-1 opacity-60">
-                {msg.role === "assistant" ? "Tú" : "Usuario"} |{" "}
-                {new Date(msg.lastInteraction).toLocaleString()}
+              <p className="text-sm">{msg.message}</p>
+              <p className="text-[10px] opacity-60 mt-1">
+                {getNombreRemitente(msg.sender)} —{" "}
+                {msg.lastInteraction
+                  ? new Date(msg.lastInteraction).toLocaleString()
+                  : "Sin hora"}
               </p>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="mt-4 flex items-center gap-2">
         <input
           type="text"
           value={respuesta}

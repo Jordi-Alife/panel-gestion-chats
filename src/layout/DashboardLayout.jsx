@@ -1,13 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import logo from "../assets/logo-nextlives.png"; // Asegúrate de que el archivo esté en /src/assets/
 
 const DashboardLayout = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800">
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md hidden md:flex flex-col">
-        <div className="h-16 flex items-center justify-center font-bold text-xl border-b">
-          NextLives
+        <div className="h-16 flex items-center justify-center border-b">
+          <img src={logo} alt="NextLives" className="h-10" />
         </div>
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
@@ -23,8 +24,8 @@ const DashboardLayout = ({ children }) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="h-16 bg-white border-b flex items-center px-6 shadow-sm">
-          <h1 className="text-xl font-semibold">Panel de soporte</h1>
+        <header className="h-16 bg-[#0D1C2E] border-b flex items-center px-6 shadow-sm">
+          <h1 className="text-xl font-semibold text-white">Panel de soporte</h1>
         </header>
 
         {/* Content */}

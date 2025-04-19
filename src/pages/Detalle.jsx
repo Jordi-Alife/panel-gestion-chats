@@ -43,55 +43,56 @@ const Detalle = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] px-6 py-4">
-      <Link to="/" className="text-sm text-blue-600 mb-2">← Volver al panel</Link>
-      <h2 className="text-xl font-semibold mb-4">Conversación con {userId}</h2>
+    <div className="flex flex-col h-[calc(100vh-64px)] px-4 pb-4">
+      <Link to="/" className="text-sm text-blue-600 mt-4 mb-2">← Volver al panel</Link>
+      <h2 className="text-xl font-semibold mb-2">Conversación con {userId}</h2>
 
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto bg-white rounded-lg p-4 space-y-4"
-        style={{ maxHeight: "100%", minHeight: 0 }}
-      >
-        {mensajes.length === 0 ? (
-          <p className="text-gray-500">No hay mensajes para este usuario.</p>
-        ) : (
-          mensajes.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === "assistant" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[80%] px-4 py-2 rounded-xl shadow text-sm ${
-                  msg.role === "assistant"
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-gray-200 text-gray-800 rounded-bl-none"
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{msg.message}</p>
-                <p className="text-[11px] mt-1 opacity-70">
-                  {msg.role === "assistant" ? "Asistente" : "Usuario"} — {new Date(msg.lastInteraction).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <div className="flex items-center gap-2 mt-4 border-t pt-4">
-        <input
-          type="text"
-          className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
-          placeholder="Escribe tu respuesta..."
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-        />
-        <button
-          onClick={handleSend}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-inner overflow-hidden">
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-4"
         >
-          Enviar
-        </button>
+          {mensajes.length === 0 ? (
+            <p className="text-gray-500">No hay mensajes para este usuario.</p>
+          ) : (
+            mensajes.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex ${msg.role === "assistant" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[80%] px-4 py-2 rounded-lg text-sm shadow ${
+                    msg.role === "assistant"
+                      ? "bg-blue-600 text-white rounded-br-none"
+                      : "bg-gray-200 text-gray-800 rounded-bl-none"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{msg.message}</p>
+                  <p className="text-[11px] mt-1 opacity-70">
+                    {msg.role === "assistant" ? "Asistente" : "Usuario"} — {new Date(msg.lastInteraction).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 border-t border-gray-200 p-3">
+          <input
+            type="text"
+            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            placeholder="Escribe tu respuesta..."
+            value={respuesta}
+            onChange={(e) => setRespuesta(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          />
+          <button
+            onClick={handleSend}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+          >
+            Enviar
+          </button>
+        </div>
       </div>
     </div>
   );

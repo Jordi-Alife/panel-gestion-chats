@@ -71,15 +71,17 @@ const Detalle = () => {
   };
 
   return (
-    <div className="p-6 flex flex-col h-[calc(100vh-64px)]"> {/* altura pantalla menos header */}
-      <Link to="/" className="text-blue-600 underline mb-4">
-        ← Volver al panel
-      </Link>
-      <h2 className="text-2xl font-semibold mb-4">Conversación con {userId}</h2>
+    <div className="h-screen flex flex-col">
+      <div className="p-6 flex-shrink-0">
+        <Link to="/" className="text-blue-600 underline mb-4 block">
+          ← Volver al panel
+        </Link>
+        <h2 className="text-2xl font-semibold">Conversación con {userId}</h2>
+      </div>
 
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto bg-gray-100 rounded-lg p-4 mb-4 shadow-inner flex flex-col space-y-3"
+        className="flex-1 overflow-y-auto bg-gray-100 px-6 py-4 flex flex-col space-y-3"
       >
         {mensajes.length === 0 ? (
           <p className="text-gray-500 text-center">No hay mensajes aún.</p>
@@ -91,7 +93,7 @@ const Detalle = () => {
                 msg.sender
               )}`}
             >
-              <p className="text-sm">{msg.message}</p>
+              <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
               <p className="text-[10px] opacity-60 mt-1">
                 {getNombreRemitente(msg.sender)} —{" "}
                 {msg.lastInteraction
@@ -103,7 +105,7 @@ const Detalle = () => {
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="border-t p-4 flex items-center gap-2">
         <input
           type="text"
           value={respuesta}

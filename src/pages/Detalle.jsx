@@ -7,7 +7,6 @@ export default function Detalle() {
   const [respuesta, setRespuesta] = useState('');
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
-  const [zoomImagen, setZoomImagen] = useState(null);
   const chatRef = useRef(null);
 
   useEffect(() => {
@@ -32,7 +31,10 @@ export default function Detalle() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId })
+    }).then(() => {
+      console.log(`✅ Conversación con ${userId} marcada como vista`);
     });
+
   }, [userId]);
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export default function Detalle() {
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
       setImagen(null);
+      document.getElementById("fileInput").value = ''; // limpia input file
       return;
     }
 
@@ -100,7 +103,7 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 relative">
+    <div className="flex flex-col h-screen bg-gray-100">
       <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
         <Link to="/" className="text-sm underline">← Volver</Link>
         <h2 className="text-lg font-semibold text-center flex-1">Conversación con {userId}</h2>
@@ -136,10 +139,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      onClick={() => setZoomImagen(msg.message)}
-                      className={`rounded-lg mb-2 cursor-pointer ${
-                        isAsistente ? 'ml-auto' : 'mr-auto'
-                      } max-w-[250px] sm:max-w-[300px] md:max-w-[350px]`}
+                      className="rounded-lg max-w-xs max-h-80 object-contain mb-2"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -174,25 +174,12 @@ export default function Detalle() {
         )}
       </div>
 
-      {/* ZOOM modal */}
-      {zoomImagen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={() => setZoomImagen(null)}
-        >
-          <img
-            src={zoomImagen}
-            alt="Imagen ampliada"
-            className="max-w-full max-h-full rounded-lg"
-          />
-        </div>
-      )}
-
       <form
         onSubmit={handleSubmit}
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
       >
         <input
+          id="fileInput"
           type="file"
           accept="image/*"
           onChange={(e) => setImagen(e.target.files[0])}

@@ -5,6 +5,7 @@ export default function Detalle() {
   const { userId } = useParams();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
+  const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
 
@@ -45,7 +46,34 @@ export default function Detalle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!respuesta.trim() || !userId) return;
+    if (!userId) return;
+
+    // Si hay imagen, sube imagen
+    if (imagen) {
+      const formData = new FormData();
+      formData.append("file", imagen);
+      formData.append("userId", userId);
+
+      const response = await fetch("https://web-production-51989.up.railway.app/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      const nuevoMensajeImagen = {
+        userId,
+        message: data.imageUrl,
+        lastInteraction: new Date().toISOString(),
+        from: 'asistente'
+      };
+
+      setMensajes(prev => [...prev, nuevoMensajeImagen]);
+      setImagen(null);
+      return;
+    }
+
+    if (!respuesta.trim()) return;
 
     const nuevoMensaje = {
       userId,
@@ -148,14 +176,20 @@ export default function Detalle() {
 
       <form
         onSubmit={handleSubmit}
-        className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3"
+        className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
       >
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImagen(e.target.files[0])}
+          className="text-sm"
+        />
         <input
           type="text"
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 mr-2 focus:outline-none text-sm"
+          className="flex-1 border rounded-full px-4 py-2 focus:outline-none text-sm"
         />
         <button
           type="submit"

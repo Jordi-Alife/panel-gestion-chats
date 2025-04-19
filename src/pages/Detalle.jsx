@@ -70,8 +70,8 @@ export default function Detalle() {
     }));
   };
 
-  const esImagen = (url) => {
-    return typeof url === 'string' && url.includes('/uploads/');
+  const esURLImagen = (texto) => {
+    return typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
   };
 
   return (
@@ -94,7 +94,6 @@ export default function Detalle() {
             const tieneOriginal = !!msg.original;
             const textoColor = isAsistente ? 'text-white' : 'text-gray-500';
             const botonColor = isAsistente ? 'text-white/70' : 'text-blue-500';
-            const isImage = esImagen(msg.message);
 
             return (
               <div
@@ -108,17 +107,17 @@ export default function Detalle() {
                       : 'bg-white text-gray-800 rounded-bl-sm border'
                   }`}
                 >
-                  {isImage ? (
+                  {esURLImagen(msg.message) ? (
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-md max-w-full h-auto"
+                      className="rounded-lg max-w-full mb-2"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
                   )}
 
-                  {tieneOriginal && !isImage && (
+                  {tieneOriginal && (
                     <div className={`mt-2 text-[11px] text-right ${textoColor}`}>
                       <button
                         onClick={() => toggleOriginal(index)}

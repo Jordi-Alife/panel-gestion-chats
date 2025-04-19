@@ -1,4 +1,3 @@
-// Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -20,10 +19,11 @@ export default function Detalle() {
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
           .map(msg => ({
             ...msg,
-            from: msg.from || (msg.manual ? 'asistente' : 'usuario')
+            from: msg.from || (msg.manual || msg.from === 'asistente' ? 'asistente' : 'usuario')
           }));
         setMensajes(ordenados);
 
+        // Hacer scroll después de cargar mensajes
         setTimeout(() => {
           chatRef.current?.scrollTo({
             top: chatRef.current.scrollHeight,
@@ -31,7 +31,9 @@ export default function Detalle() {
           });
         }, 100);
       })
-      .catch(console.error);
+      .catch(err => {
+        console.error("Error cargando mensajes:", err);
+      });
 
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
@@ -40,13 +42,6 @@ export default function Detalle() {
     });
 
   }, [userId]);
-
-  useEffect(() => {
-    chatRef.current?.scrollTo({
-      top: chatRef.current.scrollHeight,
-      behavior: 'smooth'
-    });
-  }, [mensajes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,14 +56,14 @@ export default function Detalle() {
         method: "POST",
         body: formData
       });
+
       const data = await response.json();
 
       const nuevoMensajeImagen = {
         userId,
         message: data.imageUrl,
         lastInteraction: new Date().toISOString(),
-        from: 'asistente',
-        manual: true
+        from: 'asistente'
       };
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
@@ -84,7 +79,6 @@ export default function Detalle() {
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
     };
-
     setMensajes(prev => [...prev, nuevoMensaje]);
     setRespuesta('');
 
@@ -103,7 +97,7 @@ export default function Detalle() {
   };
 
   const esURLImagen = (texto) => {
-    return typeof texto === 'string' && texto.match(/^https?:\/\/.*\.(jpeg|jpg|png|gif|webp)$/i);
+    return typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
   };
 
   return (
@@ -117,7 +111,6 @@ export default function Detalle() {
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto px-4 py-6 space-y-3"
-        style={{ minHeight: 'calc(100vh - 220px)' }} // Ajuste importante aquí
       >
         {mensajes.length === 0 ? (
           <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
@@ -144,7 +137,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-md max-w-[240px] max-h-[240px] mb-2 object-cover"
+                      className="rounded-lg max-w-[100%] max-h-[300px] mb-2 object-contain"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -183,28 +176,26 @@ export default function Detalle() {
         onSubmit={handleSubmit}
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
       >
-        {imagen && (
-          <div className="relative">
-            <img
-              src={URL.createObjectURL(imagen)}
-              alt="Preview"
-              className="w-20 h-20 object-cover rounded shadow"
-            />
-            <button
-              type="button"
-              onClick={() => setImagen(null)}
-              className="absolute top-0 right-0 text-white bg-red-600 rounded-full w-5 h-5 text-xs flex items-center justify-center"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImagen(e.target.files[0])}
-          className="text-sm"
-        />
+        <div className="flex items-center">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImagen(e.target.files[0])}
+            className="text-sm"
+          />
+          {imagen && (
+            <div className="ml-2 text-xs text-gray-600 flex items-center gap-1">
+              <span>{imagen.name}</span>
+              <button
+                type="button"
+                onClick={() => setImagen(null)}
+                className="text-red-500 text-xs underline"
+              >
+                Quitar
+              </button>
+            </div>
+          )}
+        </div>
         <input
           type="text"
           value={respuesta}

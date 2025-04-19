@@ -1,3 +1,4 @@
+// Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -88,6 +89,8 @@ export default function Detalle() {
           mensajes.map((msg, index) => {
             const isAsistente = msg.from === 'asistente';
             const tieneOriginal = !!msg.original;
+            const textoColor = isAsistente ? 'text-white' : 'text-gray-500';
+            const botonColor = isAsistente ? 'text-white/70' : 'text-blue-500';
 
             return (
               <div
@@ -104,22 +107,22 @@ export default function Detalle() {
                   <p className="whitespace-pre-wrap">{msg.message}</p>
 
                   {tieneOriginal && (
-                    <div className="mt-2 text-[11px] text-right">
+                    <div className={`mt-2 text-[11px] text-right ${textoColor}`}>
                       <button
                         onClick={() => toggleOriginal(index)}
-                        className="text-blue-500 underline focus:outline-none"
+                        className={`underline text-xs ${botonColor} focus:outline-none`}
                       >
                         {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                       </button>
                       {originalesVisibles[index] && (
-                        <p className="mt-1 text-gray-500 italic text-left whitespace-pre-wrap">
+                        <p className={`mt-1 italic text-left ${textoColor}`}>
                           {msg.original}
                         </p>
                       )}
                     </div>
                   )}
 
-                  <div className="text-[10px] mt-1 opacity-60 text-right">
+                  <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
                     {new Date(msg.lastInteraction).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit'

@@ -1,4 +1,3 @@
-// src/app.jsx
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
@@ -6,29 +5,22 @@ import Detalle from "./pages/Detalle";
 
 const Panel = () => {
   const [data, setData] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
       .then((res) => res.json())
-      .then((mensajes) => {
-        // Agrupar por userId y quedarnos con el mensaje más reciente
-        const agrupado = Object.values(
-          mensajes.reduce((acc, msg) => {
-            const existing = acc[msg.userId];
-            if (!existing || new Date(msg.lastInteraction) > new Date(existing.lastInteraction)) {
-              acc[msg.userId] = msg;
-            }
-            return acc;
-          }, {})
-        );
-        setData(agrupado);
-      })
+      .then(setData)
       .catch(console.error);
   }, []);
 
   const recibidos = data.length;
   const enviados = 0;
   const total = recibidos + enviados;
+
+  const dataFiltrada = data.filter((item) =>
+    item.userId.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
     <div>
@@ -47,6 +39,16 @@ const Panel = () => {
         </div>
       </div>
 
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Buscar por ID de usuario..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="w-full sm:w-1/2 border border-gray-300 rounded px-4 py-2"
+        />
+      </div>
+
       <div className="overflow-auto">
         <table className="table-auto w-full bg-white rounded shadow overflow-hidden">
           <thead className="bg-gray-100 text-left">
@@ -58,7 +60,7 @@ const Panel = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, i) => (
+            {dataFiltrada.map((item, i) => (
               <tr key={i} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-2">{item.userId}</td>
                 <td className="px-4 py-2">
@@ -77,9 +79,9 @@ const Panel = () => {
             ))}
           </tbody>
         </table>
-        {data.length === 0 && (
+        {dataFiltrada.length === 0 && (
           <p className="text-gray-400 text-center py-6">
-            No hay conversaciones todavía.
+            No hay resultados para la búsqueda.
           </p>
         )}
       </div>

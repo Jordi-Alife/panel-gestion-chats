@@ -14,7 +14,6 @@ const Panel = () => {
       .catch(console.error);
   }, []);
 
-  // Agrupar por usuario y quedarse solo con el último mensaje
   const conversacionesPorUsuario = data.reduce((acc, item) => {
     const actual = acc[item.userId];
     if (!actual || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
@@ -32,6 +31,12 @@ const Panel = () => {
   const recibidos = listaAgrupada.length;
   const enviados = 0;
   const total = recibidos + enviados;
+
+  const getMensajesNuevos = (userId, lastInteraction) => {
+    const lastView = localStorage.getItem(`lastView-${userId}`);
+    if (!lastView) return 1;
+    return new Date(lastInteraction) > new Date(lastView) ? 1 : 0;
+  };
 
   return (
     <div>
@@ -71,23 +76,33 @@ const Panel = () => {
             </tr>
           </thead>
           <tbody>
-            {filtrada.map((item, i) => (
-              <tr key={i} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-2">{item.userId}</td>
-                <td className="px-4 py-2">
-                  {new Date(item.lastInteraction).toLocaleString()}
-                </td>
-                <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
-                <td className="px-4 py-2">
-                  <Link
-                    to={`/conversacion/${item.userId}`}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    Ver
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {filtrada.map((item, i) => {
+              const nuevos = getMensajesNuevos(item.userId, item.lastInteraction);
+              return (
+                <tr key={i} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-2 flex items-center gap-2">
+                    {item.userId}
+                    {nuevos > 0 && (
+                      <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                        {nuevos}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2">
+                    {new Date(item.lastInteraction).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
+                  <td className="px-4 py-2">
+                    <Link
+                      to={`/conversacion/${item.userId}`}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Ver
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {filtrada.length === 0 && (

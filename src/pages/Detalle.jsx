@@ -1,4 +1,3 @@
-// Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -72,7 +71,7 @@ export default function Detalle() {
   };
 
   const esImagen = (url) => {
-    return typeof url === 'string' && url.includes('/uploads/') && /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+    return typeof url === 'string' && url.includes('/uploads/');
   };
 
   return (
@@ -113,7 +112,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="max-w-full rounded-lg"
+                      className="rounded-md max-w-full h-auto"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>

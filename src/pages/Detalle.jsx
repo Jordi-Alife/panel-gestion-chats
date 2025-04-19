@@ -20,7 +20,9 @@ export default function Detalle() {
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
           .map(msg => ({
             ...msg,
-            from: msg.from || (msg.manual ? 'asistente' : 'usuario') // Alineación correcta
+            from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") || msg.manual)
+              ? 'asistente'
+              : 'usuario'
           }));
         setMensajes(ordenados);
       })
@@ -81,9 +83,9 @@ export default function Detalle() {
       userId,
       message: respuesta,
       lastInteraction: new Date().toISOString(),
-      from: 'asistente',
-      manual: true
+      from: 'asistente'
     };
+
     setMensajes(prev => [...prev, nuevoMensaje]);
     setRespuesta('');
 
@@ -109,13 +111,12 @@ export default function Detalle() {
     const file = e.target.files[0];
     if (file) {
       setImagen(file);
-      setPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  };
-
-  const cancelarImagen = () => {
-    setImagen(null);
-    setPreview(null);
   };
 
   return (
@@ -155,7 +156,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-lg max-w-full mb-2"
+                      className="rounded-lg max-w-[220px] mb-2"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -188,21 +189,23 @@ export default function Detalle() {
             );
           })
         )}
-
-        {preview && (
-          <div className="flex justify-end">
-            <div className="max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md bg-blue-600 text-white rounded-br-sm relative">
-              <img src={preview} alt="Previsualización" className="rounded-lg max-w-full mb-2" />
-              <button
-                onClick={cancelarImagen}
-                className="absolute top-1 right-2 text-xs underline"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Previsualización de imagen */}
+      {preview && (
+        <div className="px-4 py-2 flex items-center gap-4 bg-white border-t border-b">
+          <img src={preview} alt="Previsualización" className="h-20 rounded" />
+          <button
+            onClick={() => {
+              setImagen(null);
+              setPreview(null);
+            }}
+            className="text-sm text-red-500 underline"
+          >
+            Eliminar
+          </button>
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}

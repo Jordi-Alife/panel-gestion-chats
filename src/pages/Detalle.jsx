@@ -29,7 +29,7 @@ export default function Detalle() {
             top: chatRef.current.scrollHeight,
             behavior: 'auto'
           });
-        }, 100); // scroll al final al cargar
+        }, 100);
       })
       .catch(console.error);
 
@@ -117,6 +117,7 @@ export default function Detalle() {
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto px-4 py-6 space-y-3"
+        style={{ minHeight: 'calc(100vh - 220px)' }} // Ajuste importante aquí
       >
         {mensajes.length === 0 ? (
           <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>

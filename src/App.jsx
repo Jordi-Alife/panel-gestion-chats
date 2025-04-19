@@ -9,7 +9,7 @@ const Panel = () => {
   const [vistas, setVistas] = useState({});
   const [busqueda, setBusqueda] = useState("");
 
-  useEffect(() => {
+  const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
       .then((res) => res.json())
       .then(setData)
@@ -19,6 +19,15 @@ const Panel = () => {
       .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
+  };
+
+  useEffect(() => {
+    cargarDatos();
+    const intervalo = setInterval(() => {
+      cargarDatos();
+    }, 5000);
+
+    return () => clearInterval(intervalo);
   }, []);
 
   const conversacionesPorUsuario = data.reduce((acc, item) => {

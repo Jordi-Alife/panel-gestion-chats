@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 
@@ -48,22 +48,26 @@ const Panel = () => {
             {data.map((item, i) => (
               <tr key={i} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-2">{item.userId}</td>
-                <td className="px-4 py-2">{new Date(item.lastInteraction).toLocaleString()}</td>
+                <td className="px-4 py-2">
+                  {new Date(item.lastInteraction).toLocaleString()}
+                </td>
                 <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
                 <td className="px-4 py-2">
-                  <a
-                    href={`/conversacion/${item.userId}`}
+                  <Link
+                    to={`/conversacion/${item.userId}`}
                     className="text-sm text-blue-600 hover:underline"
                   >
                     Ver
-                  </a>
+                  </Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {data.length === 0 && (
-          <p className="text-gray-400 text-center py-6">No hay conversaciones todavía.</p>
+          <p className="text-gray-400 text-center py-6">
+            No hay conversaciones todavía.
+          </p>
         )}
       </div>
     </div>

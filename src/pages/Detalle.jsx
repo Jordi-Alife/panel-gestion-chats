@@ -1,86 +1,92 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useRef, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
-const Detalle = () => {
-  const { userId } = useParams();
+export default function Detalle() {
+  const { id } = useParams();
   const [mensajes, setMensajes] = useState([]);
-  const [respuesta, setRespuesta] = useState("");
-  const chatRef = useRef(null);
+  const [respuesta, setRespuesta] = useState('');
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
-    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
+    fetch(`/api/conversaciones/${id}`)
       .then(res => res.json())
-      .then(setMensajes)
-      .catch(console.error);
-  }, [userId]);
+      .then(data => {
+        const ordenados = data.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        setMensajes(ordenados);
+      });
+  }, [id]);
 
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
+    chatContainerRef.current?.scrollTo({
+      top: chatContainerRef.current.scrollHeight,
+      behavior: 'smooth'
+    });
   }, [mensajes]);
 
-  const handleSend = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!respuesta.trim()) return;
 
-    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, message: respuesta }),
-    });
+    const nuevoMensaje = {
+      userId: id,
+      message: respuesta,
+      lastInteraction: new Date().toISOString(),
+      from: 'asistente'
+    };
+    setMensajes([...mensajes, nuevoMensaje]);
+    setRespuesta('');
 
-    setMensajes(prev => [
-      ...prev,
-      {
-        userId,
-        message: respuesta,
-        role: "assistant",
-        lastInteraction: new Date().toISOString(),
-      }
-    ]);
-    setRespuesta("");
+    await fetch('/api/send-to-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: id, message: respuesta })
+    });
   };
 
   return (
-    <div className="flex flex-col h-screen px-4 pb-4">
-      <Link to="/" className="text-sm text-blue-600 mt-4 mb-2">← Volver al panel</Link>
-      <h2 className="text-xl font-semibold mb-2">Conversación con {userId}</h2>
+    <div className="flex flex-col h-[calc(100vh-60px)] p-4">
+      <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
+      <h2 className="text-xl font-semibold mb-4">Conversación con <span className="text-gray-800">{id}</span></h2>
 
-      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-inner overflow-hidden border border-gray-200">
-        <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-          {mensajes.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === "assistant" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] px-4 py-2 rounded-xl shadow text-sm ${
-                msg.role === "assistant" ? "bg-blue-600 text-white rounded-br-none" : "bg-gray-200 text-gray-800 rounded-bl-none"
-              }`}>
-                <p className="whitespace-pre-wrap">{msg.message}</p>
-                <p className="text-[11px] mt-1 opacity-70">
-                  {msg.role === "assistant" ? "Asistente" : "Usuario"} — {new Date(msg.lastInteraction).toLocaleString()}
-                </p>
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto space-y-2 bg-white p-4 rounded border"
+      >
+        {mensajes.map((msg, i) => {
+          const isAsistente = msg.from === 'asistente';
+          return (
+            <div
+              key={i}
+              className={`max-w-[80%] p-3 rounded-lg shadow text-sm ${
+                isAsistente
+                  ? 'bg-blue-500 text-white self-end ml-auto text-left'
+                  : 'bg-gray-200 text-gray-800 self-start mr-auto text-left'
+              }`}
+            >
+              <p className="whitespace-pre-wrap">{msg.message}</p>
+              <div className="text-xs mt-1 opacity-70 text-right">
+                {isAsistente ? 'Asistente' : 'Usuario'} — {new Date(msg.lastInteraction).toLocaleString()}
               </div>
             </div>
-          ))}
-        </div>
-
-        <div className="border-t border-gray-200 p-3 flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Escribe tu respuesta..."
-            className="flex-1 border rounded px-3 py-2 text-sm"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          />
-          <button
-            onClick={handleSend}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
-          >
-            Enviar
-          </button>
-        </div>
+          );
+        })}
       </div>
+
+      <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
+        <input
+          type="text"
+          value={respuesta}
+          onChange={(e) => setRespuesta(e.target.value)}
+          className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
+          placeholder="Escribe tu respuesta..."
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
+        >
+          Enviar
+        </button>
+      </form>
     </div>
   );
-};
-
-export default Detalle;
+}

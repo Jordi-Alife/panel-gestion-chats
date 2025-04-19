@@ -9,7 +9,6 @@ export default function Detalle() {
 
   useEffect(() => {
     if (!userId) return;
-
     fetch(`/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
@@ -21,7 +20,7 @@ export default function Detalle() {
           }));
         setMensajes(ordenados);
       })
-      .catch(err => console.error("Error al cargar mensajes:", err));
+      .catch(err => console.error("Error cargando mensajes:", err));
   }, [userId]);
 
   useEffect(() => {
@@ -41,6 +40,7 @@ export default function Detalle() {
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
     };
+
     setMensajes(prev => [...prev, nuevoMensaje]);
     setRespuesta('');
 

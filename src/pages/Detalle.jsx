@@ -7,20 +7,27 @@ export default function Detalle() {
   const [respuesta, setRespuesta] = useState('');
   const chatRef = useRef(null);
 
-  console.log("ID del usuario en vista detalle:", userId);
-
   useEffect(() => {
     if (!userId) return;
+
     fetch(`/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = data
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-          .map(msg => ({
+        const ordenados = data.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+
+        // Agrupamos mensajes consecutivos del mismo tipo
+        const agrupados = [];
+        ordenados.forEach(msg => {
+          const texto = msg.message.trim();
+          const esAsistente = texto.startsWith("¡") || texto.startsWith("Hola") || texto.startsWith("Per ");
+
+          agrupados.push({
             ...msg,
-            from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
-          }));
-        setMensajes(ordenados);
+            from: esAsistente ? 'asistente' : 'usuario'
+          });
+        });
+
+        setMensajes(agrupados);
       })
       .catch(err => {
         console.error("Error cargando mensajes:", err);
@@ -44,6 +51,7 @@ export default function Detalle() {
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
     };
+
     setMensajes(prev => [...prev, nuevoMensaje]);
     setRespuesta('');
 

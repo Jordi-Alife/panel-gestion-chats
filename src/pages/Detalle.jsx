@@ -8,6 +8,7 @@ export default function Detalle() {
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
+  const fileInputRef = useRef(null); // NUEVO
 
   useEffect(() => {
     if (!userId) return;
@@ -48,7 +49,6 @@ export default function Detalle() {
     e.preventDefault();
     if (!userId) return;
 
-    // Si hay imagen, sube imagen
     if (imagen) {
       const formData = new FormData();
       formData.append("file", imagen);
@@ -70,6 +70,12 @@ export default function Detalle() {
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
       setImagen(null);
+
+      // Limpiar input de archivo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
       return;
     }
 
@@ -179,6 +185,7 @@ export default function Detalle() {
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
       >
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/*"
           onChange={(e) => setImagen(e.target.files[0])}

@@ -1,3 +1,4 @@
+// Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -6,7 +7,6 @@ export default function Detalle() {
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const [imagen, setImagen] = useState(null);
-  const [preview, setPreview] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
 
@@ -20,23 +20,23 @@ export default function Detalle() {
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
           .map(msg => ({
             ...msg,
-            from:
-              msg.manual
-                ? 'asistente'
-                : (msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario'))
+            from: msg.from || (msg.manual ? 'asistente' : 'usuario')
           }));
         setMensajes(ordenados);
+
+        setTimeout(() => {
+          chatRef.current?.scrollTo({
+            top: chatRef.current.scrollHeight,
+            behavior: 'auto'
+          });
+        }, 100); // scroll al final al cargar
       })
-      .catch(err => {
-        console.error("Error cargando mensajes:", err);
-      });
+      .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId })
-    }).then(() => {
-      console.log(`✅ Conversación con ${userId} marcada como vista`);
     });
 
   }, [userId]);
@@ -61,7 +61,6 @@ export default function Detalle() {
         method: "POST",
         body: formData
       });
-
       const data = await response.json();
 
       const nuevoMensajeImagen = {
@@ -74,7 +73,6 @@ export default function Detalle() {
 
       setMensajes(prev => [...prev, nuevoMensajeImagen]);
       setImagen(null);
-      setPreview(null);
       return;
     }
 
@@ -84,8 +82,7 @@ export default function Detalle() {
       userId,
       message: respuesta,
       lastInteraction: new Date().toISOString(),
-      from: 'asistente',
-      manual: true
+      from: 'asistente'
     };
 
     setMensajes(prev => [...prev, nuevoMensaje]);
@@ -106,19 +103,7 @@ export default function Detalle() {
   };
 
   const esURLImagen = (texto) => {
-    return typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagen(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    return typeof texto === 'string' && texto.match(/^https?:\/\/.*\.(jpeg|jpg|png|gif|webp)$/i);
   };
 
   return (
@@ -137,8 +122,7 @@ export default function Detalle() {
           <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
         ) : (
           mensajes.map((msg, index) => {
-            const isManual = msg.manual === true;
-            const isAsistente = isManual;
+            const isAsistente = msg.from === 'asistente';
             const tieneOriginal = !!msg.original;
             const textoColor = isAsistente ? 'text-white' : 'text-gray-500';
             const botonColor = isAsistente ? 'text-white/70' : 'text-blue-500';
@@ -159,7 +143,7 @@ export default function Detalle() {
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-lg max-w-[220px] mb-2"
+                      className="rounded-md max-w-[240px] max-h-[240px] mb-2 object-cover"
                     />
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -194,29 +178,30 @@ export default function Detalle() {
         )}
       </div>
 
-      {preview && (
-        <div className="px-4 py-2 flex items-center gap-4 bg-white border-t border-b">
-          <img src={preview} alt="Previsualización" className="h-20 rounded" />
-          <button
-            onClick={() => {
-              setImagen(null);
-              setPreview(null);
-            }}
-            className="text-sm text-red-500 underline"
-          >
-            Eliminar
-          </button>
-        </div>
-      )}
-
       <form
         onSubmit={handleSubmit}
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
       >
+        {imagen && (
+          <div className="relative">
+            <img
+              src={URL.createObjectURL(imagen)}
+              alt="Preview"
+              className="w-20 h-20 object-cover rounded shadow"
+            />
+            <button
+              type="button"
+              onClick={() => setImagen(null)}
+              className="absolute top-0 right-0 text-white bg-red-600 rounded-full w-5 h-5 text-xs flex items-center justify-center"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <input
           type="file"
           accept="image/*"
-          onChange={handleImageChange}
+          onChange={(e) => setImagen(e.target.files[0])}
           className="text-sm"
         />
         <input

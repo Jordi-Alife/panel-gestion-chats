@@ -71,6 +71,10 @@ export default function Detalle() {
     }));
   };
 
+  const esImagen = (url) => {
+    return typeof url === 'string' && url.includes('/uploads/') && /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
@@ -91,6 +95,7 @@ export default function Detalle() {
             const tieneOriginal = !!msg.original;
             const textoColor = isAsistente ? 'text-white' : 'text-gray-500';
             const botonColor = isAsistente ? 'text-white/70' : 'text-blue-500';
+            const isImage = esImagen(msg.message);
 
             return (
               <div
@@ -104,9 +109,17 @@ export default function Detalle() {
                       : 'bg-white text-gray-800 rounded-bl-sm border'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.message}</p>
+                  {isImage ? (
+                    <img
+                      src={msg.message}
+                      alt="Imagen enviada"
+                      className="max-w-full rounded-lg"
+                    />
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.message}</p>
+                  )}
 
-                  {tieneOriginal && (
+                  {tieneOriginal && !isImage && (
                     <div className={`mt-2 text-[11px] text-right ${textoColor}`}>
                       <button
                         onClick={() => toggleOriginal(index)}

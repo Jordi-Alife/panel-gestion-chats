@@ -7,7 +7,10 @@ export default function Detalle() {
   const [respuesta, setRespuesta] = useState('');
   const chatRef = useRef(null);
 
+  console.log("ID del usuario en vista detalle:", id);
+
   useEffect(() => {
+    if (!id) return;
     fetch(`/api/conversaciones/${id}`)
       .then(res => res.json())
       .then(data => {
@@ -18,6 +21,9 @@ export default function Detalle() {
             from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
           }));
         setMensajes(ordenados);
+      })
+      .catch(err => {
+        console.error("Error cargando mensajes:", err);
       });
   }, [id]);
 
@@ -30,7 +36,7 @@ export default function Detalle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!respuesta.trim()) return;
+    if (!respuesta.trim() || !id) return;
 
     const nuevoMensaje = {
       userId: id,
@@ -51,13 +57,17 @@ export default function Detalle() {
   return (
     <div className="flex flex-col h-[calc(100vh-60px)] p-4">
       <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
-      <h2 className="text-xl font-semibold mb-4">Conversación con <span className="text-gray-800">{id}</span></h2>
+      <h2 className="text-xl font-semibold mb-4">
+        Conversación con <span className="text-gray-800">{id || '(ID no encontrado)'}</span>
+      </h2>
 
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto p-4 space-y-2 bg-white border rounded"
       >
-        {mensajes.length === 0 ? (
+        {!id ? (
+          <p className="text-red-500">Error: No se pudo obtener el ID del usuario.</p>
+        ) : mensajes.length === 0 ? (
           <p className="text-gray-400 text-sm">No hay mensajes todavía.</p>
         ) : (
           mensajes.map((msg, index) => {
@@ -81,21 +91,23 @@ export default function Detalle() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
-        <input
-          type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
-          className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
-          placeholder="Escribe tu respuesta..."
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
-        >
-          Enviar
-        </button>
-      </form>
+      {id && (
+        <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
+          <input
+            type="text"
+            value={respuesta}
+            onChange={(e) => setRespuesta(e.target.value)}
+            className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
+            placeholder="Escribe tu respuesta..."
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
+          >
+            Enviar
+          </button>
+        </form>
+      )}
     </div>
   );
 }

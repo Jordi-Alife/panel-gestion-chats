@@ -5,9 +5,9 @@ export default function Detalle() {
   const { userId } = useParams();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
+  const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
 
-  // Cargar mensajes
   useEffect(() => {
     if (!userId) return;
 
@@ -26,7 +26,6 @@ export default function Detalle() {
         console.error("Error cargando mensajes:", err);
       });
 
-    // Marcar como vista
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,7 +36,6 @@ export default function Detalle() {
 
   }, [userId]);
 
-  // Scroll al fondo cuando cambian mensajes
   useEffect(() => {
     chatRef.current?.scrollTo({
       top: chatRef.current.scrollHeight,
@@ -45,7 +43,6 @@ export default function Detalle() {
     });
   }, [mensajes]);
 
-  // Enviar respuesta
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!respuesta.trim() || !userId) return;
@@ -66,16 +63,21 @@ export default function Detalle() {
     });
   };
 
+  const toggleOriginal = (index) => {
+    setOriginalesVisibles(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Header sticky */}
       <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
         <Link to="/" className="text-sm underline">← Volver</Link>
         <h2 className="text-lg font-semibold text-center flex-1">Conversación con {userId}</h2>
         <div className="w-6" />
       </div>
 
-      {/* Chat messages scrollable */}
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto px-4 py-6 space-y-3"
@@ -85,6 +87,8 @@ export default function Detalle() {
         ) : (
           mensajes.map((msg, index) => {
             const isAsistente = msg.from === 'asistente';
+            const tieneOriginal = !!msg.original;
+
             return (
               <div
                 key={index}
@@ -98,8 +102,28 @@ export default function Detalle() {
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.message}</p>
+
+                  {tieneOriginal && (
+                    <div className="mt-2 text-[11px] text-right">
+                      <button
+                        onClick={() => toggleOriginal(index)}
+                        className="text-blue-500 underline focus:outline-none"
+                      >
+                        {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                      </button>
+                      {originalesVisibles[index] && (
+                        <p className="mt-1 text-gray-500 italic text-left whitespace-pre-wrap">
+                          {msg.original}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="text-[10px] mt-1 opacity-60 text-right">
-                    {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </div>
                 </div>
               </div>
@@ -108,7 +132,6 @@ export default function Detalle() {
         )}
       </div>
 
-      {/* Formulario sticky */}
       <form
         onSubmit={handleSubmit}
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3"

@@ -7,8 +7,10 @@ export default function Detalle() {
   const [respuesta, setRespuesta] = useState('');
   const chatRef = useRef(null);
 
+  // Cargar mensajes
   useEffect(() => {
     if (!userId) return;
+
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
@@ -23,8 +25,19 @@ export default function Detalle() {
       .catch(err => {
         console.error("Error cargando mensajes:", err);
       });
+
+    // Marcar como vista
+    fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId })
+    }).then(() => {
+      console.log(`✅ Conversación con ${userId} marcada como vista`);
+    });
+
   }, [userId]);
 
+  // Scroll al fondo cuando cambian mensajes
   useEffect(() => {
     chatRef.current?.scrollTo({
       top: chatRef.current.scrollHeight,
@@ -32,6 +45,7 @@ export default function Detalle() {
     });
   }, [mensajes]);
 
+  // Enviar respuesta
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!respuesta.trim() || !userId) return;

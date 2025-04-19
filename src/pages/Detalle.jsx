@@ -1,3 +1,5 @@
+// src/pages/Detalle.jsx
+
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -7,12 +9,9 @@ export default function Detalle() {
   const [respuesta, setRespuesta] = useState('');
   const chatRef = useRef(null);
 
-  console.log("ID del usuario en vista detalle:", userId);
-
   useEffect(() => {
     if (!userId) return;
-
-    fetch(`/api/conversaciones/${userId}`)
+    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
         const ordenados = data
@@ -45,11 +44,10 @@ export default function Detalle() {
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
     };
-
     setMensajes(prev => [...prev, nuevoMensaje]);
     setRespuesta('');
 
-    await fetch('/api/send-to-user', {
+    await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })

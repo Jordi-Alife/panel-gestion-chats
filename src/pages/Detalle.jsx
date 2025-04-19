@@ -12,13 +12,13 @@ export default function Detalle() {
       .then(res => res.json())
       .then(data => {
         const ordenados = data
-  .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-  .map(msg => ({
-    ...msg,
-    from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
-  }));
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
+          .map(msg => ({
+            ...msg,
+            from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
+          }));
 
-setMensajes(ordenados);
+        setMensajes(ordenados);
       });
   }, [id]);
 
@@ -39,6 +39,7 @@ setMensajes(ordenados);
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
     };
+
     setMensajes([...mensajes, nuevoMensaje]);
     setRespuesta('');
 
@@ -54,45 +55,47 @@ setMensajes(ordenados);
       <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
       <h2 className="text-xl font-semibold mb-4">Conversación con <span className="text-gray-800">{id}</span></h2>
 
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto space-y-2 bg-white p-4 rounded border"
-      >
-        {mensajes.map((msg, i) => {
-          const isAsistente = msg.from === 'asistente';
-          return (
-            <div
-              key={i}
-              className={`max-w-[80%] p-3 rounded-lg shadow text-sm ${
-                isAsistente
-                  ? 'bg-blue-500 text-white self-end ml-auto text-left'
-                  : 'bg-gray-200 text-gray-800 self-start mr-auto text-left'
-              }`}
-            >
-              <p className="whitespace-pre-wrap">{msg.message}</p>
-              <div className="text-xs mt-1 opacity-70 text-right">
-                {isAsistente ? 'Asistente' : 'Usuario'} — {new Date(msg.lastInteraction).toLocaleString()}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
-        <input
-          type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
-          className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
-          placeholder="Escribe tu respuesta..."
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
+      <div className="flex flex-col flex-1 overflow-hidden bg-white rounded border">
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-3"
         >
-          Enviar
-        </button>
-      </form>
+          {mensajes.map((msg, i) => {
+            const isAsistente = msg.from === 'asistente';
+            return (
+              <div
+                key={i}
+                className={`max-w-[80%] p-3 rounded-lg text-sm whitespace-pre-wrap ${
+                  isAsistente
+                    ? 'bg-blue-500 text-white self-end ml-auto text-left'
+                    : 'bg-gray-200 text-gray-800 self-start mr-auto text-left'
+                }`}
+              >
+                <p>{msg.message}</p>
+                <div className="text-xs mt-1 opacity-70 text-right">
+                  {isAsistente ? 'Asistente' : 'Usuario'} — {new Date(msg.lastInteraction).toLocaleString()}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex border-t p-4">
+          <input
+            type="text"
+            value={respuesta}
+            onChange={(e) => setRespuesta(e.target.value)}
+            className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
+            placeholder="Escribe tu respuesta..."
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
+          >
+            Enviar
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

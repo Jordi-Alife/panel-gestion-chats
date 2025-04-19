@@ -20,9 +20,10 @@ export default function Detalle() {
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
           .map(msg => ({
             ...msg,
-            from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") || msg.manual)
-              ? 'asistente'
-              : 'usuario'
+            from:
+              msg.manual
+                ? 'asistente'
+                : (msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario'))
           }));
         setMensajes(ordenados);
       })
@@ -83,7 +84,8 @@ export default function Detalle() {
       userId,
       message: respuesta,
       lastInteraction: new Date().toISOString(),
-      from: 'asistente'
+      from: 'asistente',
+      manual: true
     };
 
     setMensajes(prev => [...prev, nuevoMensaje]);
@@ -135,7 +137,8 @@ export default function Detalle() {
           <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
         ) : (
           mensajes.map((msg, index) => {
-            const isAsistente = msg.from === 'asistente';
+            const isManual = msg.manual === true;
+            const isAsistente = isManual;
             const tieneOriginal = !!msg.original;
             const textoColor = isAsistente ? 'text-white' : 'text-gray-500';
             const botonColor = isAsistente ? 'text-white/70' : 'text-blue-500';
@@ -191,7 +194,6 @@ export default function Detalle() {
         )}
       </div>
 
-      {/* Previsualización de imagen */}
       {preview && (
         <div className="px-4 py-2 flex items-center gap-4 bg-white border-t border-b">
           <img src={preview} alt="Previsualización" className="h-20 rounded" />

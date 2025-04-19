@@ -11,8 +11,14 @@ export default function Detalle() {
     fetch(`/api/conversaciones/${id}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = data.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-        setMensajes(ordenados);
+        const ordenados = data
+  .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
+  .map(msg => ({
+    ...msg,
+    from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
+  }));
+
+setMensajes(ordenados);
       });
   }, [id]);
 

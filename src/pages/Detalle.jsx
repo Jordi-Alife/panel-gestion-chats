@@ -2,16 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 export default function Detalle() {
-  const { id } = useParams();
+  const { userId } = useParams();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const chatRef = useRef(null);
 
-  console.log("ID del usuario en vista detalle:", id);
+  console.log("ID del usuario en vista detalle:", userId);
 
   useEffect(() => {
-    if (!id) return;
-    fetch(`/api/conversaciones/${id}`)
+    if (!userId) return;
+    fetch(`/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
         const ordenados = data
@@ -25,7 +25,7 @@ export default function Detalle() {
       .catch(err => {
         console.error("Error cargando mensajes:", err);
       });
-  }, [id]);
+  }, [userId]);
 
   useEffect(() => {
     chatRef.current?.scrollTo({
@@ -36,10 +36,10 @@ export default function Detalle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!respuesta.trim() || !id) return;
+    if (!respuesta.trim() || !userId) return;
 
     const nuevoMensaje = {
-      userId: id,
+      userId,
       message: respuesta,
       lastInteraction: new Date().toISOString(),
       from: 'asistente'
@@ -50,7 +50,7 @@ export default function Detalle() {
     await fetch('/api/send-to-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: id, message: respuesta })
+      body: JSON.stringify({ userId, message: respuesta })
     });
   };
 
@@ -58,14 +58,14 @@ export default function Detalle() {
     <div className="flex flex-col h-[calc(100vh-60px)] p-4">
       <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
       <h2 className="text-xl font-semibold mb-4">
-        Conversación con <span className="text-gray-800">{id || '(ID no encontrado)'}</span>
+        Conversación con <span className="text-gray-800">{userId || '(ID no encontrado)'}</span>
       </h2>
 
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto p-4 space-y-2 bg-white border rounded"
       >
-        {!id ? (
+        {!userId ? (
           <p className="text-red-500">Error: No se pudo obtener el ID del usuario.</p>
         ) : mensajes.length === 0 ? (
           <p className="text-gray-400 text-sm">No hay mensajes todavía.</p>
@@ -91,7 +91,7 @@ export default function Detalle() {
         )}
       </div>
 
-      {id && (
+      {userId && (
         <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
           <input
             type="text"

@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 export default function Detalle() {
-  const { id } = useParams();
+  const { id } = useParams(); // <- Aquí viene el userId desde la URL
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
+    if (!id) return;
     fetch(`/api/conversaciones/${id}`)
       .then(res => res.json())
       .then(data => {
@@ -18,6 +19,9 @@ export default function Detalle() {
             from: msg.from || (msg.message.startsWith("¡") || msg.message.startsWith("Per ") ? 'asistente' : 'usuario')
           }));
         setMensajes(ordenados);
+      })
+      .catch(err => {
+        console.error("Error cargando mensajes:", err);
       });
   }, [id]);
 
@@ -49,26 +53,26 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="p-4">
-        <Link to="/" className="text-blue-600 mb-2 inline-block">&larr; Volver al panel</Link>
-        <h2 className="text-xl font-semibold mb-2">Conversación con <span className="text-gray-800">{id}</span></h2>
-      </div>
+    <div className="flex flex-col h-[calc(100vh-60px)] p-4">
+      <Link to="/" className="text-blue-600 mb-2">&larr; Volver al panel</Link>
+      <h2 className="text-xl font-semibold mb-4">Conversación con <span className="text-gray-800">{id}</span></h2>
 
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <div
-          ref={chatContainerRef}
-          className="flex-1 overflow-y-auto px-4 py-2 space-y-2"
-        >
-          {mensajes.map((msg, i) => {
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto space-y-2 bg-white p-4 rounded border"
+      >
+        {mensajes.length === 0 ? (
+          <p className="text-center text-gray-500">No hay mensajes todavía.</p>
+        ) : (
+          mensajes.map((msg, i) => {
             const isAsistente = msg.from === 'asistente';
             return (
               <div
                 key={i}
-                className={`max-w-[75%] p-3 rounded-lg text-sm break-words ${
+                className={`max-w-[80%] p-3 rounded-lg shadow text-sm ${
                   isAsistente
-                    ? 'bg-blue-600 text-white self-end ml-auto'
-                    : 'bg-gray-200 text-gray-800 self-start mr-auto'
+                    ? 'bg-blue-500 text-white self-end ml-auto text-left'
+                    : 'bg-gray-200 text-gray-800 self-start mr-auto text-left'
                 }`}
               >
                 <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -77,25 +81,25 @@ export default function Detalle() {
                 </div>
               </div>
             );
-          })}
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex p-4 border-t">
-          <input
-            type="text"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-l px-4 py-2 focus:outline-none"
-            placeholder="Escribe tu respuesta..."
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
-          >
-            Enviar
-          </button>
-        </form>
+          })
+        )}
       </div>
+
+      <form onSubmit={handleSubmit} className="mt-4 flex border-t pt-4">
+        <input
+          type="text"
+          value={respuesta}
+          onChange={(e) => setRespuesta(e.target.value)}
+          className="flex-1 border rounded-l px-4 py-2 focus:outline-none"
+          placeholder="Escribe tu respuesta..."
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700"
+        >
+          Enviar
+        </button>
+      </form>
     </div>
   );
 }

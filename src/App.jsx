@@ -1,3 +1,4 @@
+// src/app.jsx
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
@@ -9,7 +10,19 @@ const Panel = () => {
   useEffect(() => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
       .then((res) => res.json())
-      .then(setData)
+      .then((mensajes) => {
+        // Agrupar por userId y quedarnos con el mensaje más reciente
+        const agrupado = Object.values(
+          mensajes.reduce((acc, msg) => {
+            const existing = acc[msg.userId];
+            if (!existing || new Date(msg.lastInteraction) > new Date(existing.lastInteraction)) {
+              acc[msg.userId] = msg;
+            }
+            return acc;
+          }, {})
+        );
+        setData(agrupado);
+      })
       .catch(console.error);
   }, []);
 

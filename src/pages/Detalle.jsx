@@ -53,18 +53,18 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)]">
-      {/* Cabecera estilo chat */}
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* Header estilo WhatsApp */}
       <div className="bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
         <Link to="/" className="text-sm underline">← Volver</Link>
-        <h2 className="text-lg font-semibold text-center flex-1">Conversación</h2>
-        <div className="w-6" /> {/* Espacio para equilibrar layout */}
+        <h2 className="text-lg font-semibold text-center flex-1">Conversación con {userId}</h2>
+        <div className="w-6" />
       </div>
 
-      {/* Mensajes */}
+      {/* Chat messages */}
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto bg-gray-100 px-4 py-6 space-y-3"
+        className="flex-1 overflow-y-auto px-4 py-6 space-y-3"
       >
         {mensajes.length === 0 ? (
           <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
@@ -77,7 +77,7 @@ export default function Detalle() {
                 className={`flex ${isAsistente ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow ${
+                  className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md ${
                     isAsistente
                       ? 'bg-blue-600 text-white rounded-br-sm'
                       : 'bg-white text-gray-800 rounded-bl-sm border'
@@ -85,7 +85,7 @@ export default function Detalle() {
                 >
                   <p className="whitespace-pre-wrap">{msg.message}</p>
                   <div className="text-[10px] mt-1 opacity-60 text-right">
-                    {new Date(msg.lastInteraction).toLocaleTimeString()}
+                    {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function Detalle() {
         )}
       </div>
 
-      {/* Input de mensaje */}
+      {/* Formulario de respuesta */}
       <form
         onSubmit={handleSubmit}
         className="bg-white border-t flex items-center px-4 py-3"

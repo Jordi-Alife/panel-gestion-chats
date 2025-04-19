@@ -68,14 +68,14 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Header estilo WhatsApp */}
-      <div className="bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
         <Link to="/" className="text-sm underline">← Volver</Link>
         <h2 className="text-lg font-semibold text-center flex-1">Conversación con {userId}</h2>
         <div className="w-6" />
       </div>
 
-      {/* Chat messages */}
+      {/* Chat messages scrollable */}
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto px-4 py-6 space-y-3"
@@ -108,10 +108,10 @@ export default function Detalle() {
         )}
       </div>
 
-      {/* Formulario de respuesta */}
+      {/* Formulario sticky */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white border-t flex items-center px-4 py-3"
+        className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3"
       >
         <input
           type="text"

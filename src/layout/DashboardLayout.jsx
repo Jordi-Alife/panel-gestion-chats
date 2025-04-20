@@ -16,7 +16,7 @@ const DashboardLayout = ({ children }) => {
         {/* Header */}
         <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow">
           <div className="flex items-center gap-3">
-            <img src="/logo-nextlives.svg" alt="NextLives" className="w-6 h-6" />
+            <img src="/logo-nextlives.png" alt="NextLives" className="w-6 h-6" />
             <span className="text-lg font-semibold">NextLives</span>
           </div>
           <h1 className="text-lg font-medium text-center flex-1 -ml-10">

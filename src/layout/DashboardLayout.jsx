@@ -1,62 +1,37 @@
-// src/layout/DashboardLayout.jsx
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 const DashboardLayout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
-    <div className="flex h-screen bg-gray-100 text-gray-800">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-200 ease-in-out w-64 bg-white shadow-md flex-col fixed md:static z-50`}
-      >
-        <div className="h-16 bg-[#0f2d45] flex items-center justify-center">
-          <img src="/logo-nextlives.png" alt="NextLives" className="h-10" />
-        </div>
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            <li>
-              <Link
-                to="/"
-                className="block py-2 px-4 rounded hover:bg-gray-200"
-              >
-                Panel general
-              </Link>
-            </li>
-          </ul>
-        </nav>
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar (lo trabajaremos después) */}
+      <aside className="w-16 bg-[#1E2431] flex flex-col items-center py-4">
+        {/* Logo abreviado */}
+        <img src="/logo-nextlives.svg" alt="NextLives" className="w-8 h-8 mb-6" />
+        {/* Iconos (añadiremos luego) */}
       </aside>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="h-16 bg-[#0f2d45] text-white border-b flex items-center px-6 shadow-sm">
-          <button
-            className="md:hidden mr-4"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+        <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow">
+          <div className="flex items-center gap-3">
+            <img src="/logo-nextlives.svg" alt="NextLives" className="w-6 h-6" />
+            <span className="text-lg font-semibold">NextLives</span>
+          </div>
+          <h1 className="text-lg font-medium text-center flex-1 -ml-10">
+            Panel de soporte
+          </h1>
+          <Link
+            to="#"
+            className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
           >
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-          <h1 className="text-xl font-semibold">Panel de soporte</h1>
+            Crear Canal Digital
+          </Link>
         </header>
 
-        {/* Content */}
-        <main className="p-6 overflow-auto flex-1">{children}</main>
+        {/* Contenido */}
+        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

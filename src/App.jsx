@@ -26,14 +26,12 @@ const Panel = () => {
     const intervalo = setInterval(() => {
       cargarDatos();
     }, 5000);
-
     return () => clearInterval(intervalo);
   }, []);
 
   const conversacionesPorUsuario = data.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [] };
     actual.mensajes = [...(actual.mensajes || []), item];
-
     if (
       !actual.lastInteraction ||
       new Date(item.lastInteraction) > new Date(actual.lastInteraction)
@@ -41,10 +39,25 @@ const Panel = () => {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
     }
-
     acc[item.userId] = actual;
     return acc;
   }, {});
+
+  const formatearTiempo = (fecha) => {
+    const ahora = new Date();
+    const pasada = new Date(fecha);
+    const diffMs = ahora - pasada;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHrs = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHrs / 24);
+
+    if (diffSec < 60) return `hace ${diffSec}s`;
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    if (diffDays === 1) return "ayer";
+    return `hace ${diffDays}d`;
+  };
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario).map(
     ([userId, info]) => {
@@ -131,7 +144,6 @@ const Panel = () => {
         />
       </div>
 
-      {/* Cabecera de columnas */}
       <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
         <div>Usuario</div>
         <div>Estado</div>
@@ -143,7 +155,10 @@ const Panel = () => {
 
       <div className="grid gap-4">
         {filtrada.map((item, i) => (
-          <div key={i} className="bg-white rounded-lg shadow p-4 grid grid-cols-6 gap-4 items-center text-sm">
+          <div
+            key={i}
+            className="bg-white rounded-lg shadow p-4 grid grid-cols-6 gap-4 items-center text-sm"
+          >
             <div className="flex items-center gap-2">
               <span className="font-medium">{item.userId}</span>
               {item.nuevos > 0 && (
@@ -153,13 +168,13 @@ const Panel = () => {
               )}
             </div>
             <div>{getEstadoBadge(item.estado)}</div>
-            <div>{new Date(item.lastInteraction).toLocaleString()}</div>
+            <div>{formatearTiempo(item.lastInteraction)}</div>
             <div className="truncate">{item.message}</div>
             <div>{item.totalMensajes}</div>
             <div>
               <Link
                 to={`/conversacion/${item.userId}`}
-                className="text-blue-600 hover:underline font-medium"
+                className="bg-blue-600 text-white px-3 py-1 text-xs rounded-full hover:bg-blue-700"
               >
                 Detalles
               </Link>

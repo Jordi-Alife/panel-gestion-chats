@@ -1,6 +1,6 @@
 // src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 export default function Detalle() {
   const { userId } = useParams();
@@ -98,23 +98,19 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f4f8]">
-      {/* Encabezado */}
-      <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow-md flex items-center justify-between">
-        <Link to="/" className="text-sm underline">← Volver</Link>
-        <h2 className="text-base font-semibold text-center flex-1">Conversación con {userId}</h2>
-        <div className="w-6" />
-      </div>
-
-      {/* Cuerpo en tres columnas */}
       <div className="flex flex-1 overflow-hidden p-4 gap-4">
-        {/* Tarjeta izquierda (resumen) */}
-        <div className="w-1/4 bg-white rounded-lg shadow p-4 hidden lg:block">
-          <p className="text-gray-400 text-sm">Resumen (próximamente)</p>
+        {/* Columna izquierda (resumen) */}
+        <div className="w-1/5 bg-white rounded-lg shadow p-4 text-sm text-gray-500">
+          <p className="font-semibold text-gray-600">Resumen</p>
+          <p className="text-xs mt-2">Próximamente</p>
         </div>
 
-        {/* Tarjeta central (chat) */}
-        <div className="flex flex-col flex-1 bg-white rounded-lg shadow overflow-hidden">
-          <div ref={chatRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+        {/* Zona de conversación central */}
+        <div className="flex-1 flex flex-col bg-white rounded-lg shadow px-6 py-4">
+          <div
+            ref={chatRef}
+            className="flex-1 overflow-y-auto space-y-4"
+          >
             {mensajes.length === 0 ? (
               <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
             ) : (
@@ -126,7 +122,7 @@ export default function Detalle() {
 
                 return (
                   <div key={index} className={`flex ${align}`}>
-                    <div className={`max-w-[80%] p-4 rounded-2xl shadow ${bubbleColor}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${bubbleColor}`}>
                       {esURLImagen(msg.message) ? (
                         <img
                           src={msg.message}
@@ -169,28 +165,26 @@ export default function Detalle() {
           {/* Input de respuesta */}
           <form
             onSubmit={handleSubmit}
-            className="bg-gray-50 border-t flex items-center px-4 py-3 space-x-2"
+            className="mt-4 border-t pt-4 flex items-center gap-2"
           >
-            <div className="flex items-center">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImagen(e.target.files[0])}
-                className="text-sm"
-              />
-              {imagen && (
-                <div className="ml-2 text-xs text-gray-600 flex items-center gap-1">
-                  <span>{imagen.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => setImagen(null)}
-                    className="text-red-500 text-xs underline"
-                  >
-                    Quitar
-                  </button>
-                </div>
-              )}
-            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImagen(e.target.files[0])}
+              className="text-sm"
+            />
+            {imagen && (
+              <div className="ml-2 text-xs text-gray-600 flex items-center gap-1">
+                <span>{imagen.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setImagen(null)}
+                  className="text-red-500 text-xs underline"
+                >
+                  Quitar
+                </button>
+              </div>
+            )}
             <input
               type="text"
               value={respuesta}
@@ -207,9 +201,11 @@ export default function Detalle() {
           </form>
         </div>
 
-        {/* Tarjeta derecha (info usuario) */}
-        <div className="w-1/4 bg-white rounded-lg shadow p-4 hidden lg:block">
-          <p className="text-gray-400 text-sm">Datos del usuario (próximamente)</p>
+        {/* Columna derecha (datos usuario) */}
+        <div className="w-1/5 bg-white rounded-lg shadow p-4 text-sm">
+          <p className="font-semibold text-gray-600 mb-2">Usuario</p>
+          <p className="text-blue-600 break-all">{userId}</p>
+          <p className="mt-4 text-gray-400 text-xs">Datos del usuario (próximamente)</p>
         </div>
       </div>
     </div>

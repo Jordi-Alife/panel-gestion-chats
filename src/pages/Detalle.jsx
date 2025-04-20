@@ -1,3 +1,4 @@
+// src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -23,7 +24,6 @@ export default function Detalle() {
           }));
         setMensajes(ordenados);
 
-        // Hacer scroll después de cargar mensajes
         setTimeout(() => {
           chatRef.current?.scrollTo({
             top: chatRef.current.scrollHeight,
@@ -31,16 +31,13 @@ export default function Detalle() {
           });
         }, 100);
       })
-      .catch(err => {
-        console.error("Error cargando mensajes:", err);
-      });
+      .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId })
     });
-
   }, [userId]);
 
   const handleSubmit = async (e) => {
@@ -96,21 +93,22 @@ export default function Detalle() {
     }));
   };
 
-  const esURLImagen = (texto) => {
-    return typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
-  };
+  const esURLImagen = (texto) =>
+    typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-[#f0f4f8]">
+      {/* Encabezado de conversación */}
+      <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow-md flex items-center justify-between">
         <Link to="/" className="text-sm underline">← Volver</Link>
-        <h2 className="text-lg font-semibold text-center flex-1">Conversación con {userId}</h2>
+        <h2 className="text-base font-semibold text-center flex-1">Conversación con {userId}</h2>
         <div className="w-6" />
       </div>
 
+      {/* Zona de mensajes */}
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto px-4 py-6 space-y-3"
+        className="flex-1 overflow-y-auto px-6 py-6 space-y-4"
       >
         {mensajes.length === 0 ? (
           <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
@@ -118,41 +116,32 @@ export default function Detalle() {
           mensajes.map((msg, index) => {
             const isAsistente = msg.from === 'asistente';
             const tieneOriginal = !!msg.original;
-            const textoColor = isAsistente ? 'text-white' : 'text-gray-500';
-            const botonColor = isAsistente ? 'text-white/70' : 'text-blue-500';
+            const align = isAsistente ? 'justify-end' : 'justify-start';
+            const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border';
 
             return (
-              <div
-                key={index}
-                className={`flex ${isAsistente ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-md ${
-                    isAsistente
-                      ? 'bg-blue-600 text-white rounded-br-sm'
-                      : 'bg-white text-gray-800 rounded-bl-sm border'
-                  }`}
-                >
+              <div key={index} className={`flex ${align}`}>
+                <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
                   {esURLImagen(msg.message) ? (
                     <img
                       src={msg.message}
                       alt="Imagen enviada"
-                      className="rounded-lg max-w-[100%] max-h-[300px] mb-2 object-contain"
+                      className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
                     />
                   ) : (
-                    <p className="whitespace-pre-wrap">{msg.message}</p>
+                    <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                   )}
 
                   {tieneOriginal && (
-                    <div className={`mt-2 text-[11px] text-right ${textoColor}`}>
+                    <div className="mt-2 text-[11px] text-right">
                       <button
                         onClick={() => toggleOriginal(index)}
-                        className={`underline text-xs ${botonColor} focus:outline-none`}
+                        className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
                       >
                         {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                       </button>
                       {originalesVisibles[index] && (
-                        <p className={`mt-1 italic text-left ${textoColor}`}>
+                        <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
                           {msg.original}
                         </p>
                       )}
@@ -172,6 +161,7 @@ export default function Detalle() {
         )}
       </div>
 
+      {/* Input de respuesta */}
       <form
         onSubmit={handleSubmit}
         className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"

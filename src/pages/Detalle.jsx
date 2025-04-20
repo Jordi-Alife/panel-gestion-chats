@@ -33,64 +33,8 @@ export default function Detalle() {
     return () => clearInterval(intervalo);
   }, []);
 
-  const formatearTiempo = (fecha) => {
-    const ahora = new Date();
-    const pasada = new Date(fecha);
-    const diffMs = ahora - pasada;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHrs = Math.floor(diffMin / 60);
-    const diffDays = Math.floor(diffHrs / 24);
-
-    if (diffSec < 60) return `hace ${diffSec}s`;
-    if (diffMin < 60) return `hace ${diffMin}m`;
-    if (diffHrs < 24) return `hace ${diffHrs}h`;
-    if (diffDays === 1) return "ayer";
-    return `hace ${diffDays}d`;
-  };
-
-  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [] };
-    actual.mensajes = [...(actual.mensajes || []), item];
-    if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
-      actual.lastInteraction = item.lastInteraction;
-      actual.message = item.message;
-    }
-    acc[item.userId] = actual;
-    return acc;
-  }, {});
-
-  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([id, info]) => {
-    const ultimaVista = vistas[id];
-    const nuevos = info.mensajes.filter(
-      (m) =>
-        m.from === "usuario" &&
-        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-    ).length;
-
-    const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
-    const minutosSinResponder =
-      ultimoMensaje?.from === "usuario"
-        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-        : 0;
-
-    let estado = "Recurrente";
-    if (info.mensajes.length === 1) estado = "Nuevo";
-    else if (minutosSinResponder < 1) estado = "Activo";
-    else estado = "Dormido";
-
-    return {
-      userId: id,
-      nuevos,
-      estado,
-      lastInteraction: info.lastInteraction,
-      iniciales: id.slice(0, 2).toUpperCase(),
-    };
-  });
-
-  useEffect(() => {
+  const cargarMensajes = () => {
     if (!userId) return;
-
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
@@ -109,12 +53,24 @@ export default function Detalle() {
           });
         }, 100);
       });
+  };
 
-    fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId })
-    });
+  useEffect(() => {
+    cargarMensajes();
+    const interval = setInterval(() => {
+      cargarMensajes();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
+    }
   }, [userId]);
 
   const handleSubmit = async (e) => {
@@ -173,6 +129,61 @@ export default function Detalle() {
   const esURLImagen = (texto) =>
     typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
+  const formatearTiempo = (fecha) => {
+    const ahora = new Date();
+    const pasada = new Date(fecha);
+    const diffMs = ahora - pasada;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHrs = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHrs / 24);
+
+    if (diffSec < 60) return `hace ${diffSec}s`;
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    if (diffDays === 1) return "ayer";
+    return `hace ${diffDays}d`;
+  };
+
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+    const actual = acc[item.userId] || { mensajes: [] };
+    actual.mensajes = [...(actual.mensajes || []), item];
+    if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
+      actual.lastInteraction = item.lastInteraction;
+      actual.message = item.message;
+    }
+    acc[item.userId] = actual;
+    return acc;
+  }, {});
+
+  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([id, info]) => {
+    const ultimaVista = vistas[id];
+    const nuevos = info.mensajes.filter(
+      (m) =>
+        m.from === "usuario" &&
+        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+    ).length;
+
+    const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
+    const minutosSinResponder =
+      ultimoMensaje?.from === "usuario"
+        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+        : 0;
+
+    let estado = "Recurrente";
+    if (info.mensajes.length === 1) estado = "Nuevo";
+    else if (minutosSinResponder < 1) estado = "Activo";
+    else estado = "Dormido";
+
+    return {
+      userId: id,
+      nuevos,
+      estado,
+      lastInteraction: info.lastInteraction,
+      iniciales: id.slice(0, 2).toUpperCase(),
+    };
+  });
+
   const estadoColor = {
     Nuevo: "bg-green-500",
     Activo: "bg-blue-500",
@@ -181,7 +192,7 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f4f8]">
-      <div className="flex-1 p-4 flex gap-4 h-[calc(100vh-2rem)] overflow-hidden">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100vh-1rem)]">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -215,7 +226,7 @@ export default function Detalle() {
         </div>
 
         {/* Columna del centro */}
-        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col">
+        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden">
           <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4">
             {mensajes.length === 0 ? (
               <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>

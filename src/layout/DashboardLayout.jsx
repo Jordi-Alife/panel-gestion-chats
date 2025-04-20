@@ -11,7 +11,7 @@ const DashboardLayout = ({ children }) => {
           <img
             src="/logo-nextlives.png"
             alt="NextLives"
-            className="w-8 h-8 object-contain mr-3"
+            className="w-32 h-auto object-contain"
           />
         </div>
         <h1 className="text-lg font-medium text-center flex-1">
@@ -29,11 +29,7 @@ const DashboardLayout = ({ children }) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <aside className="w-20 bg-[#1E2431] flex flex-col items-center py-6">
-          <img
-            src="/logo-nextlives.png"
-            alt="NextLives"
-            className="w-10 h-10 object-contain"
-          />
+          {/* Logo eliminado aquí */}
         </aside>
 
         {/* Main content */}

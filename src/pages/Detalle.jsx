@@ -98,108 +98,120 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f4f8]">
-      {/* Encabezado de conversación */}
+      {/* Encabezado */}
       <div className="sticky top-0 z-10 bg-blue-800 text-white px-4 py-3 shadow-md flex items-center justify-between">
         <Link to="/" className="text-sm underline">← Volver</Link>
         <h2 className="text-base font-semibold text-center flex-1">Conversación con {userId}</h2>
         <div className="w-6" />
       </div>
 
-      {/* Zona de mensajes */}
-      <div
-        ref={chatRef}
-        className="flex-1 overflow-y-auto px-6 py-6 space-y-4"
-      >
-        {mensajes.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
-        ) : (
-          mensajes.map((msg, index) => {
-            const isAsistente = msg.from === 'asistente';
-            const tieneOriginal = !!msg.original;
-            const align = isAsistente ? 'justify-end' : 'justify-start';
-            const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border';
-
-            return (
-              <div key={index} className={`flex ${align}`}>
-                <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
-                  {esURLImagen(msg.message) ? (
-                    <img
-                      src={msg.message}
-                      alt="Imagen enviada"
-                      className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                    />
-                  ) : (
-                    <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
-                  )}
-
-                  {tieneOriginal && (
-                    <div className="mt-2 text-[11px] text-right">
-                      <button
-                        onClick={() => toggleOriginal(index)}
-                        className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
-                      >
-                        {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                      </button>
-                      {originalesVisibles[index] && (
-                        <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
-                          {msg.original}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                    {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Input de respuesta */}
-      <form
-        onSubmit={handleSubmit}
-        className="sticky bottom-0 bg-white border-t flex items-center px-4 py-3 space-x-2"
-      >
-        <div className="flex items-center">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImagen(e.target.files[0])}
-            className="text-sm"
-          />
-          {imagen && (
-            <div className="ml-2 text-xs text-gray-600 flex items-center gap-1">
-              <span>{imagen.name}</span>
-              <button
-                type="button"
-                onClick={() => setImagen(null)}
-                className="text-red-500 text-xs underline"
-              >
-                Quitar
-              </button>
-            </div>
-          )}
+      {/* Cuerpo en tres columnas */}
+      <div className="flex flex-1 overflow-hidden p-4 gap-4">
+        {/* Tarjeta izquierda (resumen) */}
+        <div className="w-1/4 bg-white rounded-lg shadow p-4 hidden lg:block">
+          <p className="text-gray-400 text-sm">Resumen (próximamente)</p>
         </div>
-        <input
-          type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 focus:outline-none text-sm"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm hover:bg-blue-700"
-        >
-          Enviar
-        </button>
-      </form>
+
+        {/* Tarjeta central (chat) */}
+        <div className="flex flex-col flex-1 bg-white rounded-lg shadow overflow-hidden">
+          <div ref={chatRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+            {mensajes.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
+            ) : (
+              mensajes.map((msg, index) => {
+                const isAsistente = msg.from === 'asistente';
+                const tieneOriginal = !!msg.original;
+                const align = isAsistente ? 'justify-end' : 'justify-start';
+                const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800';
+
+                return (
+                  <div key={index} className={`flex ${align}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl shadow ${bubbleColor}`}>
+                      {esURLImagen(msg.message) ? (
+                        <img
+                          src={msg.message}
+                          alt="Imagen enviada"
+                          className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+                        />
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+                      )}
+
+                      {tieneOriginal && (
+                        <div className="mt-2 text-[11px] text-right">
+                          <button
+                            onClick={() => toggleOriginal(index)}
+                            className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
+                          >
+                            {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                          </button>
+                          {originalesVisibles[index] && (
+                            <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
+                              {msg.original}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
+                        {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Input de respuesta */}
+          <form
+            onSubmit={handleSubmit}
+            className="bg-gray-50 border-t flex items-center px-4 py-3 space-x-2"
+          >
+            <div className="flex items-center">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImagen(e.target.files[0])}
+                className="text-sm"
+              />
+              {imagen && (
+                <div className="ml-2 text-xs text-gray-600 flex items-center gap-1">
+                  <span>{imagen.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setImagen(null)}
+                    className="text-red-500 text-xs underline"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              value={respuesta}
+              onChange={(e) => setRespuesta(e.target.value)}
+              placeholder="Escribe un mensaje..."
+              className="flex-1 border rounded-full px-4 py-2 focus:outline-none text-sm"
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm hover:bg-blue-700"
+            >
+              Enviar
+            </button>
+          </form>
+        </div>
+
+        {/* Tarjeta derecha (info usuario) */}
+        <div className="w-1/4 bg-white rounded-lg shadow p-4 hidden lg:block">
+          <p className="text-gray-400 text-sm">Datos del usuario (próximamente)</p>
+        </div>
+      </div>
     </div>
   );
 }

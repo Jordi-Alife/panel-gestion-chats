@@ -1,14 +1,89 @@
 // src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 export default function Detalle() {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
+  const [todasConversaciones, setTodasConversaciones] = useState([]);
+  const [vistas, setVistas] = useState({});
   const chatRef = useRef(null);
+
+  useEffect(() => {
+    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      .then((res) => res.json())
+      .then(setTodasConversaciones)
+      .catch(console.error);
+
+    fetch("https://web-production-51989.up.railway.app/api/vistas")
+      .then((res) => res.json())
+      .then(setVistas)
+      .catch(console.error);
+  }, []);
+
+  const formatearTiempo = (fecha) => {
+    const ahora = new Date();
+    const pasada = new Date(fecha);
+    const diffMs = ahora - pasada;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHrs = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHrs / 24);
+
+    if (diffSec < 60) return `hace ${diffSec}s`;
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    if (diffDays === 1) return "ayer";
+    return `hace ${diffDays}d`;
+  };
+
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+    const actual = acc[item.userId] || { mensajes: [] };
+    actual.mensajes = [...(actual.mensajes || []), item];
+    if (
+      !actual.lastInteraction ||
+      new Date(item.lastInteraction) > new Date(actual.lastInteraction)
+    ) {
+      actual.lastInteraction = item.lastInteraction;
+      actual.message = item.message;
+    }
+    acc[item.userId] = actual;
+    return acc;
+  }, {});
+
+  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(
+    ([id, info]) => {
+      const ultimaVista = vistas[id];
+      const nuevos = info.mensajes.filter(
+        (m) =>
+          m.from === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
+
+      const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
+      const minutosSinResponder =
+        ultimoMensaje?.from === "usuario"
+          ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+          : 0;
+
+      let estado = "Recurrente";
+      if (info.mensajes.length === 1) estado = "Nuevo";
+      else if (minutosSinResponder < 1) estado = "Activo";
+      else estado = "Dormido";
+
+      return {
+        userId: id,
+        nuevos,
+        estado,
+        lastInteraction: info.lastInteraction,
+        iniciales: id.slice(0, 2).toUpperCase(),
+      };
+    }
+  );
 
   useEffect(() => {
     if (!userId) return;
@@ -30,8 +105,7 @@ export default function Detalle() {
             behavior: 'auto'
           });
         }, 100);
-      })
-      .catch(console.error);
+      });
 
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
@@ -96,21 +170,43 @@ export default function Detalle() {
   const esURLImagen = (texto) =>
     typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
+  const estadoColor = {
+    Nuevo: "bg-green-500",
+    Activo: "bg-blue-500",
+    Dormido: "bg-gray-400"
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#f0f4f8]">
       <div className="flex flex-1 overflow-hidden p-4 gap-4">
-        {/* Columna izquierda (resumen) */}
-        <div className="w-1/5 bg-white rounded-lg shadow p-4 text-sm text-gray-500">
-          <p className="font-semibold text-gray-600">Resumen</p>
-          <p className="text-xs mt-2">Próximamente</p>
+        {/* Columna izquierda */}
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
+          {listaAgrupada.map((c) => (
+            <div
+              key={c.userId}
+              onClick={() => navigate(`/conversacion/${c.userId}`)}
+              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${c.userId === userId ? 'bg-blue-50' : ''}`}
+            >
+              <div className="flex items-center gap-2">
+                <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
+                  {c.iniciales}
+                </div>
+                <div>
+                  <div className="font-medium text-sm">{c.userId}</div>
+                  <div className="text-xs text-gray-500">{formatearTiempo(c.lastInteraction)}</div>
+                </div>
+              </div>
+              <div className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>
+                {c.estado}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Zona de conversación central */}
-        <div className="flex-1 flex flex-col bg-white rounded-lg shadow px-6 py-4">
-          <div
-            ref={chatRef}
-            className="flex-1 overflow-y-auto space-y-4"
-          >
+        {/* Columna del centro */}
+        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden">
+          <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4">
             {mensajes.length === 0 ? (
               <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
             ) : (
@@ -118,11 +214,11 @@ export default function Detalle() {
                 const isAsistente = msg.from === 'asistente';
                 const tieneOriginal = !!msg.original;
                 const align = isAsistente ? 'justify-end' : 'justify-start';
-                const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800';
+                const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border';
 
                 return (
                   <div key={index} className={`flex ${align}`}>
-                    <div className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${bubbleColor}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
                       {esURLImagen(msg.message) ? (
                         <img
                           src={msg.message}
@@ -162,10 +258,10 @@ export default function Detalle() {
             )}
           </div>
 
-          {/* Input de respuesta */}
+          {/* Caja para responder */}
           <form
             onSubmit={handleSubmit}
-            className="mt-4 border-t pt-4 flex items-center gap-2"
+            className="border-t flex items-center px-4 py-3 space-x-2"
           >
             <input
               type="file"
@@ -201,11 +297,10 @@ export default function Detalle() {
           </form>
         </div>
 
-        {/* Columna derecha (datos usuario) */}
-        <div className="w-1/5 bg-white rounded-lg shadow p-4 text-sm">
-          <p className="font-semibold text-gray-600 mb-2">Usuario</p>
-          <p className="text-blue-600 break-all">{userId}</p>
-          <p className="mt-4 text-gray-400 text-xs">Datos del usuario (próximamente)</p>
+        {/* Columna derecha */}
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+          <p className="text-sm text-gray-700">{userId}</p>
         </div>
       </div>
     </div>

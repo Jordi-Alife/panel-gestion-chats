@@ -1,46 +1,39 @@
 // src/layout/DashboardLayout.jsx
-import React, { useState } from "react";
-import logo from "../assets/logo-nextlives.png"; // Asegúrate de que la ruta sea correcta
+import React from "react";
+import { Link } from "react-router-dom";
 
-export default function DashboardLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
+const DashboardLayout = ({ children }) => {
   return (
-    <div className="flex flex-col h-screen">
-      {/* HEADER */}
-      <header className="bg-gray-900 text-white flex items-center justify-between px-4 py-3 shadow">
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <aside className="w-20 bg-[#1E2431] flex flex-col items-center py-6">
         <img
-          src={logo}
+          src="/logo-nextlives.png"
           alt="NextLives"
-          className="h-8 w-auto"
+          className="w-10 h-10 object-contain"
         />
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-white focus:outline-none text-2xl"
-        >
-          ☰
-        </button>
-      </header>
+      </aside>
 
-      <div className="flex flex-1">
-        {/* SIDEBAR */}
-        {sidebarOpen && (
-          <aside className="w-64 bg-gray-800 text-white p-4 space-y-4">
-            <nav className="space-y-2">
-              <div className="hover:text-blue-400 cursor-pointer">Inicio</div>
-              <div className="hover:text-blue-400 cursor-pointer">Centro de trabajo</div>
-              <div className="hover:text-blue-400 cursor-pointer">Gestión</div>
-              <div className="hover:text-blue-400 cursor-pointer">Marketing</div>
-              <div className="hover:text-blue-400 cursor-pointer">Financiero</div>
-              <div className="hover:text-blue-400 cursor-pointer">Desarrolladores</div>
-              <div className="hover:text-blue-400 cursor-pointer">Canal Digital</div>
-            </nav>
-          </aside>
-        )}
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow">
+          <h1 className="text-lg font-medium text-center flex-1">
+            Panel de soporte
+          </h1>
+          <Link
+            to="#"
+            className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
+          >
+            Crear Canal Digital
+          </Link>
+        </header>
 
-        {/* MAIN */}
-        <main className="flex-1 bg-gray-100 p-6 overflow-y-auto">{children}</main>
+        {/* Contenido */}
+        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
-}
+};
+
+export default DashboardLayout;

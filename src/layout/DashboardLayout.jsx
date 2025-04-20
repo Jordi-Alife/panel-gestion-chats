@@ -1,4 +1,3 @@
-// src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -46,14 +45,17 @@ const DashboardLayout = ({ children }) => {
               <span>🏠</span>
               {!colapsado && <span>Inicio</span>}
             </Link>
+
+            <Link
+              to="/usuarios"
+              className="flex items-center gap-2 py-2 px-2 rounded hover:bg-[#2d3444]"
+            >
+              <span>👥</span>
+              {!colapsado && <span>Usuarios</span>}
+            </Link>
           </nav>
         </aside>
 
         {/* Contenido */}
         <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </div>
-    </div>
-  );
-};
-
-export default DashboardLayout;

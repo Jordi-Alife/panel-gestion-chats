@@ -131,30 +131,32 @@ const Panel = () => {
         />
       </div>
 
+      {/* Cabecera de columnas */}
+      <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
+        <div>Usuario</div>
+        <div>Estado</div>
+        <div>Última interacción</div>
+        <div>Mensaje</div>
+        <div>Cantidad</div>
+        <div>Detalles</div>
+      </div>
+
       <div className="grid gap-4">
         {filtrada.map((item, i) => (
-          <div key={i} className="bg-white rounded-lg shadow p-4">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex flex-col">
-                <div className="font-semibold text-lg">{item.userId}</div>
-                <div className="text-sm text-gray-500">
-                  Última interacción: {new Date(item.lastInteraction).toLocaleString()}
-                </div>
-              </div>
-              <div className="flex gap-2 items-center">
-                {getEstadoBadge(item.estado)}
-                {item.nuevos > 0 && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                    {item.nuevos} nuevos
-                  </span>
-                )}
-              </div>
+          <div key={i} className="bg-white rounded-lg shadow p-4 grid grid-cols-6 gap-4 items-center text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{item.userId}</span>
+              {item.nuevos > 0 && (
+                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  {item.nuevos}
+                </span>
+              )}
             </div>
-            <div className="text-sm text-gray-700 truncate mb-2">
-              {item.message}
-            </div>
-            <div className="flex justify-between items-center text-sm text-gray-600">
-              <div>{item.totalMensajes} mensajes</div>
+            <div>{getEstadoBadge(item.estado)}</div>
+            <div>{new Date(item.lastInteraction).toLocaleString()}</div>
+            <div className="truncate">{item.message}</div>
+            <div>{item.totalMensajes}</div>
+            <div>
               <Link
                 to={`/conversacion/${item.userId}`}
                 className="text-blue-600 hover:underline font-medium"

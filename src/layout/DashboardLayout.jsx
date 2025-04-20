@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }) => {
           alt="NextLives"
           className="h-10 object-contain"
         />
-        <div className="flex-1" /> {/* Elimina el título centrado */}
+        <div className="flex-1" />
         <Link
           to="#"
           className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
@@ -45,6 +45,14 @@ const DashboardLayout = ({ children }) => {
             >
               <span>🏠</span>
               {!colapsado && <span>Inicio</span>}
+            </Link>
+
+            <Link
+              to="/usuarios"
+              className="flex items-center gap-2 py-2 px-2 rounded hover:bg-[#2d3444]"
+            >
+              <span>👤</span>
+              {!colapsado && <span>Usuarios</span>}
             </Link>
           </nav>
         </aside>

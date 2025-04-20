@@ -164,11 +164,11 @@ export default function Detalle() {
         (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
     ).length;
 
-    const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
-    const minutosSinResponder =
-      ultimoMensaje?.from === "usuario"
-        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-        : 0;
+    // Buscar el último mensaje del usuario
+    const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
+    const minutosSinResponder = ultimoUsuario
+      ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
+      : Infinity;
 
     let estado = "Recurrente";
     if (info.mensajes.length === 1) estado = "Nuevo";

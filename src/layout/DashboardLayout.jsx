@@ -18,12 +18,14 @@ const DashboardLayout = ({ children }) => {
           className="h-10 object-contain"
         />
         <div className="flex-1" />
-        <Link
-          to="#"
-          className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
-        >
-          {esPaginaUsuarios ? "Crear usuario" : "Gestión del soporte"}
-        </Link>
+        {esPaginaUsuarios && (
+          <Link
+            to="#"
+            className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
+          >
+            Crear usuario
+          </Link>
+        )}
       </header>
 
       {/* Contenedor principal debajo del header */}

@@ -12,7 +12,7 @@ const ModalCrearUsuario = ({
   const [email, setEmail] = useState("");
 
   useEffect(() => {
-    if (modo === "editar" && usuarioEditar) {
+    if (modo === "editar" && usuarioEditar && usuarioEditar.email) {
       setNombre(usuarioEditar.nombre || "");
       setEmail(usuarioEditar.email || "");
     } else {

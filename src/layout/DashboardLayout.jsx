@@ -11,7 +11,7 @@ const DashboardLayout = ({ children }) => {
           <img
             src="/logo-nextlives.png"
             alt="NextLives"
-            className="w-32 h-auto object-contain"
+            className="w-36 h-auto object-contain"
           />
         </div>
         <h1 className="text-lg font-medium text-center flex-1">

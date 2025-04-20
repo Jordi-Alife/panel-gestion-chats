@@ -164,6 +164,7 @@ export default function Detalle() {
         (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
     ).length;
 
+    // Buscar el último mensaje del usuario
     const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
     const minutosSinResponder = ultimoUsuario
       ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
@@ -190,10 +191,10 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f0f4f8]">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-full">
+    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8]">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden grow h-[100dvh]">
         {/* Columna izquierda */}
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full min-h-0">
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           {listaAgrupada.map((c) => (
             <div
@@ -225,7 +226,7 @@ export default function Detalle() {
         </div>
 
         {/* Columna del centro */}
-        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full min-h-0">
+        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full">
           <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.length === 0 ? (
               <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
@@ -315,7 +316,7 @@ export default function Detalle() {
         </div>
 
         {/* Columna derecha */}
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto min-h-0">
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
         </div>

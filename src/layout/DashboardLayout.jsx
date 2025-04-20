@@ -12,7 +12,7 @@ const DashboardLayout = ({ children }) => {
         <img
           src="/logo-nextlives.png"
           alt="NextLives"
-          className="h-7 object-contain"
+          className="h-10 object-contain" // Aumentamos el tamaño del logo
         />
         <h1 className="text-lg font-medium text-center flex-1">
           Panel de soporte

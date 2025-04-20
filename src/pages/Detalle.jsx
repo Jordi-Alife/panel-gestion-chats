@@ -27,7 +27,9 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarDatos();
-    const intervalo = setInterval(cargarDatos, 5000);
+    const intervalo = setInterval(() => {
+      cargarDatos();
+    }, 5000);
     return () => clearInterval(intervalo);
   }, []);
 
@@ -50,10 +52,7 @@ export default function Detalle() {
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [] };
     actual.mensajes = [...(actual.mensajes || []), item];
-    if (
-      !actual.lastInteraction ||
-      new Date(item.lastInteraction) > new Date(actual.lastInteraction)
-    ) {
+    if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
     }
@@ -61,35 +60,33 @@ export default function Detalle() {
     return acc;
   }, {});
 
-  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(
-    ([id, info]) => {
-      const ultimaVista = vistas[id];
-      const nuevos = info.mensajes.filter(
-        (m) =>
-          m.from === "usuario" &&
-          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-      ).length;
+  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([id, info]) => {
+    const ultimaVista = vistas[id];
+    const nuevos = info.mensajes.filter(
+      (m) =>
+        m.from === "usuario" &&
+        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+    ).length;
 
-      const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
-      const minutosSinResponder =
-        ultimoMensaje?.from === "usuario"
-          ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-          : 0;
+    const ultimoMensaje = info.mensajes[info.mensajes.length - 1];
+    const minutosSinResponder =
+      ultimoMensaje?.from === "usuario"
+        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+        : 0;
 
-      let estado = "Recurrente";
-      if (info.mensajes.length === 1) estado = "Nuevo";
-      else if (minutosSinResponder < 1) estado = "Activo";
-      else estado = "Dormido";
+    let estado = "Recurrente";
+    if (info.mensajes.length === 1) estado = "Nuevo";
+    else if (minutosSinResponder < 1) estado = "Activo";
+    else estado = "Dormido";
 
-      return {
-        userId: id,
-        nuevos,
-        estado,
-        lastInteraction: info.lastInteraction,
-        iniciales: id.slice(0, 2).toUpperCase(),
-      };
-    }
-  );
+    return {
+      userId: id,
+      nuevos,
+      estado,
+      lastInteraction: info.lastInteraction,
+      iniciales: id.slice(0, 2).toUpperCase(),
+    };
+  });
 
   useEffect(() => {
     if (!userId) return;
@@ -184,7 +181,7 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-screen bg-[#f0f4f8]">
-      <div className="flex flex-1 overflow-hidden p-4 gap-4">
+      <div className="flex-1 p-4 flex gap-4 h-[calc(100vh-2rem)] overflow-hidden">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -208,7 +205,7 @@ export default function Detalle() {
                   {c.estado}
                 </span>
                 {c.nuevos > 0 && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
                     {c.nuevos}
                   </span>
                 )}
@@ -218,7 +215,7 @@ export default function Detalle() {
         </div>
 
         {/* Columna del centro */}
-        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden">
+        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col">
           <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4">
             {mensajes.length === 0 ? (
               <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
@@ -241,7 +238,6 @@ export default function Detalle() {
                       ) : (
                         <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                       )}
-
                       {tieneOriginal && (
                         <div className="mt-2 text-[11px] text-right">
                           <button
@@ -257,7 +253,6 @@ export default function Detalle() {
                           )}
                         </div>
                       )}
-
                       <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
                         {new Date(msg.lastInteraction).toLocaleTimeString([], {
                           hour: '2-digit',
@@ -271,7 +266,6 @@ export default function Detalle() {
             )}
           </div>
 
-          {/* Caja para responder */}
           <form
             onSubmit={handleSubmit}
             className="border-t flex items-center px-4 py-3 space-x-2"

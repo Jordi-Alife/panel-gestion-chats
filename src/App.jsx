@@ -1,8 +1,8 @@
-// src/App.jsx
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
+import Usuarios from "./pages/Usuarios"; // NUEVA LÍNEA
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -68,7 +68,6 @@ const Panel = () => {
           (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
 
-      // Corrección: buscar el último mensaje del usuario, no el último mensaje en general
       const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
       const minutosSinResponder = ultimoUsuario
         ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
@@ -197,6 +196,7 @@ const App = () => (
       <Routes>
         <Route path="/" element={<Panel />} />
         <Route path="/conversacion/:userId" element={<Detalle />} />
+        <Route path="/usuarios" element={<Usuarios />} /> {/* NUEVA RUTA */}
       </Routes>
     </DashboardLayout>
   </Router>

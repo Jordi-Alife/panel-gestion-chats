@@ -6,18 +6,19 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-16 bg-[#1E2431] flex flex-col items-center py-4">
-        <img src="/logo-nextlives.png" alt="NextLives" className="w-8 h-8 mb-6 object-contain" />
+      <aside className="w-20 bg-[#1E2431] flex flex-col items-center py-6">
+        <img
+          src="/logo-nextlives.png"
+          alt="NextLives"
+          className="w-10 h-10 object-contain"
+        />
       </aside>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow">
-          <div className="flex items-center gap-3">
-            <img src="/logo-nextlives.png" alt="NextLives" className="w-6 h-6 object-contain" />
-          </div>
-          <h1 className="text-lg font-medium text-center flex-1 -ml-10">
+          <h1 className="text-lg font-medium text-center flex-1">
             Panel de soporte
           </h1>
           <Link

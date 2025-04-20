@@ -1,9 +1,13 @@
 // src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
+  const location = useLocation();
+
+  // Detectar si estamos en la ruta de usuarios
+  const esPaginaUsuarios = location.pathname === "/usuarios";
 
   return (
     <div className="h-screen bg-gray-100 flex flex-col">
@@ -16,10 +20,12 @@ const DashboardLayout = ({ children }) => {
         />
         <div className="flex-1" />
         <Link
-          to="#"
-          className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
+          to={esPaginaUsuarios ? "/crear-usuario" : "#"}
+          className={`${
+            esPaginaUsuarios ? "bg-green-600 hover:bg-green-700" : "bg-[#FF5C42] hover:bg-[#e04c35]"
+          } text-white text-sm font-semibold px-4 py-2 rounded`}
         >
-          Gestión del soporte
+          {esPaginaUsuarios ? "Crear usuario" : "Gestión del soporte"}
         </Link>
       </header>
 

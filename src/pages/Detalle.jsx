@@ -13,7 +13,7 @@ export default function Detalle() {
   const [vistas, setVistas] = useState({});
   const chatRef = useRef(null);
 
-  useEffect(() => {
+  const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
       .then((res) => res.json())
       .then(setTodasConversaciones)
@@ -23,6 +23,12 @@ export default function Detalle() {
       .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
+  };
+
+  useEffect(() => {
+    cargarDatos();
+    const intervalo = setInterval(cargarDatos, 5000);
+    return () => clearInterval(intervalo);
   }, []);
 
   const formatearTiempo = (fecha) => {
@@ -197,8 +203,15 @@ export default function Detalle() {
                   <div className="text-xs text-gray-500">{formatearTiempo(c.lastInteraction)}</div>
                 </div>
               </div>
-              <div className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>
-                {c.estado}
+              <div className="flex flex-col items-end gap-1">
+                <span className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>
+                  {c.estado}
+                </span>
+                {c.nuevos > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {c.nuevos}
+                  </span>
+                )}
               </div>
             </div>
           ))}

@@ -12,16 +12,14 @@ const DashboardLayout = ({ children }) => {
         <img
           src="/logo-nextlives.png"
           alt="NextLives"
-          className="h-10 object-contain" // Aumentamos el tamaño del logo
+          className="h-10 object-contain"
         />
-        <h1 className="text-lg font-medium text-center flex-1">
-          Panel de soporte
-        </h1>
+        <div className="flex-1" /> {/* Elimina el título centrado */}
         <Link
           to="#"
           className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
         >
-          Crear Canal Digital
+          Gestión del soporte
         </Link>
       </header>
 

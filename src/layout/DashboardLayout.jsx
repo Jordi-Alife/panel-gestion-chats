@@ -6,7 +6,6 @@ const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
 
-  // Detectar si estamos en la ruta de usuarios
   const esPaginaUsuarios = location.pathname === "/usuarios";
 
   return (
@@ -20,10 +19,8 @@ const DashboardLayout = ({ children }) => {
         />
         <div className="flex-1" />
         <Link
-          to={esPaginaUsuarios ? "/crear-usuario" : "#"}
-          className={`${
-            esPaginaUsuarios ? "bg-green-600 hover:bg-green-700" : "bg-[#FF5C42] hover:bg-[#e04c35]"
-          } text-white text-sm font-semibold px-4 py-2 rounded`}
+          to="#"
+          className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
         >
           {esPaginaUsuarios ? "Crear usuario" : "Gestión del soporte"}
         </Link>
@@ -52,7 +49,6 @@ const DashboardLayout = ({ children }) => {
               <span>🏠</span>
               {!colapsado && <span>Inicio</span>}
             </Link>
-
             <Link
               to="/usuarios"
               className="flex items-center gap-2 py-2 px-2 rounded hover:bg-[#2d3444]"

@@ -61,11 +61,22 @@ const Panel = () => {
           ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
           : 0;
 
+      let estado = "Recurrente";
+      if (info.mensajes.length === 1) {
+        estado = "Nuevo";
+      } else if (minutosSinResponder < 1) {
+        estado = "Activo";
+      } else {
+        estado = "Dormido";
+      }
+
       return {
         userId,
         ...info,
         nuevos,
+        totalMensajes: info.mensajes.length,
         sinResponder: minutosSinResponder >= 1,
+        estado,
       };
     }
   );
@@ -77,6 +88,21 @@ const Panel = () => {
   const mensajesRecibidos = data.filter((m) => m.from === "usuario").length;
   const respuestasGPT = data.filter((m) => m.from === "asistente" && !m.manual).length;
   const respuestasPanel = data.filter((m) => m.from === "asistente" && m.manual).length;
+
+  const getEstadoBadge = (estado) => {
+    const colores = {
+      Nuevo: "bg-green-500",
+      Activo: "bg-blue-500",
+      Dormido: "bg-gray-400",
+    };
+    return (
+      <span
+        className={`text-white text-xs px-2 py-1 rounded-full ${colores[estado] || "bg-gray-500"}`}
+      >
+        {estado}
+      </span>
+    );
+  };
 
   return (
     <div>
@@ -105,53 +131,39 @@ const Panel = () => {
         />
       </div>
 
-      <div className="overflow-auto">
-        <table className="table-auto w-full bg-white rounded shadow overflow-hidden">
-          <thead className="bg-gray-100 text-left">
-            <tr>
-              <th className="px-4 py-2">Usuario</th>
-              <th className="px-4 py-2">Última interacción</th>
-              <th className="px-4 py-2">Mensaje</th>
-              <th className="px-4 py-2">Ver</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtrada.map((item, i) => (
-              <tr
-                key={i}
-                className={`border-t hover:bg-gray-50 ${
-                  item.sinResponder ? "bg-gray-100" : ""
-                }`}
+      <div className="grid gap-4">
+        {filtrada.map((item, i) => (
+          <div key={i} className="bg-white rounded-lg shadow p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex flex-col">
+                <div className="font-semibold text-lg">{item.userId}</div>
+                <div className="text-sm text-gray-500">
+                  Última interacción: {new Date(item.lastInteraction).toLocaleString()}
+                </div>
+              </div>
+              <div className="flex gap-2 items-center">
+                {getEstadoBadge(item.estado)}
+                {item.nuevos > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                    {item.nuevos} nuevos
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="text-sm text-gray-700 truncate mb-2">
+              {item.message}
+            </div>
+            <div className="flex justify-between items-center text-sm text-gray-600">
+              <div>{item.totalMensajes} mensajes</div>
+              <Link
+                to={`/conversacion/${item.userId}`}
+                className="text-blue-600 hover:underline font-medium"
               >
-                <td className="px-4 py-2 flex items-center gap-2">
-                  {item.userId}
-                  {item.nuevos > 0 && (
-                    <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      {item.nuevos}
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-2">
-                  {new Date(item.lastInteraction).toLocaleString()}
-                </td>
-                <td className="px-4 py-2 truncate max-w-xs">{item.message}</td>
-                <td className="px-4 py-2 flex items-center gap-2">
-                  <Link
-                    to={`/conversacion/${item.userId}`}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    Ver
-                  </Link>
-                  {item.sinResponder && (
-                    <span title="Sin respuesta reciente" className="text-gray-500 text-lg">
-                      💤
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                Detalles
+              </Link>
+            </div>
+          </div>
+        ))}
         {filtrada.length === 0 && (
           <p className="text-gray-400 text-center py-6">
             No hay resultados para la búsqueda.

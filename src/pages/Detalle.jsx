@@ -1,6 +1,6 @@
 // src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function Detalle() {
   const { userId } = useParams();
@@ -191,8 +191,8 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#f0f4f8]">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100vh-1rem)]">
+    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8]">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>

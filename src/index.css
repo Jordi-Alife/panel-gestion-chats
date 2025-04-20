@@ -2,9 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ajustes globales para altura completa y comportamiento correcto en iOS */
 html,
 body,
 #root {
   height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: auto;
+  position: fixed;
+  inset: 0;
 }

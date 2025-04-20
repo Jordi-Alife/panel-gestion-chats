@@ -66,10 +66,11 @@ const ModalCrearUsuario = ({
             <label className="text-sm text-gray-600 block mb-1">Email</label>
             <input
               type="email"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100"
+              className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${modo === "editar" ? "bg-gray-100" : ""}`}
               value={email}
-              readOnly={modo === "editar"}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Ej. laura@email.com"
+              readOnly={modo === "editar"}
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">

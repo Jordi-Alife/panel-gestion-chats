@@ -3,20 +3,37 @@ import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
 
 const Usuarios = () => {
-  const [usuarios, setUsuarios] = useState([
-    {
-      nombre: "Laura Pérez",
-      email: "laura@email.com",
-      ultimaConexion: "2025-04-20T12:00:00Z",
-    },
-    {
-      nombre: "Carlos Ruiz",
-      email: "carlos@email.com",
-      ultimaConexion: "2025-04-19T09:30:00Z",
-    },
-  ]);
-
+  const [usuarios, setUsuarios] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
+
+  // Cargar usuarios desde localStorage al iniciar
+  useEffect(() => {
+    const guardados = localStorage.getItem("usuarios-panel");
+    if (guardados) {
+      setUsuarios(JSON.parse(guardados));
+    } else {
+      // Inicializar con los que tenías por defecto
+      const porDefecto = [
+        {
+          nombre: "Laura Pérez",
+          email: "laura@email.com",
+          ultimaConexion: "2025-04-20T12:00:00Z",
+        },
+        {
+          nombre: "Carlos Ruiz",
+          email: "carlos@email.com",
+          ultimaConexion: "2025-04-19T09:30:00Z",
+        },
+      ];
+      setUsuarios(porDefecto);
+      localStorage.setItem("usuarios-panel", JSON.stringify(porDefecto));
+    }
+  }, []);
+
+  // Guardar en localStorage cada vez que se actualiza la lista
+  useEffect(() => {
+    localStorage.setItem("usuarios-panel", JSON.stringify(usuarios));
+  }, [usuarios]);
 
   useEffect(() => {
     const handleClick = (e) => {

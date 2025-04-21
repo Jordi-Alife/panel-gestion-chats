@@ -191,7 +191,7 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8]">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)] pb-6">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -224,35 +224,62 @@ export default function Detalle() {
           ))}
         </div>
 
-        {/* Columna central */}
+        {/* Columna del centro */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full">
           <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
-            {mensajes.map((msg, index) => {
-              const isAsistente = msg.from === 'asistente';
-              const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
-              const align = isAsistente ? 'justify-end' : 'justify-start';
+            {mensajes.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center">No hay mensajes todavía.</p>
+            ) : (
+              mensajes.map((msg, index) => {
+                const isAsistente = msg.from === 'asistente';
+                const tieneOriginal = !!msg.original;
+                const align = isAsistente ? 'justify-end' : 'justify-start';
+                const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border';
 
-              return (
-                <div key={index} className={`flex ${align}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
-                    {esURLImagen(msg.message) ? (
-                      <img src={msg.message} alt="img" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
-                    ) : (
-                      <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
-                    )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                return (
+                  <div key={index} className={`flex ${align}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
+                      {esURLImagen(msg.message) ? (
+                        <img
+                          src={msg.message}
+                          alt="Imagen enviada"
+                          className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+                        />
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+                      )}
+                      {tieneOriginal && (
+                        <div className="mt-2 text-[11px] text-right">
+                          <button
+                            onClick={() => toggleOriginal(index)}
+                            className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
+                          >
+                            {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                          </button>
+                          {originalesVisibles[index] && (
+                            <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
+                              {msg.original}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
+                        {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
+          <form
+            onSubmit={handleSubmit}
+            className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
+          >
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
               <input
@@ -286,7 +313,7 @@ export default function Detalle() {
               />
               <button
                 type="submit"
-                className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+                className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm hover:bg-blue-700"
               >
                 Enviar
               </button>
@@ -300,9 +327,6 @@ export default function Detalle() {
           <p className="text-sm text-gray-700">{userId}</p>
         </div>
       </div>
-
-      {/* Espacio visual inferior */}
-      <div className="h-6"></div>
     </div>
   );
 }

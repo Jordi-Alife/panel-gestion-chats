@@ -63,7 +63,6 @@ export default function Detalle() {
     return () => clearInterval(interval);
   }, [userId]);
 
-  // NUEVO: marcar como visto cuando los mensajes cambian
   useEffect(() => {
     if (userId && mensajes.length > 0) {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
@@ -317,8 +316,27 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Espacio inferior visual */}
-      <div className="h-6"></div>
+      {/* Campo para enviar conversación por email */}
+      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="text-sm font-medium text-gray-700">
+            Enviar conversación por email
+          </div>
+          <form className="flex gap-2 w-full sm:w-auto">
+            <input
+              type="email"
+              placeholder="ejemplo@email.com"
+              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

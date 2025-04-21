@@ -63,15 +63,16 @@ export default function Detalle() {
     return () => clearInterval(interval);
   }, [userId]);
 
+  // NUEVO: marcar como visto cuando los mensajes cambian
   useEffect(() => {
-    if (userId) {
+    if (userId && mensajes.length > 0) {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
       });
     }
-  }, [userId]);
+  }, [mensajes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -231,7 +232,6 @@ export default function Detalle() {
               const isAsistente = msg.from === 'asistente';
               const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
               const align = isAsistente ? 'justify-end' : 'justify-start';
-              const tieneOriginal = !!msg.original;
 
               return (
                 <div key={index} className={`flex ${align}`}>
@@ -241,8 +241,7 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-
-                    {tieneOriginal && (
+                    {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
                         <button
                           onClick={() => toggleOriginal(index)}
@@ -257,7 +256,6 @@ export default function Detalle() {
                         )}
                       </div>
                     )}
-
                     <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
                       {new Date(msg.lastInteraction).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -319,25 +317,8 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Nueva zona para enviar la conversación por email */}
-      <div className="bg-white shadow-md rounded-lg mt-2 mx-4 px-6 py-4 text-sm text-gray-700">
-        <h2 className="font-semibold text-gray-600 mb-2">Enviar conversación por email</h2>
-        <form>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              type="email"
-              placeholder="Introduce un correo electrónico"
-              className="flex-1 border rounded px-4 py-2 focus:outline-none text-sm"
-            />
-            <button
-              type="submit"
-              className="bg-[#ff5733] text-white rounded px-4 py-2 text-sm hover:bg-orange-600"
-            >
-              Enviar
-            </button>
-          </div>
-        </form>
-      </div>
+      {/* Espacio inferior visual */}
+      <div className="h-6"></div>
     </div>
   );
 }

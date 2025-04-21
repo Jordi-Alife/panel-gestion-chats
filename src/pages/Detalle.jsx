@@ -191,7 +191,7 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8]">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden grow h-[670px]">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden grow min-h-[690px]">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>

@@ -224,7 +224,7 @@ export default function Detalle() {
           ))}
         </div>
 
-        {/* Columna del centro */}
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full">
           <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.length === 0 ? (

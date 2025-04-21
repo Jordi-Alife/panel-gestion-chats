@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
 
 const Usuarios = () => {
@@ -44,8 +44,16 @@ const Usuarios = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">Gestión de usuarios</h1>
+    <div className="relative">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold">Gestión de usuarios</h1>
+        <button
+          onClick={abrirModalCrear}
+          className="bg-[#ff5733] text-white px-4 py-2 rounded hover:bg-orange-600"
+        >
+          Crear usuario
+        </button>
+      </div>
 
       <div className="grid grid-cols-5 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
         <div>Usuario NextLives</div>
@@ -85,13 +93,6 @@ const Usuarios = () => {
           </p>
         )}
       </div>
-
-      <button
-        onClick={abrirModalCrear}
-        className="bg-[#ff5733] text-white px-4 py-2 rounded mt-6 float-right"
-      >
-        Crear usuario
-      </button>
 
       <ModalCrearUsuario
         visible={mostrarModal}

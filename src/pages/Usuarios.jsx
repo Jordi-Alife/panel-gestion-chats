@@ -3,37 +3,29 @@ import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
 
 const Usuarios = () => {
-  const [usuarios, setUsuarios] = useState([
-    {
-      nombre: "Laura Pérez",
-      email: "laura@email.com",
-      ultimaConexion: "2025-04-20T12:00:00Z",
-    },
-    {
-      nombre: "Carlos Ruiz",
-      email: "carlos@email.com",
-      ultimaConexion: "2025-04-19T09:30:00Z",
-    },
-  ]);
-
+  const [usuarios, setUsuarios] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
 
   useEffect(() => {
-    const handleClick = (e) => {
-      const esBotonCrear = e.target.innerText === "Crear usuario";
-      if (esBotonCrear) {
-        e.preventDefault();
-        setMostrarModal(true);
-      }
-    };
-
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    // Cargar usuarios del backend (usuarios.json)
+    fetch("https://web-production-51989.up.railway.app/api/usuarios")
+      .then((res) => res.json())
+      .then((data) => setUsuarios(data))
+      .catch((err) => console.error("Error cargando usuarios:", err));
   }, []);
 
   const agregarUsuario = (nuevo) => {
-    setUsuarios((prev) => [...prev, nuevo]);
-    console.log("Usuario creado:", nuevo);
+    const actualizado = [...usuarios, nuevo];
+    setUsuarios(actualizado);
+
+    fetch("https://web-production-51989.up.railway.app/api/guardar-usuarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(actualizado),
+    })
+      .then((res) => res.json())
+      .then(() => console.log("Usuario guardado"))
+      .catch((err) => console.error("Error al guardar usuario:", err));
   };
 
   return (
@@ -56,7 +48,11 @@ const Usuarios = () => {
           >
             <div className="font-medium">{user.nombre}</div>
             <div>{user.email}</div>
-            <div>{new Date(user.ultimaConexion).toLocaleDateString()}</div>
+            <div>
+              {user.ultimaConexion
+                ? new Date(user.ultimaConexion).toLocaleDateString()
+                : "-"}
+            </div>
             <div>
               <button className="text-blue-600 text-sm hover:underline">
                 Editar

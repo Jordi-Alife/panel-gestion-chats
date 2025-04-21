@@ -278,16 +278,20 @@ export default function Detalle() {
 
           <form
             onSubmit={handleSubmit}
-            className="border-t flex items-center px-4 py-3 space-x-2"
+            className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
           >
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImagen(e.target.files[0])}
-              className="text-sm"
-            />
+            <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
+              Seleccionar archivo
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImagen(e.target.files[0])}
+                className="hidden"
+              />
+            </label>
+
             {imagen && (
-              <div className="ml-2 text-xs text-gray-600 flex items-center gap-1">
+              <div className="text-xs text-gray-600 flex items-center gap-1">
                 <span>{imagen.name}</span>
                 <button
                   type="button"
@@ -298,19 +302,22 @@ export default function Detalle() {
                 </button>
               </div>
             )}
-            <input
-              type="text"
-              value={respuesta}
-              onChange={(e) => setRespuesta(e.target.value)}
-              placeholder="Escribe un mensaje..."
-              className="flex-1 border rounded-full px-4 py-2 focus:outline-none text-sm"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm hover:bg-blue-700"
-            >
-              Enviar
-            </button>
+
+            <div className="flex flex-1 gap-2">
+              <input
+                type="text"
+                value={respuesta}
+                onChange={(e) => setRespuesta(e.target.value)}
+                placeholder="Escribe un mensaje..."
+                className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm hover:bg-blue-700"
+              >
+                Enviar
+              </button>
+            </div>
           </form>
         </div>
 

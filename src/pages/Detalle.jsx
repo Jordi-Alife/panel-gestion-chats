@@ -11,16 +11,7 @@ export default function Detalle() {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
-  const [alturaPantalla, setAlturaPantalla] = useState(window.innerHeight);
   const chatRef = useRef(null);
-
-  useEffect(() => {
-    const actualizarAltura = () => {
-      setAlturaPantalla(window.innerHeight);
-    };
-    window.addEventListener('resize', actualizarAltura);
-    return () => window.removeEventListener('resize', actualizarAltura);
-  }, []);
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -54,6 +45,7 @@ export default function Detalle() {
             from: msg.from || (msg.manual || msg.from === 'asistente' ? 'asistente' : 'usuario')
           }));
         setMensajes(ordenados);
+
         setTimeout(() => {
           chatRef.current?.scrollTo({
             top: chatRef.current.scrollHeight,
@@ -198,8 +190,8 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col bg-[#f0f4f8]" style={{ height: alturaPantalla }}>
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden" style={{ height: alturaPantalla - 64 }}>
+    <div className="flex flex-col min-h-[690px] h-[100dvh] bg-[#f0f4f8] overflow-hidden">
+      <div className="flex flex-1 p-4 gap-4 h-full w-full">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>

@@ -11,6 +11,7 @@ export default function Detalle() {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
+  const [emailDestino, setEmailDestino] = useState('');
   const chatRef = useRef(null);
 
   const cargarDatos = () => {
@@ -117,6 +118,14 @@ export default function Detalle() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })
     });
+  };
+
+  const handleEnviarEmail = () => {
+    if (!emailDestino.trim()) return alert("Introduce un correo válido.");
+
+    // Aquí se podría llamar al backend para enviar la conversación
+    alert(`La conversación se enviaría a: ${emailDestino}`);
+    setEmailDestino('');
   };
 
   const toggleOriginal = (index) => {
@@ -301,8 +310,25 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Espacio visual inferior */}
-      <div className="h-6"></div>
+      {/* Nuevo componente visual para enviar por email */}
+      <div className="mx-4 mt-4 bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="text-sm text-gray-800 font-semibold">Enviar conversación por email</div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
+          <input
+            type="email"
+            value={emailDestino}
+            onChange={(e) => setEmailDestino(e.target.value)}
+            placeholder="Introduce un email..."
+            className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none"
+          />
+          <button
+            onClick={handleEnviarEmail}
+            className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+          >
+            Enviar email
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

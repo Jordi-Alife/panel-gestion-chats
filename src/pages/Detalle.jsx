@@ -11,7 +11,6 @@ export default function Detalle() {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
-  const [emailDestino, setEmailDestino] = useState('');
   const chatRef = useRef(null);
 
   const cargarDatos = () => {
@@ -118,14 +117,6 @@ export default function Detalle() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })
     });
-  };
-
-  const handleEnviarEmail = () => {
-    if (!emailDestino.trim()) return alert("Introduce un correo válido.");
-
-    // Aquí se podría llamar al backend para enviar la conversación
-    alert(`La conversación se enviaría a: ${emailDestino}`);
-    setEmailDestino('');
   };
 
   const toggleOriginal = (index) => {
@@ -240,6 +231,7 @@ export default function Detalle() {
               const isAsistente = msg.from === 'asistente';
               const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
               const align = isAsistente ? 'justify-end' : 'justify-start';
+              const tieneOriginal = !!msg.original;
 
               return (
                 <div key={index} className={`flex ${align}`}>
@@ -249,6 +241,23 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
+
+                    {tieneOriginal && (
+                      <div className="mt-2 text-[11px] text-right">
+                        <button
+                          onClick={() => toggleOriginal(index)}
+                          className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
+                        >
+                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                        </button>
+                        {originalesVisibles[index] && (
+                          <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
+                            {msg.original}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
                       {new Date(msg.lastInteraction).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -310,24 +319,24 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Nuevo componente visual para enviar por email */}
-      <div className="mx-4 mt-4 bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="text-sm text-gray-800 font-semibold">Enviar conversación por email</div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
-          <input
-            type="email"
-            value={emailDestino}
-            onChange={(e) => setEmailDestino(e.target.value)}
-            placeholder="Introduce un email..."
-            className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none"
-          />
-          <button
-            onClick={handleEnviarEmail}
-            className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-          >
-            Enviar email
-          </button>
-        </div>
+      {/* Nueva zona para enviar la conversación por email */}
+      <div className="bg-white shadow-md rounded-lg mt-2 mx-4 px-6 py-4 text-sm text-gray-700">
+        <h2 className="font-semibold text-gray-600 mb-2">Enviar conversación por email</h2>
+        <form>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="email"
+              placeholder="Introduce un correo electrónico"
+              className="flex-1 border rounded px-4 py-2 focus:outline-none text-sm"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -190,8 +190,8 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8]">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)] pb-6">
+    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] pb-6">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -224,7 +224,7 @@ export default function Detalle() {
           ))}
         </div>
 
-        {/* Columna central */}
+        {/* Columna del centro */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full">
           <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.length === 0 ? (
@@ -234,7 +234,7 @@ export default function Detalle() {
                 const isAsistente = msg.from === 'asistente';
                 const tieneOriginal = !!msg.original;
                 const align = isAsistente ? 'justify-end' : 'justify-start';
-                const bubbleColor = isAsistente ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border';
+                const bubbleColor = isAsistente ? 'bg-[#ff5630] text-white' : 'bg-white text-gray-800 border';
 
                 return (
                   <div key={index} className={`flex ${align}`}>
@@ -313,7 +313,7 @@ export default function Detalle() {
               />
               <button
                 type="submit"
-                className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm hover:bg-blue-700"
+                className="bg-[#ff5630] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
               >
                 Enviar
               </button>

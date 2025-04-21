@@ -1,105 +1,78 @@
-// src/pages/Usuarios.jsx
 import React, { useEffect, useState } from "react";
-import ModalCrearUsuario from "../components/ModalCrearUsuario";
 
-const Usuarios = () => {
-  const [usuarios, setUsuarios] = useState([]);
-  const [mostrarModal, setMostrarModal] = useState(false);
+const ModalCrearUsuario = ({ visible, onClose, onCrear, modoEdicion = false, usuario = null }) => {
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
 
-  // Cargar usuarios desde localStorage al iniciar
   useEffect(() => {
-    const guardados = localStorage.getItem("usuarios-panel");
-    if (guardados) {
-      setUsuarios(JSON.parse(guardados));
+    if (modoEdicion && usuario) {
+      setNombre(usuario.nombre || "");
+      setEmail(usuario.email || "");
     } else {
-      // Inicializar con los que tenías por defecto
-      const porDefecto = [
-        {
-          nombre: "Laura Pérez",
-          email: "laura@email.com",
-          ultimaConexion: "2025-04-20T12:00:00Z",
-        },
-        {
-          nombre: "Carlos Ruiz",
-          email: "carlos@email.com",
-          ultimaConexion: "2025-04-19T09:30:00Z",
-        },
-      ];
-      setUsuarios(porDefecto);
-      localStorage.setItem("usuarios-panel", JSON.stringify(porDefecto));
+      setNombre("");
+      setEmail("");
     }
-  }, []);
+  }, [modoEdicion, usuario, visible]);
 
-  // Guardar en localStorage cada vez que se actualiza la lista
-  useEffect(() => {
-    localStorage.setItem("usuarios-panel", JSON.stringify(usuarios));
-  }, [usuarios]);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      const esBotonCrear = e.target.innerText === "Crear usuario";
-      if (esBotonCrear) {
-        e.preventDefault();
-        setMostrarModal(true);
-      }
+  const handleGuardar = () => {
+    if (!nombre.trim() || !email.trim()) return;
+    const nuevoUsuario = {
+      nombre,
+      email,
+      ultimaConexion: new Date().toISOString()
     };
-
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
-
-  const agregarUsuario = (nuevo) => {
-    setUsuarios((prev) => [...prev, nuevo]);
-    console.log("Usuario creado:", nuevo);
+    onCrear(nuevoUsuario);
+    onClose();
   };
 
+  if (!visible) return null;
+
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">Gestión de usuarios</h1>
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+        <h2 className="text-lg font-semibold mb-4">
+          {modoEdicion ? "Editar usuario" : "Crear nuevo usuario"}
+        </h2>
 
-      <div className="grid grid-cols-5 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
-        <div>Usuario NextLives</div>
-        <div>Email</div>
-        <div>Última conexión</div>
-        <div>Editar</div>
-        <div>Eliminar</div>
-      </div>
-
-      <div className="grid gap-4">
-        {usuarios.map((user, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-lg shadow p-4 grid grid-cols-5 gap-4 items-center text-sm"
-          >
-            <div className="font-medium">{user.nombre}</div>
-            <div>{user.email}</div>
-            <div>{new Date(user.ultimaConexion).toLocaleDateString()}</div>
-            <div>
-              <button className="text-blue-600 text-sm hover:underline">
-                Editar
-              </button>
-            </div>
-            <div>
-              <button className="text-red-500 text-sm hover:underline">
-                Eliminar
-              </button>
-            </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Nombre completo</label>
+            <input
+              type="text"
+              className="w-full border rounded px-3 py-2 text-sm"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
           </div>
-        ))}
-        {usuarios.length === 0 && (
-          <p className="text-gray-400 text-center py-6">
-            No hay usuarios registrados.
-          </p>
-        )}
-      </div>
 
-      <ModalCrearUsuario
-        visible={mostrarModal}
-        onClose={() => setMostrarModal(false)}
-        onCrear={agregarUsuario}
-      />
+          <div>
+            <label className="block text-sm font-medium mb-1">Correo electrónico</label>
+            <input
+              type="email"
+              className="w-full border rounded px-3 py-2 text-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300"
+            onClick={onClose}
+          >
+            Cancelar
+          </button>
+          <button
+            className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={handleGuardar}
+          >
+            {modoEdicion ? "Guardar cambios" : "Crear usuario"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Usuarios;
+export default ModalCrearUsuario;

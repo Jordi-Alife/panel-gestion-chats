@@ -3,39 +3,54 @@ import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
 
 const Usuarios = () => {
-  const [usuarios, setUsuarios] = useState(() => {
-    const guardados = localStorage.getItem("usuarios");
-    return guardados ? JSON.parse(guardados) : [];
-  });
-
+  const [usuarios, setUsuarios] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [usuarioEditar, setUsuarioEditar] = useState(null);
+
+  // Cargar usuarios desde localStorage al iniciar
+  useEffect(() => {
+    const guardados = localStorage.getItem("usuarios-panel");
+    if (guardados) {
+      setUsuarios(JSON.parse(guardados));
+    } else {
+      // Inicializar con los que tenías por defecto
+      const porDefecto = [
+        {
+          nombre: "Laura Pérez",
+          email: "laura@email.com",
+          ultimaConexion: "2025-04-20T12:00:00Z",
+        },
+        {
+          nombre: "Carlos Ruiz",
+          email: "carlos@email.com",
+          ultimaConexion: "2025-04-19T09:30:00Z",
+        },
+      ];
+      setUsuarios(porDefecto);
+      localStorage.setItem("usuarios-panel", JSON.stringify(porDefecto));
+    }
+  }, []);
+
+  // Guardar en localStorage cada vez que se actualiza la lista
+  useEffect(() => {
+    localStorage.setItem("usuarios-panel", JSON.stringify(usuarios));
+  }, [usuarios]);
 
   useEffect(() => {
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-  }, [usuarios]);
+    const handleClick = (e) => {
+      const esBotonCrear = e.target.innerText === "Crear usuario";
+      if (esBotonCrear) {
+        e.preventDefault();
+        setMostrarModal(true);
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
   const agregarUsuario = (nuevo) => {
     setUsuarios((prev) => [...prev, nuevo]);
-    setMostrarModal(false);
-  };
-
-  const actualizarUsuario = (actualizado) => {
-    const nuevos = usuarios.map((u) =>
-      u.email === actualizado.email ? actualizado : u
-    );
-    setUsuarios(nuevos);
-    setMostrarModal(false);
-  };
-
-  const eliminarUsuario = (email) => {
-    const nuevos = usuarios.filter((u) => u.email !== email);
-    setUsuarios(nuevos);
-  };
-
-  const abrirEditar = (usuario) => {
-    setUsuarioEditar(usuario);
-    setMostrarModal(true);
+    console.log("Usuario creado:", nuevo);
   };
 
   return (
@@ -60,18 +75,12 @@ const Usuarios = () => {
             <div>{user.email}</div>
             <div>{new Date(user.ultimaConexion).toLocaleDateString()}</div>
             <div>
-              <button
-                onClick={() => abrirEditar(user)}
-                className="text-blue-600 text-sm hover:underline"
-              >
+              <button className="text-blue-600 text-sm hover:underline">
                 Editar
               </button>
             </div>
             <div>
-              <button
-                onClick={() => eliminarUsuario(user.email)}
-                className="text-red-500 text-sm hover:underline"
-              >
+              <button className="text-red-500 text-sm hover:underline">
                 Eliminar
               </button>
             </div>
@@ -86,14 +95,8 @@ const Usuarios = () => {
 
       <ModalCrearUsuario
         visible={mostrarModal}
-        onClose={() => {
-          setMostrarModal(false);
-          setUsuarioEditar(null);
-        }}
+        onClose={() => setMostrarModal(false)}
         onCrear={agregarUsuario}
-        onEditar={actualizarUsuario}
-        modo={usuarioEditar ? "editar" : "crear"}
-        usuario={usuarioEditar}
       />
     </div>
   );

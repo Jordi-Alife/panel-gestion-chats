@@ -11,7 +11,9 @@ export default function Detalle() {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
+  const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const chatRef = useRef(null);
+  const scrollForzado = useRef(true);
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -47,10 +49,12 @@ export default function Detalle() {
         setMensajes(ordenados);
 
         setTimeout(() => {
-          chatRef.current?.scrollTo({
-            top: chatRef.current.scrollHeight,
-            behavior: 'auto'
-          });
+          if (scrollForzado.current && chatRef.current) {
+            chatRef.current.scrollTo({
+              top: chatRef.current.scrollHeight,
+              behavior: 'auto'
+            });
+          }
         }, 100);
       });
   };
@@ -72,6 +76,22 @@ export default function Detalle() {
       });
     }
   }, [mensajes]);
+
+  const handleScroll = () => {
+    const el = chatRef.current;
+    if (!el) return;
+    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+    scrollForzado.current = alFinal;
+    setMostrarScrollBtn(!alFinal);
+  };
+
+  const handleScrollBottom = () => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
+      scrollForzado.current = true;
+      setMostrarScrollBtn(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -137,7 +157,6 @@ export default function Detalle() {
     const diffMin = Math.floor(diffSec / 60);
     const diffHrs = Math.floor(diffMin / 60);
     const diffDays = Math.floor(diffHrs / 24);
-
     if (diffSec < 60) return `hace ${diffSec}s`;
     if (diffMin < 60) return `hace ${diffMin}m`;
     if (diffHrs < 24) return `hace ${diffHrs}h`;
@@ -159,21 +178,16 @@ export default function Detalle() {
   const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([id, info]) => {
     const ultimaVista = vistas[id];
     const nuevos = info.mensajes.filter(
-      (m) =>
-        m.from === "usuario" &&
-        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
     ).length;
-
     const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
     const minutosSinResponder = ultimoUsuario
       ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
       : Infinity;
-
     let estado = "Recurrente";
     if (info.mensajes.length === 1) estado = "Nuevo";
     else if (minutosSinResponder < 1) estado = "Activo";
     else estado = "Dormido";
-
     return {
       userId: id,
       nuevos,
@@ -190,7 +204,7 @@ export default function Detalle() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8]">
+    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
@@ -225,24 +239,25 @@ export default function Detalle() {
         </div>
 
         {/* Columna central */}
-        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full">
-          <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
+        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
+          <div
+            ref={chatRef}
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto p-6 space-y-4 h-0"
+          >
             {mensajes.map((msg, index) => {
               const isAsistente = msg.from === 'asistente';
               const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
               const align = isAsistente ? 'justify-end' : 'justify-start';
-              const mostrarPrincipal = isAsistente && msg.original ? msg.original : msg.message;
-              const mostrarSecundario = isAsistente && msg.original ? msg.message : msg.original;
-
               return (
                 <div key={index} className={`flex ${align}`}>
                   <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
-                    {esURLImagen(mostrarPrincipal) ? (
-                      <img src={mostrarPrincipal} alt="img" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
+                    {esURLImagen(msg.message) ? (
+                      <img src={msg.message} alt="img" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
                     ) : (
-                      <p className="whitespace-pre-wrap text-sm">{mostrarPrincipal}</p>
+                      <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-                    {mostrarSecundario && (
+                    {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
                         <button
                           onClick={() => toggleOriginal(index)}
@@ -252,7 +267,7 @@ export default function Detalle() {
                         </button>
                         {originalesVisibles[index] && (
                           <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
-                            {mostrarSecundario}
+                            {msg.original}
                           </p>
                         )}
                       </div>
@@ -268,6 +283,15 @@ export default function Detalle() {
               );
             })}
           </div>
+
+          {mostrarScrollBtn && (
+            <button
+              onClick={handleScrollBottom}
+              className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700"
+            >
+              Ir al final
+            </button>
+          )}
 
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">

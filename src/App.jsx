@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 import Usuarios from "./pages/Usuarios"; // NUEVA LÍNEA
+import Notificaciones from "./components/Notificaciones"; // LÍNEA AÑADIDA
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -118,6 +119,7 @@ const Panel = () => {
 
   return (
     <div>
+      <Notificaciones /> {/* LÍNEA AÑADIDA */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded shadow p-4">
           <h2 className="text-sm text-gray-500">Mensajes recibidos</h2>

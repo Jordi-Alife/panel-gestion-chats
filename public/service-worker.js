@@ -1,3 +1,5 @@
+// public/service-worker.js
+
 self.addEventListener('install', event => {
   console.log('Service Worker instalado');
   self.skipWaiting();
@@ -5,8 +7,10 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   console.log('Service Worker activado');
+  clients.claim(); // Control inmediato
 });
 
 self.addEventListener('fetch', event => {
-  // Por ahora solo dejamos pasar las peticiones sin cachear nada
+  // Deja pasar todas las peticiones sin cachear
+  event.respondWith(fetch(event.request).catch(() => new Response("Offline")));
 });

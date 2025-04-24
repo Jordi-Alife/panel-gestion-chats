@@ -1,6 +1,5 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
@@ -11,44 +10,38 @@ const firebaseConfig = {
   appId: "1:52725281576:web:4402c0507962074345161d"
 };
 
-// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 
-// VAPID key pública desde Firebase Console
+// Clave VAPID pública
 const VAPID_KEY = "BGBob8bXua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A";
 
-// 👉 Solo se obtiene messaging dentro de la función, no al cargar el módulo
-async function obtenerToken() {
+// Función segura para obtener el token
+export async function obtenerToken() {
+  if (typeof window === "undefined") return null;
+
+  const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
+  const soportado = await isSupported();
+  if (!soportado) return null;
+
+  const messaging = getMessaging(app);
   try {
-    const soportado = await isSupported();
-    if (!soportado) {
-      console.warn("🚫 Firebase Messaging no es compatible en este navegador.");
-      return null;
-    }
-
-    const messaging = getMessaging(app);
     const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-
-    if (token) {
-      console.log("🔐 Token obtenido:", token);
-      return token;
-    } else {
-      console.warn("⚠️ No se pudo obtener el token.");
-      return null;
-    }
+    console.log("🔐 Token:", token);
+    return token;
   } catch (err) {
     console.error("❌ Error al obtener token:", err);
     return null;
   }
 }
 
-// 👉 onMessage también se usa dinámicamente
-function escucharMensajes(callback) {
-  isSupported().then((soportado) => {
-    if (!soportado) return;
-    const messaging = getMessaging(app);
-    onMessage(messaging, callback);
-  });
-}
+// Escuchar mensajes en primer plano
+export async function escucharMensajes(callback) {
+  if (typeof window === "undefined") return;
 
-export { obtenerToken, escucharMensajes };
+  const { getMessaging, onMessage, isSupported } = await import('firebase/messaging');
+  const soportado = await isSupported();
+  if (!soportado) return;
+
+  const messaging = getMessaging(app);
+  onMessage(messaging, callback);
+}

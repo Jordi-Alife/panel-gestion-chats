@@ -3,14 +3,13 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
-import { messaging, getToken, onMessage } from './firebase.js'
+import { obtenerToken, escucharMensajes } from './firebase.js'
 
 function MainApp() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [showInstallButton, setShowInstallButton] = useState(false)
 
   useEffect(() => {
-    // Instalación como PWA
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -19,27 +18,18 @@ function MainApp() {
   }, [])
 
   useEffect(() => {
-    // Solicitud de permiso para notificaciones
-    Notification.requestPermission().then((permiso) => {
+    Notification.requestPermission().then(async (permiso) => {
       if (permiso === 'granted') {
-        getToken(messaging, {
-          vapidKey: "BGb0b8xUua7_QSiRd_QHLdPzVwSRN2gg00FM8vGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fT0pru6A"
-        })
-        .then((currentToken) => {
-          if (currentToken) {
-            console.log('Token FCM:', currentToken)
-          } else {
-            console.warn('No se obtuvo token FCM')
-          }
-        })
-        .catch((err) => {
-          console.error('Error al obtener el token FCM:', err)
-        })
+        const token = await obtenerToken()
+        if (token) {
+          console.log('Token FCM:', token)
+        } else {
+          console.warn('No se obtuvo token FCM')
+        }
 
-        // Recepción de notificaciones en primer plano
-        onMessage(messaging, (payload) => {
+        escucharMensajes((payload) => {
           console.log('Notificación en primer plano:', payload)
-          if (Notification.permission === 'granted') {
+          if (payload?.notification?.title) {
             new Notification(payload.notification.title, {
               body: payload.notification.body,
               icon: '/icon-192x192.png'
@@ -83,7 +73,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 )
 
-// Registro del Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/firebase-messaging-sw.js')
@@ -91,4 +80,3 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('Error al registrar el Service Worker:', err))
   })
 }
-// Trigger redeploy

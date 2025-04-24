@@ -2,7 +2,7 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import fetch from 'node-fetch' // Asegúrate de tenerlo instalado con: npm install node-fetch
+import fetch from 'node-fetch'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -10,19 +10,20 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const port = process.env.PORT || 3000
 
-// Server Key de Firebase Cloud Messaging (vista en tu consola de Firebase)
+// Server Key de Firebase Cloud Messaging
 const SERVER_KEY = 'AAAAieDkF0g:APA91bGp0b8xUua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A'
 
-app.use(express.static(path.join(__dirname, 'dist')))
+// Archivos estáticos (sin index para evitar conflictos con rutas internas)
+app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }))
 app.use(express.json())
 
-// Endpoint para enviar notificaciones push
+// Enviar notificación push
 app.post('/api/send-notification', async (req, res) => {
   const { token, title, body } = req.body
 
   const mensaje = {
     to: token,
-    priority: "high", // 👈 Esto mejora la velocidad de entrega
+    priority: "high",
     notification: {
       title: title || "Título por defecto",
       body: body || "Contenido por defecto",
@@ -49,9 +50,9 @@ app.post('/api/send-notification', async (req, res) => {
   }
 })
 
-// Servir SPA (Single Page App)
+// SPA: enviar siempre index.html para rutas internas
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/index.html'))
+  res.sendFile(path.resolve(__dirname, 'dist/index.html'))
 })
 
 app.listen(port, () => {

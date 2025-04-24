@@ -22,9 +22,11 @@ app.post('/api/send-notification', async (req, res) => {
 
   const mensaje = {
     to: token,
+    priority: "high", // 👈 Esto mejora la velocidad de entrega
     notification: {
       title: title || "Título por defecto",
-      body: body || "Contenido por defecto"
+      body: body || "Contenido por defecto",
+      icon: "/icon-192x192.png"
     }
   }
 

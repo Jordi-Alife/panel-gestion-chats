@@ -1,6 +1,6 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
@@ -14,16 +14,26 @@ const firebaseConfig = {
 // Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 
-// Inicializa el servicio de mensajes
-const messaging = getMessaging(app);
+// Solo inicializamos messaging si el navegador lo soporta
+let messaging = null;
 
-// VAPID key pública (desde Firebase Console > Cloud Messaging > Certificados push web)
+isSupported().then((soportado) => {
+  if (soportado) {
+    messaging = getMessaging(app);
+  } else {
+    console.warn("🚫 Firebase messaging no es compatible en este navegador.");
+  }
+});
+
+// VAPID key pública
 const VAPID_KEY = "BGBob8bXua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A";
 
-// Función para obtener el token de notificación
+// Obtener token
 const obtenerToken = async () => {
   try {
-    const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+    const soportado = await isSupported();
+    if (!soportado) return null;
+    const currentToken = await getToken(getMessaging(app), { vapidKey: VAPID_KEY });
     if (currentToken) {
       console.log('🔑 Token de notificación:', currentToken);
       return currentToken;
@@ -37,4 +47,4 @@ const obtenerToken = async () => {
   }
 };
 
-export { messaging, obtenerToken, onMessage };
+export { obtenerToken, onMessage };

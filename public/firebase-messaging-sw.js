@@ -6,7 +6,7 @@ firebase.initializeApp({
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
   authDomain: "nextlives-panel-soporte.firebaseapp.com",
   projectId: "nextlives-panel-soporte",
-  storageBucket: "nextlives-panel-soporte.firebasestorage.app",
+  storageBucket: "nextlives-panel-soporte.appspot.com", // ← CORREGIDO
   messagingSenderId: "52725281576",
   appId: "1:52725281576:web:4402c0507962074345161d"
 });
@@ -14,7 +14,8 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Mensaje recibido en segundo plano:', payload);
+  console.log('[firebase-messaging-sw.js] 📦 Notificación en segundo plano:', payload);
+
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,

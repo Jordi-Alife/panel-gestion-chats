@@ -20,11 +20,16 @@ const Notificaciones = () => {
     // Escuchar notificaciones en primer plano
     escucharMensajes((payload) => {
       console.log("📩 Notificación recibida:", payload);
-      if (payload?.notification?.title) {
-        new Notification(payload.notification.title, {
-          body: payload.notification.body,
-          icon: '/icon-192x192.png'
-        });
+      const { title, body, icon } = payload?.notification || {};
+      if (title && 'Notification' in window) {
+        try {
+          new Notification(title, {
+            body: body || '',
+            icon: icon || '/icon-192x192.png'
+          });
+        } catch (err) {
+          console.warn("No se pudo mostrar la notificación:", err);
+        }
       }
     });
   }, []);

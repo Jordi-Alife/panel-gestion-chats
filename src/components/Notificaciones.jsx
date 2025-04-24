@@ -1,32 +1,33 @@
 // src/components/Notificaciones.jsx
 import { useEffect } from 'react';
-import { messaging, obtenerToken, onMessage } from '../firebase';
+import { obtenerToken, escucharMensajes } from '../firebase';
 
 const Notificaciones = () => {
   useEffect(() => {
+    // Pedir permiso de notificación
     if ('Notification' in window && Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
+      Notification.requestPermission().then(async (permission) => {
         if (permission === 'granted') {
-          obtenerToken()
-            .then((currentToken) => {
-              if (currentToken) {
-                console.log('Token FCM:', currentToken);
-                // Aquí puedes enviarlo a tu backend si lo necesitas
-              } else {
-                console.warn('No se obtuvo el token.');
-              }
-            })
-            .catch(err => {
-              console.error('Error al obtener el token:', err);
-            });
+          const token = await obtenerToken();
+          if (token) {
+            console.log('Token FCM:', token);
+            // Aquí podrías enviarlo a tu backend si lo necesitas
+          } else {
+            console.warn('No se obtuvo el token.');
+          }
         }
       });
     }
 
-    // Escuchar mensajes cuando la app está en primer plano
-    onMessage(messaging, (payload) => {
+    // Escuchar notificaciones en primer plano
+    escucharMensajes((payload) => {
       console.log('Notificación recibida en primer plano:', payload);
-      alert(payload.notification?.title + '\n' + payload.notification?.body);
+      if (payload?.notification?.title) {
+        new Notification(payload.notification.title, {
+          body: payload.notification.body,
+          icon: '/icon-192x192.png'
+        });
+      }
     });
   }, []);
 

@@ -14,37 +14,41 @@ const firebaseConfig = {
 // Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 
-// Solo inicializamos messaging si el navegador lo soporta
-let messaging = null;
-
-isSupported().then((soportado) => {
-  if (soportado) {
-    messaging = getMessaging(app);
-  } else {
-    console.warn("🚫 Firebase messaging no es compatible en este navegador.");
-  }
-});
-
-// VAPID key pública
+// VAPID key pública desde Firebase Console
 const VAPID_KEY = "BGBob8bXua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A";
 
-// Obtener token
-const obtenerToken = async () => {
+// 👉 Solo se obtiene messaging dentro de la función, no al cargar el módulo
+async function obtenerToken() {
   try {
     const soportado = await isSupported();
-    if (!soportado) return null;
-    const currentToken = await getToken(getMessaging(app), { vapidKey: VAPID_KEY });
-    if (currentToken) {
-      console.log('🔑 Token de notificación:', currentToken);
-      return currentToken;
+    if (!soportado) {
+      console.warn("🚫 Firebase Messaging no es compatible en este navegador.");
+      return null;
+    }
+
+    const messaging = getMessaging(app);
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+
+    if (token) {
+      console.log("🔐 Token obtenido:", token);
+      return token;
     } else {
-      console.warn('⚠️ No se pudo obtener el token. ¿Permiso denegado?');
+      console.warn("⚠️ No se pudo obtener el token.");
       return null;
     }
   } catch (err) {
-    console.error('❌ Error al obtener el token de notificación:', err);
+    console.error("❌ Error al obtener token:", err);
     return null;
   }
-};
+}
 
-export { obtenerToken, onMessage };
+// 👉 onMessage también se usa dinámicamente
+function escucharMensajes(callback) {
+  isSupported().then((soportado) => {
+    if (!soportado) return;
+    const messaging = getMessaging(app);
+    onMessage(messaging, callback);
+  });
+}
+
+export { obtenerToken, escucharMensajes };

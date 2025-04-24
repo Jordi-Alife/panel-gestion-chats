@@ -45,3 +45,6 @@ export async function escucharMensajes(callback) {
   const messaging = getMessaging(app);
   onMessage(messaging, callback);
 }
+
+// Export opcional para otras partes del proyecto
+export { app };

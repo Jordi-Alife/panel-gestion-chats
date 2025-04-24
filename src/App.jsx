@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
@@ -9,6 +9,7 @@ const Panel = () => {
   const [data, setData] = useState([]);
   const [vistas, setVistas] = useState({});
   const [busqueda, setBusqueda] = useState("");
+  const notificados = useRef(new Set());
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -45,11 +46,10 @@ const Panel = () => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
+    const diffMin = Math.floor(diffMs / 60000);
     const diffHrs = Math.floor(diffMin / 60);
     const diffDays = Math.floor(diffHrs / 24);
-    if (diffSec < 60) return `hace ${diffSec}s`;
+    if (diffMin < 1) return `hace unos segundos`;
     if (diffMin < 60) return `hace ${diffMin}m`;
     if (diffHrs < 24) return `hace ${diffHrs}h`;
     if (diffDays === 1) return "ayer";
@@ -81,6 +81,25 @@ const Panel = () => {
       estado,
     };
   });
+
+  // Notificación si hay nuevos mensajes en "Dormido"
+  useEffect(() => {
+    listaAgrupada.forEach(conv => {
+      if (conv.estado === "Dormido" && conv.nuevos > 0 && !notificados.current.has(conv.userId)) {
+        if (Notification.permission === "granted") {
+          navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg) {
+              reg.showNotification("Nuevo mensaje en conversación dormida", {
+                body: `ID: ${conv.userId}`,
+                icon: "/icon-192x192.png",
+              });
+              notificados.current.add(conv.userId);
+            }
+          });
+        }
+      }
+    });
+  }, [listaAgrupada]);
 
   const filtrada = listaAgrupada.filter((item) =>
     item.userId.toLowerCase().includes(busqueda.toLowerCase())
@@ -174,20 +193,6 @@ const Panel = () => {
           </p>
         )}
       </div>
-
-      {/* Botón flotante para test push */}
-      <button
-        onClick={() => {
-          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: 'TEST_NOTIFICATION' });
-          } else {
-            alert("El service worker no está activo.");
-          }
-        }}
-        className="fixed bottom-4 left-4 bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 text-sm z-50"
-      >
-        Notificación de prueba
-      </button>
     </div>
   );
 };

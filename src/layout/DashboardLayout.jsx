@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }) => {
   const esPaginaUsuarios = location.pathname === "/usuarios";
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header fijo arriba */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
         <img

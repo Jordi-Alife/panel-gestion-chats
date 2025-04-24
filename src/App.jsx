@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
-import Usuarios from "./pages/Usuarios"; // NUEVA LÍNEA
-import Notificaciones from "./components/Notificaciones"; // LÍNEA AÑADIDA
+import Usuarios from "./pages/Usuarios";
+import Notificaciones from "./components/Notificaciones";
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -33,10 +33,7 @@ const Panel = () => {
   const conversacionesPorUsuario = data.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [] };
     actual.mensajes = [...(actual.mensajes || []), item];
-    if (
-      !actual.lastInteraction ||
-      new Date(item.lastInteraction) > new Date(actual.lastInteraction)
-    ) {
+    if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
     }
@@ -52,7 +49,6 @@ const Panel = () => {
     const diffMin = Math.floor(diffSec / 60);
     const diffHrs = Math.floor(diffMin / 60);
     const diffDays = Math.floor(diffHrs / 24);
-
     if (diffSec < 60) return `hace ${diffSec}s`;
     if (diffMin < 60) return `hace ${diffMin}m`;
     if (diffHrs < 24) return `hace ${diffHrs}h`;
@@ -60,39 +56,31 @@ const Panel = () => {
     return `hace ${diffDays}d`;
   };
 
-  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(
-    ([userId, info]) => {
-      const ultimaVista = vistas[userId];
-      const nuevos = info.mensajes.filter(
-        (m) =>
-          m.from === "usuario" &&
-          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-      ).length;
+  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([userId, info]) => {
+    const ultimaVista = vistas[userId];
+    const nuevos = info.mensajes.filter(
+      (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+    ).length;
 
-      const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
-      const minutosSinResponder = ultimoUsuario
-        ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
-        : Infinity;
+    const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
+    const minutosSinResponder = ultimoUsuario
+      ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
+      : Infinity;
 
-      let estado = "Recurrente";
-      if (info.mensajes.length === 1) {
-        estado = "Nuevo";
-      } else if (minutosSinResponder < 1) {
-        estado = "Activo";
-      } else {
-        estado = "Dormido";
-      }
+    let estado = "Recurrente";
+    if (info.mensajes.length === 1) estado = "Nuevo";
+    else if (minutosSinResponder < 1) estado = "Activo";
+    else estado = "Dormido";
 
-      return {
-        userId,
-        ...info,
-        nuevos,
-        totalMensajes: info.mensajes.length,
-        sinResponder: minutosSinResponder >= 1,
-        estado,
-      };
-    }
-  );
+    return {
+      userId,
+      ...info,
+      nuevos,
+      totalMensajes: info.mensajes.length,
+      sinResponder: minutosSinResponder >= 1,
+      estado,
+    };
+  });
 
   const filtrada = listaAgrupada.filter((item) =>
     item.userId.toLowerCase().includes(busqueda.toLowerCase())
@@ -109,9 +97,7 @@ const Panel = () => {
       Dormido: "bg-gray-400",
     };
     return (
-      <span
-        className={`text-white text-xs px-2 py-1 rounded-full ${colores[estado] || "bg-gray-500"}`}
-      >
+      <span className={`text-white text-xs px-2 py-1 rounded-full ${colores[estado] || "bg-gray-500"}`}>
         {estado}
       </span>
     );
@@ -119,7 +105,7 @@ const Panel = () => {
 
   return (
     <div>
-      <Notificaciones /> {/* LÍNEA AÑADIDA */}
+      <Notificaciones />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded shadow p-4">
           <h2 className="text-sm text-gray-500">Mensajes recibidos</h2>
@@ -188,6 +174,20 @@ const Panel = () => {
           </p>
         )}
       </div>
+
+      {/* Botón flotante para test push */}
+      <button
+        onClick={() => {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'TEST_NOTIFICATION' });
+          } else {
+            alert("El service worker no está activo.");
+          }
+        }}
+        className="fixed bottom-4 left-4 bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 text-sm z-50"
+      >
+        Notificación de prueba
+      </button>
     </div>
   );
 };
@@ -198,7 +198,7 @@ const App = () => (
       <Routes>
         <Route path="/" element={<Panel />} />
         <Route path="/conversacion/:userId" element={<Detalle />} />
-        <Route path="/usuarios" element={<Usuarios />} /> {/* NUEVA RUTA */}
+        <Route path="/usuarios" element={<Usuarios />} />
       </Routes>
     </DashboardLayout>
   </Router>

@@ -1,5 +1,3 @@
-// public/service-worker.js
-
 self.addEventListener('install', event => {
   console.log('Service Worker instalado');
   self.skipWaiting();
@@ -7,10 +5,18 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   console.log('Service Worker activado');
-  clients.claim(); // Control inmediato
 });
 
 self.addEventListener('fetch', event => {
-  // Deja pasar todas las peticiones sin cachear
-  event.respondWith(fetch(event.request).catch(() => new Response("Offline")));
+  // No interceptamos nada por ahora
+});
+
+// Notificación de prueba
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'TEST_NOTIFICATION') {
+    self.registration.showNotification('Notificación de prueba', {
+      body: 'Este es el contenido de una notificación enviada desde el Service Worker.',
+      icon: '/icon-192x192.png',
+    });
+  }
 });

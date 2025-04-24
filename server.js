@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const port = process.env.PORT || 3000
 
-// Server Key de Firebase (la copias de Firebase > Cloud Messaging > Configuración)
-const SERVER_KEY = 'TU_SERVER_KEY_AQUI' // ← Reemplaza esto por tu Server Key real
+// Server Key de Firebase Cloud Messaging (vista en tu consola de Firebase)
+const SERVER_KEY = 'AAAAieDkF0g:APA91bGp0b8xUua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A'
 
 app.use(express.static(path.join(__dirname, 'dist')))
 app.use(express.json())
@@ -47,7 +47,7 @@ app.post('/api/send-notification', async (req, res) => {
   }
 })
 
-// Resto de la app: servir SPA
+// Servir SPA (Single Page App)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'))
 })

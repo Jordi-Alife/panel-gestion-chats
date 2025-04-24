@@ -1,19 +1,17 @@
 // src/components/Notificaciones.jsx
 import { useEffect } from 'react';
-import { messaging, getToken, onMessage } from '../firebase';
-
-const claveVAPID = 'B6CobD8xIua7_QSiidRQLHc6ZwSRN29g00Fm8VGk4CBquXL28qag8yPcP8vdP7lC_eEdLpxQGJ_CVjn2fTP0ur6A';
+import { messaging, obtenerToken, onMessage } from '../firebase';
 
 const Notificaciones = () => {
   useEffect(() => {
     if ('Notification' in window && Notification.permission !== 'denied') {
       Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
-          getToken(messaging, { vapidKey: claveVAPID })
+          obtenerToken()
             .then((currentToken) => {
               if (currentToken) {
                 console.log('Token FCM:', currentToken);
-                // Aquí puedes enviarlo a tu backend
+                // Aquí puedes enviarlo a tu backend si lo necesitas
               } else {
                 console.warn('No se obtuvo el token.');
               }

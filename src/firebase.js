@@ -1,57 +1,47 @@
 // src/firebase.js
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from 'firebase/app'
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
   authDomain: "nextlives-panel-soporte.firebaseapp.com",
   projectId: "nextlives-panel-soporte",
-  storageBucket: "nextlives-panel-soporte.firebasestorage.app",
+  storageBucket: "nextlives-panel-soporte.appspot.com",
   messagingSenderId: "52725281576",
-  appId: "1:52725281576:web:4402c0507962074345161d",
-};
+  appId: "1:52725281576:web:4402c0507962074345161d"
+}
 
-// Inicializa Firebase
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig)
 
-// Clave pública VAPID
-const VAPID_KEY = "BGBob8bXua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A";
+// VAPID KEY
+const VAPID_KEY = "BGBob8bXua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A"
 
-// Obtener token para notificaciones push
+// Función para obtener token de notificaciones push
 export async function obtenerToken() {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null
 
+  const { getMessaging, getToken, isSupported } = await import('firebase/messaging')
+  const soportado = await isSupported()
+  if (!soportado) return null
+
+  const messaging = getMessaging(app)
   try {
-    const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
-    const soportado = await isSupported();
-    if (!soportado) return null;
-
-    const messaging = getMessaging(app);
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-    if (token) {
-      console.log("🔐 Token:", token);
-      return token;
-    } else {
-      console.warn("⚠️ No se obtuvo el token.");
-      return null;
-    }
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY })
+    console.log("🔐 Token:", token)
+    return token
   } catch (err) {
-    console.error("❌ Error al obtener token:", err);
-    return null;
+    console.error("❌ Error al obtener token:", err)
+    return null
   }
 }
 
 // Escuchar mensajes en primer plano
 export async function escucharMensajes(callback) {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return
 
-  try {
-    const { getMessaging, onMessage, isSupported } = await import('firebase/messaging');
-    const soportado = await isSupported();
-    if (!soportado) return;
+  const { getMessaging, onMessage, isSupported } = await import('firebase/messaging')
+  const soportado = await isSupported()
+  if (!soportado) return
 
-    const messaging = getMessaging(app);
-    onMessage(messaging, callback);
-  } catch (err) {
-    console.error("❌ Error al escuchar mensajes:", err);
-  }
+  const messaging = getMessaging(app)
+  onMessage(messaging, callback)
 }

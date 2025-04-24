@@ -15,21 +15,20 @@ const app = initializeApp(firebaseConfig);
 // Clave VAPID pública
 const VAPID_KEY = "BGBob8bXua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A";
 
-// Función segura para obtener el token
+// Obtener token desde FCM (usando imports dinámicos para evitar romper Railway)
 export async function obtenerToken() {
   if (typeof window === "undefined") return null;
+  const { getMessaging, getToken, isSupported } = await import("firebase/messaging");
 
-  const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
   const soportado = await isSupported();
   if (!soportado) return null;
 
   const messaging = getMessaging(app);
   try {
     const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-    console.log("🔐 Token:", token);
     return token;
   } catch (err) {
-    console.error("❌ Error al obtener token:", err);
+    console.error("❌ Error al obtener token FCM:", err);
     return null;
   }
 }
@@ -37,14 +36,11 @@ export async function obtenerToken() {
 // Escuchar mensajes en primer plano
 export async function escucharMensajes(callback) {
   if (typeof window === "undefined") return;
+  const { getMessaging, onMessage, isSupported } = await import("firebase/messaging");
 
-  const { getMessaging, onMessage, isSupported } = await import('firebase/messaging');
   const soportado = await isSupported();
   if (!soportado) return;
 
   const messaging = getMessaging(app);
   onMessage(messaging, callback);
 }
-
-// Export opcional para otras partes del proyecto
-export { app };

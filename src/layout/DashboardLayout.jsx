@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
+// Nuevos iconos actualizados
 import IconInicio from "../assets/chat.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
@@ -8,6 +9,7 @@ import IconToggle from "../assets/menu.svg";
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
+
   const esPaginaAgentes = location.pathname === "/usuarios";
 
   return (
@@ -36,15 +38,12 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden after:content-[''] after:absolute after:top-0 after:right-0 after:w-6 after:h-6 after:bg-[#1E2431] after:rounded-bl-3xl`}
         >
-          {/* Curva decorativa exterior (a la derecha) */}
-          <div className="absolute top-0 -right-6 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
-
-          {/* Botón de colapsar/expandir */}
+          {/* Botón flotante lateral pegado al margen izquierdo */}
           <button
             onClick={() => setColapsado(!colapsado)}
-            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
+            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
             aria-label="Toggle menú"
           >
             <img

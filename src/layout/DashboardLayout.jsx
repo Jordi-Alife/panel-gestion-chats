@@ -10,7 +10,7 @@ const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
 
-  const esPaginaAgentes = location.pathname === "/usuarios"; // URL sigue siendo /usuarios
+  const esPaginaAgentes = location.pathname === "/usuarios";
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -38,12 +38,12 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 rounded-tr-3xl`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 rounded-tl-3xl`}
         >
-          {/* Botón flotante lateral para colapsar/expandir */}
+          {/* Botón flotante lateral pegado al margen izquierdo */}
           <button
             onClick={() => setColapsado(!colapsado)}
-            className="absolute top-1/2 -right-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
+            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
             aria-label="Toggle menú"
           >
             <img

@@ -38,18 +38,18 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 rounded-tr-3xl`}
         >
           {/* Botón flotante lateral para colapsar/expandir */}
           <button
             onClick={() => setColapsado(!colapsado)}
-            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-l-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
+            className="absolute top-1/2 -right-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
             aria-label="Toggle menú"
           >
             <img
               src={IconToggle}
               alt="Toggle menú"
-              className={`w-6 h-6 ${colapsado ? "rotate-180" : ""} transition-transform`}
+              className={`w-8 h-8 ${colapsado ? "rotate-180" : ""} transition-transform`}
             />
           </button>
 
@@ -77,7 +77,7 @@ const DashboardLayout = ({ children }) => {
         </aside>
 
         {/* Contenido */}
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-100 rounded-tl-3xl">
+        <main className="flex-1 p-6 overflow-y-auto bg-gray-100">
           {children}
         </main>
       </div>

@@ -1,7 +1,11 @@
 // src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import BotonToggle from "../assets/button-small.jpeg"; // ✅ Import desde src/assets
+
+// Importa los SVG correctamente desde src/assets
+import IconDashboard from "../assets/dashboard-1.svg";
+import IconUsuarios from "../assets/skyscraper.svg";
+import IconToggle from "../assets/button-small.svg";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
@@ -11,7 +15,7 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header fijo arriba */}
+      {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
         <img
           src="/logo-nextlives.png"
@@ -29,46 +33,51 @@ const DashboardLayout = ({ children }) => {
         )}
       </header>
 
-      {/* Contenedor principal debajo del header */}
+      {/* Contenedor principal */}
       <div className="flex flex-1 pt-[72px] h-full">
-        {/* Sidebar debajo del header */}
+        {/* Sidebar */}
         <aside
           className={`${
-            colapsado ? "w-16" : "w-48"
-          } bg-[#1E2431] flex flex-col transition-all duration-200`}
+            colapsado ? "w-16" : "w-56"
+          } bg-[#1E2431] flex flex-col justify-between transition-all duration-200`}
         >
-          <button
-            onClick={() => setColapsado(!colapsado)}
-            className="p-2 hover:bg-[#2d3444] transition focus:outline-none"
-            aria-label="Contraer/Expandir menú"
-          >
-            <img
-              src={BotonToggle}
-              alt="Toggle menú"
-              className={`w-5 h-5 ${colapsado ? "rotate-180" : ""} transition-transform`}
-            />
-          </button>
-
-          <nav className={`mt-4 text-white text-sm ${colapsado ? "px-0" : "px-2"}`}>
+          <div className="mt-4 space-y-1 text-sm">
             <Link
               to="/"
-              className={`flex items-center py-2 px-2 rounded hover:bg-[#2d3444] ${
-                colapsado ? "justify-center" : "gap-2"
+              className={`flex items-center py-2 px-3 text-white hover:bg-[#2d3444] rounded transition ${
+                colapsado ? "justify-center" : "gap-3"
               }`}
             >
-              <span>🏠</span>
+              <img src={IconDashboard} alt="Inicio" className="w-5 h-5" />
               {!colapsado && <span>Inicio</span>}
             </Link>
             <Link
               to="/usuarios"
-              className={`flex items-center py-2 px-2 rounded hover:bg-[#2d3444] ${
-                colapsado ? "justify-center" : "gap-2"
+              className={`flex items-center py-2 px-3 text-white hover:bg-[#2d3444] rounded transition ${
+                colapsado ? "justify-center" : "gap-3"
               }`}
             >
-              <span>👤</span>
+              <img src={IconUsuarios} alt="Usuarios" className="w-5 h-5" />
               {!colapsado && <span>Usuarios</span>}
             </Link>
-          </nav>
+          </div>
+
+          {/* Botón para contraer/expandir */}
+          <div className="p-3">
+            <button
+              onClick={() => setColapsado(!colapsado)}
+              className="w-full bg-[#2d3444] p-2 rounded-full flex justify-center hover:opacity-80"
+              aria-label="Toggle menú"
+            >
+              <img
+                src={IconToggle}
+                alt="Toggle menú"
+                className={`w-4 h-4 transition-transform ${
+                  colapsado ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+          </div>
         </aside>
 
         {/* Contenido */}

@@ -77,23 +77,27 @@ const DashboardLayout = ({ children }) => {
 
           {/* Info del agente logueado */}
           <div className="mt-auto px-4 pb-6">
-            <div
-              className={`bg-[#3a3f4b] text-white rounded-2xl p-3 flex ${
-                colapsado ? "justify-center" : "items-center gap-3"
-              }`}
-            >
-              <img
-                src="https://i.pravatar.cc/100"
-                alt="Amber Walker"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              {!colapsado && (
+            {colapsado ? (
+              <div className="flex justify-center">
+                <img
+                  src="https://i.pravatar.cc/100"
+                  alt="Amber Walker"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3">
+                <img
+                  src="https://i.pravatar.cc/100"
+                  alt="Amber Walker"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
                 <div>
                   <div className="font-semibold text-sm leading-tight">Amber Walker</div>
                   <div className="text-xs text-gray-400">awalker</div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </aside>
 

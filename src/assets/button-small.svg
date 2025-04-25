@@ -1,0 +1,9 @@
+<svg width="48" height="38" viewBox="0 0 48 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="path-1-outside-1_10776_16511" maskUnits="userSpaceOnUse" x="0" y="0" width="48" height="38" fill="black">
+<rect fill="white" width="48" height="38"/>
+<path d="M6 0H29C35.532 0 38.798 0 41.3075 1.23753C43.6767 2.40588 45.5941 4.32335 46.7625 6.69254C48 9.20199 48 12.468 48 19C48 25.532 48 28.798 46.7625 31.3075C45.5941 33.6767 43.6767 35.5941 41.3075 36.7625C38.798 38 35.532 38 29 38H6V0Z"/>
+</mask>
+<path d="M6 0H29C35.532 0 38.798 0 41.3075 1.23753C43.6767 2.40588 45.5941 4.32335 46.7625 6.69254C48 9.20199 48 12.468 48 19C48 25.532 48 28.798 46.7625 31.3075C45.5941 33.6767 43.6767 35.5941 41.3075 36.7625C38.798 38 35.532 38 29 38H6V0Z" fill="#555563" fill-opacity="0.66"/>
+<path d="M6 0H48H6ZM48 38H6H48ZM0 38V0H12V38H0ZM48 0V38V0Z" fill="#555563" fill-opacity="0.66" mask="url(#path-1-outside-1_10776_16511)"/>
+<path d="M35 25H19M35 21H29M35 17H29M35 13H19M21 17L19 19M19 19L21 21M19 19H25" stroke="#D4D4D8" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

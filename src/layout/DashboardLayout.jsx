@@ -34,11 +34,11 @@ const DashboardLayout = ({ children }) => {
 
       {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-full">
-        {/* Sidebar */}
+        {/* Sidebar con bordes redondeados */}
         <aside
           className={`${
             colapsado ? "w-16" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-between transition-all duration-200`}
+          } bg-[#1E2431] flex flex-col justify-between transition-all duration-200 rounded-tr-3xl rounded-br-3xl`}
         >
           <div className="mt-4 space-y-1 text-sm">
             <Link

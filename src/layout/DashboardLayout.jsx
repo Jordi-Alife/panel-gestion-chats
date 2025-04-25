@@ -1,8 +1,7 @@
-// src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-// Importa los SVG correctamente desde src/assets
+// Iconos SVG desde assets
 import IconDashboard from "../assets/dashboard-1.svg";
 import IconUsuarios from "../assets/skyscraper.svg";
 import IconToggle from "../assets/button-small.svg";
@@ -33,7 +32,7 @@ const DashboardLayout = ({ children }) => {
         )}
       </header>
 
-      {/* Contenedor principal */}
+      {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-full">
         {/* Sidebar */}
         <aside
@@ -44,16 +43,17 @@ const DashboardLayout = ({ children }) => {
           <div className="mt-4 space-y-1 text-sm">
             <Link
               to="/"
-              className={`flex items-center py-2 px-3 text-white hover:bg-[#2d3444] rounded transition ${
+              className={`flex items-center py-2 pl-4 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
               <img src={IconDashboard} alt="Inicio" className="w-5 h-5" />
               {!colapsado && <span>Inicio</span>}
             </Link>
+
             <Link
               to="/usuarios"
-              className={`flex items-center py-2 px-3 text-white hover:bg-[#2d3444] rounded transition ${
+              className={`flex items-center py-2 pl-4 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
@@ -62,19 +62,17 @@ const DashboardLayout = ({ children }) => {
             </Link>
           </div>
 
-          {/* Botón para contraer/expandir */}
+          {/* Botón colapsar menú */}
           <div className="p-3">
             <button
               onClick={() => setColapsado(!colapsado)}
-              className="w-full bg-[#2d3444] p-2 rounded-full flex justify-center hover:opacity-80"
+              className="w-full bg-[#2d3444] p-3 rounded-full flex justify-center items-center hover:opacity-80"
               aria-label="Toggle menú"
             >
               <img
                 src={IconToggle}
                 alt="Toggle menú"
-                className={`w-4 h-4 transition-transform ${
-                  colapsado ? "rotate-180" : ""
-                }`}
+                className={`w-6 h-6 ${colapsado ? "rotate-180" : ""} transition-transform`}
               />
             </button>
           </div>

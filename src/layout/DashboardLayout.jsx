@@ -43,7 +43,7 @@ const DashboardLayout = ({ children }) => {
           <div className="mt-4 space-y-1 text-sm">
             <Link
               to="/"
-              className={`flex items-center py-2 pl-4 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
@@ -53,7 +53,7 @@ const DashboardLayout = ({ children }) => {
 
             <Link
               to="/usuarios"
-              className={`flex items-center py-2 pl-4 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
@@ -63,16 +63,16 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Botón colapsar menú */}
-          <div className="p-3">
+          <div className="p-4">
             <button
               onClick={() => setColapsado(!colapsado)}
-              className="w-full bg-[#2d3444] p-3 rounded-full flex justify-center items-center hover:opacity-80"
+              className="w-full bg-[#2d3444] p-4 rounded-full flex justify-center items-center hover:opacity-80"
               aria-label="Toggle menú"
             >
               <img
                 src={IconToggle}
                 alt="Toggle menú"
-                className={`w-6 h-6 ${colapsado ? "rotate-180" : ""} transition-transform`}
+                className={`w-8 h-8 ${colapsado ? "rotate-180" : ""} transition-transform`}
               />
             </button>
           </div>

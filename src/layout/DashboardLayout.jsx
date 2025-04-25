@@ -102,7 +102,7 @@ const DashboardLayout = ({ children }) => {
         </aside>
 
         {/* Contenido */}
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-100">
+        <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
 
           {/* Footer legal */}

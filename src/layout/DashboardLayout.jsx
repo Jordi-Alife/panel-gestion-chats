@@ -35,12 +35,12 @@ const DashboardLayout = ({ children }) => {
           } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
         >
           {/* Extensión decorativa hacia la derecha */}
-          <div className="absolute top-0 right-0 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-0" />
+          <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
 
           {/* Botón flotante lateral pegado al margen izquierdo */}
           <button
             onClick={() => setColapsado(!colapsado)}
-            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
+            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
             aria-label="Toggle menú"
           >
             <img
@@ -50,7 +50,7 @@ const DashboardLayout = ({ children }) => {
             />
           </button>
 
-          <div className="mt-4 space-y-1 text-sm relative z-10">
+          <div className="mt-4 space-y-1 text-sm relative z-20">
             <Link
               to="/"
               className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
@@ -73,7 +73,7 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Info del agente logueado */}
-          <div className="mt-auto px-4 pb-6 z-10">
+          <div className="mt-auto px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
                 <img

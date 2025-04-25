@@ -1,8 +1,10 @@
+// src/App.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 import Usuarios from "./pages/Usuarios";
+import Perfil from "./pages/Perfil"; // <- Añadido
 import Notificaciones from "./components/Notificaciones";
 
 const Panel = () => {
@@ -82,7 +84,6 @@ const Panel = () => {
     };
   });
 
-  // Notificación si hay nuevos mensajes en "Dormido"
   useEffect(() => {
     listaAgrupada.forEach(conv => {
       if (conv.estado === "Dormido" && conv.nuevos > 0 && !notificados.current.has(conv.userId)) {
@@ -204,6 +205,7 @@ const App = () => (
         <Route path="/" element={<Panel />} />
         <Route path="/conversacion/:userId" element={<Detalle />} />
         <Route path="/usuarios" element={<Usuarios />} />
+        <Route path="/perfil" element={<Perfil />} /> {/* <- Añadido */}
       </Routes>
     </DashboardLayout>
   </Router>

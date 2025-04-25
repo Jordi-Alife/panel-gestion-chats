@@ -1,9 +1,12 @@
+// src/pages/Usuarios.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [modo, setModo] = useState("crear"); // 'crear' o 'editar'
+  const [usuarioEditando, setUsuarioEditando] = useState(null); // Datos del usuario que se edita
 
   useEffect(() => {
     const guardados = localStorage.getItem("usuarios-panel");
@@ -35,22 +38,42 @@ const Usuarios = () => {
 
   useEffect(() => {
     const handleClick = (e) => {
-      const esBotonCrear = e.target.innerText === "Crear usuario" || e.target.innerText === "Crear agente";
-      if (esBotonCrear) {
+      const texto = e.target.innerText;
+      if (texto === "Crear usuario" || texto === "Crear agente") {
         e.preventDefault();
+        setModo("crear");
+        setUsuarioEditando(null);
         setMostrarModal(true);
       }
     };
-
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
   const agregarUsuario = (nuevo) => {
-    // Añadir rol por defecto si no lo trae
     if (!nuevo.rol) nuevo.rol = "Administrador";
-    setUsuarios((prev) => [...prev, nuevo]);
-    console.log("Usuario creado:", nuevo);
+    if (modo === "crear") {
+      setUsuarios((prev) => [...prev, nuevo]);
+      console.log("Usuario creado:", nuevo);
+    } else if (modo === "editar" && usuarioEditando !== null) {
+      const actualizados = usuarios.map((u, idx) =>
+        idx === usuarioEditando ? { ...u, ...nuevo } : u
+      );
+      setUsuarios(actualizados);
+      console.log("Usuario editado:", nuevo);
+    }
+  };
+
+  const abrirEditar = (index) => {
+    setModo("editar");
+    setUsuarioEditando(index);
+    setMostrarModal(true);
+  };
+
+  const eliminarUsuario = (index) => {
+    const nuevos = [...usuarios];
+    nuevos.splice(index, 1);
+    setUsuarios(nuevos);
   };
 
   return (
@@ -77,12 +100,18 @@ const Usuarios = () => {
             <div>{new Date(user.ultimaConexion).toLocaleDateString()}</div>
             <div>{user.rol || "—"}</div>
             <div>
-              <button className="text-blue-600 text-sm hover:underline">
+              <button
+                onClick={() => abrirEditar(i)}
+                className="text-blue-600 text-sm hover:underline"
+              >
                 Editar
               </button>
             </div>
             <div>
-              <button className="text-red-500 text-sm hover:underline">
+              <button
+                onClick={() => eliminarUsuario(i)}
+                className="text-red-500 text-sm hover:underline"
+              >
                 Eliminar
               </button>
             </div>
@@ -99,6 +128,8 @@ const Usuarios = () => {
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}
         onCrear={agregarUsuario}
+        modo={modo}
+        usuario={usuarioEditando !== null ? usuarios[usuarioEditando] : null}
       />
     </div>
   );

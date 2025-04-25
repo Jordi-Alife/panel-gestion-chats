@@ -1,121 +1,111 @@
 // src/components/ModalCrearUsuario.jsx
 import React, { useState, useEffect } from "react";
 
-const ModalCrearUsuario = ({ isOpen, onClose, onSave, modoEdicion, usuarioEditar }) => {
-  const [formData, setFormData] = useState({
-    nombre: "",
-    email: "",
-    rol: "Soporte", // Valor por defecto
-    activo: false   // Checkbox desmarcado inicialmente
-  });
+const ModalCrearUsuario = ({ visible, onClose, onCrear, modo, usuario }) => {
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [rol, setRol] = useState("Administrador");
+  const [activado, setActivado] = useState(false);
 
   useEffect(() => {
-    if (modoEdicion && usuarioEditar) {
-      setFormData({
-        nombre: usuarioEditar.nombre || "",
-        email: usuarioEditar.email || "",
-        rol: usuarioEditar.rol || "Soporte",
-        activo: usuarioEditar.activo || false
-      });
+    if (modo === "editar" && usuario) {
+      setNombre(usuario.nombre || "");
+      setEmail(usuario.email || "");
+      setRol(usuario.rol || "Administrador");
+      setActivado(usuario.activado || false);
     } else {
-      setFormData({
-        nombre: "",
-        email: "",
-        rol: "Soporte",
-        activo: false
-      });
+      setNombre("");
+      setEmail("");
+      setRol("Administrador");
+      setActivado(false);
     }
-  }, [modoEdicion, usuarioEditar]);
+  }, [modo, usuario, visible]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-  };
+  const handleGuardar = () => {
+    if (!nombre.trim() || !email.trim()) {
+      alert("Por favor, completa todos los campos obligatorios.");
+      return;
+    }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
+    const nuevoUsuario = {
+      nombre,
+      email,
+      rol,
+      activado,
+      ultimaConexion: new Date().toISOString()
+    };
+
+    onCrear(nuevoUsuario);
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-md">
-        <h2 className="text-xl font-bold mb-4">{modoEdicion ? "Editar agente" : "Crear agente"}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nombre</label>
-            <input
-              type="text"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full border rounded px-3 py-2 text-sm"
-            />
-          </div>
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md space-y-4 relative">
+        <h2 className="text-lg font-bold mb-4">
+          {modo === "editar" ? "Editar agente" : "Crear nuevo agente"}
+        </h2>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full border rounded px-3 py-2 text-sm"
-            />
-          </div>
+        <div className="flex flex-col space-y-2">
+          <input
+            type="text"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            placeholder="Nombre completo"
+            className="border rounded px-3 py-2 text-sm"
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Correo electrónico"
+            className="border rounded px-3 py-2 text-sm"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Rol</label>
-            <select
-              name="rol"
-              value={formData.rol}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full border rounded px-3 py-2 text-sm"
-            >
-              <option value="Administrador">Administrador</option>
-              <option value="Editor">Editor</option>
-              <option value="Soporte">Soporte</option>
-            </select>
-          </div>
+          <select
+            value={rol}
+            onChange={(e) => setRol(e.target.value)}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="Administrador">Administrador</option>
+            <option value="Editor">Editor</option>
+            <option value="Soporte">Soporte</option>
+          </select>
 
-          <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-sm mt-2">
             <input
               type="checkbox"
-              name="activo"
-              checked={formData.activo}
-              onChange={handleChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              checked={activado}
+              onChange={(e) => setActivado(e.target.checked)}
+              className="accent-[#ff5733]"
             />
-            <label htmlFor="activo" className="text-sm text-gray-700">
-              Activar usuario
-            </label>
-          </div>
+            Activar agente
+          </label>
+        </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 text-sm"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="bg-[#ff5733] text-white px-4 py-2 rounded hover:bg-orange-600 text-sm"
-            >
-              {modoEdicion ? "Guardar cambios" : "Crear"}
-            </button>
-          </div>
-        </form>
+        <div className="flex justify-end gap-3 pt-4">
+          <button
+            onClick={onClose}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleGuardar}
+            className="bg-[#ff5733] hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded"
+          >
+            {modo === "editar" ? "Guardar cambios" : "Crear agente"}
+          </button>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-4 text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
       </div>
     </div>
   );

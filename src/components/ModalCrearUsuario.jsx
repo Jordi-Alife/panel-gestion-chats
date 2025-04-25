@@ -1,7 +1,7 @@
 // src/components/ModalCrearUsuario.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-const ModalCrearUsuario = ({ visible, onClose, onCrear, modo, usuario }) => {
+const ModalCrearUsuario = ({ visible, onClose, onCrear, modo = "crear", usuario = null }) => {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("Administrador");
@@ -21,91 +21,89 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, modo, usuario }) => {
     }
   }, [modo, usuario, visible]);
 
-  const handleGuardar = () => {
-    if (!nombre.trim() || !email.trim()) {
+  if (!visible) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!nombre || !email) {
       alert("Por favor, completa todos los campos obligatorios.");
       return;
     }
-
-    const nuevoUsuario = {
+    const nuevo = {
       nombre,
       email,
+      ultimaConexion: new Date().toISOString(),
       rol,
-      activado,
-      ultimaConexion: new Date().toISOString()
+      activado
     };
-
-    onCrear(nuevoUsuario);
-    onClose();
+    onCrear(nuevo);
   };
 
-  if (!visible) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md space-y-4 relative">
-        <h2 className="text-lg font-bold mb-4">
-          {modo === "editar" ? "Editar agente" : "Crear nuevo agente"}
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-[90%] sm:w-[400px]">
+        <h2 className="text-lg font-semibold mb-4 text-center">
+          {modo === "editar" ? "Editar agente" : "Crear agente"}
         </h2>
-
-        <div className="flex flex-col space-y-2">
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Nombre completo"
-            className="border rounded px-3 py-2 text-sm"
-          />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Correo electrónico"
-            className="border rounded px-3 py-2 text-sm"
-          />
-
-          <select
-            value={rol}
-            onChange={(e) => setRol(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          >
-            <option value="Administrador">Administrador</option>
-            <option value="Editor">Editor</option>
-            <option value="Soporte">Soporte</option>
-          </select>
-
-          <label className="flex items-center gap-2 text-sm mt-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Nombre</label>
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="w-full border rounded px-3 py-2 text-sm mt-1 focus:outline-none focus:ring focus:border-blue-300"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border rounded px-3 py-2 text-sm mt-1 focus:outline-none focus:ring focus:border-blue-300"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Rol</label>
+            <select
+              value={rol}
+              onChange={(e) => setRol(e.target.value)}
+              className="w-full border rounded px-3 py-2 text-sm mt-1 focus:outline-none focus:ring focus:border-blue-300"
+            >
+              <option>Administrador</option>
+              <option>Editor</option>
+              <option>Soporte</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={activado}
               onChange={(e) => setActivado(e.target.checked)}
-              className="accent-[#ff5733]"
+              id="activo"
             />
-            Activar agente
-          </label>
-        </div>
+            <label htmlFor="activo" className="text-sm">Activado</label>
+          </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            onClick={onClose}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleGuardar}
-            className="bg-[#ff5733] hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            {modo === "editar" ? "Guardar cambios" : "Crear agente"}
-          </button>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-4 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded bg-[#ff5733] text-white hover:bg-orange-600 transition"
+            >
+              {modo === "editar" ? "Guardar cambios" : "Crear"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

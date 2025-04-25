@@ -8,18 +8,13 @@ import IconToggle from "../assets/menu.svg";
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
-
   const esPaginaAgentes = location.pathname === "/usuarios";
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
-        <img
-          src="/logo-nextlives.png"
-          alt="NextLives"
-          className="h-10 object-contain"
-        />
+        <img src="/logo-nextlives.png" alt="NextLives" className="h-10 object-contain" />
         <div className="flex-1" />
         {esPaginaAgentes && (
           <Link
@@ -37,9 +32,12 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden before:content-[''] before:absolute before:top-0 before:-right-6 before:w-6 before:h-6 before:bg-[#1E2431] before:rounded-bl-3xl before:rotate-180`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
         >
-          {/* Botón flotante lateral */}
+          {/* Extensión decorativa hacia la derecha */}
+          <div className="absolute top-0 right-0 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-0" />
+
+          {/* Botón flotante lateral pegado al margen izquierdo */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
@@ -52,7 +50,7 @@ const DashboardLayout = ({ children }) => {
             />
           </button>
 
-          <div className="mt-4 space-y-1 text-sm">
+          <div className="mt-4 space-y-1 text-sm relative z-10">
             <Link
               to="/"
               className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
@@ -75,7 +73,7 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Info del agente logueado */}
-          <div className="mt-auto px-4 pb-6">
+          <div className="mt-auto px-4 pb-6 z-10">
             {colapsado ? (
               <div className="flex justify-center">
                 <img
@@ -103,6 +101,8 @@ const DashboardLayout = ({ children }) => {
         {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
+
+          {/* Footer legal */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

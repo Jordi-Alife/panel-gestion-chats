@@ -1,4 +1,3 @@
-// src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -31,21 +30,21 @@ const DashboardLayout = ({ children }) => {
         )}
       </header>
 
-      {/* Layout */}
+      {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-full">
         {/* Sidebar */}
         <aside
-          className={`relative z-10 ${
+          className={`relative ${
             colapsado ? "w-20" : "w-56"
           } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
         >
-          {/* Curva decorativa externa */}
-          <div className="absolute top-0 -right-6 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-[-1]" />
+          {/* Curva decorativa exterior (a la derecha) */}
+          <div className="absolute top-0 -right-6 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
 
-          {/* Botón toggle */}
+          {/* Botón de colapsar/expandir */}
           <button
             onClick={() => setColapsado(!colapsado)}
-            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
+            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
             aria-label="Toggle menú"
           >
             <img
@@ -77,7 +76,7 @@ const DashboardLayout = ({ children }) => {
             </Link>
           </div>
 
-          {/* Info agente */}
+          {/* Info del agente logueado */}
           <div className="mt-auto px-4 pb-6">
             {colapsado ? (
               <div className="flex justify-center">
@@ -103,9 +102,11 @@ const DashboardLayout = ({ children }) => {
           </div>
         </aside>
 
-        {/* Contenido principal */}
+        {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
+
+          {/* Footer legal */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

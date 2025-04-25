@@ -6,7 +6,8 @@
 html,
 body {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden; /* ✅ solo bloquea scroll lateral */
+  overflow-y: auto;   /* ✅ permite scroll vertical si fuera necesario */
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-overflow-scrolling: touch;

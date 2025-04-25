@@ -1,6 +1,6 @@
 // src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import IconInicio from "../assets/chat.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
@@ -8,10 +8,15 @@ import IconToggle from "../assets/menu.svg";
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const esPaginaAgentes = location.pathname === "/usuarios";
 
   const handleCrearAgente = () => {
     window.dispatchEvent(new CustomEvent("crear-agente"));
+  };
+
+  const irAPerfil = () => {
+    navigate("/perfil");
   };
 
   return (
@@ -87,7 +92,10 @@ const DashboardLayout = ({ children }) => {
                 />
               </div>
             ) : (
-              <div className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3">
+              <div
+                onClick={irAPerfil}
+                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4a4f5c] transition"
+              >
                 <img
                   src="https://i.pravatar.cc/100"
                   alt="Amber Walker"

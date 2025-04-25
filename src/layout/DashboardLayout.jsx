@@ -3,14 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 
 // Nuevos iconos actualizados
 import IconInicio from "../assets/chat.svg";
-import IconUsuarios from "../assets/usuarios.svg";
+import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
 
-  const esPaginaUsuarios = location.pathname === "/usuarios";
+  const esPaginaAgentes = location.pathname === "/usuarios"; // URL sigue siendo /usuarios
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -22,12 +22,12 @@ const DashboardLayout = ({ children }) => {
           className="h-10 object-contain"
         />
         <div className="flex-1" />
-        {esPaginaUsuarios && (
+        {esPaginaAgentes && (
           <Link
             to="#"
             className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
           >
-            Crear usuario
+            Crear agente
           </Link>
         )}
       </header>
@@ -70,8 +70,8 @@ const DashboardLayout = ({ children }) => {
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
-              <img src={IconUsuarios} alt="Usuarios" className="w-5 h-5" />
-              {!colapsado && <span>Usuarios</span>}
+              <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
+              {!colapsado && <span>Agentes</span>}
             </Link>
           </div>
         </aside>

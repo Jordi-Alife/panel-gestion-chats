@@ -1,5 +1,5 @@
 // src/layout/DashboardLayout.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import IconInicio from "../assets/chat.svg";
 import IconAgentes from "../assets/agentes.svg";
@@ -11,13 +11,14 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const esPaginaAgentes = location.pathname === "/usuarios";
 
-  const handleCrearAgente = () => {
-    window.dispatchEvent(new CustomEvent("crear-agente"));
-  };
+  const [fotoPerfil, setFotoPerfil] = useState("");
 
-  const irAPerfil = () => {
-    navigate("/perfil");
-  };
+  useEffect(() => {
+    const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
+    if (guardado && guardado.foto) {
+      setFotoPerfil(guardado.foto);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -27,7 +28,7 @@ const DashboardLayout = ({ children }) => {
         <div className="flex-1" />
         {esPaginaAgentes && (
           <button
-            onClick={handleCrearAgente}
+            onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
             className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
           >
             Crear agente
@@ -43,10 +44,10 @@ const DashboardLayout = ({ children }) => {
             colapsado ? "w-20" : "w-56"
           } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
         >
-          {/* Extensión decorativa hacia la derecha */}
+          {/* Extensión decorativa */}
           <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
 
-          {/* Botón flotante lateral */}
+          {/* Botón de colapsar/expandir */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
@@ -59,6 +60,7 @@ const DashboardLayout = ({ children }) => {
             />
           </button>
 
+          {/* Menú */}
           <div className="mt-4 space-y-1 text-sm relative z-20">
             <Link
               to="/"
@@ -81,40 +83,42 @@ const DashboardLayout = ({ children }) => {
             </Link>
           </div>
 
-          {/* Info del agente logueado */}
+          {/* Perfil del usuario */}
           <div className="mt-auto px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
-                <img
-                  src="https://i.pravatar.cc/100"
-                  alt="Amber Walker"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
+                <button onClick={() => navigate("/perfil")}>
+                  <img
+                    src={fotoPerfil || "https://i.pravatar.cc/100"}
+                    alt="Perfil"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                </button>
               </div>
             ) : (
               <div
-                onClick={irAPerfil}
-                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4a4f5c] transition"
+                onClick={() => navigate("/perfil")}
+                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260]"
               >
                 <img
-                  src="https://i.pravatar.cc/100"
-                  alt="Amber Walker"
+                  src={fotoPerfil || "https://i.pravatar.cc/100"}
+                  alt="Perfil"
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <div className="font-semibold text-sm leading-tight">Amber Walker</div>
-                  <div className="text-xs text-gray-400">awalker</div>
+                  <div className="font-semibold text-sm leading-tight">Mi perfil</div>
+                  <div className="text-xs text-gray-400">Editar</div>
                 </div>
               </div>
             )}
           </div>
         </aside>
 
-        {/* Contenido */}
+        {/* Contenido principal */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
 
-          {/* Footer legal */}
+          {/* Footer */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

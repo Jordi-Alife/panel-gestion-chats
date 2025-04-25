@@ -34,12 +34,25 @@ const DashboardLayout = ({ children }) => {
 
       {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-full">
-        {/* Sidebar (menú) */}
+        {/* Sidebar */}
         <aside
-          className={`${
+          className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-between transition-all duration-200`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200`}
         >
+          {/* Botón fijo lateral para colapsar/expandir */}
+          <button
+            onClick={() => setColapsado(!colapsado)}
+            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-l-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
+            aria-label="Toggle menú"
+          >
+            <img
+              src={IconToggle}
+              alt="Toggle menú"
+              className={`w-6 h-6 ${colapsado ? "rotate-180" : ""} transition-transform`}
+            />
+          </button>
+
           <div className="mt-4 space-y-1 text-sm">
             <Link
               to="/"
@@ -61,26 +74,9 @@ const DashboardLayout = ({ children }) => {
               {!colapsado && <span>Usuarios</span>}
             </Link>
           </div>
-
-          {/* Botón colapsar menú estilizado */}
-          <div className="p-4">
-            <div className="w-full flex justify-center">
-              <button
-                onClick={() => setColapsado(!colapsado)}
-                className="bg-[#2d3444] p-4 rounded-full flex justify-center items-center hover:opacity-80 transition-all"
-                aria-label="Toggle menú"
-              >
-                <img
-                  src={IconToggle}
-                  alt="Toggle menú"
-                  className={`w-8 h-8 ${colapsado ? "rotate-180" : ""} transition-transform`}
-                />
-              </button>
-            </div>
-          </div>
         </aside>
 
-        {/* Contenido con curva superior izquierda */}
+        {/* Contenido */}
         <main className="flex-1 p-6 overflow-y-auto bg-gray-100 rounded-tl-3xl">
           {children}
         </main>

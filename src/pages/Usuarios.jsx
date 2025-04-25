@@ -5,7 +5,8 @@ import ModalCrearUsuario from "../components/ModalCrearUsuario";
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [usuarioEditando, setUsuarioEditando] = useState(null);
+  const [usuarioEditar, setUsuarioEditar] = useState(null);
+  const [mensajeExito, setMensajeExito] = useState("");
 
   useEffect(() => {
     const guardados = localStorage.getItem("usuarios-panel");
@@ -18,14 +19,14 @@ const Usuarios = () => {
           email: "laura@email.com",
           ultimaConexion: "2025-04-20T12:00:00Z",
           rol: "Administrador",
-          activo: true
+          activo: true,
         },
         {
           nombre: "Carlos Ruiz",
           email: "carlos@email.com",
           ultimaConexion: "2025-04-19T09:30:00Z",
-          rol: "Soporte",
-          activo: true
+          rol: "Administrador",
+          activo: false,
         },
       ];
       setUsuarios(porDefecto);
@@ -38,42 +39,49 @@ const Usuarios = () => {
   }, [usuarios]);
 
   const abrirCrear = () => {
-    setUsuarioEditando(null);
+    setUsuarioEditar(null);
     setMostrarModal(true);
   };
 
-  const abrirEditar = (usuario) => {
-    setUsuarioEditando(usuario);
+  const abrirEditar = (user) => {
+    setUsuarioEditar(user);
     setMostrarModal(true);
   };
 
   const guardarUsuario = (nuevo) => {
-    if (usuarioEditando) {
-      // Editar existente
+    if (usuarioEditar) {
+      // Editar
       const actualizados = usuarios.map((u) =>
-        u.email === usuarioEditando.email ? { ...u, ...nuevo } : u
+        u.email === usuarioEditar.email ? { ...u, ...nuevo } : u
       );
       setUsuarios(actualizados);
+      setMensajeExito("Agente actualizado correctamente");
     } else {
       // Crear nuevo
       setUsuarios((prev) => [...prev, nuevo]);
+      setMensajeExito("Agente creado correctamente");
     }
-    setMostrarModal(false);
+    setTimeout(() => setMensajeExito(""), 3000);
   };
 
   const eliminarUsuario = (email) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
-      const filtrados = usuarios.filter((u) => u.email !== email);
-      setUsuarios(filtrados);
+      setUsuarios((prev) => prev.filter((u) => u.email !== email));
     }
   };
 
   return (
-    <div>
+    <div className="relative">
       <h1 className="text-xl font-bold mb-4">Gestión de agentes</h1>
 
+      {mensajeExito && (
+        <div className="absolute top-2 right-2 bg-green-500 text-white text-sm px-4 py-2 rounded shadow">
+          {mensajeExito}
+        </div>
+      )}
+
       <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
-        <div>Agentes Next Lives</div>
+        <div>Agente</div>
         <div>Email</div>
         <div>Última conexión</div>
         <div>Rol</div>
@@ -93,16 +101,16 @@ const Usuarios = () => {
             <div>{user.rol || "—"}</div>
             <div>
               <button
-                className="text-blue-600 text-sm hover:underline"
                 onClick={() => abrirEditar(user)}
+                className="text-blue-600 text-sm hover:underline"
               >
                 Editar
               </button>
             </div>
             <div>
               <button
-                className="text-red-500 text-sm hover:underline"
                 onClick={() => eliminarUsuario(user.email)}
+                className="text-red-500 text-sm hover:underline"
               >
                 Eliminar
               </button>
@@ -116,12 +124,11 @@ const Usuarios = () => {
         )}
       </div>
 
-      {/* Modal */}
       <ModalCrearUsuario
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}
         onCrear={guardarUsuario}
-        usuario={usuarioEditando}
+        usuario={usuarioEditar}
       />
     </div>
   );

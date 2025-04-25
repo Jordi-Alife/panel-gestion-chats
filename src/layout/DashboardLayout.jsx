@@ -38,9 +38,14 @@ const DashboardLayout = ({ children }) => {
         >
           <button
             onClick={() => setColapsado(!colapsado)}
-            className="text-white text-sm p-2 hover:bg-[#2d3444] focus:outline-none"
+            className="p-2 hover:bg-[#2d3444] transition focus:outline-none"
+            aria-label="Contraer/Expandir menú"
           >
-            {colapsado ? "➤" : "◀︎"}
+            <img
+              src="/assets/button-small.jpeg"
+              alt="Toggle menú"
+              className={`w-5 h-5 ${colapsado ? "rotate-180" : ""} transition-transform`}
+            />
           </button>
 
           <nav className="mt-4 px-2 text-white text-sm">

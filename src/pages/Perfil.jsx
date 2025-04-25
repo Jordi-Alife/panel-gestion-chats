@@ -1,14 +1,33 @@
 // src/pages/Perfil.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Perfil = () => {
-  const [nombre, setNombre] = useState("Amber Walker");
-  const [usuario, setUsuario] = useState("awalker");
-  const [email, setEmail] = useState("amber@email.com");
+  const [nombre, setNombre] = useState("");
+  const [usuario, setUsuario] = useState("");
+  const [email, setEmail] = useState("");
   const [rol, setRol] = useState("Administrador");
   const [mensaje, setMensaje] = useState("");
 
+  // Cargar perfil guardado al iniciar
+  useEffect(() => {
+    const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
+    if (guardado) {
+      setNombre(guardado.nombre || "");
+      setUsuario(guardado.usuario || "");
+      setEmail(guardado.email || "");
+      setRol(guardado.rol || "Administrador");
+    } else {
+      // Datos por defecto si no hay nada guardado
+      setNombre("Amber Walker");
+      setUsuario("awalker");
+      setEmail("amber@email.com");
+      setRol("Administrador");
+    }
+  }, []);
+
   const guardarCambios = () => {
+    const datos = { nombre, usuario, email, rol };
+    localStorage.setItem("perfil-usuario-panel", JSON.stringify(datos));
     setMensaje("Cambios guardados correctamente.");
     setTimeout(() => setMensaje(""), 3000);
   };

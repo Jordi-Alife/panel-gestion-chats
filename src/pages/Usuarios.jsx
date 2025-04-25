@@ -38,10 +38,14 @@ const Usuarios = () => {
     localStorage.setItem("usuarios-panel", JSON.stringify(usuarios));
   }, [usuarios]);
 
-  const abrirCrear = () => {
-    setUsuarioEditar(null);
-    setMostrarModal(true);
-  };
+  useEffect(() => {
+    const escucharCrearAgente = () => {
+      setUsuarioEditar(null); // Aseguramos que es para crear
+      setMostrarModal(true);
+    };
+    window.addEventListener("crear-agente", escucharCrearAgente);
+    return () => window.removeEventListener("crear-agente", escucharCrearAgente);
+  }, []);
 
   const abrirEditar = (user) => {
     setUsuarioEditar(user);
@@ -50,14 +54,12 @@ const Usuarios = () => {
 
   const guardarUsuario = (nuevo) => {
     if (usuarioEditar) {
-      // Editar
       const actualizados = usuarios.map((u) =>
         u.email === usuarioEditar.email ? { ...u, ...nuevo } : u
       );
       setUsuarios(actualizados);
       setMensajeExito("Agente actualizado correctamente");
     } else {
-      // Crear nuevo
       setUsuarios((prev) => [...prev, nuevo]);
       setMensajeExito("Agente creado correctamente");
     }

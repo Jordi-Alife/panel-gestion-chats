@@ -5,8 +5,7 @@ import ModalCrearUsuario from "../components/ModalCrearUsuario";
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [modo, setModo] = useState("crear"); // 'crear' o 'editar'
-  const [usuarioEditando, setUsuarioEditando] = useState(null); // Datos del usuario que se edita
+  const [usuarioEditando, setUsuarioEditando] = useState(null);
 
   useEffect(() => {
     const guardados = localStorage.getItem("usuarios-panel");
@@ -18,13 +17,15 @@ const Usuarios = () => {
           nombre: "Laura Pérez",
           email: "laura@email.com",
           ultimaConexion: "2025-04-20T12:00:00Z",
-          rol: "Administrador"
+          rol: "Administrador",
+          activo: true
         },
         {
           nombre: "Carlos Ruiz",
           email: "carlos@email.com",
           ultimaConexion: "2025-04-19T09:30:00Z",
-          rol: "Administrador"
+          rol: "Soporte",
+          activo: true
         },
       ];
       setUsuarios(porDefecto);
@@ -36,44 +37,35 @@ const Usuarios = () => {
     localStorage.setItem("usuarios-panel", JSON.stringify(usuarios));
   }, [usuarios]);
 
-  useEffect(() => {
-    const handleClick = (e) => {
-      const texto = e.target.innerText;
-      if (texto === "Crear usuario" || texto === "Crear agente") {
-        e.preventDefault();
-        setModo("crear");
-        setUsuarioEditando(null);
-        setMostrarModal(true);
-      }
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
-
-  const agregarUsuario = (nuevo) => {
-    if (!nuevo.rol) nuevo.rol = "Administrador";
-    if (modo === "crear") {
-      setUsuarios((prev) => [...prev, nuevo]);
-      console.log("Usuario creado:", nuevo);
-    } else if (modo === "editar" && usuarioEditando !== null) {
-      const actualizados = usuarios.map((u, idx) =>
-        idx === usuarioEditando ? { ...u, ...nuevo } : u
-      );
-      setUsuarios(actualizados);
-      console.log("Usuario editado:", nuevo);
-    }
-  };
-
-  const abrirEditar = (index) => {
-    setModo("editar");
-    setUsuarioEditando(index);
+  const abrirCrear = () => {
+    setUsuarioEditando(null);
     setMostrarModal(true);
   };
 
-  const eliminarUsuario = (index) => {
-    const nuevos = [...usuarios];
-    nuevos.splice(index, 1);
-    setUsuarios(nuevos);
+  const abrirEditar = (usuario) => {
+    setUsuarioEditando(usuario);
+    setMostrarModal(true);
+  };
+
+  const guardarUsuario = (nuevo) => {
+    if (usuarioEditando) {
+      // Editar existente
+      const actualizados = usuarios.map((u) =>
+        u.email === usuarioEditando.email ? { ...u, ...nuevo } : u
+      );
+      setUsuarios(actualizados);
+    } else {
+      // Crear nuevo
+      setUsuarios((prev) => [...prev, nuevo]);
+    }
+    setMostrarModal(false);
+  };
+
+  const eliminarUsuario = (email) => {
+    if (confirm("¿Seguro que quieres eliminar este agente?")) {
+      const filtrados = usuarios.filter((u) => u.email !== email);
+      setUsuarios(filtrados);
+    }
   };
 
   return (
@@ -101,16 +93,16 @@ const Usuarios = () => {
             <div>{user.rol || "—"}</div>
             <div>
               <button
-                onClick={() => abrirEditar(i)}
                 className="text-blue-600 text-sm hover:underline"
+                onClick={() => abrirEditar(user)}
               >
                 Editar
               </button>
             </div>
             <div>
               <button
-                onClick={() => eliminarUsuario(i)}
                 className="text-red-500 text-sm hover:underline"
+                onClick={() => eliminarUsuario(user.email)}
               >
                 Eliminar
               </button>
@@ -124,12 +116,12 @@ const Usuarios = () => {
         )}
       </div>
 
+      {/* Modal */}
       <ModalCrearUsuario
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}
-        onCrear={agregarUsuario}
-        modo={modo}
-        usuario={usuarioEditando !== null ? usuarios[usuarioEditando] : null}
+        onCrear={guardarUsuario}
+        usuario={usuarioEditando}
       />
     </div>
   );

@@ -100,6 +100,16 @@ const DashboardLayout = ({ children }) => {
         {/* Contenido */}
         <main className="flex-1 p-6 overflow-y-auto bg-gray-100">
           {children}
+
+          {/* Footer legal */}
+          <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span>© NextLives 2025</span>
+            <div className="flex gap-4">
+              <a href="#" className="hover:underline">Condiciones generales</a>
+              <a href="#" className="hover:underline">Política de privacidad</a>
+              <a href="#" className="hover:underline">Política de cookies</a>
+            </div>
+          </footer>
         </main>
       </div>
     </div>

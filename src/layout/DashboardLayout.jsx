@@ -10,6 +10,10 @@ const DashboardLayout = ({ children }) => {
   const location = useLocation();
   const esPaginaAgentes = location.pathname === "/usuarios";
 
+  const handleCrearAgente = () => {
+    window.dispatchEvent(new CustomEvent("crear-agente"));
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
@@ -17,12 +21,12 @@ const DashboardLayout = ({ children }) => {
         <img src="/logo-nextlives.png" alt="NextLives" className="h-10 object-contain" />
         <div className="flex-1" />
         {esPaginaAgentes && (
-          <Link
-            to="#"
+          <button
+            onClick={handleCrearAgente}
             className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
           >
             Crear agente
-          </Link>
+          </button>
         )}
       </header>
 
@@ -37,7 +41,7 @@ const DashboardLayout = ({ children }) => {
           {/* Extensión decorativa hacia la derecha */}
           <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
 
-          {/* Botón flotante lateral pegado al margen izquierdo */}
+          {/* Botón flotante lateral */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"

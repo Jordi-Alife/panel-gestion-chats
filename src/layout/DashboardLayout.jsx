@@ -1,7 +1,7 @@
 // src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import BotonToggle from "../assets/button-small.jpeg"; // ✅ Ruta corregida desde src/
+import BotonToggle from "../assets/button-small.jpeg"; // ✅ Import desde src/assets
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);

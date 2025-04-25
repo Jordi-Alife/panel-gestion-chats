@@ -38,7 +38,7 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 rounded-tl-3xl`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-6 before:h-6 before:bg-[#1E2431] before:rounded-br-3xl`}
         >
           {/* Botón flotante lateral pegado al margen izquierdo */}
           <button

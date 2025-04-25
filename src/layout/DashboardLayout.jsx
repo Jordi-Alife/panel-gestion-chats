@@ -1,7 +1,7 @@
+// src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-// Nuevos iconos actualizados
 import IconInicio from "../assets/chat.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
@@ -38,9 +38,9 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-6 before:h-6 before:bg-[#1E2431] before:rounded-br-3xl`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden before:content-[''] before:absolute before:top-0 before:right-0 before:w-6 before:h-6 before:bg-[#1E2431] before:rounded-bl-3xl`}
         >
-          {/* Botón flotante lateral pegado al margen izquierdo */}
+          {/* Botón flotante lateral */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
@@ -105,7 +105,6 @@ const DashboardLayout = ({ children }) => {
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
 
-          {/* Footer legal */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

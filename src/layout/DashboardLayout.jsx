@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-// Iconos SVG desde assets
-import IconDashboard from "../assets/dashboard-1.svg";
-import IconUsuarios from "../assets/skyscraper.svg";
-import IconToggle from "../assets/button-small.svg";
+// Nuevos iconos actualizados
+import IconInicio from "../assets/chat.svg";
+import IconUsuarios from "../assets/usuarios.svg";
+import IconToggle from "../assets/menu.svg";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
@@ -40,7 +40,7 @@ const DashboardLayout = ({ children }) => {
             colapsado ? "w-20" : "w-56"
           } bg-[#1E2431] flex flex-col justify-start transition-all duration-200`}
         >
-          {/* Botón fijo lateral para colapsar/expandir */}
+          {/* Botón flotante lateral para colapsar/expandir */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-l-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-10"
@@ -60,7 +60,7 @@ const DashboardLayout = ({ children }) => {
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
-              <img src={IconDashboard} alt="Inicio" className="w-5 h-5" />
+              <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
               {!colapsado && <span>Inicio</span>}
             </Link>
 

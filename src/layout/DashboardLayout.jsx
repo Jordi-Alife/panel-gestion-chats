@@ -1,6 +1,7 @@
 // src/layout/DashboardLayout.jsx
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import BotonToggle from "../assets/button-small.jpeg"; // ✅ Ruta corregida desde src/
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
@@ -42,23 +43,27 @@ const DashboardLayout = ({ children }) => {
             aria-label="Contraer/Expandir menú"
           >
             <img
-              src="/assets/button-small.jpeg"
+              src={BotonToggle}
               alt="Toggle menú"
               className={`w-5 h-5 ${colapsado ? "rotate-180" : ""} transition-transform`}
             />
           </button>
 
-          <nav className="mt-4 px-2 text-white text-sm">
+          <nav className={`mt-4 text-white text-sm ${colapsado ? "px-0" : "px-2"}`}>
             <Link
               to="/"
-              className="flex items-center gap-2 py-2 px-2 rounded hover:bg-[#2d3444]"
+              className={`flex items-center py-2 px-2 rounded hover:bg-[#2d3444] ${
+                colapsado ? "justify-center" : "gap-2"
+              }`}
             >
               <span>🏠</span>
               {!colapsado && <span>Inicio</span>}
             </Link>
             <Link
               to="/usuarios"
-              className="flex items-center gap-2 py-2 px-2 rounded hover:bg-[#2d3444]"
+              className={`flex items-center py-2 px-2 rounded hover:bg-[#2d3444] ${
+                colapsado ? "justify-center" : "gap-2"
+              }`}
             >
               <span>👤</span>
               {!colapsado && <span>Usuarios</span>}

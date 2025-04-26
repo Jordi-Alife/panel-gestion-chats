@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
-import Usuarios from "./pages/Usuarios";
+import Agentes from "./pages/Agentes"; // <- CAMBIADO
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
@@ -229,7 +229,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Panel />} />
                   <Route path="/conversacion/:userId" element={<Detalle />} />
-                  <Route path="/usuarios" element={<Usuarios />} />
+                  <Route path="/agentes" element={<Agentes />} /> {/* <- Aquí corregido */}
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>
               </DashboardLayout>

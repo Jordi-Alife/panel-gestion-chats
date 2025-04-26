@@ -16,30 +16,30 @@ const db = getFirestore(app);
 
 // Funciones
 export const obtenerUsuarios = async () => {
-  const usuariosRef = collection(db, "usuarios");
-  const snapshot = await getDocs(usuariosRef);
+  const agentesRef = collection(db, "agentes"); // <- cambiado a agentes
+  const snapshot = await getDocs(agentesRef);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
 export const crearUsuario = async (nuevoUsuario) => {
-  const usuariosRef = collection(db, "usuarios");
-  await addDoc(usuariosRef, nuevoUsuario);
+  const agentesRef = collection(db, "agentes"); // <- cambiado a agentes
+  await addDoc(agentesRef, nuevoUsuario);
 };
 
 export const actualizarUsuario = async (id, datosActualizados) => {
-  const usuarioRef = doc(db, "usuarios", id);
-  await updateDoc(usuarioRef, datosActualizados);
+  const agenteRef = doc(db, "agentes", id); // <- cambiado a agentes
+  await updateDoc(agenteRef, datosActualizados);
 };
 
 export const eliminarUsuario = async (id) => {
-  const usuarioRef = doc(db, "usuarios", id);
-  await deleteDoc(usuarioRef);
+  const agenteRef = doc(db, "agentes", id); // <- cambiado a agentes
+  await deleteDoc(agenteRef);
 };
 
-// Nueva función para escuchar cambios en tiempo real
+// Función para escuchar cambios en tiempo real
 export const escucharUsuarios = (callback) => {
-  const usuariosRef = collection(db, "usuarios");
-  return onSnapshot(usuariosRef, (snapshot) => {
+  const agentesRef = collection(db, "agentes"); // <- cambiado a agentes
+  return onSnapshot(agentesRef, (snapshot) => {
     const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     callback(lista);
   });

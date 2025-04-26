@@ -1,7 +1,7 @@
 // src/pages/Usuarios.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
-import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB"; // <- Importar funciones
+import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, escucharUsuarios } from "../firebaseDB"; // actualizado
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -9,25 +9,22 @@ const Usuarios = () => {
   const [usuarioEditar, setUsuarioEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
 
-  // Cargar usuarios desde Firestore
-  const cargarUsuarios = async () => {
-    try {
-      const lista = await obtenerUsuarios();
-      setUsuarios(lista);
-    } catch (error) {
-      console.error("Error cargando usuarios:", error);
-    }
-  };
-
   useEffect(() => {
-    cargarUsuarios();
+    // Escuchar usuarios en tiempo real
+    const cancelar = escucharUsuarios((nuevaLista) => {
+      setUsuarios(nuevaLista);
+    });
 
     const listener = () => {
       setUsuarioEditar(null);
       setMostrarModal(true);
     };
     window.addEventListener("crear-agente", listener);
-    return () => window.removeEventListener("crear-agente", listener);
+
+    return () => {
+      cancelar(); // detener escucha
+      window.removeEventListener("crear-agente", listener);
+    };
   }, []);
 
   const abrirEditar = (usuario) => {
@@ -45,7 +42,6 @@ const Usuarios = () => {
         setMensajeExito("Agente creado correctamente");
       }
       setTimeout(() => setMensajeExito(""), 3000);
-      cargarUsuarios();
     } catch (error) {
       console.error("Error guardando usuario:", error);
     }
@@ -55,7 +51,6 @@ const Usuarios = () => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
       try {
         await eliminarUsuario(id);
-        cargarUsuarios();
       } catch (error) {
         console.error("Error eliminando usuario:", error);
       }

@@ -1,0 +1,40 @@
+// src/firebaseDB.js
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
+  authDomain: "nextlives-panel-soporte.firebaseapp.com",
+  projectId: "nextlives-panel-soporte",
+  storageBucket: "nextlives-panel-soporte.appspot.com",
+  messagingSenderId: "52725281576",
+  appId: "1:52725281576:web:4402c0507962074345161d"
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+
+// Inicializar Firestore
+const db = getFirestore(app);
+
+// Funciones para usuarios
+export const obtenerUsuarios = async () => {
+  const usuariosRef = collection(db, "usuarios");
+  const snapshot = await getDocs(usuariosRef);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+export const crearUsuario = async (nuevoUsuario) => {
+  const usuariosRef = collection(db, "usuarios");
+  await addDoc(usuariosRef, nuevoUsuario);
+};
+
+export const actualizarUsuario = async (id, datosActualizados) => {
+  const usuarioRef = doc(db, "usuarios", id);
+  await updateDoc(usuarioRef, datosActualizados);
+};
+
+export const eliminarUsuario = async (id) => {
+  const usuarioRef = doc(db, "usuarios", id);
+  await deleteDoc(usuarioRef);
+};

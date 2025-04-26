@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
 
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
   authDomain: "nextlives-panel-soporte.firebaseapp.com",
@@ -15,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Funciones correctas para trabajar con "agentes"
+// Funciones para trabajar con agentes
 export const obtenerAgentes = async () => {
   const agentesRef = collection(db, "agentes");
   const snapshot = await getDocs(agentesRef);
@@ -44,3 +45,5 @@ export const escucharAgentes = (callback) => {
     callback(lista);
   });
 };
+
+export { app, db }; // Exportamos app y db por si quieres usarlos en otros sitios

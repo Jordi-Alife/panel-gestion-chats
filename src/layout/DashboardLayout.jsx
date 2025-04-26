@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const esPaginaAgentes = location.pathname === "/usuarios";
+  const esPaginaAgentes = location.pathname === "/agentes"; // <- corregido
 
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [cargandoFoto, setCargandoFoto] = useState(false);
@@ -91,7 +91,7 @@ const DashboardLayout = ({ children }) => {
             </Link>
 
             <Link
-              to="/usuarios"
+              to="/agentes" // <- corregido
               className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
                 colapsado ? "justify-center" : "gap-3"
               }`}
@@ -109,7 +109,9 @@ const DashboardLayout = ({ children }) => {
                   <img
                     src={fotoPerfil || "https://i.pravatar.cc/100"}
                     alt="Perfil"
-                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
+                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
+                      cargandoFoto ? "opacity-0" : "opacity-100"
+                    }`}
                   />
                 </button>
               </div>
@@ -121,7 +123,9 @@ const DashboardLayout = ({ children }) => {
                 <img
                   src={fotoPerfil || "https://i.pravatar.cc/100"}
                   alt="Perfil"
-                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
+                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
+                    cargandoFoto ? "opacity-0" : "opacity-100"
+                  }`}
                 />
                 <div>
                   <div className="font-semibold text-sm leading-tight">Mi perfil</div>

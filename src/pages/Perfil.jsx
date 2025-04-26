@@ -1,7 +1,8 @@
-// src/pages/Perfil.jsx
 import React, { useState, useEffect } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { getFirestore, doc, updateDoc } from "firebase/firestore";
+import { app } from "../firebaseAuth"; // usamos la misma app
 
 const Perfil = () => {
   const [nombre, setNombre] = useState("");
@@ -32,15 +33,31 @@ const Perfil = () => {
     }
   }, []);
 
-  const guardarCambios = () => {
+  const guardarCambios = async () => {
     setCargando(true);
 
     const perfilActualizado = { nombre, usuario, email, rol, foto };
     localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
 
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const db = getFirestore(app);
+        const agenteRef = doc(db, "agentes", user.uid);
+
+        await updateDoc(agenteRef, {
+          nombre,
+          foto,
+        });
+        console.log("✅ Perfil actualizado en Firestore.");
+      }
+    } catch (error) {
+      console.error("❌ Error actualizando perfil en Firestore:", error);
+    }
+
     window.dispatchEvent(new Event("actualizar-foto-perfil"));
     setMensaje("Cambios guardados correctamente.");
-
     setTimeout(() => {
       setMensaje("");
       setCargando(false);
@@ -128,8 +145,8 @@ const Perfil = () => {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
             disabled={rolUsuario !== "Administrador"}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 cursor-not-allowed"
           />
           {rolUsuario !== "Administrador" && (

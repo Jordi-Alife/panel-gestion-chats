@@ -12,12 +12,30 @@ const DashboardLayout = ({ children }) => {
   const esPaginaAgentes = location.pathname === "/usuarios";
 
   const [fotoPerfil, setFotoPerfil] = useState("");
+  const [cargandoFoto, setCargandoFoto] = useState(false);
 
   useEffect(() => {
-    const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
-    if (guardado && guardado.foto) {
-      setFotoPerfil(guardado.foto);
-    }
+    const cargarFotoPerfil = () => {
+      const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
+      if (guardado && guardado.foto) {
+        setCargandoFoto(true);
+        const img = new Image();
+        img.src = guardado.foto;
+        img.onload = () => {
+          setFotoPerfil(guardado.foto);
+          setCargandoFoto(false);
+        };
+      } else {
+        setFotoPerfil("");
+      }
+    };
+
+    cargarFotoPerfil();
+
+    const listener = () => cargarFotoPerfil();
+    window.addEventListener("actualizar-foto-perfil", listener);
+
+    return () => window.removeEventListener("actualizar-foto-perfil", listener);
   }, []);
 
   return (
@@ -91,8 +109,7 @@ const DashboardLayout = ({ children }) => {
                   <img
                     src={fotoPerfil || "https://i.pravatar.cc/100"}
                     alt="Perfil"
-                    className="w-10 h-10 rounded-full object-cover transition-opacity duration-500 ease-in-out opacity-0"
-                    onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
+                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                   />
                 </button>
               </div>
@@ -104,8 +121,7 @@ const DashboardLayout = ({ children }) => {
                 <img
                   src={fotoPerfil || "https://i.pravatar.cc/100"}
                   alt="Perfil"
-                  className="w-10 h-10 rounded-full object-cover transition-opacity duration-500 ease-in-out opacity-0"
-                  onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
+                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                 />
                 <div>
                   <div className="font-semibold text-sm leading-tight">Mi perfil</div>

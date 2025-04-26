@@ -75,8 +75,8 @@ const Agentes = () => {
         </div>
       )}
 
-      {/* Cabecera actualizada: ahora son 7 columnas */}
-      <div className="grid grid-cols-7 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
+      {/* Cabecera actualizada: ahora usando distribución más ancha */}
+      <div className="grid grid-cols-[auto,1fr,2fr,1fr,1fr,auto,auto] gap-6 text-sm font-semibold text-gray-600 px-2 mb-2">
         <div>Foto</div>
         <div>Agente</div>
         <div>Email</div>
@@ -90,7 +90,7 @@ const Agentes = () => {
         {agentes.map((agente) => (
           <div
             key={agente.id}
-            className="bg-white rounded-lg shadow p-4 grid grid-cols-7 gap-4 items-center text-sm"
+            className="bg-white rounded-lg shadow p-4 grid grid-cols-[auto,1fr,2fr,1fr,1fr,auto,auto] gap-6 items-center text-sm"
           >
             {/* Columna de foto */}
             <div className="flex justify-center">
@@ -111,7 +111,7 @@ const Agentes = () => {
             <div className="font-medium">{agente.nombre}</div>
 
             {/* Email */}
-            <div>{agente.email}</div>
+            <div className="truncate">{agente.email}</div>
 
             {/* Última conexión */}
             <div>{agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}</div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { invitarUsuario } from "../firebaseAuth";
+import { invitarUsuario, app } from "../firebaseAuth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { app } from "../firebaseAuth";
 
 const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   const [nombre, setNombre] = useState("");
@@ -24,17 +23,6 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
     }
   }, [usuario]);
 
-  const guardarUsuarioEnFirebase = async (usuario) => {
-    try {
-      const db = getFirestore(app);
-      const usuariosRef = collection(db, "Usuarios");
-      await addDoc(usuariosRef, usuario);
-      console.log("✅ Usuario guardado en Firestore:", usuario.email);
-    } catch (error) {
-      console.error("❌ Error al guardar en Firestore:", error.message);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGuardando(true);
@@ -52,12 +40,16 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
         await invitarUsuario(email);
         console.log(`✅ Invitación enviada a ${email}`);
       }
+
+      // Guardar también en Firestore
+      const db = getFirestore(app);
+      await addDoc(collection(db, "Usuarios"), nuevo);
+      console.log("✅ Usuario guardado en Firestore");
     } catch (err) {
-      console.error("❌ Error al invitar usuario:", err);
+      console.error("❌ Error:", err);
     }
 
-    setTimeout(async () => {
-      await guardarUsuarioEnFirebase(nuevo);
+    setTimeout(() => {
       onCrear(nuevo);
       setGuardando(false);
       onClose();

@@ -1,5 +1,7 @@
 // src/pages/Perfil.jsx
 import React, { useState, useEffect } from "react";
+import { getAuth, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const Perfil = () => {
   const [nombre, setNombre] = useState("");
@@ -8,6 +10,7 @@ const Perfil = () => {
   const [rol, setRol] = useState("Administrador");
   const [foto, setFoto] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const guardado = localStorage.getItem("perfil-usuario-panel");
@@ -25,7 +28,7 @@ const Perfil = () => {
     const perfilActualizado = { nombre, usuario, email, rol, foto };
     localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
 
-    window.dispatchEvent(new Event("actualizar-foto-perfil")); // << Notificar sidebar
+    window.dispatchEvent(new Event("actualizar-foto-perfil"));
     setMensaje("Cambios guardados correctamente.");
     setTimeout(() => setMensaje(""), 3000);
   };
@@ -38,6 +41,20 @@ const Perfil = () => {
         setFoto(lector.result);
       };
       lector.readAsDataURL(archivo);
+    }
+  };
+
+  const cerrarSesion = async () => {
+    const confirmar = window.confirm("¿Seguro que quieres cerrar sesión?");
+    if (!confirmar) return;
+
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      localStorage.removeItem("perfil-usuario-panel");
+      navigate("/login");
+    } catch (error) {
+      console.error("❌ Error al cerrar sesión:", error);
     }
   };
 
@@ -120,13 +137,20 @@ const Perfil = () => {
           </select>
         </div>
 
-        {/* Botón de guardar */}
-        <div className="pt-2">
+        {/* Botones */}
+        <div className="flex flex-col gap-2 pt-4">
           <button
             onClick={guardarCambios}
             className="bg-[#FF5C42] hover:bg-[#e04c35] text-white px-4 py-2 rounded text-sm"
           >
             Guardar cambios
+          </button>
+
+          <button
+            onClick={cerrarSesion}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded text-sm"
+          >
+            Cerrar sesión
           </button>
         </div>
       </div>

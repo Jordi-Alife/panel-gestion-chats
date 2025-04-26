@@ -1,6 +1,6 @@
 // src/components/ModalCrearUsuario.jsx
 import React, { useEffect, useState } from "react";
-import { invitarUsuario } from "../firebaseAuth"; // Asegúrate de tener este archivo y función
+import { invitarUsuario } from "../firebaseAuth";
 
 const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   const [nombre, setNombre] = useState("");
@@ -35,20 +35,20 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
       activo,
     };
 
-    if (!usuario && activo) {
-      try {
+    try {
+      if (!usuario && activo) {
         await invitarUsuario(email);
-        console.log("✅ Invitación enviada a:", email);
-      } catch (err) {
-        console.error("❌ Error al invitar usuario:", err);
+        console.log(`✅ Invitación enviada a ${email}`);
       }
+    } catch (err) {
+      console.error("❌ Error al invitar usuario:", err);
     }
 
     setTimeout(() => {
       onCrear(nuevo);
       setGuardando(false);
       onClose();
-    }, 1000);
+    }, 500); // Un poco más rápido (opcional)
   };
 
   if (!visible) return null;

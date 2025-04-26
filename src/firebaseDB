@@ -1,15 +1,6 @@
 // src/firebaseDB.js
 import { initializeApp } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  onSnapshot 
-} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
@@ -20,13 +11,10 @@ const firebaseConfig = {
   appId: "1:52725281576:web:4402c0507962074345161d"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-
-// Inicializar Firestore
 const db = getFirestore(app);
 
-// Funciones para usuarios
+// Funciones
 export const obtenerUsuarios = async () => {
   const usuariosRef = collection(db, "usuarios");
   const snapshot = await getDocs(usuariosRef);
@@ -48,7 +36,7 @@ export const eliminarUsuario = async (id) => {
   await deleteDoc(usuarioRef);
 };
 
-// Escuchar usuarios en tiempo real
+// Nueva función para escuchar cambios en tiempo real
 export const escucharUsuarios = (callback) => {
   const usuariosRef = collection(db, "usuarios");
   return onSnapshot(usuariosRef, (snapshot) => {

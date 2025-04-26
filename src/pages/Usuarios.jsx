@@ -1,7 +1,7 @@
 // src/pages/Usuarios.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
-import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario, escucharUsuarios } from "../firebaseDB"; // actualizado
+import { escucharUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB";
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -10,9 +10,9 @@ const Usuarios = () => {
   const [mensajeExito, setMensajeExito] = useState("");
 
   useEffect(() => {
-    // Escuchar usuarios en tiempo real
-    const cancelar = escucharUsuarios((nuevaLista) => {
-      setUsuarios(nuevaLista);
+    // Escuchar cambios en Firestore en tiempo real
+    const desuscribir = escucharUsuarios((nuevosUsuarios) => {
+      setUsuarios(nuevosUsuarios);
     });
 
     const listener = () => {
@@ -22,7 +22,7 @@ const Usuarios = () => {
     window.addEventListener("crear-agente", listener);
 
     return () => {
-      cancelar(); // detener escucha
+      desuscribir();
       window.removeEventListener("crear-agente", listener);
     };
   }, []);

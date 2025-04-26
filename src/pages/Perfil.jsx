@@ -9,41 +9,36 @@ const Perfil = () => {
   const [foto, setFoto] = useState("");
   const [mensaje, setMensaje] = useState("");
 
-  // Cargar perfil guardado al iniciar
   useEffect(() => {
-    const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
+    const guardado = localStorage.getItem("perfil-usuario-panel");
     if (guardado) {
-      setNombre(guardado.nombre || "");
-      setUsuario(guardado.usuario || "");
-      setEmail(guardado.email || "");
-      setRol(guardado.rol || "Administrador");
-      setFoto(guardado.foto || "");
-    } else {
-      // Datos por defecto
-      setNombre("Amber Walker");
-      setUsuario("awalker");
-      setEmail("amber@email.com");
-      setRol("Administrador");
-      setFoto(""); // Sin imagen
+      const datos = JSON.parse(guardado);
+      setNombre(datos.nombre || "");
+      setUsuario(datos.usuario || "");
+      setEmail(datos.email || "");
+      setRol(datos.rol || "Administrador");
+      setFoto(datos.foto || "");
     }
   }, []);
 
   const guardarCambios = () => {
-    const datos = { nombre, usuario, email, rol, foto };
-    localStorage.setItem("perfil-usuario-panel", JSON.stringify(datos));
+    const perfilActualizado = { nombre, usuario, email, rol, foto };
+    localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
+
+    window.dispatchEvent(new Event("actualizar-foto-perfil")); // << Notificar sidebar
     setMensaje("Cambios guardados correctamente.");
     setTimeout(() => setMensaje(""), 3000);
   };
 
-  const handleFotoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setFoto(event.target.result); // Guardamos la imagen en Base64
-    };
-    reader.readAsDataURL(file);
+  const manejarCambioFoto = (e) => {
+    const archivo = e.target.files[0];
+    if (archivo) {
+      const lector = new FileReader();
+      lector.onloadend = () => {
+        setFoto(lector.result);
+      };
+      lector.readAsDataURL(archivo);
+    }
   };
 
   return (
@@ -57,24 +52,31 @@ const Perfil = () => {
       )}
 
       <div className="bg-white rounded-lg shadow p-6 space-y-4 max-w-xl">
-        <div className="flex justify-center">
-          <img
-            src={foto || "https://i.pravatar.cc/100"}
-            alt="Avatar"
-            className="w-24 h-24 rounded-full object-cover mb-4"
-          />
+        {/* Foto de perfil */}
+        <div className="flex flex-col items-center space-y-2">
+          {foto ? (
+            <img
+              src={foto}
+              alt="Foto de perfil"
+              className="w-24 h-24 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-gray-500">
+              Sin foto
+            </div>
+          )}
+          <label className="cursor-pointer text-blue-600 text-sm underline">
+            Cambiar foto
+            <input
+              type="file"
+              accept="image/*"
+              onChange={manejarCambioFoto}
+              className="hidden"
+            />
+          </label>
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold mb-1">Cambiar foto</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFotoChange}
-            className="w-full text-sm"
-          />
-        </div>
-
+        {/* Datos del perfil */}
         <div>
           <label className="block text-sm font-semibold mb-1">Nombre</label>
           <input
@@ -118,6 +120,7 @@ const Perfil = () => {
           </select>
         </div>
 
+        {/* Botón de guardar */}
         <div className="pt-2">
           <button
             onClick={guardarCambios}

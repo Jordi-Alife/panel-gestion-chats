@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { getFirestore, doc, updateDoc } from "firebase/firestore";
-import { app } from "../firebaseAuth"; // usamos la misma app
+import { app } from "../firebaseAuth";
 
 const Perfil = () => {
   const [nombre, setNombre] = useState("");
@@ -37,33 +37,41 @@ const Perfil = () => {
   const guardarCambios = async () => {
     setCargando(true);
 
-    const perfilActualizado = { nombre, usuario, email, rol, foto };
-    localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
-    window.dispatchEvent(new Event("actualizar-foto-perfil"));
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.error("❌ No hay usuario autenticado");
+      setMensaje("Error: no se pudo actualizar el perfil.");
+      setCargando(false);
+      return;
+    }
 
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (user) {
-        const db = getFirestore(app);
-        const agenteRef = doc(db, "agentes", user.uid);
+      const db = getFirestore(app);
+      const agenteRef = doc(db, "agentes", user.uid);
 
-        await updateDoc(agenteRef, {
-          nombre: nombre || "",
-          foto: foto || "",
-        });
-        console.log("✅ Perfil actualizado en Firestore.");
-      }
+      await updateDoc(agenteRef, {
+        nombre: nombre || "",
+        foto: foto || "",
+        ultimaConexion: new Date().toISOString(),
+      });
+
+      const perfilActualizado = { nombre, usuario, email, rol, foto };
+      localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
+      window.dispatchEvent(new Event("actualizar-foto-perfil"));
+
+      console.log("✅ Perfil actualizado en Firestore y localStorage.");
       setMensaje("Cambios guardados correctamente.");
     } catch (error) {
       console.error("❌ Error actualizando perfil en Firestore:", error);
       setMensaje("Error guardando cambios.");
+    } finally {
+      setTimeout(() => {
+        setMensaje("");
+        setCargando(false);
+      }, 1500);
     }
-
-    setTimeout(() => {
-      setMensaje("");
-      setCargando(false);
-    }, 1500);
   };
 
   const manejarCambioFoto = (e) => {

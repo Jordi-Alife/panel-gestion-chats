@@ -1,17 +1,19 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setMensaje("");
 
     const auth = getAuth();
     try {
@@ -20,6 +22,25 @@ const Login = () => {
     } catch (err) {
       console.error("❌ Error al iniciar sesión:", err);
       setError("Email o contraseña incorrectos");
+    }
+  };
+
+  const handleRecuperarPassword = async () => {
+    setError("");
+    setMensaje("");
+
+    if (!email) {
+      setError("Por favor, introduce tu email primero");
+      return;
+    }
+
+    const auth = getAuth();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMensaje("Te hemos enviado un correo para restablecer la contraseña.");
+    } catch (err) {
+      console.error("❌ Error al enviar recuperación:", err);
+      setError("No se pudo enviar el email de recuperación.");
     }
   };
 
@@ -40,6 +61,12 @@ const Login = () => {
           {error && (
             <div className="bg-red-100 text-red-600 p-2 rounded text-center text-sm">
               {error}
+            </div>
+          )}
+
+          {mensaje && (
+            <div className="bg-green-100 text-green-600 p-2 rounded text-center text-sm">
+              {mensaje}
             </div>
           )}
 
@@ -73,6 +100,15 @@ const Login = () => {
               Accede a NextLives
             </button>
           </form>
+
+          {/* Enlace para recuperar contraseña */}
+          <button
+            type="button"
+            onClick={handleRecuperarPassword}
+            className="text-blue-600 text-xs hover:underline mt-2"
+          >
+            ¿Has olvidado tu contraseña?
+          </button>
 
           <p className="text-xs text-gray-500 text-center mt-4">
             Si tienes problemas para acceder, contacta con nuestro equipo.

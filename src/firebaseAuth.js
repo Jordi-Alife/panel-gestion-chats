@@ -1,6 +1,7 @@
 // src/firebaseAuth.js
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore'; // <- añadimos firestore para guardar agentes
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
@@ -13,17 +14,28 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Esta función no crea contraseña: solo registra y envía email de recuperación
-export const invitarUsuario = async (email) => {
+// Función para invitar y guardar agente
+export const invitarAgente = async (email, datosExtra = {}) => {
   try {
     const tempPass = crypto.randomUUID().slice(0, 10);
-    await createUserWithEmailAndPassword(auth, email, tempPass);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, tempPass);
+
+    // Opcional: guardar más datos del agente en la colección "agentes"
+    await setDoc(doc(db, "agentes", userCredential.user.uid), {
+      email,
+      activo: true,
+      rol: "Administrador",
+      ...datosExtra,
+      ultimaConexion: new Date().toISOString()
+    });
+
     await sendPasswordResetEmail(auth, email);
-    console.log(`✅ Invitación enviada a ${email}`);
+    console.log(`✅ Invitación enviada a ${email} y agente registrado.`);
   } catch (error) {
-    console.error("❌ Error al invitar usuario:", error.code, error.message);
+    console.error("❌ Error al invitar agente:", error.code, error.message);
   }
 };
 
-export { app }; // << AÑADE ESTA LÍNEA
+export { app };

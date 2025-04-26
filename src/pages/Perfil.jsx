@@ -19,14 +19,19 @@ const Perfil = () => {
   useEffect(() => {
     const guardado = localStorage.getItem("perfil-usuario-panel");
     const rolGuardado = localStorage.getItem("rol-usuario-panel");
+    const auth = getAuth();
+    const user = auth.currentUser;
 
     if (guardado) {
       const datos = JSON.parse(guardado);
       setNombre(datos.nombre || "");
-      setIdAgente(datos.id || "");
       setEmail(datos.email || "");
       setRol(datos.rol || "Administrador");
       setFoto(datos.foto || "");
+    }
+
+    if (user) {
+      setIdAgente(user.uid); // Ahora el ID viene directo de Firebase Auth
     }
 
     if (rolGuardado) {

@@ -1,6 +1,7 @@
-// src/components/ModalCrearUsuario.jsx
 import React, { useEffect, useState } from "react";
 import { invitarUsuario } from "../firebaseAuth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { app } from "../firebaseAuth";
 
 const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   const [nombre, setNombre] = useState("");
@@ -21,13 +22,17 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
       setRol("Administrador");
       setActivo(false);
     }
-  }, [usuario, visible]); // <-- También escucha 'visible'
+  }, [usuario]);
 
-  const limpiarFormulario = () => {
-    setNombre("");
-    setEmail("");
-    setRol("Administrador");
-    setActivo(false);
+  const guardarUsuarioEnFirebase = async (usuario) => {
+    try {
+      const db = getFirestore(app);
+      const usuariosRef = collection(db, "Usuarios");
+      await addDoc(usuariosRef, usuario);
+      console.log("✅ Usuario guardado en Firestore:", usuario.email);
+    } catch (error) {
+      console.error("❌ Error al guardar en Firestore:", error.message);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -42,19 +47,21 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
       activo,
     };
 
-    if (!usuario && activo) {
-      try {
+    try {
+      if (!usuario && activo) {
         await invitarUsuario(email);
-        console.log("✅ Invitación enviada a:", email);
-      } catch (err) {
-        console.error("❌ Error al invitar usuario:", err);
+        console.log(`✅ Invitación enviada a ${email}`);
       }
+    } catch (err) {
+      console.error("❌ Error al invitar usuario:", err);
     }
 
-    await onCrear(nuevo);
-    setGuardando(false);
-    limpiarFormulario(); // <--- limpiamos al guardar
-    onClose();
+    setTimeout(async () => {
+      await guardarUsuarioEnFirebase(nuevo);
+      onCrear(nuevo);
+      setGuardando(false);
+      onClose();
+    }, 500);
   };
 
   if (!visible) return null;
@@ -115,7 +122,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
-              onClick={() => { limpiarFormulario(); onClose(); }}
+              onClick={onClose}
               disabled={guardando}
               className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm"
             >

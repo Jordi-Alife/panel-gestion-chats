@@ -1,4 +1,3 @@
-// src/pages/agentes.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearAgente from "../components/ModalCrearAgente";
 import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB";
@@ -38,10 +37,16 @@ const Agentes = () => {
   const guardarAgente = async (nuevo) => {
     try {
       if (agenteEditar) {
-        await actualizarAgente(agenteEditar.id, nuevo);
+        await actualizarAgente(agenteEditar.id, {
+          ...nuevo,
+          ultimaConexion: new Date().toISOString(), // <- Actualizamos ultimaConexion al guardar
+        });
         setMensajeExito("Agente actualizado correctamente");
       } else {
-        await crearAgente(nuevo);
+        await crearAgente({
+          ...nuevo,
+          ultimaConexion: new Date().toISOString(), // <- También al crear
+        });
         setMensajeExito("Agente creado correctamente");
       }
       setTimeout(() => setMensajeExito(""), 3000);
@@ -87,7 +92,7 @@ const Agentes = () => {
           >
             <div className="font-medium">{agente.nombre}</div>
             <div>{agente.email}</div>
-            <div>{new Date(agente.ultimaConexion).toLocaleDateString()}</div>
+            <div>{agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}</div>
             <div>{agente.rol || "—"}</div>
             <div>
               {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (

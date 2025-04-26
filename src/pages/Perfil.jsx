@@ -7,7 +7,7 @@ import { app } from "../firebaseAuth";
 
 const Perfil = () => {
   const [nombre, setNombre] = useState("");
-  const [usuario, setUsuario] = useState("");
+  const [idAgente, setIdAgente] = useState("");
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("Administrador");
   const [foto, setFoto] = useState("");
@@ -23,7 +23,7 @@ const Perfil = () => {
     if (guardado) {
       const datos = JSON.parse(guardado);
       setNombre(datos.nombre || "");
-      setUsuario(datos.usuario || "");
+      setIdAgente(datos.id || "");
       setEmail(datos.email || "");
       setRol(datos.rol || "Administrador");
       setFoto(datos.foto || "");
@@ -63,7 +63,7 @@ const Perfil = () => {
         console.log("⚠️ No hay cambios para actualizar.");
       }
 
-      const perfilActualizado = { nombre, usuario, email, rol, foto };
+      const perfilActualizado = { nombre, id: idAgente, email, rol, foto };
       localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
       window.dispatchEvent(new Event("actualizar-foto-perfil"));
 
@@ -90,7 +90,7 @@ const Perfil = () => {
 
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const maxSize = 300; // Máximo 300px
+        const maxSize = 300;
         let ancho = img.width;
         let alto = img.height;
 
@@ -112,7 +112,7 @@ const Perfil = () => {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, ancho, alto);
 
-        const imagenReducida = canvas.toDataURL("image/jpeg", 0.8); // 80% calidad
+        const imagenReducida = canvas.toDataURL("image/jpeg", 0.8);
         setFoto(imagenReducida);
       };
     };
@@ -175,12 +175,12 @@ const Perfil = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-1">Usuario</label>
+          <label className="block text-sm font-semibold mb-1">ID Agente</label>
           <input
             type="text"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            value={idAgente || "—"}
+            disabled
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 cursor-not-allowed"
           />
         </div>
 

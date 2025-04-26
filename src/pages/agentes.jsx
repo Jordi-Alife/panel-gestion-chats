@@ -1,7 +1,7 @@
 // src/pages/agentes.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearAgente from "../components/ModalCrearAgente";
-import { escucharUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB";
+import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB";
 
 const Agentes = () => {
   const [agentes, setAgentes] = useState([]);
@@ -11,8 +11,8 @@ const Agentes = () => {
   const [rolUsuario, setRolUsuario] = useState("Soporte");
 
   useEffect(() => {
-    const desuscribir = escucharUsuarios((nuevosUsuarios) => {
-      setAgentes(nuevosUsuarios);
+    const desuscribir = escucharAgentes((nuevosAgentes) => {
+      setAgentes(nuevosAgentes);
     });
 
     const listener = () => {
@@ -38,10 +38,10 @@ const Agentes = () => {
   const guardarAgente = async (nuevo) => {
     try {
       if (agenteEditar) {
-        await actualizarUsuario(agenteEditar.id, nuevo);
+        await actualizarAgente(agenteEditar.id, nuevo);
         setMensajeExito("Agente actualizado correctamente");
       } else {
-        await crearUsuario(nuevo);
+        await crearAgente(nuevo);
         setMensajeExito("Agente creado correctamente");
       }
       setTimeout(() => setMensajeExito(""), 3000);
@@ -53,7 +53,7 @@ const Agentes = () => {
   const eliminarAgenteClick = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
       try {
-        await eliminarUsuario(id);
+        await eliminarAgente(id);
       } catch (error) {
         console.error("Error eliminando agente:", error);
       }

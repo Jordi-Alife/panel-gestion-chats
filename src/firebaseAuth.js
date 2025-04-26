@@ -17,14 +17,13 @@ const auth = getAuth(app);
 // Esta función no crea contraseña: solo registra y envía email de recuperación
 export const invitarUsuario = async (email) => {
   try {
-    // Creamos un usuario con contraseña temporal
     const tempPass = crypto.randomUUID().slice(0, 10);
     await createUserWithEmailAndPassword(auth, email, tempPass);
-
-    // Enviamos email para que establezca su propia contraseña
     await sendPasswordResetEmail(auth, email);
     console.log(`✅ Invitación enviada a ${email}`);
   } catch (error) {
     console.error("❌ Error al invitar usuario:", error.code, error.message);
   }
 };
+
+export { app }; // << AÑADE ESTA LÍNEA

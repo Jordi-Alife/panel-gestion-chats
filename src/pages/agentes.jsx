@@ -75,28 +75,27 @@ const Agentes = () => {
         </div>
       )}
 
-      {/* Contenedor tabla */}
+      {/* Contenedor de la tabla */}
       <div className="bg-white rounded-lg shadow p-4">
         {/* Cabecera */}
-        <div className="grid grid-cols-[auto,1.5fr,2fr,1fr,1fr,auto,auto] items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
-          <div>Foto</div>
-          <div>Nombre</div>
-          <div>Email</div>
-          <div>Última conexión</div>
-          <div>Rol</div>
-          <div className="text-center">Editar</div>
-          <div className="text-center">Eliminar</div>
+        <div className="grid grid-cols-[2fr,2fr,1fr,1fr,auto,auto] items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
+          <div className="text-left">Foto/Nombre</div>
+          <div className="text-left">Email</div>
+          <div className="text-left">Última conexión</div>
+          <div className="text-left">Rol</div>
+          <div className="text-left">Editar</div>
+          <div className="text-left">Eliminar</div>
         </div>
 
-        {/* Listado de agentes */}
+        {/* Lista de agentes */}
         <div className="divide-y">
           {agentes.map((agente) => (
             <div
               key={agente.id}
-              className="grid grid-cols-[auto,1.5fr,2fr,1fr,1fr,auto,auto] items-center text-sm text-gray-700 py-3"
+              className="grid grid-cols-[2fr,2fr,1fr,1fr,auto,auto] items-center text-sm text-gray-700 py-3"
             >
-              {/* Foto */}
-              <div className="flex justify-center">
+              {/* Foto y nombre */}
+              <div className="flex items-center gap-2">
                 {agente.foto ? (
                   <img
                     src={agente.foto}
@@ -108,10 +107,8 @@ const Agentes = () => {
                     {agente.nombre?.charAt(0) || "?"}
                   </div>
                 )}
+                <span className="truncate">{agente.nombre}</span>
               </div>
-
-              {/* Nombre */}
-              <div className="font-medium truncate">{agente.nombre}</div>
 
               {/* Email */}
               <div className="truncate">{agente.email}</div>
@@ -124,8 +121,8 @@ const Agentes = () => {
               {/* Rol */}
               <div className="text-gray-500">{agente.rol || "—"}</div>
 
-              {/* Icono Editar */}
-              <div className="flex justify-center">
+              {/* Editar */}
+              <div className="flex justify-start">
                 {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                   <button
                     onClick={() => abrirEditar(agente)}
@@ -150,8 +147,8 @@ const Agentes = () => {
                 )}
               </div>
 
-              {/* Icono Eliminar */}
-              <div className="flex justify-center">
+              {/* Eliminar */}
+              <div className="flex justify-start">
                 {rolUsuario === "Administrador" && (
                   <button
                     onClick={() => eliminarAgenteClick(agente.id)}
@@ -185,7 +182,7 @@ const Agentes = () => {
         </div>
       </div>
 
-      {/* Modal Crear/Editar Agente */}
+      {/* Modal de Crear o Editar */}
       <ModalCrearAgente
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}

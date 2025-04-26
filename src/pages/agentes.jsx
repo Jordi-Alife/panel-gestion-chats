@@ -8,8 +8,7 @@ const Agentes = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [agenteEditar, setAgenteEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
-
-  const rol = localStorage.getItem("rol-usuario-panel") || "Soporte";
+  const [rolUsuario, setRolUsuario] = useState("Soporte");
 
   useEffect(() => {
     const desuscribir = escucharUsuarios((nuevosUsuarios) => {
@@ -21,6 +20,9 @@ const Agentes = () => {
       setMostrarModal(true);
     };
     window.addEventListener("crear-agente", listener);
+
+    const rolGuardado = localStorage.getItem("rol-usuario-panel");
+    if (rolGuardado) setRolUsuario(rolGuardado);
 
     return () => {
       desuscribir();
@@ -87,32 +89,24 @@ const Agentes = () => {
             <div>{agente.email}</div>
             <div>{new Date(agente.ultimaConexion).toLocaleDateString()}</div>
             <div>{agente.rol || "—"}</div>
-
-            {/* Botón Editar */}
             <div>
-              {(rol === "Administrador" || rol === "Editor") ? (
+              {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                 <button
                   onClick={() => abrirEditar(agente)}
                   className="text-blue-600 text-sm hover:underline"
                 >
                   Editar
                 </button>
-              ) : (
-                <span className="text-gray-400 text-sm">—</span>
               )}
             </div>
-
-            {/* Botón Eliminar */}
             <div>
-              {rol === "Administrador" ? (
+              {rolUsuario === "Administrador" && (
                 <button
                   onClick={() => eliminarAgenteClick(agente.id)}
                   className="text-red-500 text-sm hover:underline"
                 >
                   Eliminar
                 </button>
-              ) : (
-                <span className="text-gray-400 text-sm">—</span>
               )}
             </div>
           </div>

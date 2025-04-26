@@ -1,87 +1,86 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
-  authDomain: "nextlives-panel-soporte.firebaseapp.com",
-  projectId: "nextlives-panel-soporte",
-  storageBucket: "nextlives-panel-soporte.appspot.com",
-  messagingSenderId: "52725281576",
-  appId: "1:52725281576:web:4402c0507962074345161d",
-};
-
-initializeApp(firebaseConfig);
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
     const auth = getAuth();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "/";
+      navigate("/");
     } catch (err) {
+      console.error("❌ Error al iniciar sesión:", err);
       setError("Email o contraseña incorrectos");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#1E2431] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-xl relative text-center">
+    <div className="min-h-screen bg-[#1E2431] flex items-center justify-center p-4">
+      <div className="flex flex-col items-center space-y-6">
+        {/* Logo arriba */}
         <img
           src="/logo-nextlives.png"
           alt="NextLives"
-          className="w-32 mx-auto mb-4"
+          className="h-12 object-contain"
         />
-        <h1 className="text-xl font-bold mb-6">Acceso NextLives</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-left">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">E-mail</label>
-            <input
-              type="email"
-              className="w-full border px-3 py-2 rounded mt-1"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-            <input
-              type="password"
-              className="w-full border px-3 py-2 rounded mt-1"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        {/* Caja de login */}
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md space-y-6">
+          <h2 className="text-xl font-bold text-center text-gray-800">Acceso Empresas</h2>
 
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="h-4 w-4" />
-              Mantenerme conectado una semana
-            </label>
-            <a href="#" className="text-blue-600 hover:underline">
-              ¿Has olvidado tu contraseña?
-            </a>
-          </div>
+          {error && (
+            <div className="bg-red-100 text-red-600 p-2 rounded text-center text-sm">
+              {error}
+            </div>
+          )}
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">E-mail</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded px-4 py-2 text-sm"
+                required
+              />
+            </div>
 
-          <button
-            type="submit"
-            className="w-full py-2 bg-[#4F46E5] hover:bg-[#3f3cc7] text-white rounded font-semibold mt-2"
-          >
-            Accede a NextLives
-          </button>
-        </form>
+            <div>
+              <label className="block text-sm font-medium mb-1">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded px-4 py-2 text-sm"
+                required
+              />
+            </div>
 
-        <p className="text-xs text-gray-400 mt-6">
-          Si tienes problemas para acceder, contacta con nuestro equipo.{" 
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition text-sm"
+            >
+              Accede a NextLives
+            </button>
+          </form>
+
+          <p className="text-xs text-gray-500 text-center mt-4">
+            Si tienes problemas para acceder, contacta con nuestro equipo.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

@@ -1,14 +1,10 @@
 // src/App.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 import Usuarios from "./pages/Usuarios";
-import Perfil from "./pages/Perfil";
-import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app } from "./firebaseAuth"; // Asegúrate de importar tu firebaseAuth.js
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -201,46 +197,15 @@ const Panel = () => {
   );
 };
 
-const AppRoutes = () => {
-  const [usuario, setUsuario] = useState(null);
-  const location = useLocation();
-
-  useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUsuario(user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (usuario === null) return null;
-
-  if (!usuario && location.pathname !== "/login") {
-    return <Navigate to="/login" />;
-  }
-
-  if (usuario && location.pathname === "/login") {
-    return <Navigate to="/" />;
-  }
-
-  return (
+const App = () => (
+  <Router>
     <DashboardLayout>
       <Routes>
         <Route path="/" element={<Panel />} />
         <Route path="/conversacion/:userId" element={<Detalle />} />
         <Route path="/usuarios" element={<Usuarios />} />
-        <Route path="/perfil" element={<Perfil />} />
       </Routes>
     </DashboardLayout>
-  );
-};
-
-const App = () => (
-  <Router>
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/*" element={<AppRoutes />} />
-    </Routes>
   </Router>
 );
 

@@ -40,7 +40,11 @@ const Login = () => {
       setMensaje("Te hemos enviado un correo para restablecer la contraseña.");
     } catch (err) {
       console.error("❌ Error al enviar recuperación:", err);
-      setError("No se pudo enviar el email de recuperación.");
+      if (err.code === "auth/user-not-found") {
+        setError("No existe ninguna cuenta registrada con ese email.");
+      } else {
+        setError("No se pudo enviar el email de recuperación.");
+      }
     }
   };
 

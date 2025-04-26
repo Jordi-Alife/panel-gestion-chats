@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 import Usuarios from "./pages/Usuarios";
+import Perfil from "./pages/Perfil"; // Añadido
+import Login from "./pages/Login"; // Añadido
 import Notificaciones from "./components/Notificaciones";
 
 const Panel = () => {
@@ -199,13 +201,22 @@ const Panel = () => {
 
 const App = () => (
   <Router>
-    <DashboardLayout>
-      <Routes>
-        <Route path="/" element={<Panel />} />
-        <Route path="/conversacion/:userId" element={<Detalle />} />
-        <Route path="/usuarios" element={<Usuarios />} />
-      </Routes>
-    </DashboardLayout>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="*"
+        element={
+          <DashboardLayout>
+            <Routes>
+              <Route path="/" element={<Panel />} />
+              <Route path="/conversacion/:userId" element={<Detalle />} />
+              <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/perfil" element={<Perfil />} />
+            </Routes>
+          </DashboardLayout>
+        }
+      />
+    </Routes>
   </Router>
 );
 

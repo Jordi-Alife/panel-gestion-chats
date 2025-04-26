@@ -39,13 +39,13 @@ const Agentes = () => {
       if (agenteEditar) {
         await actualizarAgente(agenteEditar.id, {
           ...nuevo,
-          ultimaConexion: new Date().toISOString(), // <- Actualizamos ultimaConexion al guardar
+          ultimaConexion: new Date().toISOString(),
         });
         setMensajeExito("Agente actualizado correctamente");
       } else {
         await crearAgente({
           ...nuevo,
-          ultimaConexion: new Date().toISOString(), // <- También al crear
+          ultimaConexion: new Date().toISOString(),
         });
         setMensajeExito("Agente creado correctamente");
       }
@@ -75,7 +75,9 @@ const Agentes = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
+      {/* Cabecera actualizada: ahora son 7 columnas */}
+      <div className="grid grid-cols-7 gap-4 text-sm font-semibold text-gray-600 px-2 mb-2">
+        <div>Foto</div>
         <div>Agente</div>
         <div>Email</div>
         <div>Última conexión</div>
@@ -88,12 +90,36 @@ const Agentes = () => {
         {agentes.map((agente) => (
           <div
             key={agente.id}
-            className="bg-white rounded-lg shadow p-4 grid grid-cols-6 gap-4 items-center text-sm"
+            className="bg-white rounded-lg shadow p-4 grid grid-cols-7 gap-4 items-center text-sm"
           >
+            {/* Columna de foto */}
+            <div className="flex justify-center">
+              {agente.foto ? (
+                <img
+                  src={agente.foto}
+                  alt={agente.nombre}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                  {agente.nombre?.charAt(0) || "?"}
+                </div>
+              )}
+            </div>
+
+            {/* Nombre */}
             <div className="font-medium">{agente.nombre}</div>
+
+            {/* Email */}
             <div>{agente.email}</div>
+
+            {/* Última conexión */}
             <div>{agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}</div>
+
+            {/* Rol */}
             <div>{agente.rol || "—"}</div>
+
+            {/* Editar */}
             <div>
               {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                 <button
@@ -104,6 +130,8 @@ const Agentes = () => {
                 </button>
               )}
             </div>
+
+            {/* Eliminar */}
             <div>
               {rolUsuario === "Administrador" && (
                 <button

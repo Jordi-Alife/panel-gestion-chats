@@ -3,11 +3,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
-import Agentes from "./pages/agentes"; // <- CORRECTO
+import Agentes from "./pages/agentes";
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { app } from "./firebaseAuth"; // <- para usar la misma app
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -206,9 +208,30 @@ const App = () => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsub = onAuthStateChanged(auth, (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
       setUsuarioActual(user);
       setCargandoAuth(false);
+
+      if (user) {
+        try {
+          const db = getFirestore(app);
+          const agenteRef = doc(db, "agentes", user.uid);
+          const agenteSnap = await getDoc(agenteRef);
+
+          if (agenteSnap.exists()) {
+            const datos = agenteSnap.data();
+            localStorage.setItem("rol-usuario-panel", datos.rol || "Soporte");
+            localStorage.setItem("perfil-usuario-panel", JSON.stringify({
+              nombre: datos.nombre || "",
+              email: datos.email || user.email,
+              foto: datos.foto || "",
+              rol: datos.rol || "Soporte",
+            }));
+          }
+        } catch (error) {
+          console.error("❌ Error obteniendo perfil del agente:", error);
+        }
+      }
     });
     return () => unsub();
   }, []);
@@ -229,7 +252,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Panel />} />
                   <Route path="/conversacion/:userId" element={<Detalle />} />
-                  <Route path="/agentes" element={<Agentes />} /> {/* <- ya corregido */}
+                  <Route path="/agentes" element={<Agentes />} />
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>
               </DashboardLayout>

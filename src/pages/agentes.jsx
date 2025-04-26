@@ -75,27 +75,27 @@ const Agentes = () => {
         </div>
       )}
 
-      {/* Contenedor de la tabla */}
+      {/* Contenedor tabla */}
       <div className="bg-white rounded-lg shadow p-4">
         {/* Cabecera */}
-        <div className="grid grid-cols-[2fr,2fr,1fr,1fr,auto,auto] items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
-          <div className="text-left">Foto/Nombre</div>
-          <div className="text-left">Email</div>
-          <div className="text-left">Última conexión</div>
-          <div className="text-left">Rol</div>
-          <div className="text-left">Editar</div>
-          <div className="text-left">Eliminar</div>
+        <div className="grid grid-cols-[2fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
+          <div className="pl-4">Foto/Nombre</div>
+          <div className="pl-4">Email</div>
+          <div className="pl-4">Última conexión</div>
+          <div className="pl-4">Rol</div>
+          <div className="pl-4">Editar</div>
+          <div className="pl-4">Eliminar</div>
         </div>
 
-        {/* Lista de agentes */}
+        {/* Listado de agentes */}
         <div className="divide-y">
           {agentes.map((agente) => (
             <div
               key={agente.id}
-              className="grid grid-cols-[2fr,2fr,1fr,1fr,auto,auto] items-center text-sm text-gray-700 py-3"
+              className="grid grid-cols-[2fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-sm text-gray-700 py-4"
             >
               {/* Foto y nombre */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-5 pl-4">
                 {agente.foto ? (
                   <img
                     src={agente.foto}
@@ -111,18 +111,18 @@ const Agentes = () => {
               </div>
 
               {/* Email */}
-              <div className="truncate">{agente.email}</div>
+              <div className="pl-4 truncate">{agente.email}</div>
 
               {/* Última conexión */}
-              <div className="text-gray-500">
+              <div className="pl-4 text-gray-500">
                 {agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}
               </div>
 
               {/* Rol */}
-              <div className="text-gray-500">{agente.rol || "—"}</div>
+              <div className="pl-4 text-gray-500">{agente.rol || "—"}</div>
 
               {/* Editar */}
-              <div className="flex justify-start">
+              <div className="pl-4 flex items-center">
                 {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                   <button
                     onClick={() => abrirEditar(agente)}
@@ -148,11 +148,11 @@ const Agentes = () => {
               </div>
 
               {/* Eliminar */}
-              <div className="flex justify-start">
+              <div className="pl-4 flex items-center">
                 {rolUsuario === "Administrador" && (
                   <button
                     onClick={() => eliminarAgenteClick(agente.id)}
-                    className="hover:text-red-500 transition"
+                    className="hover:text-red-500 transition ml-4"
                     title="Eliminar"
                   >
                     <svg
@@ -182,7 +182,7 @@ const Agentes = () => {
         </div>
       </div>
 
-      {/* Modal de Crear o Editar */}
+      {/* Modal Crear/Editar Agente */}
       <ModalCrearAgente
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}

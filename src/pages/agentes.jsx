@@ -1,7 +1,7 @@
 // src/pages/agentes.jsx
 import React, { useEffect, useState } from "react";
-import ModalCrearAgente from "../components/ModalCrearAgente"; // <- cambiado
-import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB"; // <- cambiado
+import ModalCrearAgente from "../components/ModalCrearAgente";
+import { escucharUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB";
 
 const Agentes = () => {
   const [agentes, setAgentes] = useState([]);
@@ -9,9 +9,11 @@ const Agentes = () => {
   const [agenteEditar, setAgenteEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
 
+  const rol = localStorage.getItem("rol-usuario-panel") || "Soporte";
+
   useEffect(() => {
-    const desuscribir = escucharAgentes((nuevosAgentes) => {
-      setAgentes(nuevosAgentes);
+    const desuscribir = escucharUsuarios((nuevosUsuarios) => {
+      setAgentes(nuevosUsuarios);
     });
 
     const listener = () => {
@@ -34,10 +36,10 @@ const Agentes = () => {
   const guardarAgente = async (nuevo) => {
     try {
       if (agenteEditar) {
-        await actualizarAgente(agenteEditar.id, nuevo);
+        await actualizarUsuario(agenteEditar.id, nuevo);
         setMensajeExito("Agente actualizado correctamente");
       } else {
-        await crearAgente(nuevo);
+        await crearUsuario(nuevo);
         setMensajeExito("Agente creado correctamente");
       }
       setTimeout(() => setMensajeExito(""), 3000);
@@ -49,7 +51,7 @@ const Agentes = () => {
   const eliminarAgenteClick = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
       try {
-        await eliminarAgente(id);
+        await eliminarUsuario(id);
       } catch (error) {
         console.error("Error eliminando agente:", error);
       }
@@ -85,21 +87,33 @@ const Agentes = () => {
             <div>{agente.email}</div>
             <div>{new Date(agente.ultimaConexion).toLocaleDateString()}</div>
             <div>{agente.rol || "—"}</div>
+
+            {/* Botón Editar */}
             <div>
-              <button
-                onClick={() => abrirEditar(agente)}
-                className="text-blue-600 text-sm hover:underline"
-              >
-                Editar
-              </button>
+              {(rol === "Administrador" || rol === "Editor") ? (
+                <button
+                  onClick={() => abrirEditar(agente)}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  Editar
+                </button>
+              ) : (
+                <span className="text-gray-400 text-sm">—</span>
+              )}
             </div>
+
+            {/* Botón Eliminar */}
             <div>
-              <button
-                onClick={() => eliminarAgenteClick(agente.id)}
-                className="text-red-500 text-sm hover:underline"
-              >
-                Eliminar
-              </button>
+              {rol === "Administrador" ? (
+                <button
+                  onClick={() => eliminarAgenteClick(agente.id)}
+                  className="text-red-500 text-sm hover:underline"
+                >
+                  Eliminar
+                </button>
+              ) : (
+                <span className="text-gray-400 text-sm">—</span>
+              )}
             </div>
           </div>
         ))}

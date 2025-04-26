@@ -51,17 +51,22 @@ const Perfil = () => {
       const db = getFirestore(app);
       const agenteRef = doc(db, "agentes", user.uid);
 
-      await updateDoc(agenteRef, {
-        nombre: nombre || "",
-        foto: foto || "",
-        ultimaConexion: new Date().toISOString(),
-      });
+      const datosActualizar = {};
+      if (nombre) datosActualizar.nombre = nombre;
+      if (foto) datosActualizar.foto = foto;
+      datosActualizar.ultimaConexion = new Date().toISOString();
+
+      if (Object.keys(datosActualizar).length > 0) {
+        await updateDoc(agenteRef, datosActualizar);
+        console.log("✅ Perfil actualizado en Firestore.");
+      } else {
+        console.log("⚠️ No hay cambios para actualizar.");
+      }
 
       const perfilActualizado = { nombre, usuario, email, rol, foto };
       localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
       window.dispatchEvent(new Event("actualizar-foto-perfil"));
 
-      console.log("✅ Perfil actualizado en Firestore y localStorage.");
       setMensaje("Cambios guardados correctamente.");
     } catch (error) {
       console.error("❌ Error actualizando perfil en Firestore:", error);

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import { app } from "../firebaseAuth"; // usamos misma app
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -34,17 +36,24 @@ const Login = () => {
       return;
     }
 
-    const auth = getAuth();
+    const db = getFirestore(app);
+
     try {
+      const agentesRef = collection(db, "agentes");
+      const q = query(agentesRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setError("No existe ninguna cuenta registrada con ese email.");
+        return;
+      }
+
+      const auth = getAuth();
       await sendPasswordResetEmail(auth, email);
       setMensaje("Te hemos enviado un correo para restablecer la contraseña.");
     } catch (err) {
       console.error("❌ Error al enviar recuperación:", err);
-      if (err.code === "auth/user-not-found") {
-        setError("No existe ninguna cuenta registrada con ese email.");
-      } else {
-        setError("No se pudo enviar el email de recuperación.");
-      }
+      setError("No se pudo enviar el email de recuperación.");
     }
   };
 

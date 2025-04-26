@@ -81,13 +81,42 @@ const Perfil = () => {
 
   const manejarCambioFoto = (e) => {
     const archivo = e.target.files[0];
-    if (archivo) {
-      const lector = new FileReader();
-      lector.onloadend = () => {
-        setFoto(lector.result);
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onloadend = () => {
+      const img = new Image();
+      img.src = lector.result;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSize = 300; // Máximo 300px
+        let ancho = img.width;
+        let alto = img.height;
+
+        if (ancho > alto) {
+          if (ancho > maxSize) {
+            alto *= maxSize / ancho;
+            ancho = maxSize;
+          }
+        } else {
+          if (alto > maxSize) {
+            ancho *= maxSize / alto;
+            alto = maxSize;
+          }
+        }
+
+        canvas.width = ancho;
+        canvas.height = alto;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, ancho, alto);
+
+        const imagenReducida = canvas.toDataURL("image/jpeg", 0.8); // 80% calidad
+        setFoto(imagenReducida);
       };
-      lector.readAsDataURL(archivo);
-    }
+    };
+    lector.readAsDataURL(archivo);
   };
 
   const cerrarSesion = async () => {

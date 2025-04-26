@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
-import Agentes from "./pages/Agentes"; // <- CORRECTO
+import Agentes from "./pages/agentes"; // <- CORRECTO
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";

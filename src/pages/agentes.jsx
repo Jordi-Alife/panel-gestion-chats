@@ -75,50 +75,54 @@ const Agentes = () => {
         </div>
       )}
 
-      {/* Contenedor tabla */}
-      <div className="bg-white rounded-lg shadow p-4">
+      {/* Contenedor de la tabla */}
+      <div className="bg-white rounded-lg shadow p-6">
         {/* Cabecera */}
-        <div className="grid grid-cols-[2fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
-          <div className="pl-4">Foto</div>
-          <div className="pl-6">Nombre</div>
-          <div className="pl-5">Email</div>
-          <div className="pl-4">Última conexión</div>
-          <div className="pl-4">Rol</div>
-          <div className="pl-4">Editar</div>
-          <div className="pl-4">Eliminar</div>
+        <div className="grid grid-cols-[1.8fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
+          <div className="pl-6">Foto/Nombre</div>
+          <div className="pl-6">Email</div>
+          <div className="pl-6">Última conexión</div>
+          <div className="pl-6">Rol</div>
+          <div className="pl-6 text-center">Editar</div>
+          <div className="pl-6 text-center">Eliminar</div>
         </div>
 
-        {/* Listado de agentes */}
+        {/* Lista de agentes */}
         <div className="divide-y">
           {agentes.map((agente) => (
             <div
               key={agente.id}
-              className="grid grid-cols-[2fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-sm text-gray-700 py-4"
+              className="grid grid-cols-[1.8fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-sm text-gray-700 py-3"
             >
-              {/* Foto y nombre */}
-              <div className="flex items-center gap-5 pl-4">
+              {/* Foto y Nombre */}
+              <div className="flex items-center gap-4 pl-6">
                 {agente.foto ? (
                   <img
                     src={agente.foto}
                     alt={agente.nombre}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-9 h-9 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                  <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
                     {agente.nombre?.charAt(0) || "?"}
                   </div>
                 )}
+                <span className="truncate">{agente.nombre}</span>
               </div>
 
-              <div className="pl-6 truncate">{agente.nombre}</div>
-              <div className="pl-5 truncate">{agente.email}</div>
-              <div className="pl-4 text-gray-500">
+              {/* Email */}
+              <div className="pl-6 truncate">{agente.email}</div>
+
+              {/* Última conexión */}
+              <div className="pl-6 text-gray-500">
                 {agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}
               </div>
-              <div className="pl-2 text-gray-500">{agente.rol || "—"}</div>
+
+              {/* Rol */}
+              <div className="pl-6 text-gray-500">{agente.rol || "—"}</div>
 
               {/* Editar */}
-              <div className="pl-2 flex items-center">
+              <div className="pl-6 flex justify-center">
                 {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                   <button
                     onClick={() => abrirEditar(agente)}
@@ -144,7 +148,7 @@ const Agentes = () => {
               </div>
 
               {/* Eliminar */}
-              <div className="pl-2 flex items-center">
+              <div className="pl-6 flex justify-center">
                 {rolUsuario === "Administrador" && (
                   <button
                     onClick={() => eliminarAgenteClick(agente.id)}

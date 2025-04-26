@@ -9,7 +9,7 @@ import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { app } from "./firebaseAuth"; // <- para usar la misma app
+import { app } from "./firebaseAuth";
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -220,6 +220,7 @@ const App = () => {
 
           if (agenteSnap.exists()) {
             const datos = agenteSnap.data();
+            localStorage.setItem("id-usuario-panel", user.uid); // <- Guardamos el UID también
             localStorage.setItem("rol-usuario-panel", datos.rol || "Soporte");
             localStorage.setItem("perfil-usuario-panel", JSON.stringify({
               nombre: datos.nombre || "",

@@ -75,82 +75,117 @@ const Agentes = () => {
         </div>
       )}
 
-      {/* Cabecera actualizada: ahora usando distribución más ancha */}
-      <div className="grid grid-cols-[auto,1fr,2fr,1fr,1fr,auto,auto] gap-6 text-sm font-semibold text-gray-600 px-2 mb-2">
-        <div>Foto</div>
-        <div>Agente</div>
-        <div>Email</div>
-        <div>Última conexión</div>
-        <div>Rol</div>
-        <div>Editar</div>
-        <div>Eliminar</div>
+      {/* Contenedor tabla */}
+      <div className="bg-white rounded-lg shadow p-4">
+        {/* Cabecera */}
+        <div className="grid grid-cols-[auto,1.5fr,2fr,1fr,1fr,auto,auto] items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
+          <div>Foto</div>
+          <div>Nombre</div>
+          <div>Email</div>
+          <div>Última conexión</div>
+          <div>Rol</div>
+          <div className="text-center">Editar</div>
+          <div className="text-center">Eliminar</div>
+        </div>
+
+        {/* Listado de agentes */}
+        <div className="divide-y">
+          {agentes.map((agente) => (
+            <div
+              key={agente.id}
+              className="grid grid-cols-[auto,1.5fr,2fr,1fr,1fr,auto,auto] items-center text-sm text-gray-700 py-3"
+            >
+              {/* Foto */}
+              <div className="flex justify-center">
+                {agente.foto ? (
+                  <img
+                    src={agente.foto}
+                    alt={agente.nombre}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                    {agente.nombre?.charAt(0) || "?"}
+                  </div>
+                )}
+              </div>
+
+              {/* Nombre */}
+              <div className="font-medium truncate">{agente.nombre}</div>
+
+              {/* Email */}
+              <div className="truncate">{agente.email}</div>
+
+              {/* Última conexión */}
+              <div className="text-gray-500">
+                {agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}
+              </div>
+
+              {/* Rol */}
+              <div className="text-gray-500">{agente.rol || "—"}</div>
+
+              {/* Icono Editar */}
+              <div className="flex justify-center">
+                {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
+                  <button
+                    onClick={() => abrirEditar(agente)}
+                    className="hover:text-blue-600 transition"
+                    title="Editar"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Icono Eliminar */}
+              <div className="flex justify-center">
+                {rolUsuario === "Administrador" && (
+                  <button
+                    onClick={() => eliminarAgenteClick(agente.id)}
+                    className="hover:text-red-500 transition"
+                    title="Eliminar"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v2H9V4a1 1 0 011-1z"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          {agentes.length === 0 && (
+            <p className="text-gray-400 text-center py-6">
+              No hay agentes registrados.
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-4">
-        {agentes.map((agente) => (
-          <div
-            key={agente.id}
-            className="bg-white rounded-lg shadow p-4 grid grid-cols-[auto,1fr,2fr,1fr,1fr,auto,auto] gap-6 items-center text-sm"
-          >
-            {/* Columna de foto */}
-            <div className="flex justify-center">
-              {agente.foto ? (
-                <img
-                  src={agente.foto}
-                  alt={agente.nombre}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
-                  {agente.nombre?.charAt(0) || "?"}
-                </div>
-              )}
-            </div>
-
-            {/* Nombre */}
-            <div className="font-medium">{agente.nombre}</div>
-
-            {/* Email */}
-            <div className="truncate">{agente.email}</div>
-
-            {/* Última conexión */}
-            <div>{agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}</div>
-
-            {/* Rol */}
-            <div>{agente.rol || "—"}</div>
-
-            {/* Editar */}
-            <div>
-              {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
-                <button
-                  onClick={() => abrirEditar(agente)}
-                  className="text-blue-600 text-sm hover:underline"
-                >
-                  Editar
-                </button>
-              )}
-            </div>
-
-            {/* Eliminar */}
-            <div>
-              {rolUsuario === "Administrador" && (
-                <button
-                  onClick={() => eliminarAgenteClick(agente.id)}
-                  className="text-red-500 text-sm hover:underline"
-                >
-                  Eliminar
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-        {agentes.length === 0 && (
-          <p className="text-gray-400 text-center py-6">
-            No hay agentes registrados.
-          </p>
-        )}
-      </div>
-
+      {/* Modal Crear/Editar Agente */}
       <ModalCrearAgente
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}

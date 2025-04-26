@@ -1,8 +1,9 @@
+// src/components/ModalCrearAgente.jsx
 import React, { useEffect, useState } from "react";
-import { invitarUsuario, app } from "../firebaseAuth";
+import { invitarAgente, app } from "../firebaseAuth"; // <- usamos invitarAgente, no invitarUsuario
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
-const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
+const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("Administrador");
@@ -10,24 +11,24 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
-    if (usuario) {
-      setNombre(usuario.nombre || "");
-      setEmail(usuario.email || "");
-      setRol(usuario.rol || "Administrador");
-      setActivo(usuario.activo ?? false);
+    if (agente) {
+      setNombre(agente.nombre || "");
+      setEmail(agente.email || "");
+      setRol(agente.rol || "Administrador");
+      setActivo(agente.activo ?? false);
     } else {
       setNombre("");
       setEmail("");
       setRol("Administrador");
       setActivo(false);
     }
-  }, [usuario]);
+  }, [agente]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGuardando(true);
 
-    const nuevo = {
+    const nuevoAgente = {
       nombre,
       email,
       ultimaConexion: new Date().toISOString(),
@@ -36,21 +37,21 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
     };
 
     try {
-      if (!usuario && activo) {
-        await invitarUsuario(email);
+      if (!agente && activo) {
+        await invitarAgente(email, { nombre, rol, activo });
         console.log(`✅ Invitación enviada a ${email}`);
       }
 
-      // Guardar también en Firestore
+      // Guardar también en Firestore (colección agentes)
       const db = getFirestore(app);
-      await addDoc(collection(db, "Usuarios"), nuevo);
-      console.log("✅ Usuario guardado en Firestore");
+      await addDoc(collection(db, "agentes"), nuevoAgente);
+      console.log("✅ Agente guardado en Firestore");
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error("❌ Error creando agente:", err);
     }
 
     setTimeout(() => {
-      onCrear(nuevo);
+      onCrear(nuevoAgente);
       setGuardando(false);
       onClose();
     }, 500);
@@ -61,7 +62,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-        <h2 className="text-xl font-bold mb-4">{usuario ? "Editar agente" : "Crear agente"}</h2>
+        <h2 className="text-xl font-bold mb-4">{agente ? "Editar agente" : "Crear agente"}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -83,7 +84,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={!!usuario}
+              disabled={!!agente}
             />
           </div>
 
@@ -125,7 +126,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
               disabled={guardando}
               className="px-4 py-2 rounded bg-[#ff5733] hover:bg-orange-600 text-white text-sm"
             >
-              {guardando ? "Guardando..." : usuario ? "Guardar cambios" : "Crear agente"}
+              {guardando ? "Guardando..." : agente ? "Guardar cambios" : "Crear agente"}
             </button>
           </div>
         </form>
@@ -134,4 +135,4 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   );
 };
 
-export default ModalCrearUsuario;
+export default ModalCrearAgente;

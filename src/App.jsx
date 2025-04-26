@@ -220,7 +220,7 @@ const App = () => {
 
           if (agenteSnap.exists()) {
             const datos = agenteSnap.data();
-            localStorage.setItem("id-usuario-panel", user.uid); // <- Guardamos el UID también
+            localStorage.setItem("id-usuario-panel", user.uid);
             localStorage.setItem("rol-usuario-panel", datos.rol || "Soporte");
             localStorage.setItem("perfil-usuario-panel", JSON.stringify({
               nombre: datos.nombre || "",
@@ -228,6 +228,9 @@ const App = () => {
               foto: datos.foto || "",
               rol: datos.rol || "Soporte",
             }));
+
+            // Disparar actualización del sidebar
+            window.dispatchEvent(new Event("actualizar-foto-perfil"));
           }
         } catch (error) {
           console.error("❌ Error obteniendo perfil del agente:", error);

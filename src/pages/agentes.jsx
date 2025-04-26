@@ -75,16 +75,16 @@ const Agentes = () => {
         </div>
       )}
 
-      {/* Contenedor de la tabla */}
+      {/* Contenedor tabla */}
       <div className="bg-white rounded-lg shadow p-6">
         {/* Cabecera */}
         <div className="grid grid-cols-[1.8fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
           <div className="pl-6">Foto/Nombre</div>
-          <div className="pl-6">Email</div>
-          <div className="pl-6">Última conexión</div>
+          <div className="pl-8">Email</div>
+          <div className="pl-7">Última conexión</div>
           <div className="pl-6">Rol</div>
-          <div className="pl-6 text-center">Editar</div>
-          <div className="pl-6 text-center">Eliminar</div>
+          <div className="pl-5 text-center">Editar</div>
+          <div className="pl-5 text-center">Eliminar</div>
         </div>
 
         {/* Lista de agentes */}
@@ -111,10 +111,10 @@ const Agentes = () => {
               </div>
 
               {/* Email */}
-              <div className="pl-6 truncate">{agente.email}</div>
+              <div className="pl-8 truncate">{agente.email}</div>
 
               {/* Última conexión */}
-              <div className="pl-6 text-gray-500">
+              <div className="pl-7 text-gray-500">
                 {agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}
               </div>
 
@@ -122,7 +122,7 @@ const Agentes = () => {
               <div className="pl-6 text-gray-500">{agente.rol || "—"}</div>
 
               {/* Editar */}
-              <div className="pl-6 flex justify-center">
+              <div className="pl-5 flex justify-center">
                 {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                   <button
                     onClick={() => abrirEditar(agente)}
@@ -148,7 +148,7 @@ const Agentes = () => {
               </div>
 
               {/* Eliminar */}
-              <div className="pl-6 flex justify-center">
+              <div className="pl-5 flex justify-center">
                 {rolUsuario === "Administrador" && (
                   <button
                     onClick={() => eliminarAgenteClick(agente.id)}

@@ -10,10 +10,14 @@ const Perfil = () => {
   const [rol, setRol] = useState("Administrador");
   const [foto, setFoto] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const [rolUsuario, setRolUsuario] = useState("Soporte");
   const navigate = useNavigate();
 
   useEffect(() => {
     const guardado = localStorage.getItem("perfil-usuario-panel");
+    const rolGuardado = localStorage.getItem("rol-usuario-panel");
+
     if (guardado) {
       const datos = JSON.parse(guardado);
       setNombre(datos.nombre || "");
@@ -22,15 +26,25 @@ const Perfil = () => {
       setRol(datos.rol || "Administrador");
       setFoto(datos.foto || "");
     }
+
+    if (rolGuardado) {
+      setRolUsuario(rolGuardado);
+    }
   }, []);
 
   const guardarCambios = () => {
+    setCargando(true);
+
     const perfilActualizado = { nombre, usuario, email, rol, foto };
     localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
 
     window.dispatchEvent(new Event("actualizar-foto-perfil"));
     setMensaje("Cambios guardados correctamente.");
-    setTimeout(() => setMensaje(""), 3000);
+
+    setTimeout(() => {
+      setMensaje("");
+      setCargando(false);
+    }, 1500);
   };
 
   const manejarCambioFoto = (e) => {
@@ -52,6 +66,7 @@ const Perfil = () => {
       const auth = getAuth();
       await signOut(auth);
       localStorage.removeItem("perfil-usuario-panel");
+      localStorage.removeItem("rol-usuario-panel");
       navigate("/login");
     } catch (error) {
       console.error("❌ Error al cerrar sesión:", error);
@@ -63,20 +78,14 @@ const Perfil = () => {
       <h1 className="text-xl font-bold mb-4">Mi perfil</h1>
 
       {mensaje && (
-        <div className="mb-4 text-green-600 text-sm font-medium">
-          {mensaje}
-        </div>
+        <div className="mb-4 text-green-600 text-sm font-medium">{mensaje}</div>
       )}
 
       <div className="bg-white rounded-lg shadow p-6 space-y-4 max-w-xl">
         {/* Foto de perfil */}
         <div className="flex flex-col items-center space-y-2">
           {foto ? (
-            <img
-              src={foto}
-              alt="Foto de perfil"
-              className="w-24 h-24 rounded-full object-cover"
-            />
+            <img src={foto} alt="Foto de perfil" className="w-24 h-24 rounded-full object-cover" />
           ) : (
             <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-gray-500">
               Sin foto
@@ -120,30 +129,32 @@ const Perfil = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            disabled={rolUsuario !== "Administrador"}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 cursor-not-allowed"
           />
+          {rolUsuario !== "Administrador" && (
+            <p className="text-xs text-gray-400 mt-1">Solo los administradores pueden cambiar el email.</p>
+          )}
         </div>
 
         <div>
           <label className="block text-sm font-semibold mb-1">Rol</label>
-          <select
+          <input
+            type="text"
             value={rol}
-            onChange={(e) => setRol(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-          >
-            <option>Administrador</option>
-            <option>Editor</option>
-            <option>Soporte</option>
-          </select>
+            disabled
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 cursor-not-allowed"
+          />
         </div>
 
         {/* Botones */}
         <div className="flex flex-col gap-2 pt-4">
           <button
             onClick={guardarCambios}
+            disabled={cargando}
             className="bg-[#FF5C42] hover:bg-[#e04c35] text-white px-4 py-2 rounded text-sm"
           >
-            Guardar cambios
+            {cargando ? "Guardando..." : "Guardar cambios"}
           </button>
 
           <button

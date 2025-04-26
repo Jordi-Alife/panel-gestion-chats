@@ -1,6 +1,7 @@
 // src/pages/Usuarios.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
+import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB"; // <- Importar funciones
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -8,67 +9,56 @@ const Usuarios = () => {
   const [usuarioEditar, setUsuarioEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
 
-  useEffect(() => {
-    const guardados = localStorage.getItem("usuarios-panel");
-    if (guardados) {
-      setUsuarios(JSON.parse(guardados));
-    } else {
-      const porDefecto = [
-        {
-          nombre: "Laura Pérez",
-          email: "laura@email.com",
-          ultimaConexion: "2025-04-20T12:00:00Z",
-          rol: "Administrador",
-          activo: true,
-        },
-        {
-          nombre: "Carlos Ruiz",
-          email: "carlos@email.com",
-          ultimaConexion: "2025-04-19T09:30:00Z",
-          rol: "Administrador",
-          activo: false,
-        },
-      ];
-      setUsuarios(porDefecto);
-      localStorage.setItem("usuarios-panel", JSON.stringify(porDefecto));
+  // Cargar usuarios desde Firestore
+  const cargarUsuarios = async () => {
+    try {
+      const lista = await obtenerUsuarios();
+      setUsuarios(lista);
+    } catch (error) {
+      console.error("Error cargando usuarios:", error);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    localStorage.setItem("usuarios-panel", JSON.stringify(usuarios));
-  }, [usuarios]);
+    cargarUsuarios();
 
-  useEffect(() => {
-    const escucharCrearAgente = () => {
-      setUsuarioEditar(null); // Aseguramos que es para crear
+    const listener = () => {
+      setUsuarioEditar(null);
       setMostrarModal(true);
     };
-    window.addEventListener("crear-agente", escucharCrearAgente);
-    return () => window.removeEventListener("crear-agente", escucharCrearAgente);
+    window.addEventListener("crear-agente", listener);
+    return () => window.removeEventListener("crear-agente", listener);
   }, []);
 
-  const abrirEditar = (user) => {
-    setUsuarioEditar(user);
+  const abrirEditar = (usuario) => {
+    setUsuarioEditar(usuario);
     setMostrarModal(true);
   };
 
-  const guardarUsuario = (nuevo) => {
-    if (usuarioEditar) {
-      const actualizados = usuarios.map((u) =>
-        u.email === usuarioEditar.email ? { ...u, ...nuevo } : u
-      );
-      setUsuarios(actualizados);
-      setMensajeExito("Agente actualizado correctamente");
-    } else {
-      setUsuarios((prev) => [...prev, nuevo]);
-      setMensajeExito("Agente creado correctamente");
+  const guardarUsuario = async (nuevo) => {
+    try {
+      if (usuarioEditar) {
+        await actualizarUsuario(usuarioEditar.id, nuevo);
+        setMensajeExito("Agente actualizado correctamente");
+      } else {
+        await crearUsuario(nuevo);
+        setMensajeExito("Agente creado correctamente");
+      }
+      setTimeout(() => setMensajeExito(""), 3000);
+      cargarUsuarios();
+    } catch (error) {
+      console.error("Error guardando usuario:", error);
     }
-    setTimeout(() => setMensajeExito(""), 3000);
   };
 
-  const eliminarUsuario = (email) => {
+  const eliminarUsuarioClick = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
-      setUsuarios((prev) => prev.filter((u) => u.email !== email));
+      try {
+        await eliminarUsuario(id);
+        cargarUsuarios();
+      } catch (error) {
+        console.error("Error eliminando usuario:", error);
+      }
     }
   };
 
@@ -92,9 +82,9 @@ const Usuarios = () => {
       </div>
 
       <div className="grid gap-4">
-        {usuarios.map((user, i) => (
+        {usuarios.map((user) => (
           <div
-            key={i}
+            key={user.id}
             className="bg-white rounded-lg shadow p-4 grid grid-cols-6 gap-4 items-center text-sm"
           >
             <div className="font-medium">{user.nombre}</div>
@@ -111,7 +101,7 @@ const Usuarios = () => {
             </div>
             <div>
               <button
-                onClick={() => eliminarUsuario(user.email)}
+                onClick={() => eliminarUsuarioClick(user.id)}
                 className="text-red-500 text-sm hover:underline"
               >
                 Eliminar

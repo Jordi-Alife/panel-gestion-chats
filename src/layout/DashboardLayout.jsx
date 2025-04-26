@@ -17,7 +17,7 @@ const DashboardLayout = ({ children }) => {
   useEffect(() => {
     const cargarFotoPerfil = () => {
       const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
-      if (guardado?.foto) {
+      if (guardado && guardado.foto) {
         setCargandoFoto(true);
         const img = new Image();
         img.src = guardado.foto;
@@ -31,8 +31,11 @@ const DashboardLayout = ({ children }) => {
     };
 
     cargarFotoPerfil();
-    window.addEventListener("actualizar-foto-perfil", cargarFotoPerfil);
-    return () => window.removeEventListener("actualizar-foto-perfil", cargarFotoPerfil);
+
+    const listener = () => cargarFotoPerfil();
+    window.addEventListener("actualizar-foto-perfil", listener);
+
+    return () => window.removeEventListener("actualizar-foto-perfil", listener);
   }, []);
 
   return (
@@ -57,12 +60,12 @@ const DashboardLayout = ({ children }) => {
         <aside
           className={`relative ${
             colapsado ? "w-20" : "w-56"
-          } bg-[#1E2431] flex flex-col justify-between transition-all duration-200 overflow-hidden`}
+          } bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
         >
           {/* Extensión decorativa */}
           <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
 
-          {/* Botón de colapsar */}
+          {/* Botón de colapsar/expandir */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
@@ -75,40 +78,38 @@ const DashboardLayout = ({ children }) => {
             />
           </button>
 
-          {/* Iconos centrados */}
-          <div className="flex flex-1 flex-col justify-center items-center space-y-4 mt-4 text-sm relative z-20">
+          {/* Menú */}
+          <div className="mt-4 space-y-1 text-sm relative z-20">
             <Link
               to="/"
-              className={`flex items-center text-white hover:bg-[#2d3444] rounded transition ${
-                colapsado ? "justify-center w-12 h-12" : "px-6 py-2 w-full"
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+                colapsado ? "justify-center" : "gap-3"
               }`}
             >
               <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
-              {!colapsado && <span className="ml-3">Inicio</span>}
+              {!colapsado && <span>Inicio</span>}
             </Link>
 
             <Link
               to="/usuarios"
-              className={`flex items-center text-white hover:bg-[#2d3444] rounded transition ${
-                colapsado ? "justify-center w-12 h-12" : "px-6 py-2 w-full"
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+                colapsado ? "justify-center" : "gap-3"
               }`}
             >
               <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
-              {!colapsado && <span className="ml-3">Agentes</span>}
+              {!colapsado && <span>Agentes</span>}
             </Link>
           </div>
 
-          {/* Perfil */}
-          <div className="px-4 pb-6 z-20">
+          {/* Perfil del usuario */}
+          <div className="mt-auto px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
                 <button onClick={() => navigate("/perfil")}>
                   <img
                     src={fotoPerfil || "https://i.pravatar.cc/100"}
                     alt="Perfil"
-                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                      cargandoFoto ? "opacity-0" : "opacity-100"
-                    }`}
+                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                   />
                 </button>
               </div>
@@ -120,9 +121,7 @@ const DashboardLayout = ({ children }) => {
                 <img
                   src={fotoPerfil || "https://i.pravatar.cc/100"}
                   alt="Perfil"
-                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                    cargandoFoto ? "opacity-0" : "opacity-100"
-                  }`}
+                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                 />
                 <div>
                   <div className="font-semibold text-sm leading-tight">Mi perfil</div>
@@ -137,6 +136,7 @@ const DashboardLayout = ({ children }) => {
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
 
+          {/* Footer */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

@@ -1,7 +1,6 @@
 // src/components/ModalCrearAgente.jsx
 import React, { useEffect, useState } from "react";
-import { invitarAgente, app } from "../firebaseAuth"; // <- usamos invitarAgente, no invitarUsuario
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { invitarAgente } from "../firebaseAuth";
 
 const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
   const [nombre, setNombre] = useState("");
@@ -38,14 +37,9 @@ const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
 
     try {
       if (!agente && activo) {
-        await invitarAgente(email, { nombre, rol, activo });
+        await invitarAgente(email, nuevoAgente);
         console.log(`✅ Invitación enviada a ${email}`);
       }
-
-      // Guardar también en Firestore (colección agentes)
-      const db = getFirestore(app);
-      await addDoc(collection(db, "agentes"), nuevoAgente);
-      console.log("✅ Agente guardado en Firestore");
     } catch (err) {
       console.error("❌ Error creando agente:", err);
     }

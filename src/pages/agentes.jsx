@@ -79,8 +79,9 @@ const Agentes = () => {
       <div className="bg-white rounded-lg shadow p-4">
         {/* Cabecera */}
         <div className="grid grid-cols-[2fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
-          <div className="pl-4">Foto/Nombre</div>
-          <div className="pl-4">Email</div>
+          <div className="pl-4">Foto</div>
+          <div className="pl-6">Nombre</div>
+          <div className="pl-5">Email</div>
           <div className="pl-4">Última conexión</div>
           <div className="pl-4">Rol</div>
           <div className="pl-4">Editar</div>
@@ -107,22 +108,17 @@ const Agentes = () => {
                     {agente.nombre?.charAt(0) || "?"}
                   </div>
                 )}
-                <span className="truncate">{agente.nombre}</span>
               </div>
 
-              {/* Email */}
-              <div className="pl-4 truncate">{agente.email}</div>
-
-              {/* Última conexión */}
+              <div className="pl-6 truncate">{agente.nombre}</div>
+              <div className="pl-5 truncate">{agente.email}</div>
               <div className="pl-4 text-gray-500">
                 {agente.ultimaConexion ? new Date(agente.ultimaConexion).toLocaleDateString() : "—"}
               </div>
-
-              {/* Rol */}
-              <div className="pl-4 text-gray-500">{agente.rol || "—"}</div>
+              <div className="pl-2 text-gray-500">{agente.rol || "—"}</div>
 
               {/* Editar */}
-              <div className="pl-4 flex items-center">
+              <div className="pl-2 flex items-center">
                 {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                   <button
                     onClick={() => abrirEditar(agente)}
@@ -148,7 +144,7 @@ const Agentes = () => {
               </div>
 
               {/* Eliminar */}
-              <div className="pl-4 flex items-center">
+              <div className="pl-2 flex items-center">
                 {rolUsuario === "Administrador" && (
                   <button
                     onClick={() => eliminarAgenteClick(agente.id)}

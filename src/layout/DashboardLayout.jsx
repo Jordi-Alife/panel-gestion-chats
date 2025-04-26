@@ -9,33 +9,36 @@ import IconToggle from "../assets/menu.svg";
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
   const [fotoPerfil, setFotoPerfil] = useState("");
+  const [nombrePerfil, setNombrePerfil] = useState("");
   const [cargandoFoto, setCargandoFoto] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const rolUsuario = localStorage.getItem("rol-usuario-panel") || "Soporte"; // <- AÑADIDO
-
+  const rolUsuario = localStorage.getItem("rol-usuario-panel") || "Soporte";
   const esPaginaAgentes = location.pathname === "/agentes";
 
   useEffect(() => {
-    const cargarFotoPerfil = () => {
+    const cargarPerfil = () => {
       const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
-      if (guardado && guardado.foto) {
+      if (guardado) {
         setCargandoFoto(true);
         const img = new Image();
-        img.src = guardado.foto;
+        img.src = guardado.foto || "https://i.pravatar.cc/100";
         img.onload = () => {
-          setFotoPerfil(guardado.foto);
+          setFotoPerfil(guardado.foto || "");
+          setNombrePerfil(guardado.nombre || "");
           setCargandoFoto(false);
         };
       } else {
         setFotoPerfil("");
+        setNombrePerfil("");
       }
     };
 
-    cargarFotoPerfil();
-    const listener = () => cargarFotoPerfil();
+    cargarPerfil();
+    const listener = () => cargarPerfil();
     window.addEventListener("actualizar-foto-perfil", listener);
+
     return () => window.removeEventListener("actualizar-foto-perfil", listener);
   }, []);
 
@@ -45,7 +48,7 @@ const DashboardLayout = ({ children }) => {
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
         <img src="/logo-nextlives.png" alt="NextLives" className="h-10 object-contain" />
         <div className="flex-1" />
-        {esPaginaAgentes && rolUsuario === "Administrador" && ( // <- Solo administrador puede crear agentes
+        {esPaginaAgentes && rolUsuario === "Administrador" && (
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
             className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
@@ -85,7 +88,7 @@ const DashboardLayout = ({ children }) => {
               {!colapsado && <span>Inicio</span>}
             </Link>
 
-            {rolUsuario !== "Soporte" && ( // <- Soporte NO puede ver Agentes
+            {rolUsuario !== "Soporte" && (
               <Link
                 to="/agentes"
                 className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
@@ -125,7 +128,9 @@ const DashboardLayout = ({ children }) => {
                   }`}
                 />
                 <div>
-                  <div className="font-semibold text-sm leading-tight">Mi perfil</div>
+                  <div className="font-semibold text-sm leading-tight">
+                    {nombrePerfil || "Mi perfil"}
+                  </div>
                   <div className="text-xs text-gray-400">Editar</div>
                 </div>
               </div>
@@ -136,6 +141,7 @@ const DashboardLayout = ({ children }) => {
         {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
+
           {/* Footer */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>

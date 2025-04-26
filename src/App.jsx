@@ -1,12 +1,13 @@
 // src/App.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 import Usuarios from "./pages/Usuarios";
-import Perfil from "./pages/Perfil"; // Añadido
-import Login from "./pages/Login"; // Añadido
+import Perfil from "./pages/Perfil";
+import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -199,25 +200,47 @@ const Panel = () => {
   );
 };
 
-const App = () => (
-  <Router>
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route
-        path="*"
-        element={
-          <DashboardLayout>
-            <Routes>
-              <Route path="/" element={<Panel />} />
-              <Route path="/conversacion/:userId" element={<Detalle />} />
-              <Route path="/usuarios" element={<Usuarios />} />
-              <Route path="/perfil" element={<Perfil />} />
-            </Routes>
-          </DashboardLayout>
-        }
-      />
-    </Routes>
-  </Router>
-);
+const App = () => {
+  const [usuarioActual, setUsuarioActual] = useState(null);
+  const [cargandoAuth, setCargandoAuth] = useState(true);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setUsuarioActual(user);
+      setCargandoAuth(false);
+    });
+    return () => unsub();
+  }, []);
+
+  if (cargandoAuth) {
+    return <div className="p-8 text-center">Cargando...</div>;
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="*"
+          element={
+            usuarioActual ? (
+              <DashboardLayout>
+                <Routes>
+                  <Route path="/" element={<Panel />} />
+                  <Route path="/conversacion/:userId" element={<Detalle />} />
+                  <Route path="/usuarios" element={<Usuarios />} />
+                  <Route path="/perfil" element={<Perfil />} />
+                </Routes>
+              </DashboardLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;

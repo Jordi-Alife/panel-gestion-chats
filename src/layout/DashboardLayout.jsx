@@ -14,10 +14,21 @@ const DashboardLayout = ({ children }) => {
   const [fotoPerfil, setFotoPerfil] = useState("");
 
   useEffect(() => {
-    const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
-    if (guardado && guardado.foto) {
-      setFotoPerfil(guardado.foto);
-    }
+    const cargarFotoPerfil = () => {
+      const guardado = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
+      if (guardado && guardado.foto) {
+        setFotoPerfil(guardado.foto);
+      } else {
+        setFotoPerfil("");
+      }
+    };
+
+    cargarFotoPerfil();
+
+    const listener = () => cargarFotoPerfil();
+    window.addEventListener("actualizar-foto-perfil", listener);
+
+    return () => window.removeEventListener("actualizar-foto-perfil", listener);
   }, []);
 
   return (

@@ -1,3 +1,4 @@
+// src/pages/Perfil.jsx
 import React, { useState, useEffect } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +39,7 @@ const Perfil = () => {
 
     const perfilActualizado = { nombre, usuario, email, rol, foto };
     localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
+    window.dispatchEvent(new Event("actualizar-foto-perfil"));
 
     try {
       const auth = getAuth();
@@ -47,17 +49,17 @@ const Perfil = () => {
         const agenteRef = doc(db, "agentes", user.uid);
 
         await updateDoc(agenteRef, {
-          nombre,
-          foto,
+          nombre: nombre || "",
+          foto: foto || "",
         });
         console.log("✅ Perfil actualizado en Firestore.");
       }
+      setMensaje("Cambios guardados correctamente.");
     } catch (error) {
       console.error("❌ Error actualizando perfil en Firestore:", error);
+      setMensaje("Error guardando cambios.");
     }
 
-    window.dispatchEvent(new Event("actualizar-foto-perfil"));
-    setMensaje("Cambios guardados correctamente.");
     setTimeout(() => {
       setMensaje("");
       setCargando(false);

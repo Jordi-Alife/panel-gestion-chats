@@ -1,22 +1,21 @@
-// src/pages/Usuarios.jsx
+// src/pages/agentes.jsx
 import React, { useEffect, useState } from "react";
 import ModalCrearUsuario from "../components/ModalCrearUsuario";
 import { escucharUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB";
 
-const Usuarios = () => {
-  const [usuarios, setUsuarios] = useState([]);
+const Agentes = () => {
+  const [agentes, setAgentes] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [usuarioEditar, setUsuarioEditar] = useState(null);
+  const [agenteEditar, setAgenteEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
 
   useEffect(() => {
-    // Escuchar cambios en Firestore en tiempo real
     const desuscribir = escucharUsuarios((nuevosUsuarios) => {
-      setUsuarios(nuevosUsuarios);
+      setAgentes(nuevosUsuarios);
     });
 
     const listener = () => {
-      setUsuarioEditar(null);
+      setAgenteEditar(null);
       setMostrarModal(true);
     };
     window.addEventListener("crear-agente", listener);
@@ -27,15 +26,15 @@ const Usuarios = () => {
     };
   }, []);
 
-  const abrirEditar = (usuario) => {
-    setUsuarioEditar(usuario);
+  const abrirEditar = (agente) => {
+    setAgenteEditar(agente);
     setMostrarModal(true);
   };
 
-  const guardarUsuario = async (nuevo) => {
+  const guardarAgente = async (nuevo) => {
     try {
-      if (usuarioEditar) {
-        await actualizarUsuario(usuarioEditar.id, nuevo);
+      if (agenteEditar) {
+        await actualizarUsuario(agenteEditar.id, nuevo);
         setMensajeExito("Agente actualizado correctamente");
       } else {
         await crearUsuario(nuevo);
@@ -43,16 +42,16 @@ const Usuarios = () => {
       }
       setTimeout(() => setMensajeExito(""), 3000);
     } catch (error) {
-      console.error("Error guardando usuario:", error);
+      console.error("Error guardando agente:", error);
     }
   };
 
-  const eliminarUsuarioClick = async (id) => {
+  const eliminarAgenteClick = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
       try {
         await eliminarUsuario(id);
       } catch (error) {
-        console.error("Error eliminando usuario:", error);
+        console.error("Error eliminando agente:", error);
       }
     }
   };
@@ -77,18 +76,18 @@ const Usuarios = () => {
       </div>
 
       <div className="grid gap-4">
-        {usuarios.map((user) => (
+        {agentes.map((agente) => (
           <div
-            key={user.id}
+            key={agente.id}
             className="bg-white rounded-lg shadow p-4 grid grid-cols-6 gap-4 items-center text-sm"
           >
-            <div className="font-medium">{user.nombre}</div>
-            <div>{user.email}</div>
-            <div>{new Date(user.ultimaConexion).toLocaleDateString()}</div>
-            <div>{user.rol || "—"}</div>
+            <div className="font-medium">{agente.nombre}</div>
+            <div>{agente.email}</div>
+            <div>{new Date(agente.ultimaConexion).toLocaleDateString()}</div>
+            <div>{agente.rol || "—"}</div>
             <div>
               <button
-                onClick={() => abrirEditar(user)}
+                onClick={() => abrirEditar(agente)}
                 className="text-blue-600 text-sm hover:underline"
               >
                 Editar
@@ -96,7 +95,7 @@ const Usuarios = () => {
             </div>
             <div>
               <button
-                onClick={() => eliminarUsuarioClick(user.id)}
+                onClick={() => eliminarAgenteClick(agente.id)}
                 className="text-red-500 text-sm hover:underline"
               >
                 Eliminar
@@ -104,7 +103,7 @@ const Usuarios = () => {
             </div>
           </div>
         ))}
-        {usuarios.length === 0 && (
+        {agentes.length === 0 && (
           <p className="text-gray-400 text-center py-6">
             No hay agentes registrados.
           </p>
@@ -114,11 +113,11 @@ const Usuarios = () => {
       <ModalCrearUsuario
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}
-        onCrear={guardarUsuario}
-        usuario={usuarioEditar}
+        onCrear={guardarAgente}
+        usuario={agenteEditar}
       />
     </div>
   );
 };
 
-export default Usuarios;
+export default Agentes;

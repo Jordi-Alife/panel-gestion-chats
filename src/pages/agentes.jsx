@@ -1,7 +1,7 @@
 // src/pages/agentes.jsx
 import React, { useEffect, useState } from "react";
-import ModalCrearUsuario from "../components/ModalCrearUsuario";
-import { escucharUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from "../firebaseDB";
+import ModalCrearAgente from "../components/ModalCrearAgente"; // <- cambiado
+import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB"; // <- cambiado
 
 const Agentes = () => {
   const [agentes, setAgentes] = useState([]);
@@ -10,8 +10,8 @@ const Agentes = () => {
   const [mensajeExito, setMensajeExito] = useState("");
 
   useEffect(() => {
-    const desuscribir = escucharUsuarios((nuevosUsuarios) => {
-      setAgentes(nuevosUsuarios);
+    const desuscribir = escucharAgentes((nuevosAgentes) => {
+      setAgentes(nuevosAgentes);
     });
 
     const listener = () => {
@@ -34,10 +34,10 @@ const Agentes = () => {
   const guardarAgente = async (nuevo) => {
     try {
       if (agenteEditar) {
-        await actualizarUsuario(agenteEditar.id, nuevo);
+        await actualizarAgente(agenteEditar.id, nuevo);
         setMensajeExito("Agente actualizado correctamente");
       } else {
-        await crearUsuario(nuevo);
+        await crearAgente(nuevo);
         setMensajeExito("Agente creado correctamente");
       }
       setTimeout(() => setMensajeExito(""), 3000);
@@ -49,7 +49,7 @@ const Agentes = () => {
   const eliminarAgenteClick = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {
       try {
-        await eliminarUsuario(id);
+        await eliminarAgente(id);
       } catch (error) {
         console.error("Error eliminando agente:", error);
       }
@@ -110,11 +110,11 @@ const Agentes = () => {
         )}
       </div>
 
-      <ModalCrearUsuario
+      <ModalCrearAgente
         visible={mostrarModal}
         onClose={() => setMostrarModal(false)}
         onCrear={guardarAgente}
-        usuario={agenteEditar}
+        agente={agenteEditar}
       />
     </div>
   );

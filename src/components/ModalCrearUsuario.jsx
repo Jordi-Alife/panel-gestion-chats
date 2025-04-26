@@ -1,5 +1,6 @@
 // src/components/ModalCrearUsuario.jsx
 import React, { useEffect, useState } from "react";
+import { invitarUsuario } from "../firebaseAuth"; // Asegúrate de tener este archivo y función
 
 const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
   const [nombre, setNombre] = useState("");
@@ -22,7 +23,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
     }
   }, [usuario]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setGuardando(true);
 
@@ -34,11 +35,20 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
       activo,
     };
 
+    if (!usuario && activo) {
+      try {
+        await invitarUsuario(email);
+        console.log("✅ Invitación enviada a:", email);
+      } catch (err) {
+        console.error("❌ Error al invitar usuario:", err);
+      }
+    }
+
     setTimeout(() => {
       onCrear(nuevo);
       setGuardando(false);
       onClose();
-    }, 1000); // Simulamos 1 segundo de "guardando"
+    }, 1000);
   };
 
   if (!visible) return null;
@@ -68,7 +78,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={!!usuario} // Bloquear email si está editando
+              disabled={!!usuario}
             />
           </div>
 

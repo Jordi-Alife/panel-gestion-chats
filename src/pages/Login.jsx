@@ -1,90 +1,75 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { app } from "../firebaseAuth";
+import { initializeApp } from "firebase/app";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0vz-jtc7PRpdFfQUKvU9PevLEV8zYzO4",
+  authDomain: "nextlives-panel-soporte.firebaseapp.com",
+  projectId: "nextlives-panel-soporte",
+  storageBucket: "nextlives-panel-soporte.appspot.com",
+  messagingSenderId: "52725281576",
+  appId: "1:52725281576:web:4402c0507962074345161d"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mensaje, setMensaje] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setMensaje("");
-
     try {
-      const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
-      setMensaje("✅ Acceso correcto. Redirigiendo...");
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
-    } catch (error) {
-      console.error(error.code, error.message);
-      setMensaje("❌ Error: " + error.message);
+      navigate("/");
+    } catch (err) {
+      setError("Email o contraseña incorrectos");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1E2431] px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
-        <img src="/logo-nextlives.png" alt="NextLives" className="h-10 mx-auto mb-6" />
-        <h1 className="text-xl font-bold mb-6">Acceso Empresas</h1>
-
-        {mensaje && (
-          <div className="mb-4 text-sm font-medium text-red-500">{mensaje}</div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-4 text-left">
+    <div className="min-h-screen bg-[#1E2431] flex items-center justify-center px-4">
+      <div className="bg-white p-8 rounded-lg shadow max-w-md w-full">
+        <h1 className="text-2xl font-bold mb-6 text-center">Acceso Empresas</h1>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1">E-mail</label>
+            <label className="block text-sm mb-1">E-mail</label>
             <input
               type="email"
-              className="w-full border border-gray-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#ff5733]"
-              placeholder="Escribe tu correo electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              placeholder="Escribe tu correo electrónico"
               required
             />
           </div>
-
           <div>
-            <label className="block text-sm font-semibold mb-1">Contraseña</label>
+            <label className="block text-sm mb-1">Contraseña</label>
             <input
               type="password"
-              className="w-full border border-gray-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#ff5733]"
-              placeholder="Escribe tu contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              placeholder="Escribe tu contraseña"
               required
             />
-            <div className="text-xs text-right mt-1">
-              <a href="#" className="text-[#ff5733] hover:underline">
-                ¿Has olvidado tu contraseña?
-              </a>
-            </div>
           </div>
-
           <button
             type="submit"
-            className="w-full bg-[#ff5733] hover:bg-orange-600 text-white font-semibold py-2 rounded-md text-sm transition-all"
+            className="bg-blue-600 text-white py-2 w-full rounded hover:bg-blue-700 transition"
           >
             Accede a NextLives
           </button>
         </form>
-
-        <div className="mt-6 text-xs text-gray-400">
-          Si tienes problemas para acceder, contacta con nuestro equipo.<br />
-          <a href="https://wa.me/34690083580" target="_blank" className="text-[#ff5733] hover:underline">
-            WhatsApp Business (+34 690 083 580)
-          </a>
-        </div>
-
-        <div className="mt-8 text-[10px] text-gray-400">
-          © NextLives 2025 · 
-          <a href="#" className="hover:underline ml-1">Términos</a> · 
-          <a href="#" className="hover:underline ml-1">Política de privacidad</a>
-        </div>
+        <p className="text-xs text-center text-gray-500 mt-4">
+          Si tienes problemas para acceder, contacta con nuestro equipo.
+        </p>
       </div>
     </div>
   );

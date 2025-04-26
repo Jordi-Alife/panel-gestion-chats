@@ -21,7 +21,14 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
       setRol("Administrador");
       setActivo(false);
     }
-  }, [usuario]);
+  }, [usuario, visible]); // <-- También escucha 'visible'
+
+  const limpiarFormulario = () => {
+    setNombre("");
+    setEmail("");
+    setRol("Administrador");
+    setActivo(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,20 +42,19 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
       activo,
     };
 
-    try {
-      if (!usuario && activo) {
+    if (!usuario && activo) {
+      try {
         await invitarUsuario(email);
-        console.log(`✅ Invitación enviada a ${email}`);
+        console.log("✅ Invitación enviada a:", email);
+      } catch (err) {
+        console.error("❌ Error al invitar usuario:", err);
       }
-    } catch (err) {
-      console.error("❌ Error al invitar usuario:", err);
     }
 
-    setTimeout(() => {
-      onCrear(nuevo);
-      setGuardando(false);
-      onClose();
-    }, 500); // Un poco más rápido (opcional)
+    await onCrear(nuevo);
+    setGuardando(false);
+    limpiarFormulario(); // <--- limpiamos al guardar
+    onClose();
   };
 
   if (!visible) return null;
@@ -109,7 +115,7 @@ const ModalCrearUsuario = ({ visible, onClose, onCrear, usuario }) => {
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => { limpiarFormulario(); onClose(); }}
               disabled={guardando}
               className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm"
             >

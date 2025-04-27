@@ -39,13 +39,8 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const procesados = (data || []).map(msg => ({
-          ...msg,
-          from: msg.from || (msg.rol === 'asistente' ? 'asistente' : 'usuario'),
-          lastInteraction: msg.lastInteraction || msg.timestamp,
-          message: msg.message || msg.mensaje,
-        }));
-        const ordenados = procesados.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || [])
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -192,6 +187,7 @@ export default function Detalle() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+        
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -307,28 +303,6 @@ export default function Detalle() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
-        </div>
-      </div>
-
-      {/* Email */}
-      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
-        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="text-sm font-medium text-gray-700">
-            Enviar conversación por email
-          </div>
-          <form className="flex gap-2 w-full sm:w-auto">
-            <input
-              type="email"
-              placeholder="ejemplo@email.com"
-              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
-            />
-            <button
-              type="submit"
-              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-            >
-              Enviar
-            </button>
-          </form>
         </div>
       </div>
     </div>

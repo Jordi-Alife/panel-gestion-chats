@@ -161,13 +161,15 @@ export default function Detalle() {
     if (diffHrs < 24) return `hace ${diffHrs}h`;
     if (diffDays === 1) return "ayer";
     return `hace ${diffDays}d`;
-  };  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+  };
+
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), item];
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
-      actual.estado = item.estado || "abierta"; // <<<<< añadimos capturar estado
+      actual.estado = item.estado || "abierta"; // Capturamos el estado real
     }
     acc[item.userId] = actual;
     return acc;
@@ -186,7 +188,7 @@ export default function Detalle() {
     let estado = "Recurrente";
 
     if (info.estado === "cerrada") {
-      estado = "Cerrado"; // <<<<< prioridad: si está cerrada
+      estado = "Cerrado";
     } else if (info.mensajes.length === 1) {
       estado = "Nuevo";
     } else if (minutosSinResponder < 1) {
@@ -208,11 +210,13 @@ export default function Detalle() {
     Nuevo: "bg-green-500",
     Activo: "bg-blue-500",
     Dormido: "bg-gray-400",
-    Cerrado: "bg-red-500" // <<<<< color para cerrado
-  };  return (
+    Cerrado: "bg-red-500"
+  };
+
+  return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna izquierda: lista de conversaciones */}
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           {listaAgrupada.map((c) => (
@@ -244,13 +248,9 @@ export default function Detalle() {
           ))}
         </div>
 
-        {/* Columna central: chat de mensajes */}
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
-          <div
-            ref={chatRef}
-            onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-6 space-y-4 h-0"
-          >
+          <div ref={chatRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.map((msg, index) => {
               const isAsistente = msg.from === 'asistente';
               const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
@@ -299,7 +299,7 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario enviar mensaje */}
+          {/* Formulario */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -342,14 +342,14 @@ export default function Detalle() {
           </form>
         </div>
 
-        {/* Columna derecha: datos del usuario */}
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
         </div>
       </div>
 
-      {/* Campo para enviar conversación por email */}
+      {/* Email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

@@ -16,15 +16,23 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
   };
+
+  useEffect(() => {
+    cargarDatos();
+    const intervalo = setInterval(() => {
+      cargarDatos();
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, []);
 
   const cargarMensajes = () => {
     if (!userId) return;
@@ -32,11 +40,7 @@ export default function Detalle() {
       .then(res => res.json())
       .then(data => {
         const ordenados = (data || [])
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-          .map(msg => ({
-            ...msg,
-            from: msg.from || (msg.manual ? 'asistente' : 'usuario')
-          }));
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -49,15 +53,11 @@ export default function Detalle() {
   };
 
   useEffect(() => {
-    cargarDatos();
-    const intervalo = setInterval(cargarDatos, 5000);
-    return () => clearInterval(intervalo);
-  }, []);
-
-  useEffect(() => {
     cargarMensajes();
-    const intervalo = setInterval(cargarMensajes, 2000);
-    return () => clearInterval(intervalo);
+    const interval = setInterval(() => {
+      cargarMensajes();
+    }, 2000);
+    return () => clearInterval(interval);
   }, [userId]);
 
   useEffect(() => {
@@ -241,21 +241,6 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-                    {msg.original && (
-                      <div className="mt-2 text-[11px] text-right">
-                        <button
-                          onClick={() => toggleOriginal(index)}
-                          className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
-                        >
-                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                        </button>
-                        {originalesVisibles[index] && (
-                          <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
-                            {msg.original}
-                          </p>
-                        )}
-                      </div>
-                    )}
                     <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
                       {new Date(msg.lastInteraction).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -277,7 +262,7 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario */}
+          {/* Formulario de enviar mensaje */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo

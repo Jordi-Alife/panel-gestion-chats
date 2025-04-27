@@ -16,12 +16,12 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setVistas)
       .catch(console.error);
   };
@@ -40,7 +40,12 @@ export default function Detalle() {
       .then(res => res.json())
       .then(data => {
         const ordenados = (data || [])
+          .map(msg => ({
+            ...msg,
+            from: msg.from || "usuario", // aseguramos que siempre hay from
+          }))
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -194,7 +199,6 @@ export default function Detalle() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -242,6 +246,27 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
+                    {msg.original && (
+                      <div className="mt-2 text-[11px] text-right">
+                        <button
+                          onClick={() => toggleOriginal(index)}
+                          className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
+                        >
+                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                        </button>
+                        {originalesVisibles[index] && (
+                          <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
+                            {msg.original}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
                   </div>
                 </div>
               );
@@ -307,7 +332,7 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Email */}
+      {/* Campo de enviar conversación por email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

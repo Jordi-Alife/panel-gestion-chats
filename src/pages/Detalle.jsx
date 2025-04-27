@@ -16,12 +16,12 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
   };
@@ -46,18 +46,14 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarDatos();
-    const intervalo = setInterval(() => {
-      cargarDatos();
-    }, 5000);
+    const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
 
   useEffect(() => {
     cargarMensajes();
-    const interval = setInterval(() => {
-      cargarMensajes();
-    }, 2000);
-    return () => clearInterval(interval);
+    const intervalo = setInterval(cargarMensajes, 2000);
+    return () => clearInterval(intervalo);
   }, [userId]);
 
   useEffect(() => {
@@ -98,7 +94,7 @@ export default function Detalle() {
       await fetch("https://web-production-51989.up.railway.app/api/upload", {
         method: "POST",
         body: formData
-      });
+      }).catch(console.error);
 
       setImagen(null);
       return;
@@ -110,7 +106,7 @@ export default function Detalle() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })
-    });
+    }).catch(console.error);
 
     setRespuesta('');
   };
@@ -242,10 +238,7 @@ export default function Detalle() {
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
                     <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 </div>
@@ -262,7 +255,7 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario de enviar mensaje */}
+          {/* Formulario */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -312,12 +305,10 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Email */}
+      {/* Footer */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="text-sm font-medium text-gray-700">
-            Enviar conversación por email
-          </div>
+          <div className="text-sm font-medium text-gray-700">Enviar conversación por email</div>
           <form className="flex gap-2 w-full sm:w-auto">
             <input
               type="email"

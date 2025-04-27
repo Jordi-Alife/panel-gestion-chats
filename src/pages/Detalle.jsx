@@ -39,8 +39,14 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = (data || [])
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const adaptados = (data || []).map(m => ({
+          userId: m.userId,
+          lastInteraction: m.lastInteraction,
+          message: m.message,
+          from: m.from || (m.rol === 'asistente' ? 'asistente' : 'usuario')
+        }));
+
+        const ordenados = adaptados.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -90,40 +96,29 @@ export default function Detalle() {
     e.preventDefault();
     if (!userId) return;
 
-    try {
-      if (imagen) {
-        const formData = new FormData();
-        formData.append("file", imagen);
-        formData.append("userId", userId);
+    if (imagen) {
+      const formData = new FormData();
+      formData.append("file", imagen);
+      formData.append("userId", userId);
 
-        await fetch("https://web-production-51989.up.railway.app/api/upload", {
-          method: "POST",
-          body: formData
-        });
-
-        setImagen(null);
-        return;
-      }
-
-      if (!respuesta.trim()) return;
-
-      await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, message: respuesta })
+      await fetch("https://web-production-51989.up.railway.app/api/upload", {
+        method: "POST",
+        body: formData
       });
 
-      setRespuesta('');
-    } catch (error) {
-      console.error('Error enviando mensaje:', error);
+      setImagen(null);
+      return;
     }
-  };
 
-  const toggleOriginal = (index) => {
-    setOriginalesVisibles(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+    if (!respuesta.trim()) return;
+
+    await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, message: respuesta })
+    });
+
+    setRespuesta('');
   };
 
   const esURLImagen = (texto) =>

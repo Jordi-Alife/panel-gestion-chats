@@ -39,12 +39,8 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = data
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-          .map(msg => ({
-            ...msg,
-            from: msg.from || (msg.manual || msg.from === 'asistente' ? 'asistente' : 'usuario')
-          }));
+        const ordenados = (data || [])
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -52,7 +48,8 @@ export default function Detalle() {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
           }
         }, 100);
-      });
+      })
+      .catch(console.error);
   };
 
   useEffect(() => {
@@ -105,34 +102,19 @@ export default function Detalle() {
 
       const data = await response.json();
 
-      const nuevoMensajeImagen = {
-        userId,
-        message: data.imageUrl,
-        lastInteraction: new Date().toISOString(),
-        from: 'asistente'
-      };
-
-      setMensajes(prev => [...prev, nuevoMensajeImagen]);
       setImagen(null);
       return;
     }
 
     if (!respuesta.trim()) return;
 
-    const nuevoMensaje = {
-      userId,
-      message: respuesta,
-      lastInteraction: new Date().toISOString(),
-      from: 'asistente'
-    };
-    setMensajes(prev => [...prev, nuevoMensaje]);
-    setRespuesta('');
-
     await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })
     });
+
+    setRespuesta('');
   };
 
   const toggleOriginal = (index) => {
@@ -213,7 +195,7 @@ export default function Detalle() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
-      {/* Aquí seguiría todo igual... */}      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -347,7 +329,7 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Campo de enviar conversación por email */}
+      {/* Email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

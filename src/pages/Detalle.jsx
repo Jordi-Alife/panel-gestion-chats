@@ -1,4 +1,3 @@
-// src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -162,14 +161,13 @@ export default function Detalle() {
     if (diffHrs < 24) return `hace ${diffHrs}h`;
     if (diffDays === 1) return "ayer";
     return `hace ${diffDays}d`;
-  };
-
-  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [] };
+  };  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), item];
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
+      actual.estado = item.estado || "abierta"; // <<<<< añadimos capturar estado
     }
     acc[item.userId] = actual;
     return acc;
@@ -184,10 +182,19 @@ export default function Detalle() {
     const minutosSinResponder = ultimoUsuario
       ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
       : Infinity;
+
     let estado = "Recurrente";
-    if (info.mensajes.length === 1) estado = "Nuevo";
-    else if (minutosSinResponder < 1) estado = "Activo";
-    else estado = "Dormido";
+
+    if (info.estado === "cerrada") {
+      estado = "Cerrado"; // <<<<< prioridad: si está cerrada
+    } else if (info.mensajes.length === 1) {
+      estado = "Nuevo";
+    } else if (minutosSinResponder < 1) {
+      estado = "Activo";
+    } else {
+      estado = "Dormido";
+    }
+
     return {
       userId: id,
       nuevos,
@@ -200,13 +207,12 @@ export default function Detalle() {
   const estadoColor = {
     Nuevo: "bg-green-500",
     Activo: "bg-blue-500",
-    Dormido: "bg-gray-400"
-  };
-
-  return (
+    Dormido: "bg-gray-400",
+    Cerrado: "bg-red-500" // <<<<< color para cerrado
+  };  return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna izquierda */}
+        {/* Columna izquierda: lista de conversaciones */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           {listaAgrupada.map((c) => (
@@ -238,7 +244,7 @@ export default function Detalle() {
           ))}
         </div>
 
-        {/* Columna central */}
+        {/* Columna central: chat de mensajes */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
@@ -293,6 +299,7 @@ export default function Detalle() {
             </button>
           )}
 
+          {/* Formulario enviar mensaje */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -335,7 +342,7 @@ export default function Detalle() {
           </form>
         </div>
 
-        {/* Columna derecha */}
+        {/* Columna derecha: datos del usuario */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>

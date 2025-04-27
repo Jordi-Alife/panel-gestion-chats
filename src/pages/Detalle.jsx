@@ -95,12 +95,10 @@ export default function Detalle() {
       formData.append("file", imagen);
       formData.append("userId", userId);
 
-      const response = await fetch("https://web-production-51989.up.railway.app/api/upload", {
+      await fetch("https://web-production-51989.up.railway.app/api/upload", {
         method: "POST",
         body: formData
       });
-
-      const data = await response.json();
 
       setImagen(null);
       return;
@@ -196,6 +194,7 @@ export default function Detalle() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -243,27 +242,6 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-                    {msg.original && (
-                      <div className="mt-2 text-[11px] text-right">
-                        <button
-                          onClick={() => toggleOriginal(index)}
-                          className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
-                        >
-                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                        </button>
-                        {originalesVisibles[index] && (
-                          <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
-                            {msg.original}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
                   </div>
                 </div>
               );

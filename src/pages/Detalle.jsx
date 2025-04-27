@@ -16,37 +16,23 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setVistas)
       .catch(console.error);
   };
-
-  useEffect(() => {
-    cargarDatos();
-    const intervalo = setInterval(() => {
-      cargarDatos();
-    }, 5000);
-    return () => clearInterval(intervalo);
-  }, []);
 
   const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const adaptados = (data || []).map(m => ({
-          userId: m.userId,
-          lastInteraction: m.lastInteraction,
-          message: m.message,
-          from: m.from || (m.rol === 'asistente' ? 'asistente' : 'usuario')
-        }));
-
-        const ordenados = adaptados.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || [])
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -57,6 +43,14 @@ export default function Detalle() {
       })
       .catch(console.error);
   };
+
+  useEffect(() => {
+    cargarDatos();
+    const intervalo = setInterval(() => {
+      cargarDatos();
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, []);
 
   useEffect(() => {
     cargarMensajes();
@@ -72,7 +66,7 @@ export default function Detalle() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
-      });
+      }).catch(console.error);
     }
   }, [mensajes]);
 
@@ -119,6 +113,13 @@ export default function Detalle() {
     });
 
     setRespuesta('');
+  };
+
+  const toggleOriginal = (index) => {
+    setOriginalesVisibles(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
   };
 
   const esURLImagen = (texto) =>

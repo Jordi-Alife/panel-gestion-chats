@@ -90,29 +90,33 @@ export default function Detalle() {
     e.preventDefault();
     if (!userId) return;
 
-    if (imagen) {
-      const formData = new FormData();
-      formData.append("file", imagen);
-      formData.append("userId", userId);
+    try {
+      if (imagen) {
+        const formData = new FormData();
+        formData.append("file", imagen);
+        formData.append("userId", userId);
 
-      await fetch("https://web-production-51989.up.railway.app/api/upload", {
-        method: "POST",
-        body: formData
+        await fetch("https://web-production-51989.up.railway.app/api/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        setImagen(null);
+        return;
+      }
+
+      if (!respuesta.trim()) return;
+
+      await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, message: respuesta })
       });
 
-      setImagen(null);
-      return;
+      setRespuesta('');
+    } catch (error) {
+      console.error('Error enviando mensaje:', error);
     }
-
-    if (!respuesta.trim()) return;
-
-    await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, message: respuesta })
-    });
-
-    setRespuesta('');
   };
 
   const toggleOriginal = (index) => {

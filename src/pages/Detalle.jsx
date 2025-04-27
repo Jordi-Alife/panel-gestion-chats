@@ -16,12 +16,12 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
   };
@@ -40,12 +40,7 @@ export default function Detalle() {
       .then(res => res.json())
       .then(data => {
         const ordenados = (data || [])
-          .map(msg => ({
-            ...msg,
-            from: msg.from || "usuario", // aseguramos que siempre hay from
-          }))
           .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -71,7 +66,7 @@ export default function Detalle() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
-      });
+      }).catch(console.error);
     }
   }, [mensajes]);
 
@@ -103,7 +98,7 @@ export default function Detalle() {
       await fetch("https://web-production-51989.up.railway.app/api/upload", {
         method: "POST",
         body: formData
-      });
+      }).catch(console.error);
 
       setImagen(null);
       return;
@@ -115,7 +110,7 @@ export default function Detalle() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })
-    });
+    }).catch(console.error);
 
     setRespuesta('');
   };
@@ -246,27 +241,6 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-                    {msg.original && (
-                      <div className="mt-2 text-[11px] text-right">
-                        <button
-                          onClick={() => toggleOriginal(index)}
-                          className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
-                        >
-                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                        </button>
-                        {originalesVisibles[index] && (
-                          <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>
-                            {msg.original}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
                   </div>
                 </div>
               );
@@ -282,7 +256,7 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario de enviar mensaje */}
+          {/* Formulario */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -329,28 +303,6 @@ export default function Detalle() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
-        </div>
-      </div>
-
-      {/* Campo de enviar conversación por email */}
-      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
-        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="text-sm font-medium text-gray-700">
-            Enviar conversación por email
-          </div>
-          <form className="flex gap-2 w-full sm:w-auto">
-            <input
-              type="email"
-              placeholder="ejemplo@email.com"
-              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
-            />
-            <button
-              type="submit"
-              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-            >
-              Enviar
-            </button>
-          </form>
         </div>
       </div>
     </div>

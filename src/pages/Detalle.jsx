@@ -16,12 +16,12 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setVistas)
       .catch(console.error);
   };
@@ -39,8 +39,15 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = (data || [])
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        if (!Array.isArray(data)) return;
+
+        const ordenados = data
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
+          .map(msg => ({
+            ...msg,
+            from: msg.from || msg.rol || (msg.manual ? 'asistente' : 'usuario')
+          }));
+
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -54,10 +61,10 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarMensajes();
-    const interval = setInterval(() => {
+    const intervalo = setInterval(() => {
       cargarMensajes();
     }, 2000);
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalo);
   }, [userId]);
 
   useEffect(() => {
@@ -66,7 +73,7 @@ export default function Detalle() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
-      });
+      }).catch(console.error);
     }
   }, [mensajes]);
 
@@ -187,7 +194,6 @@ export default function Detalle() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -303,6 +309,28 @@ export default function Detalle() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
+        </div>
+      </div>
+
+      {/* Formulario de Email */}
+      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="text-sm font-medium text-gray-700">
+            Enviar conversación por email
+          </div>
+          <form className="flex gap-2 w-full sm:w-auto">
+            <input
+              type="email"
+              placeholder="ejemplo@email.com"
+              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </form>
         </div>
       </div>
     </div>

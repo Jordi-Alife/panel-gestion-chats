@@ -49,10 +49,7 @@ export default function Detalle() {
 
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({
-              top: chatRef.current.scrollHeight,
-              behavior: 'auto'
-            });
+            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
           }
         }, 100);
       });
@@ -169,7 +166,7 @@ export default function Detalle() {
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
-      actual.estado = item.estado || "abierta"; // Capturamos el estado real
+      actual.estado = item.estado || "abierta";
     }
     acc[item.userId] = actual;
     return acc;
@@ -180,21 +177,22 @@ export default function Detalle() {
     const nuevos = info.mensajes.filter(
       (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
     ).length;
-    const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
-    const minutosSinResponder = ultimoUsuario
-      ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
+    const mensajesUsuario = info.mensajes.filter(m => m.from === "usuario");
+    const ultimoMensaje = [...info.mensajes].reverse()[0];
+    const minutosDesdeUltimo = ultimoMensaje
+      ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
       : Infinity;
 
     let estado = "Recurrente";
 
     if (info.estado === "cerrada") {
       estado = "Cerrado";
-    } else if (info.mensajes.length === 1) {
+    } else if (mensajesUsuario.length === 1 && minutosDesdeUltimo < 2) {
       estado = "Nuevo";
-    } else if (minutosSinResponder < 1) {
+    } else if (mensajesUsuario.length > 1 && minutosDesdeUltimo < 2) {
       estado = "Activo";
     } else {
-      estado = "Dormido";
+      estado = "Inactivo";
     }
 
     return {
@@ -209,13 +207,13 @@ export default function Detalle() {
   const estadoColor = {
     Nuevo: "bg-green-500",
     Activo: "bg-blue-500",
-    Dormido: "bg-gray-400",
+    Inactivo: "bg-gray-400",
     Cerrado: "bg-red-500"
   };
 
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+      {/* Aquí seguiría todo igual... */}      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
@@ -259,7 +257,7 @@ export default function Detalle() {
                 <div key={index} className={`flex ${align}`}>
                   <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
                     {esURLImagen(msg.message) ? (
-                      <img src={msg.message} alt="img" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
+                      <img src={msg.message} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
@@ -299,7 +297,7 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario */}
+          {/* Formulario de enviar mensaje */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -349,7 +347,7 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Email */}
+      {/* Campo de enviar conversación por email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

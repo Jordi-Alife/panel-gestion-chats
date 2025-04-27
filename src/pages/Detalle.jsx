@@ -31,8 +31,7 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = (data || [])
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -46,14 +45,18 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarDatos();
-    const intervalo = setInterval(cargarDatos, 5000);
+    const intervalo = setInterval(() => {
+      cargarDatos();
+    }, 5000);
     return () => clearInterval(intervalo);
   }, []);
 
   useEffect(() => {
     cargarMensajes();
-    const intervalo = setInterval(cargarMensajes, 2000);
-    return () => clearInterval(intervalo);
+    const interval = setInterval(() => {
+      cargarMensajes();
+    }, 2000);
+    return () => clearInterval(interval);
   }, [userId]);
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export default function Detalle() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
-      }).catch(console.error);
+      });
     }
   }, [mensajes]);
 
@@ -94,9 +97,10 @@ export default function Detalle() {
       await fetch("https://web-production-51989.up.railway.app/api/upload", {
         method: "POST",
         body: formData
-      }).catch(console.error);
+      });
 
       setImagen(null);
+      cargarMensajes();
       return;
     }
 
@@ -106,9 +110,10 @@ export default function Detalle() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, message: respuesta })
-    }).catch(console.error);
+    });
 
     setRespuesta('');
+    cargarMensajes();
   };
 
   const toggleOriginal = (index) => {
@@ -238,7 +243,10 @@ export default function Detalle() {
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
                     <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </div>
                   </div>
                 </div>
@@ -255,7 +263,7 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario */}
+          {/* Formulario de enviar mensaje */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -302,26 +310,6 @@ export default function Detalle() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
-        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="text-sm font-medium text-gray-700">Enviar conversación por email</div>
-          <form className="flex gap-2 w-full sm:w-auto">
-            <input
-              type="email"
-              placeholder="ejemplo@email.com"
-              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
-            />
-            <button
-              type="submit"
-              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-            >
-              Enviar
-            </button>
-          </form>
         </div>
       </div>
     </div>

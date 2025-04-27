@@ -16,12 +16,12 @@ export default function Detalle() {
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setTodasConversaciones)
       .catch(console.error);
 
     fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
   };
@@ -39,15 +39,8 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        if (!Array.isArray(data)) return;
-
-        const ordenados = data
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction))
-          .map(msg => ({
-            ...msg,
-            from: msg.from || msg.rol || (msg.manual ? 'asistente' : 'usuario')
-          }));
-
+        const ordenados = (data || [])
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
 
         setTimeout(() => {
@@ -61,10 +54,10 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarMensajes();
-    const intervalo = setInterval(() => {
+    const interval = setInterval(() => {
       cargarMensajes();
     }, 2000);
-    return () => clearInterval(intervalo);
+    return () => clearInterval(interval);
   }, [userId]);
 
   useEffect(() => {
@@ -73,7 +66,7 @@ export default function Detalle() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
-      }).catch(console.error);
+      });
     }
   }, [mensajes]);
 
@@ -312,7 +305,7 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Formulario de Email */}
+      {/* Email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

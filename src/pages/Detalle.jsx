@@ -1,3 +1,4 @@
+// src/pages/Detalle.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -28,9 +29,7 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarDatos();
-    const intervalo = setInterval(() => {
-      cargarDatos();
-    }, 5000);
+    const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
 
@@ -39,8 +38,10 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || [])
+          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
+
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
@@ -52,10 +53,8 @@ export default function Detalle() {
 
   useEffect(() => {
     cargarMensajes();
-    const intervalo = setInterval(() => {
-      cargarMensajes();
-    }, 2000);
-    return () => clearInterval(intervalo);
+    const interval = setInterval(cargarMensajes, 2000);
+    return () => clearInterval(interval);
   }, [userId]);
 
   useEffect(() => {
@@ -152,12 +151,17 @@ export default function Detalle() {
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([id, info]) => {
     const ultimaVista = vistas[id];
-    const nuevos = info.mensajes.filter(m => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))).length;
+    const nuevos = info.mensajes.filter(
+      (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+    ).length;
     const mensajesUsuario = info.mensajes.filter(m => m.from === "usuario");
     const ultimoMensaje = [...info.mensajes].reverse()[0];
-    const minutosDesdeUltimo = ultimoMensaje ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000 : Infinity;
+    const minutosDesdeUltimo = ultimoMensaje
+      ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+      : Infinity;
 
     let estado = "Recurrente";
+
     if (info.estado === "cerrada") {
       estado = "Cerrado";
     } else if (mensajesUsuario.length === 1 && minutosDesdeUltimo < 2) {
@@ -187,7 +191,8 @@ export default function Detalle() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Conversaciones */}
+
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           {listaAgrupada.map((c) => (
@@ -219,7 +224,7 @@ export default function Detalle() {
           ))}
         </div>
 
-        {/* Mensajes */}
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div ref={chatRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.map((msg, index) => {
@@ -234,6 +239,9 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
+                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
                 </div>
               );
@@ -249,6 +257,7 @@ export default function Detalle() {
             </button>
           )}
 
+          {/* Formulario para enviar mensaje */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -291,14 +300,14 @@ export default function Detalle() {
           </form>
         </div>
 
-        {/* Datos usuario */}
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
         </div>
       </div>
 
-      {/* Enviar por email */}
+      {/* Email al pie */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

@@ -26,23 +26,13 @@ export default function Detalle() {
       .catch(console.error);
   };
 
-  useEffect(() => {
-    cargarDatos();
-    const intervalo = setInterval(() => {
-      cargarDatos();
-    }, 5000);
-    return () => clearInterval(intervalo);
-  }, []);
-
   const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = (data || [])
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
-
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
@@ -53,11 +43,19 @@ export default function Detalle() {
   };
 
   useEffect(() => {
+    cargarDatos();
+    const intervalo = setInterval(() => {
+      cargarDatos();
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, []);
+
+  useEffect(() => {
     cargarMensajes();
-    const interval = setInterval(() => {
+    const intervalo = setInterval(() => {
       cargarMensajes();
     }, 2000);
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalo);
   }, [userId]);
 
   useEffect(() => {
@@ -88,35 +86,19 @@ export default function Detalle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!userId || !respuesta.trim()) return;
 
-    if (imagen) {
-      const formData = new FormData();
-      formData.append("file", imagen);
-      formData.append("userId", userId);
-
-      await fetch("https://web-production-51989.up.railway.app/api/upload", {
-        method: "POST",
-        body: formData
-      });
-
-      setImagen(null);
-      return;
-    }
-
-    if (!respuesta.trim()) return;
-
-    await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, message: respuesta })
     });
 
     setRespuesta('');
+    cargarMensajes();
   };
 
-  const esURLImagen = (texto) =>
-    typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+  const esURLImagen = (texto) => typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
   const formatearTiempo = (fecha) => {
     const ahora = new Date();
@@ -234,11 +216,8 @@ export default function Detalle() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                    <div className="text-[10px] mt-1 opacity-60 text-right">
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 </div>
@@ -257,65 +236,12 @@ export default function Detalle() {
 
           {/* Formulario de enviar mensaje */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
-            <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-              Seleccionar archivo
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImagen(e.target.files[0])}
-                className="hidden"
-              />
-            </label>
-
-            {imagen && (
-              <div className="text-xs text-gray-600 flex items-center gap-1">
-                <span>{imagen.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setImagen(null)}
-                  className="text-red-500 text-xs underline"
-                >
-                  Quitar
-                </button>
-              </div>
-            )}
-
-            <div className="flex flex-1 gap-2">
-              <input
-                type="text"
-                value={respuesta}
-                onChange={(e) => setRespuesta(e.target.value)}
-                placeholder="Escribe un mensaje..."
-                className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-              >
-                Enviar
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Columna derecha */}
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
-          <p className="text-sm text-gray-700">{userId}</p>
-        </div>
-      </div>
-
-      {/* Email */}
-      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
-        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="text-sm font-medium text-gray-700">
-            Enviar conversación por email
-          </div>
-          <form className="flex gap-2 w-full sm:w-auto">
             <input
-              type="email"
-              placeholder="ejemplo@email.com"
-              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
+              type="text"
+              value={respuesta}
+              onChange={(e) => setRespuesta(e.target.value)}
+              placeholder="Escribe un mensaje..."
+              className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
             />
             <button
               type="submit"
@@ -324,6 +250,12 @@ export default function Detalle() {
               Enviar
             </button>
           </form>
+        </div>
+
+        {/* Columna derecha */}
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+          <p className="text-sm text-gray-700">{userId}</p>
         </div>
       </div>
     </div>

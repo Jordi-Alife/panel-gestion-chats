@@ -164,9 +164,9 @@ export default function Detalle() {
 
     if (info.estado === "cerrada") {
       estado = "Cerrado";
-    } else if (mensajesUsuario.length === 1 && minutosDesdeUltimo < 2) {
+    } else if (nuevos > 0) {
       estado = "Nuevo";
-    } else if (mensajesUsuario.length > 1 && minutosDesdeUltimo < 2) {
+    } else if (mensajesUsuario.length > 0 && minutosDesdeUltimo < 5) {
       estado = "Activo";
     } else {
       estado = "Inactivo";
@@ -307,7 +307,7 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Email al pie */}
+      {/* Email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

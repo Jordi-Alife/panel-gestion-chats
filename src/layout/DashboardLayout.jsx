@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import IconInicio from "../assets/dashboard-1.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
+import IconConversaciones from "../assets/chat.svg"; // <- NUEVO
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
@@ -84,6 +85,17 @@ const DashboardLayout = ({ children }) => {
             >
               <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
               {!colapsado && <span>Inicio</span>}
+            </Link>
+
+            {/* Conversaciones */}
+            <Link
+              to="/conversaciones"
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+                colapsado ? "justify-center" : "gap-3"
+              }`}
+            >
+              <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
+              {!colapsado && <span>Conversaciones</span>}
             </Link>
 
             {/* Agentes */}

@@ -1,7 +1,7 @@
-// src/pages/Conversaciones.jsx
 import { useEffect, useRef, useState } from 'react';
 
 export default function Conversaciones() {
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState('');
   const [imagen, setImagen] = useState(null);
@@ -9,7 +9,6 @@ export default function Conversaciones() {
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -31,8 +30,9 @@ export default function Conversaciones() {
     return () => clearInterval(intervalo);
   }, []);
 
-  const cargarMensajes = (userId) => {
-    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
+  const cargarMensajes = () => {
+    if (!selectedUserId) return;
+    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${selectedUserId}`)
       .then(res => res.json())
       .then(data => {
         const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
@@ -42,11 +42,10 @@ export default function Conversaciones() {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
           }
         }, 100);
-
         fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId })
+          body: JSON.stringify({ userId: selectedUserId })
         });
       })
       .catch(console.error);
@@ -54,8 +53,8 @@ export default function Conversaciones() {
 
   useEffect(() => {
     if (selectedUserId) {
-      cargarMensajes(selectedUserId);
-      const interval = setInterval(() => cargarMensajes(selectedUserId), 2000);
+      cargarMensajes();
+      const interval = setInterval(cargarMensajes, 2000);
       return () => clearInterval(interval);
     }
   }, [selectedUserId]);
@@ -179,7 +178,7 @@ export default function Conversaciones() {
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
 
-        {/* Lista de conversaciones */}
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           {listaAgrupada.map((c) => (
@@ -198,9 +197,13 @@ export default function Conversaciones() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>{c.estado}</span>
+                <span className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>
+                  {c.estado}
+                </span>
                 {c.nuevos > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{c.nuevos}</span>
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                    {c.nuevos}
+                  </span>
                 )}
               </div>
             </div>
@@ -232,11 +235,15 @@ export default function Conversaciones() {
           </div>
 
           {mostrarScrollBtn && (
-            <button onClick={handleScrollBottom} className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700">
+            <button
+              onClick={handleScrollBottom}
+              className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700"
+            >
               Ir al final
             </button>
           )}
 
+          {/* Formulario */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -245,12 +252,25 @@ export default function Conversaciones() {
             {imagen && (
               <div className="text-xs text-gray-600 flex items-center gap-1">
                 <span>{imagen.name}</span>
-                <button type="button" onClick={() => setImagen(null)} className="text-red-500 text-xs underline">Quitar</button>
+                <button type="button" onClick={() => setImagen(null)} className="text-red-500 text-xs underline">
+                  Quitar
+                </button>
               </div>
             )}
             <div className="flex flex-1 gap-2">
-              <input type="text" value={respuesta} onChange={(e) => setRespuesta(e.target.value)} placeholder="Escribe un mensaje..." className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none" />
-              <button type="submit" className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600">Enviar</button>
+              <input
+                type="text"
+                value={respuesta}
+                onChange={(e) => setRespuesta(e.target.value)}
+                placeholder="Escribe un mensaje..."
+                className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+              >
+                Enviar
+              </button>
             </div>
           </form>
         </div>
@@ -259,6 +279,28 @@ export default function Conversaciones() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{selectedUserId}</p>
+        </div>
+      </div>
+
+      {/* Footer email */}
+      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="text-sm font-medium text-gray-700">
+            Enviar conversación por email
+          </div>
+          <form className="flex gap-2 w-full sm:w-auto">
+            <input
+              type="email"
+              placeholder="ejemplo@email.com"
+              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </form>
         </div>
       </div>
     </div>

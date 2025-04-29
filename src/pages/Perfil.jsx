@@ -9,6 +9,7 @@ const Perfil = () => {
   const [nombre, setNombre] = useState("");
   const [idAgente, setIdAgente] = useState("");
   const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState(""); // <- NUEVO
   const [rol, setRol] = useState("Administrador");
   const [foto, setFoto] = useState("");
   const [mensaje, setMensaje] = useState("");
@@ -26,12 +27,13 @@ const Perfil = () => {
       const datos = JSON.parse(guardado);
       setNombre(datos.nombre || "");
       setEmail(datos.email || "");
+      setTelefono(datos.telefono || ""); // <- NUEVO
       setRol(datos.rol || "Administrador");
       setFoto(datos.foto || "");
     }
 
     if (user) {
-      setIdAgente(user.uid); // Ahora el ID viene directo de Firebase Auth
+      setIdAgente(user.uid);
     }
 
     if (rolGuardado) {
@@ -59,6 +61,7 @@ const Perfil = () => {
       const datosActualizar = {};
       if (nombre) datosActualizar.nombre = nombre;
       if (foto) datosActualizar.foto = foto;
+      if (telefono) datosActualizar.telefono = telefono; // <- NUEVO
       datosActualizar.ultimaConexion = new Date().toISOString();
 
       if (Object.keys(datosActualizar).length > 0) {
@@ -68,7 +71,7 @@ const Perfil = () => {
         console.log("⚠️ No hay cambios para actualizar.");
       }
 
-      const perfilActualizado = { nombre, id: idAgente, email, rol, foto };
+      const perfilActualizado = { nombre, id: idAgente, email, telefono, rol, foto }; // <- NUEVO
       localStorage.setItem("perfil-usuario-panel", JSON.stringify(perfilActualizado));
       window.dispatchEvent(new Event("actualizar-foto-perfil"));
 
@@ -201,6 +204,17 @@ const Perfil = () => {
           {rolUsuario !== "Administrador" && (
             <p className="text-xs text-gray-400 mt-1">Solo los administradores pueden cambiar el email.</p>
           )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-1">Teléfono móvil</label>
+          <input
+            type="tel"
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            placeholder="+34 600 123 456"
+          />
         </div>
 
         <div>

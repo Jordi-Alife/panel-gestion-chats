@@ -1,18 +1,17 @@
-// src/pages/Conversaciones.jsx
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Conversaciones() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
-  const [respuesta, setRespuesta] = useState('');
+  const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
-  const [filtro, setFiltro] = useState('todas');
+  const [filtro, setFiltro] = useState("todas");
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -36,14 +35,21 @@ export default function Conversaciones() {
 
   const cargarMensajes = () => {
     if (!userId) return;
-    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    fetch(
+      `https://web-production-51989.up.railway.app/api/conversaciones/${userId}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const ordenados = (data || []).sort(
+          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+        );
         setMensajes(ordenados);
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
+            chatRef.current.scrollTo({
+              top: chatRef.current.scrollHeight,
+              behavior: "auto",
+            });
           }
         }, 100);
       })
@@ -61,7 +67,7 @@ export default function Conversaciones() {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ userId }),
       });
     }
   }, [mensajes]);
@@ -76,7 +82,10 @@ export default function Conversaciones() {
 
   const handleScrollBottom = () => {
     if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
       scrollForzado.current = true;
       setMostrarScrollBtn(false);
     }
@@ -93,7 +102,7 @@ export default function Conversaciones() {
 
       await fetch("https://web-production-51989.up.railway.app/api/upload", {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       setImagen(null);
@@ -102,17 +111,17 @@ export default function Conversaciones() {
 
     if (!respuesta.trim()) return;
 
-    await fetch('https://web-production-51989.up.railway.app/api/send-to-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, message: respuesta })
+    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, message: respuesta }),
     });
 
-    setRespuesta('');
+    setRespuesta("");
   };
 
   const esURLImagen = (texto) =>
-    typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+    typeof texto === "string" && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
   const formatearTiempo = (fecha) => {
     const ahora = new Date();
@@ -130,32 +139,26 @@ export default function Conversaciones() {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [], estado: "abierta", intervenida: item.intervenida };
+    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), item];
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
       actual.estado = item.estado || "abierta";
-      actual.intervenida = item.intervenida || false;
+      actual.intervenida = item.intervenida;
     }
     acc[item.userId] = actual;
     return acc;
   }, {});
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
-    .filter(([_, info]) => {
-      if (filtro === "todas") return true;
-      if (filtro === "gpt") return !info.intervenida;
-      if (filtro === "humanas") return info.intervenida;
-    })
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
       const nuevos = info.mensajes.filter(
         (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
 
-      const tieneRespuestas = info.mensajes.some(m => m.from === "asistente" || m.manual);
-      const mensajesUsuario = info.mensajes.filter(m => m.from === "usuario");
+      const tieneRespuestas = info.mensajes.some((m) => m.from === "asistente" || m.manual);
       const ultimoMensaje = [...info.mensajes].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
@@ -173,14 +176,20 @@ export default function Conversaciones() {
         estado,
         lastInteraction: info.lastInteraction,
         iniciales: id.slice(0, 2).toUpperCase(),
+        intervenida: info.intervenida || false,
       };
+    })
+    .filter((c) => {
+      if (filtro === "gpt") return !c.intervenida;
+      if (filtro === "humanas") return c.intervenida;
+      return true;
     });
 
   const estadoColor = {
     Nuevo: "bg-green-500",
     Activo: "bg-blue-500",
     Inactivo: "bg-gray-400",
-    Cerrado: "bg-red-500"
+    Cerrado: "bg-red-500",
   };
 
   return (
@@ -189,31 +198,23 @@ export default function Conversaciones() {
         {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
-          <div className="flex gap-2 mb-3 text-xs">
-            <button
-              onClick={() => setFiltro("todas")}
-              className={`px-2 py-1 rounded-full border ${filtro === "todas" ? "bg-blue-500 text-white" : "text-gray-700"}`}
-            >
+          <div className="flex gap-2 mb-3">
+            <button onClick={() => setFiltro("todas")} className={`text-xs px-3 py-1 rounded-full ${filtro === "todas" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
               Todas
             </button>
-            <button
-              onClick={() => setFiltro("gpt")}
-              className={`px-2 py-1 rounded-full border ${filtro === "gpt" ? "bg-blue-500 text-white" : "text-gray-700"}`}
-            >
+            <button onClick={() => setFiltro("gpt")} className={`text-xs px-3 py-1 rounded-full ${filtro === "gpt" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
               GPT
             </button>
-            <button
-              onClick={() => setFiltro("humanas")}
-              className={`px-2 py-1 rounded-full border ${filtro === "humanas" ? "bg-blue-500 text-white" : "text-gray-700"}`}
-            >
+            <button onClick={() => setFiltro("humanas")} className={`text-xs px-3 py-1 rounded-full ${filtro === "humanas" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
               Humanas
             </button>
           </div>
+
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
               onClick={() => navigate(`/conversacion/${c.userId}`)}
-              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${c.userId === userId ? 'bg-blue-50' : ''}`}
+              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${c.userId === userId ? "bg-blue-50" : ""}`}
             >
               <div className="flex items-center gap-2">
                 <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
@@ -238,13 +239,13 @@ export default function Conversaciones() {
           ))}
         </div>
 
-        {/* El resto de columnas permanece igual (central, derecha y footer) */}
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div ref={chatRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.map((msg, index) => {
-              const isAsistente = msg.from === 'asistente';
-              const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
-              const align = isAsistente ? 'justify-end' : 'justify-start';
+              const isAsistente = msg.from === "asistente";
+              const bubbleColor = isAsistente ? "bg-[#ff5733] text-white" : "bg-white text-gray-800 border";
+              const align = isAsistente ? "justify-end" : "justify-start";
               return (
                 <div key={index} className={`flex ${align}`}>
                   <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
@@ -253,8 +254,11 @@ export default function Conversaciones() {
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? "text-white" : "text-gray-500"}`}>
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </div>
                   </div>
                 </div>
@@ -271,6 +275,7 @@ export default function Conversaciones() {
             </button>
           )}
 
+          {/* Formulario */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -306,6 +311,28 @@ export default function Conversaciones() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700">{userId}</p>
+        </div>
+      </div>
+
+      {/* Footer email */}
+      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="text-sm font-medium text-gray-700">
+            Enviar conversación por email
+          </div>
+          <form className="flex gap-2 w-full sm:w-auto">
+            <input
+              type="email"
+              placeholder="ejemplo@email.com"
+              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </form>
         </div>
       </div>
     </div>

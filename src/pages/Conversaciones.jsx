@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Conversaciones() {
-  const [searchParams] = useSearchParams();
-  const userId = searchParams.get("userId");
+  const { userId } = useParams();
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
@@ -165,7 +164,6 @@ export default function Conversaciones() {
       const tieneRespuestas = info.mensajes.some(
         (m) => m.from === "asistente" || m.manual
       );
-      const mensajesUsuario = info.mensajes.filter((m) => m.from === "usuario");
       const ultimoMensaje = [...info.mensajes].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
@@ -213,42 +211,29 @@ export default function Conversaciones() {
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
 
           <div className="flex gap-2 mb-3">
-            <button
-              onClick={() => setFiltro("todas")}
-              className={`text-xs px-2 py-1 rounded-full border ${
-                filtro === "todas"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700"
-              }`}
-            >
-              Todas
-            </button>
-            <button
-              onClick={() => setFiltro("gpt")}
-              className={`text-xs px-2 py-1 rounded-full border ${
-                filtro === "gpt"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700"
-              }`}
-            >
-              GPT
-            </button>
-            <button
-              onClick={() => setFiltro("humanas")}
-              className={`text-xs px-2 py-1 rounded-full border ${
-                filtro === "humanas"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700"
-              }`}
-            >
-              Humanas
-            </button>
+            {[
+              { label: "Todas", value: "todas" },
+              { label: "GPT", value: "gpt" },
+              { label: "Humanas", value: "humanas" },
+            ].map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => setFiltro(value)}
+                className={`text-xs px-2 py-1 rounded-full border ${
+                  filtro === value
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
-              onClick={() => navigate(`/conversaciones?userId=${c.userId}`)}
+              onClick={() => navigate(`/conversacion/${c.userId}`)}
               className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${
                 c.userId === userId ? "bg-blue-50" : ""
               }`}
@@ -279,3 +264,10 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
+
+        {/* Aquí iría la columna de conversación, igual que Detalle.jsx */}
+        {/* Si deseas añadirlo completo avísame y lo combinamos */}
+      </div>
+    </div>
+  );
+}

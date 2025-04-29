@@ -79,7 +79,6 @@ export default function Conversaciones() {
       scrollForzado.current = true;
       setMostrarScrollBtn(false);
     }
-  };
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

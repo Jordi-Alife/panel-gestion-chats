@@ -1,59 +1,94 @@
 // src/pages/Conversaciones.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Conversaciones = () => {
   const [conversaciones, setConversaciones] = useState([]);
-  const [selectedConversation, setSelectedConversation] = useState(null);
   const [mensajes, setMensajes] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const chatRef = useRef(null);
 
-  useEffect(() => {
+  const cargarConversaciones = () => {
     fetch('https://web-production-51989.up.railway.app/api/conversaciones')
       .then((res) => res.json())
       .then(setConversaciones)
       .catch(console.error);
+  };
+
+  const cargarMensajes = (userId) => {
+    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        setMensajes(ordenados);
+        setTimeout(() => {
+          if (chatRef.current) {
+            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
+          }
+        }, 100);
+      })
+      .catch(console.error);
+  };
+
+  useEffect(() => {
+    cargarConversaciones();
+    const intervalo = setInterval(cargarConversaciones, 5000);
+    return () => clearInterval(intervalo);
   }, []);
 
-  const handleSelectConversation = async (userId) => {
-    setSelectedConversation(userId);
-    try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/mensajes/${userId}`);
-      const data = await res.json();
-      setMensajes(data);
-    } catch (err) {
-      console.error(err);
-    }
+  const handleSelectConversation = (userId) => {
+    setSelectedUserId(userId);
+    cargarMensajes(userId);
   };
+
+  const esURLImagen = (texto) => typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
   return (
     <div className="flex h-full">
-      {/* Listado de conversaciones */}
-      <div className="w-1/4 bg-white overflow-y-auto">
-        <h2 className="text-xl font-semibold p-4">Conversaciones</h2>
-        {conversaciones.map((conv) => (
+      {/* Lista de conversaciones */}
+      <div className="w-1/4 bg-white overflow-y-auto p-4">
+        <h2 className="text-xl font-semibold mb-4">Conversaciones</h2>
+        {conversaciones.map((conv, i) => (
           <div
-            key={conv.userId}
-            className={`p-4 cursor-pointer hover:bg-gray-100 ${selectedConversation === conv.userId ? 'bg-gray-200' : ''}`}
+            key={i}
+            className={`p-3 cursor-pointer rounded hover:bg-gray-100 ${selectedUserId === conv.userId ? 'bg-gray-200' : ''}`}
             onClick={() => handleSelectConversation(conv.userId)}
           >
-            <p className="font-bold">{conv.userId}</p>
-            <p className="text-xs text-gray-500">{conv.estado}</p>
+            <div className="font-bold text-sm">{conv.userId}</div>
+            <div className="text-xs text-gray-500">{conv.estado || 'abierta'}</div>
           </div>
         ))}
       </div>
 
-      {/* Mensajes de conversación */}
+      {/* Mensajes */}
       <div className="flex-1 bg-gray-50 flex flex-col">
-        {selectedConversation ? (
+        {selectedUserId ? (
           <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto p-4">
-              {mensajes.map((msg, index) => (
-                <div key={index} className={`mb-2 ${msg.from === 'user' ? 'text-left' : 'text-right'}`}>
-                  <div className={`inline-block p-2 rounded-lg ${msg.from === 'user' ? 'bg-white' : 'bg-orange-400 text-white'}`}>
-                    {msg.text}
+            <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+              {mensajes.map((msg, index) => {
+                const isAsistente = msg.from === 'asistente';
+                const bubbleColor = isAsistente ? 'bg-[#ff5733] text-white' : 'bg-white text-gray-800 border';
+                const align = isAsistente ? 'justify-end' : 'justify-start';
+                return (
+                  <div key={index} className={`flex ${align}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
+                      {esURLImagen(msg.message) ? (
+                        <img
+                          src={msg.message}
+                          alt="Imagen"
+                          className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+                        />
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+                      )}
+                      <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
+                        {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
             <div className="p-4 border-t">
               <input
                 type="text"

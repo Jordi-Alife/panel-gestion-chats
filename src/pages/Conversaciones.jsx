@@ -1,5 +1,5 @@
+// src/pages/Conversaciones.jsx
 import React, { useEffect, useState } from 'react';
-import { getConversaciones, getMensajes } from '../services/api';
 
 const Conversaciones = () => {
   const [conversaciones, setConversaciones] = useState([]);
@@ -7,18 +7,21 @@ const Conversaciones = () => {
   const [mensajes, setMensajes] = useState([]);
 
   useEffect(() => {
-    fetchConversaciones();
+    fetch('https://web-production-51989.up.railway.app/api/conversaciones')
+      .then((res) => res.json())
+      .then(setConversaciones)
+      .catch(console.error);
   }, []);
-
-  const fetchConversaciones = async () => {
-    const data = await getConversaciones();
-    setConversaciones(data);
-  };
 
   const handleSelectConversation = async (userId) => {
     setSelectedConversation(userId);
-    const data = await getMensajes(userId);
-    setMensajes(data);
+    try {
+      const res = await fetch(`https://web-production-51989.up.railway.app/api/mensajes/${userId}`);
+      const data = await res.json();
+      setMensajes(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

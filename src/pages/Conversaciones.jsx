@@ -13,6 +13,7 @@ export default function Conversaciones() {
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [filtro, setFiltro] = useState("todas");
+  const [agente, setAgente] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -65,6 +66,16 @@ export default function Conversaciones() {
       });
     }
   }, [mensajes]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const conversacion = todasConversaciones.find(c => c.userId === userId);
+    if (conversacion && conversacion.intervenidaPor) {
+      setAgente(conversacion.intervenidaPor);
+    } else {
+      setAgente(null);
+    }
+  }, [userId, todasConversaciones]);
 
   const handleScroll = () => {
     const el = chatRef.current;
@@ -139,6 +150,7 @@ export default function Conversaciones() {
       actual.estado = item.estado || "abierta";
     }
     actual.intervenida = item.intervenida;
+    actual.intervenidaPor = item.intervenidaPor || null;
     acc[item.userId] = actual;
     return acc;
   }, {});
@@ -166,7 +178,8 @@ export default function Conversaciones() {
         estado,
         lastInteraction: info.lastInteraction,
         iniciales: id.slice(0, 2).toUpperCase(),
-        intervenida: info.intervenida || false
+        intervenida: info.intervenida || false,
+        intervenidaPor: info.intervenidaPor || null
       };
     })
     .filter((c) => {
@@ -297,7 +310,16 @@ export default function Conversaciones() {
 
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
-          <p className="text-sm text-gray-700">{userId}</p>
+          {agente && (
+            <div className="mb-4">
+              <h3 className="text-xs text-gray-500">Intervenido por</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <img src={agente.foto || "https://i.pravatar.cc/100"} alt="Agente" className="w-8 h-8 rounded-full" />
+                <span className="text-sm font-medium text-gray-700">{agente.nombre || "—"}</span>
+              </div>
+            </div>
+          )}
+          <p className="text-sm text-gray-700 break-all">{userId}</p>
         </div>
       </div>
     </div>

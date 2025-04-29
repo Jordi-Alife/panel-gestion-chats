@@ -36,7 +36,6 @@ const DashboardLayout = ({ children }) => {
     cargarPerfil();
     const listener = () => cargarPerfil();
     window.addEventListener("actualizar-foto-perfil", listener);
-
     return () => window.removeEventListener("actualizar-foto-perfil", listener);
   }, []);
 

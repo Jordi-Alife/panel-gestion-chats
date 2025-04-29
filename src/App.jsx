@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
+import Conversaciones from "./pages/Conversaciones";
 import Agentes from "./pages/agentes";
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
@@ -254,7 +255,6 @@ const App = () => {
               })
             );
 
-            // Disparar actualización del sidebar
             window.dispatchEvent(new Event("actualizar-foto-perfil"));
           }
         } catch (error) {
@@ -281,6 +281,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Panel />} />
                   <Route path="/conversacion/:userId" element={<Detalle />} />
+                  <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>
@@ -296,4 +297,3 @@ const App = () => {
 };
 
 export default App;
-

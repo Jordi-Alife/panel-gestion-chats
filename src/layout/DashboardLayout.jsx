@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import IconInicio from "../assets/chat.svg";
+import IconInicio from "../assets/dashboard-1.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
-import IconConversaciones from "../assets/dashboard-1.svg"; // ✅ Nuevo import
+import IconConversaciones from "../assets/chat.svg";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);

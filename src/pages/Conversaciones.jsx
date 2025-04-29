@@ -1,5 +1,3 @@
-// Conversaciones.jsx corregido COMPLETO
-
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -40,11 +38,16 @@ export default function Conversaciones() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || []).sort(
+          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+        );
         setMensajes(ordenados);
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+            chatRef.current.scrollTo({
+              top: chatRef.current.scrollHeight,
+              behavior: "auto",
+            });
           }
         }, 100);
       })
@@ -77,7 +80,10 @@ export default function Conversaciones() {
 
   const handleScrollBottom = () => {
     if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
       scrollForzado.current = true;
       setMostrarScrollBtn(false);
     }
@@ -91,10 +97,12 @@ export default function Conversaciones() {
       const formData = new FormData();
       formData.append("file", imagen);
       formData.append("userId", userId);
+
       await fetch("https://web-production-51989.up.railway.app/api/upload", {
         method: "POST",
         body: formData,
       });
+
       setImagen(null);
       return;
     }
@@ -111,7 +119,7 @@ export default function Conversaciones() {
   };
 
   const toggleOriginal = (index) => {
-    setOriginalesVisibles(prev => ({ ...prev, [index]: !prev[index] }));
+    setOriginalesVisibles((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
   const esURLImagen = (texto) =>
@@ -151,16 +159,25 @@ export default function Conversaciones() {
       const nuevos = info.mensajes.filter(
         (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
+
       const tieneRespuestas = info.mensajes.some((m) => m.from === "asistente" || m.manual);
       const mensajesUsuario = info.mensajes.filter((m) => m.from === "usuario");
       const ultimoMensaje = [...info.mensajes].reverse()[0];
-      const minutosDesdeUltimo = ultimoMensaje ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000 : Infinity;
+      const minutosDesdeUltimo = ultimoMensaje
+        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+        : Infinity;
 
       let estado = "Recurrente";
-      if (info.estado === "cerrada" || minutosDesdeUltimo > 10) estado = "Cerrado";
-      else if (!tieneRespuestas) estado = "Nuevo";
-      else if (minutosDesdeUltimo <= 2) estado = "Activo";
-      else estado = "Inactivo";
+
+      if (info.estado === "cerrada" || minutosDesdeUltimo > 10) {
+        estado = "Cerrado";
+      } else if (!tieneRespuestas) {
+        estado = "Nuevo";
+      } else if (minutosDesdeUltimo <= 2) {
+        estado = "Activo";
+      } else {
+        estado = "Inactivo";
+      }
 
       return {
         userId: id,
@@ -187,20 +204,35 @@ export default function Conversaciones() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna de conversaciones */}
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
+
           <div className="flex gap-2 mb-3">
-            <button onClick={() => setFiltro("todas")} className={`text-xs px-2 py-1 rounded-full border ${filtro === "todas" ? "bg-blue-600 text-white" : "bg-white text-gray-700"}`}>Todas</button>
-            <button onClick={() => setFiltro("gpt")} className={`text-xs px-2 py-1 rounded-full border ${filtro === "gpt" ? "bg-blue-600 text-white" : "bg-white text-gray-700"}`}>GPT</button>
-            <button onClick={() => setFiltro("humanas")} className={`text-xs px-2 py-1 rounded-full border ${filtro === "humanas" ? "bg-blue-600 text-white" : "bg-white text-gray-700"}`}>Humanas</button>
+            {[
+              { label: "Todas", value: "todas" },
+              { label: "GPT", value: "gpt" },
+              { label: "Humanas", value: "humanas" },
+            ].map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => setFiltro(value)}
+                className={`text-xs px-2 py-1 rounded-full border ${
+                  filtro === value ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
               onClick={() => navigate(`/conversacion/${c.userId}`)}
-              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${c.userId === userId ? "bg-blue-50" : ""}`}
+              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${
+                c.userId === userId ? "bg-blue-50" : ""
+              }`}
             >
               <div className="flex items-center gap-2">
                 <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
@@ -212,44 +244,73 @@ export default function Conversaciones() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>{c.estado}</span>
+                <span className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>
+                  {c.estado}
+                </span>
                 {c.nuevos > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{c.nuevos}</span>
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                    {c.nuevos}
+                  </span>
                 )}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Panel de conversación */}
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
-          <div ref={chatRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
+          <div
+            ref={chatRef}
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto p-6 space-y-4 h-0"
+          >
             {mensajes.map((msg, index) => {
               const isAsistente = msg.from === "asistente";
-              const bubbleColor = isAsistente ? "bg-[#ff5733] text-white" : "bg-white text-gray-800 border";
+              const bubbleColor = isAsistente
+                ? "bg-[#ff5733] text-white"
+                : "bg-white text-gray-800 border";
               const align = isAsistente ? "justify-end" : "justify-start";
               return (
                 <div key={index} className={`flex ${align}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
+                  <div
+                    className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}
+                  >
                     {esURLImagen(msg.message) ? (
-                      <img src={msg.message} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
+                      <img
+                        src={msg.message}
+                        alt="Imagen"
+                        className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+                      />
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                     )}
+
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
                         <button
                           onClick={() => toggleOriginal(index)}
-                          className={`underline text-xs ${isAsistente ? "text-white/70" : "text-blue-600"}`}
+                          className={`underline text-xs ${isAsistente ? "text-white/70" : "text-blue-600"} focus:outline-none`}
                         >
                           {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                         </button>
                         {originalesVisibles[index] && (
-                          <p className={`mt-1 italic text-left ${isAsistente ? "text-white/70" : "text-gray-500"}`}>{msg.original}</p>
+                          <p className={`mt-1 italic text-left ${isAsistente ? "text-white/70" : "text-gray-500"}`}>
+                            {msg.original}
+                          </p>
                         )}
                       </div>
                     )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? "text-white" : "text-gray-500"}`}>{new Date(msg.lastInteraction).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+
+                    <div
+                      className={`text-[10px] mt-1 opacity-60 text-right ${
+                        isAsistente ? "text-white" : "text-gray-500"
+                      }`}
+                    >
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
                 </div>
               );
@@ -265,8 +326,10 @@ export default function Conversaciones() {
             </button>
           )}
 
-          {/* Enviar respuesta */}
-          <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
+          <form
+            onSubmit={handleSubmit}
+            className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
+          >
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
               <input
@@ -306,10 +369,34 @@ export default function Conversaciones() {
           </form>
         </div>
 
-        {/* Panel derecho */}
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">
+            Datos del usuario
+          </h2>
           <p className="text-sm text-gray-700">{userId}</p>
+        </div>
+      </div>
+
+      {/* Footer email */}
+      <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="text-sm font-medium text-gray-700">
+            Enviar conversación por email
+          </div>
+          <form className="flex gap-2 w-full sm:w-auto">
+            <input
+              type="email"
+              placeholder="ejemplo@email.com"
+              className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none w-full sm:w-64"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </form>
         </div>
       </div>
     </div>

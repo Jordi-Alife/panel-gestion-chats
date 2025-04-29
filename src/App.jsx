@@ -10,6 +10,7 @@ import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
+import Conversaciones from "./pages/Conversaciones"; // ✅ NUEVO
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -229,7 +230,6 @@ const App = () => {
               rol: datos.rol || "Soporte",
             }));
 
-            // Disparar actualización del sidebar
             window.dispatchEvent(new Event("actualizar-foto-perfil"));
           }
         } catch (error) {
@@ -256,6 +256,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Panel />} />
                   <Route path="/conversacion/:userId" element={<Detalle />} />
+                  <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>

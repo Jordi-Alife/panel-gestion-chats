@@ -38,10 +38,8 @@ export default function Detalle() {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const ordenados = (data || [])
-          .sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
         setMensajes(ordenados);
-
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'auto' });
@@ -112,13 +110,6 @@ export default function Detalle() {
     setRespuesta('');
   };
 
-  const toggleOriginal = (index) => {
-    setOriginalesVisibles(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
-  };
-
   const esURLImagen = (texto) =>
     typeof texto === 'string' && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
@@ -154,6 +145,8 @@ export default function Detalle() {
     const nuevos = info.mensajes.filter(
       (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
     ).length;
+
+    const tieneRespuestas = info.mensajes.some(m => m.from === "asistente" || m.manual);
     const mensajesUsuario = info.mensajes.filter(m => m.from === "usuario");
     const ultimoMensaje = [...info.mensajes].reverse()[0];
     const minutosDesdeUltimo = ultimoMensaje
@@ -162,11 +155,11 @@ export default function Detalle() {
 
     let estado = "Recurrente";
 
-    if (info.estado === "cerrada") {
+    if (info.estado === "cerrada" || minutosDesdeUltimo > 10) {
       estado = "Cerrado";
-    } else if (nuevos > 0) {
+    } else if (!tieneRespuestas) {
       estado = "Nuevo";
-    } else if (mensajesUsuario.length > 0 && minutosDesdeUltimo < 5) {
+    } else if (minutosDesdeUltimo <= 2) {
       estado = "Activo";
     } else {
       estado = "Inactivo";
@@ -257,31 +250,20 @@ export default function Detalle() {
             </button>
           )}
 
-          {/* Formulario para enviar mensaje */}
+          {/* Formulario */}
           <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImagen(e.target.files[0])}
-                className="hidden"
-              />
+              <input type="file" accept="image/*" onChange={(e) => setImagen(e.target.files[0])} className="hidden" />
             </label>
-
             {imagen && (
               <div className="text-xs text-gray-600 flex items-center gap-1">
                 <span>{imagen.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setImagen(null)}
-                  className="text-red-500 text-xs underline"
-                >
+                <button type="button" onClick={() => setImagen(null)} className="text-red-500 text-xs underline">
                   Quitar
                 </button>
               </div>
             )}
-
             <div className="flex flex-1 gap-2">
               <input
                 type="text"
@@ -307,7 +289,7 @@ export default function Detalle() {
         </div>
       </div>
 
-      {/* Email */}
+      {/* Footer email */}
       <div className="max-w-screen-xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="text-sm font-medium text-gray-700">

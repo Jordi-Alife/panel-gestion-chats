@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Detalle from "./pages/Detalle";
 import Agentes from "./pages/agentes";
@@ -39,7 +45,10 @@ const Panel = () => {
   const conversacionesPorUsuario = data.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [] };
     actual.mensajes = [...(actual.mensajes || []), item];
-    if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
+    if (
+      !actual.lastInteraction ||
+      new Date(item.lastInteraction) > new Date(actual.lastInteraction)
+    ) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
     }
@@ -54,47 +63,57 @@ const Panel = () => {
     const diffMin = Math.floor(diffMs / 60000);
     const diffHrs = Math.floor(diffMin / 60);
     const diffDays = Math.floor(diffHrs / 24);
-    if (diffMin < 1) return hace unos segundos;
-    if (diffMin < 60) return hace ${diffMin}m;
-    if (diffHrs < 24) return hace ${diffHrs}h;
+    if (diffMin < 1) return "hace unos segundos";
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
     if (diffDays === 1) return "ayer";
-    return hace ${diffDays}d;
+    return `hace ${diffDays}d`;
   };
 
-  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([userId, info]) => {
-    const ultimaVista = vistas[userId];
-    const nuevos = info.mensajes.filter(
-      (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-    ).length;
+  const listaAgrupada = Object.entries(conversacionesPorUsuario).map(
+    ([userId, info]) => {
+      const ultimaVista = vistas[userId];
+      const nuevos = info.mensajes.filter(
+        (m) =>
+          m.from === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
 
-    const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
-    const minutosSinResponder = ultimoUsuario
-      ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
-      : Infinity;
+      const ultimoUsuario = [...info.mensajes]
+        .reverse()
+        .find((m) => m.from === "usuario");
+      const minutosSinResponder = ultimoUsuario
+        ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
+        : Infinity;
 
-    let estado = "Recurrente";
-    if (info.mensajes.length === 1) estado = "Nuevo";
-    else if (minutosSinResponder < 1) estado = "Activo";
-    else estado = "Dormido";
+      let estado = "Recurrente";
+      if (info.mensajes.length === 1) estado = "Nuevo";
+      else if (minutosSinResponder < 1) estado = "Activo";
+      else estado = "Dormido";
 
-    return {
-      userId,
-      ...info,
-      nuevos,
-      totalMensajes: info.mensajes.length,
-      sinResponder: minutosSinResponder >= 1,
-      estado,
-    };
-  });
+      return {
+        userId,
+        ...info,
+        nuevos,
+        totalMensajes: info.mensajes.length,
+        sinResponder: minutosSinResponder >= 1,
+        estado,
+      };
+    }
+  );
 
   useEffect(() => {
-    listaAgrupada.forEach(conv => {
-      if (conv.estado === "Dormido" && conv.nuevos > 0 && !notificados.current.has(conv.userId)) {
+    listaAgrupada.forEach((conv) => {
+      if (
+        conv.estado === "Dormido" &&
+        conv.nuevos > 0 &&
+        !notificados.current.has(conv.userId)
+      ) {
         if (Notification.permission === "granted") {
-          navigator.serviceWorker.getRegistration().then(reg => {
+          navigator.serviceWorker.getRegistration().then((reg) => {
             if (reg) {
               reg.showNotification("Nuevo mensaje en conversación dormida", {
-                body: ID: ${conv.userId},
+                body: `ID: ${conv.userId}`,
                 icon: "/icon-192x192.png",
               });
               notificados.current.add(conv.userId);
@@ -120,7 +139,11 @@ const Panel = () => {
       Dormido: "bg-gray-400",
     };
     return (
-      <span className={text-white text-xs px-2 py-1 rounded-full ${colores[estado] || "bg-gray-500"}}>
+      <span
+        className={`text-white text-xs px-2 py-1 rounded-full ${
+          colores[estado] || "bg-gray-500"
+        }`}
+      >
         {estado}
       </span>
     );
@@ -183,7 +206,7 @@ const Panel = () => {
             <div>{item.totalMensajes}</div>
             <div>
               <Link
-                to={/conversacion/${item.userId}}
+                to={`/conversacion/${item.userId}`}
                 className="bg-blue-600 text-white px-3 py-1 text-xs rounded-full hover:bg-blue-700"
               >
                 Detalles
@@ -221,12 +244,15 @@ const App = () => {
             const datos = agenteSnap.data();
             localStorage.setItem("id-usuario-panel", user.uid);
             localStorage.setItem("rol-usuario-panel", datos.rol || "Soporte");
-            localStorage.setItem("perfil-usuario-panel", JSON.stringify({
-              nombre: datos.nombre || "",
-              email: datos.email || user.email,
-              foto: datos.foto || "",
-              rol: datos.rol || "Soporte",
-            }));
+            localStorage.setItem(
+              "perfil-usuario-panel",
+              JSON.stringify({
+                nombre: datos.nombre || "",
+                email: datos.email || user.email,
+                foto: datos.foto || "",
+                rol: datos.rol || "Soporte",
+              })
+            );
 
             // Disparar actualización del sidebar
             window.dispatchEvent(new Event("actualizar-foto-perfil"));
@@ -270,3 +296,4 @@ const App = () => {
 };
 
 export default App;
+

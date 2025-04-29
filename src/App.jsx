@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
@@ -10,7 +9,6 @@ import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
-import Conversaciones from "./pages/Conversaciones"; // ✅ NUEVO
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -56,11 +54,11 @@ const Panel = () => {
     const diffMin = Math.floor(diffMs / 60000);
     const diffHrs = Math.floor(diffMin / 60);
     const diffDays = Math.floor(diffHrs / 24);
-    if (diffMin < 1) return `hace unos segundos`;
-    if (diffMin < 60) return `hace ${diffMin}m`;
-    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    if (diffMin < 1) return hace unos segundos;
+    if (diffMin < 60) return hace ${diffMin}m;
+    if (diffHrs < 24) return hace ${diffHrs}h;
     if (diffDays === 1) return "ayer";
-    return `hace ${diffDays}d`;
+    return hace ${diffDays}d;
   };
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario).map(([userId, info]) => {
@@ -96,7 +94,7 @@ const Panel = () => {
           navigator.serviceWorker.getRegistration().then(reg => {
             if (reg) {
               reg.showNotification("Nuevo mensaje en conversación dormida", {
-                body: `ID: ${conv.userId}`,
+                body: ID: ${conv.userId},
                 icon: "/icon-192x192.png",
               });
               notificados.current.add(conv.userId);
@@ -122,7 +120,7 @@ const Panel = () => {
       Dormido: "bg-gray-400",
     };
     return (
-      <span className={`text-white text-xs px-2 py-1 rounded-full ${colores[estado] || "bg-gray-500"}`}>
+      <span className={text-white text-xs px-2 py-1 rounded-full ${colores[estado] || "bg-gray-500"}}>
         {estado}
       </span>
     );
@@ -185,7 +183,7 @@ const Panel = () => {
             <div>{item.totalMensajes}</div>
             <div>
               <Link
-                to={`/conversacion/${item.userId}`}
+                to={/conversacion/${item.userId}}
                 className="bg-blue-600 text-white px-3 py-1 text-xs rounded-full hover:bg-blue-700"
               >
                 Detalles
@@ -230,6 +228,7 @@ const App = () => {
               rol: datos.rol || "Soporte",
             }));
 
+            // Disparar actualización del sidebar
             window.dispatchEvent(new Event("actualizar-foto-perfil"));
           }
         } catch (error) {
@@ -256,7 +255,6 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Panel />} />
                   <Route path="/conversacion/:userId" element={<Detalle />} />
-                  <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>

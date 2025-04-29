@@ -10,7 +10,9 @@ import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
-import Conversaciones from "./pages/Conversaciones"; // ✅ NUEVO
+import Conversaciones from "./pages/Conversaciones";
+
+const BACKEND_URL = "https://asistente-production.up.railway.app"; // ⚠️ AJUSTA AQUÍ SI ES DISTINTO
 
 const Panel = () => {
   const [data, setData] = useState([]);
@@ -19,12 +21,12 @@ const Panel = () => {
   const notificados = useRef(new Set());
 
   const cargarDatos = () => {
-    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+    fetch(`${BACKEND_URL}/api/conversaciones`)
       .then((res) => res.json())
       .then(setData)
       .catch(console.error);
 
-    fetch("https://web-production-51989.up.railway.app/api/vistas")
+    fetch(`${BACKEND_URL}/api/vistas`)
       .then((res) => res.json())
       .then(setVistas)
       .catch(console.error);
@@ -69,7 +71,7 @@ const Panel = () => {
       (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
     ).length;
 
-    const ultimoUsuario = [...info.mensajes].reverse().find(m => m.from === "usuario");
+    const ultimoUsuario = [...info.mensajes].reverse().find((m) => m.from === "usuario");
     const minutosSinResponder = ultimoUsuario
       ? (Date.now() - new Date(ultimoUsuario.lastInteraction)) / 60000
       : Infinity;
@@ -90,10 +92,10 @@ const Panel = () => {
   });
 
   useEffect(() => {
-    listaAgrupada.forEach(conv => {
+    listaAgrupada.forEach((conv) => {
       if (conv.estado === "Dormido" && conv.nuevos > 0 && !notificados.current.has(conv.userId)) {
         if (Notification.permission === "granted") {
-          navigator.serviceWorker.getRegistration().then(reg => {
+          navigator.serviceWorker.getRegistration().then((reg) => {
             if (reg) {
               reg.showNotification("Nuevo mensaje en conversación dormida", {
                 body: `ID: ${conv.userId}`,

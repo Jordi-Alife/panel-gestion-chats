@@ -39,9 +39,9 @@ const DashboardLayout = ({ children }) => {
 
     cargarPerfil();
     const listener = () => cargarPerfil();
-    window.addEventListener("actualizar-foto-perfil", listener);
-
     const notif = (e) => setNotificaciones(e.detail.total || 0);
+
+    window.addEventListener("actualizar-foto-perfil", listener);
     window.addEventListener("notificaciones-nuevas", notif);
 
     return () => {
@@ -73,13 +73,16 @@ const DashboardLayout = ({ children }) => {
       </header>
 
       {/* Layout principal */}
-      <div className="flex flex-1 pt-[72px] h-full">
+      <div className="flex flex-1 pt-[72px] h-screen overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden min-h-screen`}
+          className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col transition-all duration-200`}
+          style={{ height: "100vh" }}
         >
-          <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-br-3xl z-10" />
+          {/* Esquina superior uniendo con el header */}
+          <div className="absolute top-0 right-0 w-6 h-6 bg-[#1E2431] rounded-br-3xl z-10 rotate-180 origin-top-right" />
 
+          {/* Botón colapsar */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
@@ -92,38 +95,36 @@ const DashboardLayout = ({ children }) => {
             />
           </button>
 
-          <div className="mt-4 space-y-1 text-sm relative z-20">
+          {/* Navegación */}
+          <div className="mt-4 space-y-1 text-sm relative z-20 px-1 flex-1 overflow-auto">
+            {/* Inicio */}
             <Link
               to="/"
-              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-                colapsado ? "justify-center" : "gap-3"
-              }`}
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${colapsado ? "justify-center" : "gap-3"}`}
             >
               <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
               {!colapsado && <span>Inicio</span>}
             </Link>
 
+            {/* Conversaciones */}
             <Link
               to="/conversaciones"
-              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${
-                colapsado ? "justify-center" : "gap-3"
-              }`}
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${colapsado ? "justify-center" : "gap-3"}`}
             >
               <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
               {!colapsado && <span>Conversaciones</span>}
               {notificaciones > 0 && (
-                <span className="absolute top-1.5 left-8 bg-red-500 text-white text-[10px] px-1.5 py-[1px] rounded-full">
+                <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                   {notificaciones}
                 </span>
               )}
             </Link>
 
+            {/* Agentes */}
             {rolUsuario !== "Soporte" && (
               <Link
                 to="/agentes"
-                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-                  colapsado ? "justify-center" : "gap-3"
-                }`}
+                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${colapsado ? "justify-center" : "gap-3"}`}
               >
                 <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
                 {!colapsado && <span>Agentes</span>}
@@ -132,30 +133,23 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Perfil */}
-          <div className="mt-auto px-4 pb-6 z-20">
+          <div className="px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
                 <button onClick={() => navigate("/perfil")}>
                   <img
                     src={fotoPerfil || "https://i.pravatar.cc/100"}
                     alt="Perfil"
-                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                      cargandoFoto ? "opacity-0" : "opacity-100"
-                    }`}
+                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                   />
                 </button>
               </div>
             ) : (
-              <div
-                onClick={() => navigate("/perfil")}
-                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260]"
-              >
+              <div onClick={() => navigate("/perfil")} className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260]">
                 <img
                   src={fotoPerfil || "https://i.pravatar.cc/100"}
                   alt="Perfil"
-                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                    cargandoFoto ? "opacity-0" : "opacity-100"
-                  }`}
+                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                 />
                 <div>
                   <div className="font-semibold text-sm leading-tight">
@@ -171,7 +165,6 @@ const DashboardLayout = ({ children }) => {
         {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
-
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

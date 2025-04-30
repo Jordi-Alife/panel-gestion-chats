@@ -58,7 +58,7 @@ const DashboardLayout = ({ children }) => {
           <img
             src={colapsado ? LogoPequeno : LogoCompleto}
             alt="NextLives"
-            className={`object-contain ${colapsado ? "h-[32px]" : "h-[46px]"}`}
+            className={`object-contain ${colapsado ? "h-8" : "h-12"}`}
           />
         </div>
         <div className="flex-1" />
@@ -73,15 +73,18 @@ const DashboardLayout = ({ children }) => {
       </header>
 
       {/* Layout principal */}
-      <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
+      <div className="flex flex-1 pt-[72px] h-full">
         {/* Sidebar */}
         <aside
-          className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col justify-between transition-all duration-200 overflow-visible`}
+          className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
         >
-          {/* Círculo decorativo rotado */}
-          <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10 rotate-180 origin-top-right" />
+          {/* Ajuste: invertir la curva */}
+          <div
+            className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-tr-3xl z-10"
+            style={{ transform: "rotate(180deg)" }}
+          />
 
-          {/* Botón colapsar */}
+          {/* Botón para contraer/expandir */}
           <button
             onClick={() => setColapsado(!colapsado)}
             className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
@@ -94,7 +97,6 @@ const DashboardLayout = ({ children }) => {
             />
           </button>
 
-          {/* Menú lateral */}
           <div className="mt-4 space-y-1 text-sm relative z-20">
             {/* Inicio */}
             <Link
@@ -117,7 +119,7 @@ const DashboardLayout = ({ children }) => {
               <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
               {!colapsado && <span>Conversaciones</span>}
               {notificaciones > 0 && (
-                <span className="absolute top-1 left-5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+                <span className="absolute top-1 right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                   {notificaciones}
                 </span>
               )}
@@ -138,7 +140,7 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Perfil */}
-          <div className="px-4 pb-6 z-20">
+          <div className="mt-auto px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
                 <button onClick={() => navigate("/perfil")}>
@@ -177,8 +179,6 @@ const DashboardLayout = ({ children }) => {
         {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
-
-          {/* Footer */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

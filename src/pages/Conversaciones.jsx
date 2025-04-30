@@ -82,6 +82,14 @@ export default function Conversaciones() {
     }
   }, [userId, todasConversaciones]);
 
+  const handleScroll = () => {
+    const el = chatRef.current;
+    if (!el) return;
+    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+    scrollForzado.current = alFinal;
+    setMostrarScrollBtn(!alFinal);
+  };
+
   const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
@@ -113,7 +121,6 @@ export default function Conversaciones() {
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
-
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
 
       const nuevos = mensajesValidos.filter(
@@ -127,11 +134,13 @@ export default function Conversaciones() {
         nuevos,
         mensajes: mensajesValidos.map((m) => ({
           from: m.from,
-          ts: m.lastInteraction
-        }))
+          ts: m.lastInteraction,
+        })),
       });
 
-      const tieneRespuestas = mensajesValidos.some((m) => m.from === "asistente" || m.manual);
+      const tieneRespuestas = mensajesValidos.some(
+        (m) => m.from === "asistente" || m.manual
+      );
       const ultimoMensaje = [...mensajesValidos].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
@@ -199,7 +208,9 @@ export default function Conversaciones() {
                 </div>
                 <div>
                   <div className="font-medium text-sm">{c.userId}</div>
-                  <div className="text-xs text-gray-500">{formatearTiempo(c.lastInteraction)}</div>
+                  <div className="text-xs text-gray-500">
+                    {formatearTiempo(c.lastInteraction)}
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1 relative">
@@ -235,7 +246,7 @@ export default function Conversaciones() {
               return (
                 <div key={index} className={`flex ${align}`}>
                   <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
-                    {esURLImagen(msg.message) ? (
+                    {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                       <img
                         src={msg.message}
                         alt="Imagen"
@@ -285,7 +296,12 @@ export default function Conversaciones() {
 
           {mostrarScrollBtn && (
             <button
-              onClick={handleScrollBottom}
+              onClick={() =>
+                chatRef.current?.scrollTo({
+                  top: chatRef.current.scrollHeight,
+                  behavior: "smooth",
+                })
+              }
               className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700"
             >
               Ir al final
@@ -293,7 +309,39 @@ export default function Conversaciones() {
           )}
 
           <form
-            onSubmit={handleSubmit}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!userId) return;
+
+              if (imagen) {
+                const formData = new FormData();
+                formData.append("file", imagen);
+                formData.append("userId", userId);
+                await fetch("https://web-production-51989.up.railway.app/api/upload", {
+                  method: "POST",
+                  body: formData,
+                });
+                setImagen(null);
+                return;
+              }
+
+              if (!respuesta.trim()) return;
+
+              await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId,
+                  message: respuesta,
+                  agente: {
+                    nombre: perfil.nombre || "",
+                    foto: perfil.foto || "",
+                  },
+                }),
+              });
+
+              setRespuesta("");
+            }}
             className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
           >
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
@@ -352,9 +400,7 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">
-            Datos del usuario
-          </h2>
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700 break-all">{userId}</p>
         </div>
       </div>

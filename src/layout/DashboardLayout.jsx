@@ -1,4 +1,3 @@
-// src/layout/DashboardLayout.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import IconInicio from "../assets/dashboard-1.svg";
@@ -13,6 +12,7 @@ const DashboardLayout = ({ children }) => {
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [nombrePerfil, setNombrePerfil] = useState("");
   const [cargandoFoto, setCargandoFoto] = useState(false);
+  const [notificaciones, setNotificaciones] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -40,10 +40,16 @@ const DashboardLayout = ({ children }) => {
     cargarPerfil();
     const listener = () => cargarPerfil();
     window.addEventListener("actualizar-foto-perfil", listener);
-    return () => window.removeEventListener("actualizar-foto-perfil", listener);
-  }, []);
 
-  return (
+    const notif = (e) => setNotificaciones(e.detail.total || 0);
+    window.addEventListener("notificaciones-nuevas", notif);
+
+    return () => {
+      window.removeEventListener("actualizar-foto-perfil", listener);
+      window.removeEventListener("notificaciones-nuevas", notif);
+    };
+  }, []);
+    return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
@@ -99,15 +105,19 @@ const DashboardLayout = ({ children }) => {
             {/* Conversaciones */}
             <Link
               to="/conversaciones"
-              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${
                 colapsado ? "justify-center" : "gap-3"
               }`}
             >
               <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
               {!colapsado && <span>Conversaciones</span>}
+              {notificaciones > 0 && (
+                <span className="absolute top-1 right-3 bg-red-500 text-white text-[10px] px-1.5 py-[1px] rounded-full">
+                  {notificaciones}
+                </span>
+              )}
             </Link>
-
-            {/* Agentes */}
+                        {/* Agentes */}
             {rolUsuario !== "Soporte" && (
               <Link
                 to="/agentes"

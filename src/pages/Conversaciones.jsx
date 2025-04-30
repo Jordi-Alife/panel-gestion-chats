@@ -114,7 +114,9 @@ export default function Conversaciones() {
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
 
-      const nuevos = info.mensajes.filter(
+      const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
+
+      const nuevos = mensajesValidos.filter(
         (m) =>
           m.from === "usuario" &&
           (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
@@ -123,14 +125,14 @@ export default function Conversaciones() {
       console.log("▶︎ Nuevos mensajes", id, {
         ultimaVista,
         nuevos,
-        mensajes: info.mensajes.map((m) => ({
+        mensajes: mensajesValidos.map((m) => ({
           from: m.from,
           ts: m.lastInteraction
         }))
       });
 
-      const tieneRespuestas = info.mensajes.some((m) => m.from === "asistente" || m.manual);
-      const ultimoMensaje = [...info.mensajes].reverse()[0];
+      const tieneRespuestas = mensajesValidos.some((m) => m.from === "asistente" || m.manual);
+      const ultimoMensaje = [...mensajesValidos].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
         : Infinity;

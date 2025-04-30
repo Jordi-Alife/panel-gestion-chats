@@ -12,10 +12,7 @@ const DashboardLayout = ({ children }) => {
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [nombrePerfil, setNombrePerfil] = useState("");
   const [cargandoFoto, setCargandoFoto] = useState(false);
-  const [notificaciones, setNotificaciones] = useState(
-    parseInt(localStorage.getItem("notificaciones") || "0")
-  );
-
+  const [notificaciones, setNotificaciones] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -44,12 +41,7 @@ const DashboardLayout = ({ children }) => {
     const listener = () => cargarPerfil();
     window.addEventListener("actualizar-foto-perfil", listener);
 
-    const notif = (e) => {
-      const total = e.detail.total || 0;
-      setNotificaciones(total);
-      localStorage.setItem("notificaciones", total);
-    };
-
+    const notif = (e) => setNotificaciones(e.detail.total || 0);
     window.addEventListener("notificaciones-nuevas", notif);
 
     return () => {
@@ -59,7 +51,7 @@ const DashboardLayout = ({ children }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
         <div className="flex items-center">
@@ -81,68 +73,70 @@ const DashboardLayout = ({ children }) => {
       </header>
 
       {/* Layout principal */}
-      <div className="flex flex-1 pt-[72px] h-full">
+      <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
         {/* Sidebar */}
         <aside
-          className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col justify-start transition-all duration-200 overflow-hidden`}
+          className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col justify-between transition-all duration-200`}
         >
-          <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
-          <button
-            onClick={() => setColapsado(!colapsado)}
-            className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
-            aria-label="Toggle menú"
-          >
-            <img
-              src={IconToggle}
-              alt="Toggle menú"
-              className={`w-8 h-8 ${colapsado ? "rotate-180" : ""} transition-transform`}
-            />
-          </button>
-
-          <div className="mt-4 space-y-1 text-sm relative z-20">
-            {/* Inicio */}
-            <Link
-              to="/"
-              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-                colapsado ? "justify-center" : "gap-3"
-              }`}
+          <div>
+            <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
+            <button
+              onClick={() => setColapsado(!colapsado)}
+              className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
+              aria-label="Toggle menú"
             >
-              <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
-              {!colapsado && <span>Inicio</span>}
-            </Link>
+              <img
+                src={IconToggle}
+                alt="Toggle menú"
+                className={`w-8 h-8 ${colapsado ? "rotate-180" : ""} transition-transform`}
+              />
+            </button>
 
-            {/* Conversaciones */}
-            <Link
-              to="/conversaciones"
-              className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${
-                colapsado ? "justify-center" : "gap-3"
-              }`}
-            >
-              <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
-              {!colapsado && <span>Conversaciones</span>}
-              {notificaciones > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-                  {notificaciones}
-                </span>
-              )}
-            </Link>
-
-            {/* Agentes */}
-            {rolUsuario !== "Soporte" && (
+            <div className="mt-4 space-y-1 text-sm relative z-20">
+              {/* Inicio */}
               <Link
-                to="/agentes"
+                to="/"
                 className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
                   colapsado ? "justify-center" : "gap-3"
                 }`}
               >
-                <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
-                {!colapsado && <span>Agentes</span>}
+                <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
+                {!colapsado && <span>Inicio</span>}
               </Link>
-            )}
+
+              {/* Conversaciones */}
+              <Link
+                to="/conversaciones"
+                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${
+                  colapsado ? "justify-center" : "gap-3"
+                }`}
+              >
+                <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
+                {!colapsado && <span>Conversaciones</span>}
+                {notificaciones > 0 && (
+                  <span className="absolute -top-1.5 right-2 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+                    {notificaciones}
+                  </span>
+                )}
+              </Link>
+
+              {/* Agentes */}
+              {rolUsuario !== "Soporte" && (
+                <Link
+                  to="/agentes"
+                  className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+                    colapsado ? "justify-center" : "gap-3"
+                  }`}
+                >
+                  <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
+                  {!colapsado && <span>Agentes</span>}
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Perfil */}
-          <div className="mt-auto px-4 pb-6 z-20">
+          <div className="px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
                 <button onClick={() => navigate("/perfil")}>
@@ -181,7 +175,6 @@ const DashboardLayout = ({ children }) => {
         {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
-
           {/* Footer */}
           <footer className="mt-12 border-t pt-4 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>

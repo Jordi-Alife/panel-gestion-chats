@@ -1,3 +1,4 @@
+// src/pages/Conversaciones.jsx
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -111,19 +112,11 @@ export default function Conversaciones() {
 
     if (!respuesta.trim()) return;
 
-    const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
-
+    const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel"));
     await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        message: respuesta,
-        agente: {
-          nombre: perfil.nombre || "",
-          foto: perfil.foto || ""
-        }
-      })
+      body: JSON.stringify({ userId, message: respuesta, agente: perfil })
     });
 
     setRespuesta("");
@@ -207,6 +200,7 @@ export default function Conversaciones() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -235,16 +229,19 @@ export default function Conversaciones() {
                   <div className="text-xs text-gray-500">{formatearTiempo(c.lastInteraction)}</div>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex flex-col items-end gap-1 relative">
                 <span className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}>{c.estado}</span>
                 {c.nuevos > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{c.nuevos}</span>
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+                    {c.nuevos}
+                  </span>
                 )}
               </div>
             </div>
           ))}
         </div>
 
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div ref={chatRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-4 h-0">
             {mensajes.map((msg, index) => {
@@ -317,8 +314,8 @@ export default function Conversaciones() {
           </form>
         </div>
 
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           {agente && (
             <div className="mb-4">
               <h3 className="text-xs text-gray-500">Intervenido por</h3>
@@ -328,6 +325,7 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           <p className="text-sm text-gray-700 break-all">{userId}</p>
         </div>
       </div>

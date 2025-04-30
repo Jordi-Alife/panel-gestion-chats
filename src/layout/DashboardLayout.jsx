@@ -12,7 +12,10 @@ const DashboardLayout = ({ children }) => {
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [nombrePerfil, setNombrePerfil] = useState("");
   const [cargandoFoto, setCargandoFoto] = useState(false);
-  const [notificaciones, setNotificaciones] = useState(0);
+  const [notificaciones, setNotificaciones] = useState(
+    parseInt(localStorage.getItem("notificaciones") || "0")
+  );
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -41,7 +44,12 @@ const DashboardLayout = ({ children }) => {
     const listener = () => cargarPerfil();
     window.addEventListener("actualizar-foto-perfil", listener);
 
-    const notif = (e) => setNotificaciones(e.detail.total || 0);
+    const notif = (e) => {
+      const total = e.detail.total || 0;
+      setNotificaciones(total);
+      localStorage.setItem("notificaciones", total);
+    };
+
     window.addEventListener("notificaciones-nuevas", notif);
 
     return () => {
@@ -49,7 +57,8 @@ const DashboardLayout = ({ children }) => {
       window.removeEventListener("notificaciones-nuevas", notif);
     };
   }, []);
-    return (
+
+  return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
@@ -112,12 +121,13 @@ const DashboardLayout = ({ children }) => {
               <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
               {!colapsado && <span>Conversaciones</span>}
               {notificaciones > 0 && (
-                <span className="absolute top-1 right-3 bg-red-500 text-white text-[10px] px-1.5 py-[1px] rounded-full">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                   {notificaciones}
                 </span>
               )}
             </Link>
-                        {/* Agentes */}
+
+            {/* Agentes */}
             {rolUsuario !== "Soporte" && (
               <Link
                 to="/agentes"

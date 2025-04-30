@@ -62,6 +62,7 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
+
   useEffect(() => {
     if (userId && mensajes.length > 0) {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
@@ -81,7 +82,6 @@ export default function Conversaciones() {
       setAgente(null);
     }
   }, [userId, todasConversaciones]);
-
   const handleScroll = () => {
     const el = chatRef.current;
     if (!el) return;
@@ -131,6 +131,7 @@ export default function Conversaciones() {
 
     setRespuesta("");
   };
+
   const toggleOriginal = (index) => {
     setOriginalesVisibles((prev) => ({ ...prev, [index]: !prev[index] }));
   };
@@ -171,9 +172,7 @@ export default function Conversaciones() {
       const ultimaVista = vistas[id];
       const nuevos = info.intervenida
         ? info.mensajes.filter(
-            (m) =>
-              m.from === "usuario" &&
-              (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+            (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
           ).length
         : 0;
 
@@ -211,51 +210,26 @@ export default function Conversaciones() {
     Inactivo: "bg-gray-400",
     Cerrado: "bg-red-500",
   };
-  const listaAgrupada = Object.entries(conversacionesPorUsuario)
-    .map(([id, info]) => {
-      const ultimaVista = vistas[id];
-      const nuevos = info.intervenida
-        ? info.mensajes.filter(
-            (m) =>
-              m.from === "usuario" &&
-              (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-          ).length
-        : 0;
 
-      const tieneRespuestas = info.mensajes.some((m) => m.from === "asistente" || m.manual);
-      const ultimoMensaje = [...info.mensajes].reverse()[0];
-      const minutosDesdeUltimo = ultimoMensaje
-        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-        : Infinity;
-
-      let estado = "Recurrente";
-      if (info.estado === "cerrada" || minutosDesdeUltimo > 10) estado = "Cerrado";
-      else if (!tieneRespuestas) estado = "Nuevo";
-      else if (minutosDesdeUltimo <= 2) estado = "Activo";
-      else estado = "Inactivo";
-
-      return {
-        userId: id,
-        nuevos,
-        estado,
-        lastInteraction: info.lastInteraction,
-        iniciales: id.slice(0, 2).toUpperCase(),
-        intervenida: info.intervenida || false,
-        intervenidaPor: info.intervenidaPor || null,
-      };
-    })
-    .filter((c) => {
-      if (filtro === "todas") return true;
-      if (filtro === "gpt") return !c.intervenida;
-      if (filtro === "humanas") return c.intervenida;
-    });
-
-  const estadoColor = {
-    Nuevo: "bg-green-500",
-    Activo: "bg-blue-500",
-    Inactivo: "bg-gray-400",
-    Cerrado: "bg-red-500",
-  };
+  return (
+    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+        {/* Columna izquierda */}
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
+          <div className="flex gap-2 mb-3">
+            {["todas", "gpt", "humanas"].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFiltro(f)}
+                className={`text-xs px-2 py-1 rounded-full border ${
+                  filtro === f ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+                }`}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </div>
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
@@ -353,6 +327,7 @@ export default function Conversaciones() {
               );
             })}
           </div>
+
           {mostrarScrollBtn && (
             <button
               onClick={handleScrollBottom}
@@ -427,39 +402,16 @@ export default function Conversaciones() {
           <p className="text-sm text-gray-700 break-all">{userId}</p>
         </div>
       </div>
-        {/* Columna derecha */}
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
-          {agente && (
-            <div className="mb-4">
-              <h3 className="text-xs text-gray-500">Intervenido por</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <img
-                  src={agente.foto || "https://i.pravatar.cc/100"}
-                  alt="Agente"
-                  className="w-8 h-8 rounded-full"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {agente.nombre || "—"}
-                </span>
-              </div>
-            </div>
-          )}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">
-            Datos del usuario
-          </h2>
-          <p className="text-sm text-gray-700 break-all">{userId}</p>
-        </div>
-      </div>
 
       {/* Campo enviar por email */}
-      <div className="w-full bg-white px-4 py-4 border-t">
-        <div className="max-w-[calc(100%-2.5rem)] mx-auto bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-3">
+      <div className="w-full bg-white border-t px-6 py-4">
+        <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input
             type="email"
-            placeholder="Correo electrónico del destinatario"
             value={emailDestino}
             onChange={(e) => setEmailDestino(e.target.value)}
-            className="w-full border border-gray-300 rounded px-4 py-2 text-sm"
+            placeholder="Correo electrónico del destinatario"
+            className="w-full sm:w-2/3 border border-gray-300 rounded px-4 py-2 text-sm"
           />
           <button className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700">
             Enviar por email

@@ -51,7 +51,7 @@ const DashboardLayout = ({ children }) => {
           <img
             src={colapsado ? LogoPequeno : LogoCompleto}
             alt="NextLives"
-            className={`object-contain ${colapsado ? "h-8" : "h-10"}`}
+            className={`object-contain ${colapsado ? "h-9" : "h-11"}`}
           />
         </div>
         <div className="flex-1" />

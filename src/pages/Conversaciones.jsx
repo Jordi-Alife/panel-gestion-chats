@@ -62,7 +62,7 @@ export default function Conversaciones() {
     return () => clearInterval(interval);
   }, [userId]);
 
-  // ✅ Auto-scroll al entrar en una conversación
+  // ✅ Auto scroll al cambiar de conversación
   useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
@@ -73,7 +73,29 @@ export default function Conversaciones() {
       }
     }, 100);
   }, [userId]);
-  const formatearTiempo = (fecha) => {
+
+  // ✅ Mostrar agente que intervino la conversación
+  useEffect(() => {
+    if (!userId) return;
+    const conversacion = todasConversaciones.find((c) => c.userId === userId);
+    if (conversacion && conversacion.intervenidaPor) {
+      setAgente(conversacion.intervenidaPor);
+    } else {
+      setAgente(null);
+    }
+  }, [userId, todasConversaciones]);
+
+  // ✅ Marcar mensajes como vistos
+  useEffect(() => {
+    if (userId && mensajes.length > 0) {
+      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, agente: perfil?.nombre || "" }),
+      });
+    }
+  }, [mensajes]);
+    const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -113,17 +135,6 @@ export default function Conversaciones() {
           (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
 
-      console.log("▶︎ Nuevos mensajes", id, {
-        ultimaVista,
-        nuevos,
-        mensajes: mensajesValidos.map((m) => ({
-          from: m.from,
-          ts: m.lastInteraction,
-          tipo: m.tipo,
-          manual: m.manual,
-        }))
-      });
-
       const tieneRespuestas = mensajesValidos.some(
         (m) => m.from?.toLowerCase() === "asistente" || m.manual
       );
@@ -154,7 +165,14 @@ export default function Conversaciones() {
       if (filtro === "humanas") return c.intervenida;
     });
 
-  const estadoColor = {
+  // Calcular total de conversaciones con mensajes nuevos para el menú
+  const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
+      detail: { total: totalNoLeidos }
+    }));
+  }, [totalNoLeidos]);
+    const estadoColor = {
     Nuevo: "bg-green-500",
     Activo: "bg-blue-500",
     Inactivo: "bg-gray-400",
@@ -164,7 +182,7 @@ export default function Conversaciones() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna izquierda */}
+              {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -212,7 +230,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-        {/* Columna central */}
+                {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}

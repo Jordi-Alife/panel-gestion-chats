@@ -1,4 +1,3 @@
-// src/pages/Conversaciones.jsx
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -82,62 +81,6 @@ export default function Conversaciones() {
       setAgente(null);
     }
   }, [userId, todasConversaciones]);
-  const handleScroll = () => {
-    const el = chatRef.current;
-    if (!el) return;
-    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-    scrollForzado.current = alFinal;
-    setMostrarScrollBtn(!alFinal);
-  };
-
-  const handleScrollBottom = () => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      scrollForzado.current = true;
-      setMostrarScrollBtn(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userId) return;
-
-    if (imagen) {
-      const formData = new FormData();
-      formData.append("file", imagen);
-      formData.append("userId", userId);
-      await fetch("https://web-production-51989.up.railway.app/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      setImagen(null);
-      return;
-    }
-
-    if (!respuesta.trim()) return;
-
-    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        message: respuesta,
-        agente: {
-          nombre: perfil.nombre || "",
-          foto: perfil.foto || "",
-        },
-      }),
-    });
-
-    setRespuesta("");
-  };
-
-  const toggleOriginal = (index) => {
-    setOriginalesVisibles((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-
-  const esURLImagen = (texto) =>
-    typeof texto === "string" && texto.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
   const formatearTiempo = (fecha) => {
     const ahora = new Date();
@@ -170,11 +113,21 @@ export default function Conversaciones() {
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
-      const nuevos = info.intervenida
-        ? info.mensajes.filter(
-            (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-          ).length
-        : 0;
+
+      const nuevos = info.mensajes.filter(
+        (m) =>
+          m.from === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
+
+      console.log("▶︎ Nuevos mensajes", id, {
+        ultimaVista,
+        nuevos,
+        mensajes: info.mensajes.map((m) => ({
+          from: m.from,
+          ts: m.lastInteraction
+        }))
+      });
 
       const tieneRespuestas = info.mensajes.some((m) => m.from === "asistente" || m.manual);
       const ultimoMensaje = [...info.mensajes].reverse()[0];
@@ -379,6 +332,7 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
+
         {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (

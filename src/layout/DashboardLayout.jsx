@@ -1,9 +1,12 @@
+// src/layout/DashboardLayout.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import IconInicio from "../assets/dashboard-1.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
-import IconConversaciones from "../assets/chat.svg"; // <- NUEVO
+import IconConversaciones from "../assets/chat.svg";
+import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
+import LogoPequeno from "../assets/logo-nextlives-new.svg";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(false);
@@ -44,7 +47,13 @@ const DashboardLayout = ({ children }) => {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
-        <img src="/logo-nextlives.png" alt="NextLives" className="h-10 object-contain" />
+        <div className="flex items-center">
+          <img
+            src={colapsado ? LogoPequeno : LogoCompleto}
+            alt="NextLives"
+            className={`object-contain ${colapsado ? "h-10" : "h-12"}`}
+          />
+        </div>
         <div className="flex-1" />
         {esPaginaAgentes && rolUsuario === "Administrador" && (
           <button

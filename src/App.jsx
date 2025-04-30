@@ -55,6 +55,37 @@ const App = () => {
     return () => unsub();
   }, []);
 
+  // ✅ Notificaciones globales desde cualquier ruta
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+        .then((res) => res.json())
+        .then((convs) => {
+          fetch("https://web-production-51989.up.railway.app/api/vistas")
+            .then((res) => res.json())
+            .then((vistas) => {
+              const total = convs.reduce((acc, c) => {
+                const vista = vistas[c.userId];
+                const nuevos = (c.mensajes || []).filter(
+                  (m) =>
+                    m.from?.toLowerCase() === "usuario" &&
+                    (!vista || new Date(m.lastInteraction) > new Date(vista))
+                ).length;
+                return nuevos > 0 ? acc + 1 : acc;
+              }, 0);
+              window.dispatchEvent(
+                new CustomEvent("notificaciones-nuevas", {
+                  detail: { total },
+                })
+              );
+            });
+        })
+        .catch(() => {});
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (cargandoAuth) {
     return <div className="p-8 text-center">Cargando...</div>;
   }

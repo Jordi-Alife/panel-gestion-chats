@@ -107,7 +107,7 @@ export default function Conversaciones() {
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
-    actual.mensajes = [...(actual.mensajes || []), item];
+    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
@@ -125,7 +125,7 @@ export default function Conversaciones() {
 
       const nuevos = mensajesValidos.filter(
         (m) =>
-          m.from === "usuario" &&
+          m.from?.toLowerCase() === "usuario" &&
           (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
 
@@ -139,7 +139,7 @@ export default function Conversaciones() {
       });
 
       const tieneRespuestas = mensajesValidos.some(
-        (m) => m.from === "asistente" || m.manual
+        (m) => m.from?.toLowerCase() === "asistente" || m.manual
       );
       const ultimoMensaje = [...mensajesValidos].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
@@ -238,7 +238,7 @@ export default function Conversaciones() {
             className="flex-1 overflow-y-auto p-6 space-y-4 h-0"
           >
             {mensajes.map((msg, index) => {
-              const isAsistente = msg.from === "asistente";
+              const isAsistente = msg.from?.toLowerCase() === "asistente";
               const bubbleColor = isAsistente
                 ? "bg-[#ff5733] text-white"
                 : "bg-white text-gray-800 border";

@@ -18,6 +18,8 @@ export default function Conversaciones() {
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
+  const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
       .then((res) => res.json())
@@ -63,7 +65,7 @@ export default function Conversaciones() {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ userId, agente: perfil?.nombre || "" })
       });
     }
   }, [mensajes]);
@@ -111,8 +113,6 @@ export default function Conversaciones() {
     }
 
     if (!respuesta.trim()) return;
-
-    const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
     await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
       method: "POST",
@@ -168,9 +168,9 @@ export default function Conversaciones() {
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
-      const nuevos = info.mensajes.filter(
-        (m) => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-      ).length;
+      const nuevos = info.intervenida
+        ? info.mensajes.filter(m => m.from === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))).length
+        : 0;
 
       const tieneRespuestas = info.mensajes.some(m => m.from === "asistente" || m.manual);
       const ultimoMensaje = [...info.mensajes].reverse()[0];
@@ -212,7 +212,7 @@ export default function Conversaciones() {
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
-            {['todas', 'gpt', 'humanas'].map(f => (
+            {["todas", "gpt", "humanas"].map(f => (
               <button
                 key={f}
                 onClick={() => setFiltro(f)}
@@ -226,7 +226,7 @@ export default function Conversaciones() {
             <div
               key={c.userId}
               onClick={() => setSearchParams({ userId: c.userId })}
-              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${c.userId === userId ? 'bg-blue-50' : ''}`}
+              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${c.userId === userId ? "bg-blue-50" : ""}`}
             >
               <div className="flex items-center gap-2">
                 <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
@@ -268,17 +268,17 @@ export default function Conversaciones() {
                       <div className="mt-2 text-[11px] text-right">
                         <button
                           onClick={() => toggleOriginal(index)}
-                          className={`underline text-xs ${isAsistente ? 'text-white/70' : 'text-blue-600'} focus:outline-none`}
+                          className={`underline text-xs ${isAsistente ? "text-white/70" : "text-blue-600"} focus:outline-none`}
                         >
                           {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                         </button>
                         {originalesVisibles[index] && (
-                          <p className={`mt-1 italic text-left ${isAsistente ? 'text-white/70' : 'text-gray-500'}`}>{msg.original}</p>
+                          <p className={`mt-1 italic text-left ${isAsistente ? "text-white/70" : "text-gray-500"}`}>{msg.original}</p>
                         )}
                       </div>
                     )}
-                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? 'text-white' : 'text-gray-500'}`}>
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente ? "text-white" : "text-gray-500"}`}>
+                      {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   </div>
                 </div>

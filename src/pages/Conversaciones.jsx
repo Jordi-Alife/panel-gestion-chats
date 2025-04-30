@@ -111,10 +111,19 @@ export default function Conversaciones() {
 
     if (!respuesta.trim()) return;
 
+    const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
     await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, message: respuesta })
+      body: JSON.stringify({
+        userId,
+        message: respuesta,
+        agente: {
+          nombre: perfil.nombre || "",
+          foto: perfil.foto || ""
+        }
+      })
     });
 
     setRespuesta("");

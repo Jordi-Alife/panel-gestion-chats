@@ -130,13 +130,15 @@ export default function Conversaciones() {
       ).length;
 
       console.log("▶︎ Nuevos mensajes", id, {
-        ultimaVista,
-        nuevos,
-        mensajes: mensajesValidos.map((m) => ({
-          from: m.from,
-          ts: m.lastInteraction,
-        })),
-      });
+  ultimaVista,
+  nuevos,
+  mensajes: mensajesValidos.map((m) => ({
+    from: m.from,
+    ts: m.lastInteraction,
+    tipo: m.tipo,
+    manual: m.manual,
+  }))
+});
 
       const tieneRespuestas = mensajesValidos.some(
         (m) => m.from?.toLowerCase() === "asistente" || m.manual

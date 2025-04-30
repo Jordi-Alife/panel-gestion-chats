@@ -79,7 +79,7 @@ const DashboardLayout = ({ children }) => {
           className={`relative ${colapsado ? "w-20" : "w-56"} bg-[#1E2431] flex flex-col justify-between transition-all duration-200`}
         >
           <div>
-            <div className="absolute top-0 -right-3 w-6 h-6 bg-[#1E2431] rounded-bl-3xl z-10" />
+            
             <button
               onClick={() => setColapsado(!colapsado)}
               className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"

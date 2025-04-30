@@ -62,34 +62,17 @@ export default function Conversaciones() {
     return () => clearInterval(interval);
   }, [userId]);
 
+  // ✅ Auto-scroll al entrar en una conversación
   useEffect(() => {
-    if (userId && mensajes.length > 0) {
-      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, agente: perfil?.nombre || "" }),
-      });
-    }
-  }, [mensajes]);
-
-  useEffect(() => {
-    if (!userId) return;
-    const conversacion = todasConversaciones.find((c) => c.userId === userId);
-    if (conversacion && conversacion.intervenidaPor) {
-      setAgente(conversacion.intervenidaPor);
-    } else {
-      setAgente(null);
-    }
-  }, [userId, todasConversaciones]);
-
-  const handleScroll = () => {
-    const el = chatRef.current;
-    if (!el) return;
-    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-    scrollForzado.current = alFinal;
-    setMostrarScrollBtn(!alFinal);
-  };
-
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    }, 100);
+  }, [userId]);
   const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
@@ -118,6 +101,7 @@ export default function Conversaciones() {
     acc[item.userId] = actual;
     return acc;
   }, {});
+
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
@@ -130,15 +114,15 @@ export default function Conversaciones() {
       ).length;
 
       console.log("▶︎ Nuevos mensajes", id, {
-  ultimaVista,
-  nuevos,
-  mensajes: mensajesValidos.map((m) => ({
-    from: m.from,
-    ts: m.lastInteraction,
-    tipo: m.tipo,
-    manual: m.manual,
-  }))
-});
+        ultimaVista,
+        nuevos,
+        mensajes: mensajesValidos.map((m) => ({
+          from: m.from,
+          ts: m.lastInteraction,
+          tipo: m.tipo,
+          manual: m.manual,
+        }))
+      });
 
       const tieneRespuestas = mensajesValidos.some(
         (m) => m.from?.toLowerCase() === "asistente" || m.manual
@@ -204,31 +188,27 @@ export default function Conversaciones() {
                 c.userId === userId ? "bg-blue-50" : ""
               }`}
             >
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
-                  {c.iniciales}
+              <div className="flex items-center gap-2 relative">
+                <div className="relative">
+                  <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
+                    {c.iniciales}
+                  </div>
+                  {c.nuevos > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+                      {c.nuevos}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <div className="font-medium text-sm">{c.userId}</div>
-                  <div className="text-xs text-gray-500">
-                    {formatearTiempo(c.lastInteraction)}
-                  </div>
+                  <div className="text-xs text-gray-500">{formatearTiempo(c.lastInteraction)}</div>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1 relative">
-                <span
-                  className={`text-[10px] text-white px-2 py-0.5 rounded-full ${
-                    estadoColor[c.estado]
-                  }`}
-                >
-                  {c.estado}
-                </span>
-                {c.nuevos > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-                    {c.nuevos}
-                  </span>
-                )}
-              </div>
+              <span
+                className={`text-[10px] text-white px-2 py-0.5 rounded-full ${estadoColor[c.estado]}`}
+              >
+                {c.estado}
+              </span>
             </div>
           ))}
         </div>
@@ -236,7 +216,13 @@ export default function Conversaciones() {
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
-            onScroll={handleScroll}
+            onScroll={() => {
+              const el = chatRef.current;
+              if (!el) return;
+              const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+              scrollForzado.current = alFinal;
+              setMostrarScrollBtn(!alFinal);
+            }}
             className="flex-1 overflow-y-auto p-6 space-y-4 h-0"
           >
             {mensajes.map((msg, index) => {
@@ -260,14 +246,15 @@ export default function Conversaciones() {
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
                         <button
-                          onClick={() => toggleOriginal(index)}
+                          onClick={() => setOriginalesVisibles((prev) => ({
+                            ...prev,
+                            [index]: !prev[index],
+                          }))}
                           className={`underline text-xs ${
                             isAsistente ? "text-white/70" : "text-blue-600"
                           } focus:outline-none`}
                         >
-                          {originalesVisibles[index]
-                            ? "Ocultar original"
-                            : "Ver original"}
+                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                         </button>
                         {originalesVisibles[index] && (
                           <p
@@ -310,6 +297,7 @@ export default function Conversaciones() {
             </button>
           )}
 
+          {/* Formulario para enviar mensaje o imagen */}
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -402,14 +390,16 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">
+            Datos del usuario
+          </h2>
           <p className="text-sm text-gray-700 break-all">{userId}</p>
         </div>
       </div>
 
-      {/* Campo enviar por email */}
-      <div className="w-full bg-white border-t px-6 py-4">
-        <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
+      {/* Solo la tarjeta del formulario de email (sin fondo) */}
+      <div className="w-full px-6 py-4">
+        <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input
             type="email"
             value={emailDestino}

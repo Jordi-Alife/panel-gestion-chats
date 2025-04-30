@@ -280,7 +280,7 @@ const App = () => {
             usuarioActual ? (
               <DashboardLayout>
                 <Routes>
-                  <Route path="/" element={<Panel />} />
+                  <Route path="/" element={<Detalle />} />
                   <Route path="/conversacion/:userId" element={<Detalle />} />
                   <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />

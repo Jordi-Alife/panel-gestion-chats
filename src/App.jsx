@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
-import Detalle from "./pages/Detalle";
 import Conversaciones from "./pages/Conversaciones";
 import Agentes from "./pages/agentes";
 import Perfil from "./pages/Perfil";
@@ -70,8 +69,7 @@ const App = () => {
             usuarioActual ? (
               <DashboardLayout>
                 <Routes>
-                  <Route path="/" element={<Detalle />} />
-                  <Route path="/conversacion/:userId" element={<Detalle />} />
+                  <Route path="/" element={<Navigate to="/conversaciones" />} />
                   <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/perfil" element={<Perfil />} />

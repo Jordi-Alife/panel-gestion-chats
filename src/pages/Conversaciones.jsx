@@ -38,7 +38,8 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-    const cargarMensajes = () => {
+
+  const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -169,7 +170,9 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
   };
-    return (
+
+  return (
+      return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
@@ -223,7 +226,8 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-                {/* Columna central */}
+
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
@@ -383,7 +387,8 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-                {/* Columna derecha */}
+
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -403,7 +408,20 @@ export default function Conversaciones() {
           <h2 className="text-sm text-gray-400 font-semibold mb-2">
             Datos del usuario
           </h2>
-          <p className="text-sm text-gray-700 break-all">{userId}</p>
+          {usuarioSeleccionado ? (
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>ID: {usuarioSeleccionado.userId}</p>
+              <p>Navegador: {usuarioSeleccionado.navegador}</p>
+              <p>Historial:</p>
+              <ul className="list-disc list-inside text-xs text-gray-600">
+                {usuarioSeleccionado.historial.map((url, idx) => (
+                  <li key={idx}>{url}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">Selecciona una conversación</p>
+          )}
         </div>
       </div>
 

@@ -48,7 +48,7 @@ export default function Conversaciones() {
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
         setMensajes(ordenados);
-        const info = todasConversaciones.find(c => c.userId === userId);
+        const info = todasConversaciones.find((c) => c.userId === userId);
         setUsuarioSeleccionado(info || null);
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
@@ -92,7 +92,8 @@ export default function Conversaciones() {
       });
     }
   }, [mensajes]);
-    const formatearTiempo = (fecha) => {
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -120,6 +121,8 @@ export default function Conversaciones() {
       "United States": "us",
       // agrega más países si necesitas
     };
+    if (!paisTexto) return "xx";
+    if (paisTexto.length === 2) return paisTexto.toLowerCase();
     return (mapa[paisTexto] || "xx").toLowerCase();
   };
 
@@ -129,11 +132,12 @@ export default function Conversaciones() {
     actual.pais = item.pais;
     actual.navegador = item.navegador;
     actual.historial = item.historial || [];
+    actual.intervenida = item.intervenida; // AÑADIDO
+    actual.intervenidaPor = item.intervenidaPor; // AÑADIDO
     acc[item.userId] = actual;
     return acc;
   }, {});
-
-  const listaAgrupada = Object.entries(conversacionesPorUsuario)
+    const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
@@ -176,20 +180,21 @@ export default function Conversaciones() {
 
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
-      detail: { total: totalNoLeidos }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } })
+    );
   }, [totalNoLeidos]);
 
   const estadoColor = {
     Activa: "bg-green-500",
     Inactiva: "bg-gray-400",
-    Archivado: "bg-black"
+    Archivado: "bg-black",
   };
-    return (
+
+  return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna izquierda */}
+                {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -219,7 +224,7 @@ export default function Conversaciones() {
                     {c.iniciales}
                   </div>
                   <img
-                    src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
+                    src={`https://flagcdn.com/16x12/${(c.pais || "xx").toLowerCase()}.png`}
                     alt={c.pais}
                     className="absolute -bottom-1 -right-2 w-4 h-3 rounded-sm border"
                   />
@@ -242,7 +247,8 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-                {/* Columna central */}
+
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
@@ -276,10 +282,12 @@ export default function Conversaciones() {
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
                         <button
-                          onClick={() => setOriginalesVisibles((prev) => ({
-                            ...prev,
-                            [index]: !prev[index],
-                          }))}
+                          onClick={() =>
+                            setOriginalesVisibles((prev) => ({
+                              ...prev,
+                              [index]: !prev[index],
+                            }))
+                          }
                           className={`underline text-xs ${
                             isAsistente ? "text-white/70" : "text-blue-600"
                           } focus:outline-none`}
@@ -401,7 +409,8 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-                {/* Columna derecha */}
+
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -428,10 +437,9 @@ export default function Conversaciones() {
               <p>
                 País:{" "}
                 <img
-                  src={`https://flagcdn.com/24x18/${(usuarioSeleccionado.pais || "es")
-                    .toLowerCase()}.png`}
+                  src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
                   alt={usuarioSeleccionado.pais}
-                  className="inline-block ml-1"
+                  className="inline-block ml-1 border rounded-sm"
                 />
               </p>
               <p>Historial:</p>
@@ -446,8 +454,7 @@ export default function Conversaciones() {
           )}
         </div>
       </div>
-
-      {/* Formulario de email */}
+            {/* Formulario de email */}
       <div className="w-full px-6 py-4">
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input

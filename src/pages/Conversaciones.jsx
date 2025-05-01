@@ -220,13 +220,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-        {/** Continúa igual tu columna central, formulario, columna derecha y email */}
-        {/** No toqué nada más fuera de los cambios pedidos */}
-        {/** ... */}
-      </div>
-    </div>
-  );
-}
+  
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}

@@ -14,6 +14,7 @@ import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
+import Inicio from "./pages/Inicio"; // ✅ añadido import
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -100,7 +101,7 @@ const App = () => {
             usuarioActual ? (
               <DashboardLayout>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/conversaciones" />} />
+                  <Route path="/" element={<Inicio />} /> {/* ✅ cambiado aquí */}
                   <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/perfil" element={<Perfil />} />

@@ -1,4 +1,3 @@
-// src/pages/Inicio.jsx
 import { useEffect, useState } from "react";
 import { Sparklines, SparklinesLine } from "react-sparklines";
 
@@ -12,11 +11,7 @@ export default function Inicio() {
   const ahora = new Date();
   const hora = ahora.getHours();
   const saludo =
-    hora < 12
-      ? "Buenos días"
-      : hora < 20
-      ? "Buenas tardes"
-      : "Buenas noches";
+    hora < 12 ? "Buenos días" : hora < 20 ? "Buenas tardes" : "Buenas noches";
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -45,13 +40,29 @@ export default function Inicio() {
     filtrarPorTiempo(m.lastInteraction)
   );
 
-  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario").length;
-  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
-  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
+  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario");
+  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual);
+  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual);
 
-  const dataRecibidos = mensajes.filter((m) => m.from === "usuario").map(() => Math.random() * 100);
-  const dataGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).map(() => Math.random() * 100);
-  const dataPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).map(() => Math.random() * 100);
+  // Agrupar mensajes por hora o día
+  const agruparPorTiempo = (lista) => {
+    const agrupados = {};
+    lista.forEach((m) => {
+      const fecha = new Date(m.lastInteraction);
+      const clave =
+        filtro === "hoy"
+          ? fecha.getHours().toString().padStart(2, "0") // por hora
+          : fecha.toISOString().split("T")[0]; // por día
+      agrupados[clave] = (agrupados[clave] || 0) + 1;
+    });
+
+    const clavesOrdenadas = Object.keys(agrupados).sort();
+    return clavesOrdenadas.map((k) => agrupados[k]);
+  };
+
+  const dataRecibidos = agruparPorTiempo(mensajesRecibidos);
+  const dataGPT = agruparPorTiempo(respuestasGPT);
+  const dataPanel = agruparPorTiempo(respuestasPanel);
 
   const Tarjeta = ({ titulo, valor, color, sparkData, cambio }) => (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col relative">
@@ -96,21 +107,21 @@ export default function Inicio() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Tarjeta
           titulo="Mensajes recibidos"
-          valor={mensajesRecibidos}
+          valor={mensajesRecibidos.length}
           color="#3b82f6"
           sparkData={dataRecibidos}
           cambio={Math.random() * 10 - 5}
         />
         <Tarjeta
           titulo="Respuestas GPT"
-          valor={respuestasGPT}
+          valor={respuestasGPT.length}
           color="#10b981"
           sparkData={dataGPT}
           cambio={Math.random() * 10 - 5}
         />
         <Tarjeta
           titulo="Respuestas humanas"
-          valor={respuestasPanel}
+          valor={respuestasPanel.length}
           color="#f97316"
           sparkData={dataPanel}
           cambio={Math.random() * 10 - 5}

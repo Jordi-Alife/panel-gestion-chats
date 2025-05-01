@@ -20,98 +20,119 @@ export default function Inicio() {
   }, []);
 
   const ahora = new Date();
-  const filtrarPorTiempo = (fecha) => {
-    const f = new Date(fecha);
-    const diffMs = ahora - f;
-    if (filtro === "hoy") return diffMs <= 86400000;
-    if (filtro === "semana") return diffMs <= 604800000;
-    if (filtro === "mes") return diffMs <= 2592000000;
+  const filtrarPorTiempo = (timestamp) => {
+    const fecha = new Date(timestamp);
+    const diferenciaMs = ahora - fecha;
+    const dias = diferenciaMs / (1000 * 60 * 60 * 24);
+
+    if (filtro === "hoy") return dias < 1;
+    if (filtro === "semana") return dias < 7;
+    if (filtro === "mes") return dias < 30;
     return true;
   };
 
-  const mensajesRecibidos = data
-    .flatMap((c) => c.mensajes || [])
-    .filter((m) => m.from === "usuario" && filtrarPorTiempo(m.lastInteraction));
+  const mensajes = data.flatMap((c) => c.mensajes || []).filter((m) =>
+    filtrarPorTiempo(m.lastInteraction)
+  );
 
-  const respuestasGPT = data
-    .flatMap((c) => c.mensajes || [])
-    .filter((m) => m.from === "asistente" && !m.manual && filtrarPorTiempo(m.lastInteraction));
+  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario").length;
+  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
+  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
 
-  const respuestasPanel = data
-    .flatMap((c) => c.mensajes || [])
-    .filter((m) => m.from === "asistente" && m.manual && filtrarPorTiempo(m.lastInteraction));
-
-  const sparkMensajes = mensajesRecibidos.map((_, i) => Math.random() * 10 + i);
-  const sparkGPT = respuestasGPT.map((_, i) => Math.random() * 5 + i);
-  const sparkPanel = respuestasPanel.map((_, i) => Math.random() * 3 + i);
+  const dataRecibidos = mensajes
+    .filter((m) => m.from === "usuario")
+    .map((m) => 1);
+  const dataGPT = mensajes
+    .filter((m) => m.from === "asistente" && !m.manual)
+    .map((m) => 1);
+  const dataPanel = mensajes
+    .filter((m) => m.from === "asistente" && m.manual)
+    .map((m) => 1);
 
   return (
-    <div className="p-6">
-      <h1 className="text-lg font-semibold mb-4">Resumen del asistente</h1>
+    <div className="p-6 space-y-6">
+      <h1 className="text-lg font-semibold text-gray-700 mb-4">Resumen general</h1>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-4">
         <button
           onClick={() => setFiltro("hoy")}
-          className={`text-sm px-3 py-1 rounded-full border ${
-            filtro === "hoy" ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+          className={`px-3 py-1 rounded-full text-sm ${
+            filtro === "hoy"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700"
           }`}
         >
           Hoy
         </button>
         <button
           onClick={() => setFiltro("semana")}
-          className={`text-sm px-3 py-1 rounded-full border ${
-            filtro === "semana" ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+          className={`px-3 py-1 rounded-full text-sm ${
+            filtro === "semana"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700"
           }`}
         >
           Última semana
         </button>
         <button
           onClick={() => setFiltro("mes")}
-          className={`text-sm px-3 py-1 rounded-full border ${
-            filtro === "mes" ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+          className={`px-3 py-1 rounded-full text-sm ${
+            filtro === "mes"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700"
           }`}
         >
           Último mes
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded shadow p-4 relative">
           <h2 className="text-sm text-gray-500">Mensajes recibidos</h2>
-          <p className="text-3xl font-bold">{mensajesRecibidos.length}</p>
-          <div className="absolute bottom-2 right-2 w-16 h-10 opacity-60">
-            <Sparklines data={sparkMensajes}>
+          <p className="text-3xl font-bold text-blue-600">{mensajesRecibidos}</p>
+          <div className="absolute bottom-2 right-2 w-20 h-8">
+            <Sparklines data={dataRecibidos} width={80} height={30}>
               <SparklinesLine color="#3b82f6" />
             </Sparklines>
           </div>
         </div>
-
         <div className="bg-white rounded shadow p-4 relative">
           <h2 className="text-sm text-gray-500">Respuestas GPT</h2>
-          <p className="text-3xl font-bold">{respuestasGPT.length}</p>
-          <div className="absolute bottom-2 right-2 w-16 h-10 opacity-60">
-            <Sparklines data={sparkGPT}>
+          <p className="text-3xl font-bold text-green-600">{respuestasGPT}</p>
+          <div className="absolute bottom-2 right-2 w-20 h-8">
+            <Sparklines data={dataGPT} width={80} height={30}>
               <SparklinesLine color="#10b981" />
             </Sparklines>
           </div>
         </div>
-
         <div className="bg-white rounded shadow p-4 relative">
-          <h2 className="text-sm text-gray-500">Respuestas del panel</h2>
-          <p className="text-3xl font-bold">{respuestasPanel.length}</p>
-          <div className="absolute bottom-2 right-2 w-16 h-10 opacity-60">
-            <Sparklines data={sparkPanel}>
+          <h2 className="text-sm text-gray-500">Respuestas humanas</h2>
+          <p className="text-3xl font-bold text-orange-500">{respuestasPanel}</p>
+          <div className="absolute bottom-2 right-2 w-20 h-8">
+            <Sparklines data={dataPanel} width={80} height={30}>
               <SparklinesLine color="#f97316" />
             </Sparklines>
           </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded shadow p-4">
-          <h2 className="text-sm text-gray-500">Preguntas frecuentes</h2>
-          <p className="text-xs text-gray-400 italic mt-2">
-            El análisis aparecerá aquí una vez implementado.
-          </p>
+      <h1 className="text-lg font-semibold text-gray-700 mt-8">Resúmenes automáticos</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded shadow p-4 h-40 flex flex-col">
+          <h2 className="text-sm text-gray-500 mb-2">Resumen diario</h2>
+          <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>
+          <p className="text-xs text-right text-gray-300">GPT</p>
+        </div>
+        <div className="bg-white rounded shadow p-4 h-40 flex flex-col">
+          <h2 className="text-sm text-gray-500 mb-2">Resumen semanal</h2>
+          <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>
+          <p className="text-xs text-right text-gray-300">GPT</p>
+        </div>
+        <div className="bg-white rounded shadow p-4 h-40 flex flex-col">
+          <h2 className="text-sm text-gray-500 mb-2">Resumen mensual</h2>
+          <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>
+          <p className="text-xs text-right text-gray-300">GPT</p>
         </div>
       </div>
     </div>

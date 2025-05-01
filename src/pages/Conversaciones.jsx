@@ -171,7 +171,6 @@ export default function Conversaciones() {
     Archivado: "bg-black"
   };
 
-  return (
       return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">

@@ -15,6 +15,7 @@ export default function Conversaciones() {
   const [filtro, setFiltro] = useState("todas");
   const [agente, setAgente] = useState(null);
   const [emailDestino, setEmailDestino] = useState("");
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -37,8 +38,7 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-
-  const cargarMensajes = () => {
+    const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -47,6 +47,8 @@ export default function Conversaciones() {
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
         setMensajes(ordenados);
+        const info = todasConversaciones.find(c => c.userId === userId);
+        setUsuarioSeleccionado(info || null);
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
@@ -65,10 +67,7 @@ export default function Conversaciones() {
   useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
-        chatRef.current.scrollTo({
-          top: chatRef.current.scrollHeight,
-          behavior: "smooth"
-        });
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
       }
     }, 100);
   }, [userId]);
@@ -111,18 +110,13 @@ export default function Conversaciones() {
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
-    if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
-      actual.lastInteraction = item.lastInteraction;
-      actual.message = item.message;
-      actual.estado = item.estado || "abierta";
-    }
-    actual.intervenida = item.intervenida;
-    actual.intervenidaPor = item.intervenidaPor || null;
+    actual.pais = item.pais;
+    actual.navegador = item.navegador;
+    actual.historial = item.historial || [];
     acc[item.userId] = actual;
     return acc;
   }, {});
-
-  const listaAgrupada = Object.entries(conversacionesPorUsuario)
+    const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
@@ -136,7 +130,6 @@ export default function Conversaciones() {
       let estado = "Archivado";
       if (minutosDesdeUltimo <= 2) estado = "Activa";
       else if (minutosDesdeUltimo > 2 && minutosDesdeUltimo <= 10) estado = "Inactiva";
-      else if (minutosDesdeUltimo > 10) estado = "Archivado";
 
       const nuevos = mensajesValidos.filter(
         (m) =>
@@ -152,6 +145,9 @@ export default function Conversaciones() {
         iniciales: id.slice(0, 2).toUpperCase(),
         intervenida: info.intervenida || false,
         intervenidaPor: info.intervenidaPor || null,
+        pais: info.pais || "🌐",
+        navegador: info.navegador || "Desconocido",
+        historial: info.historial || [],
       };
     })
     .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
@@ -205,6 +201,9 @@ export default function Conversaciones() {
                   <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                     {c.iniciales}
                   </div>
+                  <div className="absolute -bottom-1 -right-2 text-lg">
+                    {c.pais}
+                  </div>
                   {c.nuevos > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                       {c.nuevos}
@@ -224,8 +223,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-
-        {/* Columna central */}
+                {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
@@ -385,8 +383,7 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-
-        {/* Columna derecha */}
+                {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">

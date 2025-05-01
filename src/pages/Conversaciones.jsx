@@ -109,11 +109,12 @@ export default function Conversaciones() {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [] };
+    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
+      actual.estado = item.estado || "abierta";
     }
     actual.intervenida = item.intervenida;
     actual.intervenidaPor = item.intervenidaPor || null;
@@ -123,17 +124,20 @@ export default function Conversaciones() {
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
+      const ultimaVista = vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
-      const ultimoMensaje = [...mensajesValidos].reverse()[0];
+
+      const ultimoMensaje = mensajesValidos
+        .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
         : Infinity;
 
-      let estado = "Activa";
-      if (minutosDesdeUltimo > 10) estado = "Archivado";
-      else if (minutosDesdeUltimo > 2) estado = "Inactiva";
+      let estado = "Archivado";
+      if (minutosDesdeUltimo <= 2) estado = "Activa";
+      else if (minutosDesdeUltimo > 2 && minutosDesdeUltimo <= 10) estado = "Inactiva";
+      else if (minutosDesdeUltimo > 10) estado = "Archivado";
 
-      const ultimaVista = vistas[id];
       const nuevos = mensajesValidos.filter(
         (m) =>
           m.from?.toLowerCase() === "usuario" &&
@@ -144,20 +148,20 @@ export default function Conversaciones() {
         userId: id,
         nuevos,
         estado,
-        lastInteraction: info.lastInteraction,
+        lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
         iniciales: id.slice(0, 2).toUpperCase(),
         intervenida: info.intervenida || false,
         intervenidaPor: info.intervenidaPor || null,
       };
     })
+    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
     .filter((c) => {
       if (filtro === "todas") return true;
       if (filtro === "gpt") return !c.intervenida;
       if (filtro === "humanas") return c.intervenida;
-    })
-    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction));
+    });
 
-  const totalNoLeidos = listaAgrupada.filter((c) => c.estado === "Activa").length;
+  const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
       detail: { total: totalNoLeidos }
@@ -167,12 +171,12 @@ export default function Conversaciones() {
   const estadoColor = {
     Activa: "bg-green-500",
     Inactiva: "bg-gray-400",
-    Archivado: "bg-black",
+    Archivado: "bg-black"
   };
-
-  return (
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -220,7 +224,8 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-  
+
+        {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
@@ -305,6 +310,7 @@ export default function Conversaciones() {
             </button>
           )}
 
+          {/* Formulario */}
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -380,6 +386,7 @@ export default function Conversaciones() {
           </form>
         </div>
 
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -403,6 +410,7 @@ export default function Conversaciones() {
         </div>
       </div>
 
+      {/* Formulario de email */}
       <div className="w-full px-6 py-4">
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input

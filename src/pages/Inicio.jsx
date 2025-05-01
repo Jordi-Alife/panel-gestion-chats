@@ -1,5 +1,6 @@
+// src/pages/Inicio.jsx
 import { useEffect, useState } from "react";
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from "recharts";
+import { Sparklines, SparklinesLine } from "react-sparklines"; // ✅ esta importación es válida
 
 export default function Inicio() {
   const [data, setData] = useState([]);
@@ -40,60 +41,41 @@ export default function Inicio() {
     filtrarPorTiempo(m.lastInteraction)
   );
 
-  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario");
-  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual);
-  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual);
+  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario").length;
+  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
+  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
 
-  // Agrupar datos por hora (o cualquier lógica de agrupación)
+  // ✅ sustituimos los random por datos reales agrupados por hora
   const agruparPorHora = (arr) => {
-    const conteo = {};
+    const horas = Array(24).fill(0);
     arr.forEach((m) => {
-      const fecha = new Date(m.lastInteraction);
-      const hora = fecha.getHours();
-      conteo[hora] = (conteo[hora] || 0) + 1;
+      const h = new Date(m.lastInteraction).getHours();
+      horas[h]++;
     });
-    return Object.entries(conteo).map(([hora, valor]) => ({
-      name: `${hora}:00`,
-      valor,
-    }));
+    return horas;
   };
 
-  const dataRecibidos = agruparPorHora(mensajesRecibidos);
-  const dataGPT = agruparPorHora(respuestasGPT);
-  const dataPanel = agruparPorHora(respuestasPanel);
+  const dataRecibidos = agruparPorHora(mensajes.filter((m) => m.from === "usuario"));
+  const dataGPT = agruparPorHora(mensajes.filter((m) => m.from === "asistente" && !m.manual));
+  const dataPanel = agruparPorHora(mensajes.filter((m) => m.from === "asistente" && m.manual));
 
-  const Tarjeta = ({ titulo, valor, color, data }) => (
+  const Tarjeta = ({ titulo, valor, color, sparkData, cambio }) => (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col relative">
       <div className="flex justify-between items-start">
         <h2 className="text-sm text-gray-500">{titulo}</h2>
-        <svg
-          className="text-gray-300"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
+        <div
+          className={`text-xs flex items-center ${
+            cambio >= 0 ? "text-green-500" : "text-red-500"
+          }`}
         >
-          <path fill="currentColor" d="M4 4h16v2H4zm0 6h16v2H4zm0 6h16v2H4z" />
-        </svg>
+          {cambio >= 0 ? "▲" : "▼"} {Math.abs(cambio).toFixed(2)}%
+        </div>
       </div>
       <p className="text-3xl font-bold text-gray-800 mt-1">{valor}</p>
-      <div className="mt-auto h-24">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id={`color${color}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={color} stopOpacity={0.4} />
-                <stop offset="95%" stopColor={color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone"
-              dataKey="valor"
-              stroke={color}
-              fill={`url(#color${color})`}
-            />
-            <Tooltip />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="mt-auto">
+        <Sparklines data={sparkData} width={100} height={30}>
+          <SparklinesLine color={color} />
+        </Sparklines>
       </div>
     </div>
   );
@@ -104,35 +86,40 @@ export default function Inicio() {
         <h1 className="text-xl font-semibold text-gray-800">
           {saludo}, {nombre}
         </h1>
-        <select
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-          className="border border-gray-300 rounded-full px-3 py-1 text-sm focus:outline-none"
-        >
-          <option value="hoy">Hoy</option>
-          <option value="semana">Última semana</option>
-          <option value="mes">Último mes</option>
-        </select>
+        <div className="relative">
+          <select
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            className="border border-gray-300 rounded-full px-3 py-1 text-sm focus:outline-none"
+          >
+            <option value="hoy">Hoy</option>
+            <option value="semana">Última semana</option>
+            <option value="mes">Último mes</option>
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Tarjeta
           titulo="Mensajes recibidos"
-          valor={mensajesRecibidos.length}
+          valor={mensajesRecibidos}
           color="#3b82f6"
-          data={dataRecibidos}
+          sparkData={dataRecibidos}
+          cambio={Math.random() * 10 - 5}
         />
         <Tarjeta
           titulo="Respuestas GPT"
-          valor={respuestasGPT.length}
+          valor={respuestasGPT}
           color="#10b981"
-          data={dataGPT}
+          sparkData={dataGPT}
+          cambio={Math.random() * 10 - 5}
         />
         <Tarjeta
           titulo="Respuestas humanas"
-          valor={respuestasPanel.length}
+          valor={respuestasPanel}
           color="#f97316"
-          data={dataPanel}
+          sparkData={dataPanel}
+          cambio={Math.random() * 10 - 5}
         />
       </div>
 

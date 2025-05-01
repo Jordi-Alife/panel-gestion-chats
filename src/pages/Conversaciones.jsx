@@ -108,13 +108,19 @@ export default function Conversaciones() {
     return `hace ${diffDays}d`;
   };
 
+  function countryCodeToFlag(code) {
+    if (!code) return "🌐";
+    return code.toUpperCase().replace(/./g, char =>
+      String.fromCodePoint(127397 + char.charCodeAt())
+    );
+  }
+
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
     actual.navegador = item.navegador;
     actual.historial = item.historial || [];
-    actual.intervenida = item.intervenida; // ✅ AÑADIDO PARA FILTRO DE "humanas"
     acc[item.userId] = actual;
     return acc;
   }, {});
@@ -147,7 +153,7 @@ export default function Conversaciones() {
         iniciales: id.slice(0, 2).toUpperCase(),
         intervenida: info.intervenida || false,
         intervenidaPor: info.intervenidaPor || null,
-        pais: info.pais || "🌐",
+        pais: info.pais ? countryCodeToFlag(info.pais) : "🌐",
         navegador: info.navegador || "Desconocido",
         historial: info.historial || [],
       };
@@ -171,7 +177,8 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
   };
-    return (
+
+  return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
@@ -203,7 +210,9 @@ export default function Conversaciones() {
                   <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                     {c.iniciales}
                   </div>
-                  <div className="absolute -bottom-1 -right-2 text-lg">{c.pais}</div>
+                  <div className="absolute -bottom-1 -right-2 text-lg">
+                    {c.pais}
+                  </div>
                   {c.nuevos > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                       {c.nuevos}
@@ -383,7 +392,8 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-                {/* Columna derecha */}
+
+        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">

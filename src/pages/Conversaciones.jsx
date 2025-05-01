@@ -38,7 +38,8 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-    const cargarMensajes = () => {
+
+  const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -113,6 +114,7 @@ export default function Conversaciones() {
     actual.pais = item.pais;
     actual.navegador = item.navegador;
     actual.historial = item.historial || [];
+    actual.intervenida = item.intervenida; // ✅ AÑADIDO PARA FILTRO DE "humanas"
     acc[item.userId] = actual;
     return acc;
   }, {});
@@ -201,9 +203,7 @@ export default function Conversaciones() {
                   <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                     {c.iniciales}
                   </div>
-                  <div className="absolute -bottom-1 -right-2 text-lg">
-                    {c.pais}
-                  </div>
+                  <div className="absolute -bottom-1 -right-2 text-lg">{c.pais}</div>
                   {c.nuevos > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                       {c.nuevos}
@@ -403,7 +403,20 @@ export default function Conversaciones() {
           <h2 className="text-sm text-gray-400 font-semibold mb-2">
             Datos del usuario
           </h2>
-          <p className="text-sm text-gray-700 break-all">{userId}</p>
+          {usuarioSeleccionado ? (
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>ID: {usuarioSeleccionado.userId}</p>
+              <p>Navegador: {usuarioSeleccionado.navegador}</p>
+              <p>Historial:</p>
+              <ul className="list-disc list-inside text-xs text-gray-600">
+                {usuarioSeleccionado.historial.map((url, idx) => (
+                  <li key={idx}>{url}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">Selecciona una conversación</p>
+          )}
         </div>
       </div>
 

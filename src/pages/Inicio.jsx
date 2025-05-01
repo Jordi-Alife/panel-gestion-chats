@@ -1,8 +1,10 @@
-// src/pages/Detalle.jsx
+// src/pages/Inicio.jsx
 import { useEffect, useState } from "react";
+import { Sparklines, SparklinesLine } from "react-sparklines";
 
-export default function Detalle() {
+export default function Inicio() {
   const [data, setData] = useState([]);
+  const [filtro, setFiltro] = useState("hoy");
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -17,56 +19,25 @@ export default function Detalle() {
     return () => clearInterval(intervalo);
   }, []);
 
-  const mensajesRecibidos = data
-    .flatMap((c) => c.mensajes || [])
-    .filter((m) => m.from === "usuario").length;
-
-  const respuestasGPT = data
-    .flatMap((c) => c.mensajes || [])
-    .filter((m) => m.from === "asistente" && !m.manual).length;
-
-  const respuestasPanel = data
-    .flatMap((c) => c.mensajes || [])
-    .filter((m) => m.from === "asistente" && m.manual).length;
-
-  return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-lg font-semibold text-gray-700 mb-4">Resumen general</h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded shadow p-4">
-          <h2 className="text-sm text-gray-500">Mensajes recibidos</h2>
-          <p className="text-3xl font-bold text-blue-600">{mensajesRecibidos}</p>
-        </div>
-        <div className="bg-white rounded shadow p-4">
-          <h2 className="text-sm text-gray-500">Respuestas GPT</h2>
-          <p className="text-3xl font-bold text-green-600">{respuestasGPT}</p>
-        </div>
-        <div className="bg-white rounded shadow p-4">
-          <h2 className="text-sm text-gray-500">Respuestas humanas</h2>
-          <p className="text-3xl font-bold text-orange-500">{respuestasPanel}</p>
-        </div>
-      </div>
-
-      <h1 className="text-lg font-semibold text-gray-700 mt-8">Resúmenes automáticos</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded shadow p-4 h-40 flex flex-col">
-          <h2 className="text-sm text-gray-500 mb-2">Resumen diario</h2>
-          <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>
-          <p className="text-xs text-right text-gray-300">GPT</p>
-        </div>
-        <div className="bg-white rounded shadow p-4 h-40 flex flex-col">
-          <h2 className="text-sm text-gray-500 mb-2">Resumen semanal</h2>
-          <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>
-          <p className="text-xs text-right text-gray-300">GPT</p>
-        </div>
-        <div className="bg-white rounded shadow p-4 h-40 flex flex-col">
-          <h2 className="text-sm text-gray-500 mb-2">Resumen mensual</h2>
-          <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>
-          <p className="text-xs text-right text-gray-300">GPT</p>
-        </div>
-      </div>
-    </div>
+  // Filtrado de datos por tiempo (hoy, última semana, último mes)
+  const ahora = new Date();
+  const filtrados = data.flatMap((c) =>
+    (c.mensajes || []).filter((m) => {
+      const fecha = new Date(m.lastInteraction);
+      const diffHoras = (ahora - fecha) / 36e5;
+      if (filtro === "hoy") return diffHoras <= 24;
+      if (filtro === "semana") return diffHoras <= 24 * 7;
+      if (filtro === "mes") return diffHoras <= 24 * 30;
+      return true;
+    })
   );
-}
+
+  const mensajesRecibidos = filtrados.filter((m) => m.from === "usuario").length;
+  const respuestasGPT = filtrados.filter(
+    (m) => m.from === "asistente" && !m.manual
+  ).length;
+  const respuestasPanel = filtrados.filter(
+    (m) => m.from === "asistente" && m.manual
+  ).length;
+
+  // Para las gráficas, contar por horas en

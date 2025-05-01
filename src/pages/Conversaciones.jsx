@@ -92,8 +92,7 @@ export default function Conversaciones() {
       });
     }
   }, [mensajes]);
-
-  const formatearTiempo = (fecha) => {
+    const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -108,12 +107,21 @@ export default function Conversaciones() {
     return `hace ${diffDays}d`;
   };
 
-  function countryCodeToFlag(code) {
-    if (!code) return "🌐";
-    return code.toUpperCase().replace(/./g, char =>
-      String.fromCodePoint(127397 + char.charCodeAt())
-    );
-  }
+  const paisAToIso = (paisTexto) => {
+    const mapa = {
+      Spain: "es",
+      France: "fr",
+      Italy: "it",
+      Mexico: "mx",
+      Argentina: "ar",
+      Colombia: "co",
+      Chile: "cl",
+      Peru: "pe",
+      "United States": "us",
+      // agrega más países si necesitas
+    };
+    return (mapa[paisTexto] || "xx").toLowerCase();
+  };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
@@ -124,7 +132,8 @@ export default function Conversaciones() {
     acc[item.userId] = actual;
     return acc;
   }, {});
-    const listaAgrupada = Object.entries(conversacionesPorUsuario)
+
+  const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
@@ -153,7 +162,7 @@ export default function Conversaciones() {
         iniciales: id.slice(0, 2).toUpperCase(),
         intervenida: info.intervenida || false,
         intervenidaPor: info.intervenidaPor || null,
-        pais: info.pais ? countryCodeToFlag(info.pais) : "🌐",
+        pais: info.pais || "🌐",
         navegador: info.navegador || "Desconocido",
         historial: info.historial || [],
       };
@@ -177,8 +186,7 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
   };
-
-  return (
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
@@ -210,9 +218,11 @@ export default function Conversaciones() {
                   <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                     {c.iniciales}
                   </div>
-                  <div className="absolute -bottom-1 -right-2 text-lg">
-                    {c.pais}
-                  </div>
+                  <img
+                    src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
+                    alt={c.pais}
+                    className="absolute -bottom-1 -right-2 w-4 h-3 rounded-sm border"
+                  />
                   {c.nuevos > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                       {c.nuevos}
@@ -302,8 +312,7 @@ export default function Conversaciones() {
               );
             })}
           </div>
-
-          {mostrarScrollBtn && (
+                    {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -392,8 +401,7 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-
-        {/* Columna derecha */}
+                {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -417,6 +425,15 @@ export default function Conversaciones() {
             <div className="text-sm text-gray-700 space-y-1">
               <p>ID: {usuarioSeleccionado.userId}</p>
               <p>Navegador: {usuarioSeleccionado.navegador}</p>
+              <p>
+                País:{" "}
+                <img
+                  src={`https://flagcdn.com/24x18/${(usuarioSeleccionado.pais || "es")
+                    .toLowerCase()}.png`}
+                  alt={usuarioSeleccionado.pais}
+                  className="inline-block ml-1"
+                />
+              </p>
               <p>Historial:</p>
               <ul className="list-disc list-inside text-xs text-gray-600">
                 {usuarioSeleccionado.historial.map((url, idx) => (

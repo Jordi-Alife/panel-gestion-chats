@@ -61,9 +61,7 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-
-  // ✅ Auto scroll al cambiar de conversación
-  useEffect(() => {
+    useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({
@@ -74,7 +72,6 @@ export default function Conversaciones() {
     }, 100);
   }, [userId]);
 
-  // ✅ Mostrar agente que intervino la conversación
   useEffect(() => {
     if (!userId) return;
     const conversacion = todasConversaciones.find((c) => c.userId === userId);
@@ -85,7 +82,6 @@ export default function Conversaciones() {
     }
   }, [userId, todasConversaciones]);
 
-  // ✅ Marcar mensajes como vistos
   useEffect(() => {
     if (userId && mensajes.length > 0) {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
@@ -95,7 +91,8 @@ export default function Conversaciones() {
       });
     }
   }, [mensajes]);
-    const formatearTiempo = (fecha) => {
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -135,19 +132,25 @@ export default function Conversaciones() {
           (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
       ).length;
 
-      const tieneRespuestas = mensajesValidos.some(
-        (m) => m.from?.toLowerCase() === "asistente" || m.manual
-      );
+      const tieneRespuestaBot = mensajesValidos.some((m) => m.from === "asistente");
+      const tieneRespuestaHumana = mensajesValidos.some((m) => m.manual);
       const ultimoMensaje = [...mensajesValidos].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
         : Infinity;
 
-      let estado = "Recurrente";
-      if (info.estado === "cerrada" || minutosDesdeUltimo > 10) estado = "Cerrado";
-      else if (!tieneRespuestas) estado = "Nuevo";
-      else if (minutosDesdeUltimo <= 2) estado = "Activo";
-      else estado = "Inactivo";
+      let estado = "Nuevo";
+      if (info.estado === "cerrada") {
+        estado = "Cerrada";
+      } else if (!tieneRespuestaBot && !tieneRespuestaHumana) {
+        estado = "Nuevo";
+      } else if (!tieneRespuestaHumana && minutosDesdeUltimo > 2) {
+        estado = "Pendiente";
+      } else if (minutosDesdeUltimo <= 2) {
+        estado = "Activa";
+      } else if (minutosDesdeUltimo > 10) {
+        estado = "Archivado";
+      }
 
       return {
         userId: id,
@@ -165,24 +168,24 @@ export default function Conversaciones() {
       if (filtro === "humanas") return c.intervenida;
     });
 
-  // Calcular total de conversaciones con mensajes nuevos para el menú
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
       detail: { total: totalNoLeidos }
     }));
   }, [totalNoLeidos]);
-    const estadoColor = {
-    Nuevo: "bg-green-500",
-    Activo: "bg-blue-500",
-    Inactivo: "bg-gray-400",
-    Cerrado: "bg-red-500",
-  };
 
-  return (
+  const estadoColor = {
+    Nuevo: "bg-green-500",
+    Pendiente: "bg-orange-500",
+    Activa: "bg-blue-500",
+    Archivado: "bg-black",
+    Cerrada: "bg-red-500",
+  };
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-              {/* Columna izquierda */}
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -315,7 +318,6 @@ export default function Conversaciones() {
             </button>
           )}
 
-          {/* Formulario para enviar mensaje o imagen */}
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -391,7 +393,6 @@ export default function Conversaciones() {
           </form>
         </div>
 
-        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -415,7 +416,6 @@ export default function Conversaciones() {
         </div>
       </div>
 
-      {/* Solo la tarjeta del formulario de email (sin fondo) */}
       <div className="w-full px-6 py-4">
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input

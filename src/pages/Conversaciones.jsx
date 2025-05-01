@@ -61,8 +61,7 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-
-  useEffect(() => {
+    useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({
@@ -109,11 +108,12 @@ export default function Conversaciones() {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [] };
+    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     if (!actual.lastInteraction || new Date(item.lastInteraction) > new Date(actual.lastInteraction)) {
       actual.lastInteraction = item.lastInteraction;
       actual.message = item.message;
+      actual.estado = item.estado || "abierta";
     }
     actual.intervenida = item.intervenida;
     actual.intervenidaPor = item.intervenidaPor || null;
@@ -123,18 +123,38 @@ export default function Conversaciones() {
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
+      const ultimaVista = vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
+
+      const nuevos = mensajesValidos.filter(
+        (m) =>
+          m.from?.toLowerCase() === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
+
+      const tieneRespuestaBot = mensajesValidos.some((m) => m.from === "asistente");
+      const tieneRespuestaHumana = mensajesValidos.some((m) => m.manual);
       const ultimoMensaje = [...mensajesValidos].reverse()[0];
       const minutosDesdeUltimo = ultimoMensaje
         ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
         : Infinity;
 
-      let estado = "Activa";
-      if (minutosDesdeUltimo > 10) estado = "Archivado";
-      else if (minutosDesdeUltimo > 2) estado = "Inactiva";
+      let estado = "Nuevo";
+      if (info.estado === "cerrada") {
+        estado = "Cerrada";
+      } else if (!tieneRespuestaBot && !tieneRespuestaHumana) {
+        estado = "Nuevo";
+      } else if (!tieneRespuestaHumana && minutosDesdeUltimo > 2) {
+        estado = "Pendiente";
+      } else if (minutosDesdeUltimo <= 2) {
+        estado = "Activa";
+      } else if (minutosDesdeUltimo > 10) {
+        estado = "Archivado";
+      }
 
       return {
         userId: id,
+        nuevos,
         estado,
         lastInteraction: info.lastInteraction,
         iniciales: id.slice(0, 2).toUpperCase(),
@@ -148,19 +168,21 @@ export default function Conversaciones() {
       if (filtro === "humanas") return c.intervenida;
     });
 
-  const estadoColor = {
-    Activa: "bg-green-500",
-    Inactiva: "bg-gray-500",
-    Archivado: "bg-black",
-  };
-    const totalNoLeidos = listaAgrupada.filter((c) => c.estado === "Activa").length;
+  const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
       detail: { total: totalNoLeidos }
     }));
   }, [totalNoLeidos]);
 
-  return (
+  const estadoColor = {
+    Nuevo: "bg-green-500",
+    Pendiente: "bg-orange-500",
+    Activa: "bg-blue-500",
+    Archivado: "bg-black",
+    Cerrada: "bg-red-500",
+  };
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
@@ -192,6 +214,11 @@ export default function Conversaciones() {
                   <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                     {c.iniciales}
                   </div>
+                  {c.nuevos > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+                      {c.nuevos}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <div className="font-medium text-sm">{c.userId}</div>
@@ -206,7 +233,6 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-
                 {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div

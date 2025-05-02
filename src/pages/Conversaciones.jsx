@@ -16,6 +16,7 @@ export default function Conversaciones() {
   const [agente, setAgente] = useState(null);
   const [emailDestino, setEmailDestino] = useState("");
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [vistaMovil, setVistaMovil] = useState("lista"); // NUEVO estado
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -109,17 +110,7 @@ export default function Conversaciones() {
   };
 
   const paisAToIso = (paisTexto) => {
-    const mapa = {
-      Spain: "es",
-      France: "fr",
-      Italy: "it",
-      Mexico: "mx",
-      Argentina: "ar",
-      Colombia: "co",
-      Chile: "cl",
-      Peru: "pe",
-      "United States": "us",
-    };
+    const mapa = { Spain: "es", France: "fr", Italy: "it", Mexico: "mx", Argentina: "ar", Colombia: "co", Chile: "cl", Peru: "pe", "United States": "us" };
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
 
@@ -133,67 +124,38 @@ export default function Conversaciones() {
     acc[item.userId] = actual;
     return acc;
   }, {});
-    const listaAgrupada = Object.entries(conversacionesPorUsuario)
+
+  const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
-      const ultimaVista = id === userId ? new Date() : vistas[id]; // ✅ si es la conversación abierta, considerarla vista
+      const ultimaVista = id === userId ? new Date() : vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
-
-      const ultimoMensaje = mensajesValidos
-        .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))[0];
-      const minutosDesdeUltimo = ultimoMensaje
-        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-        : Infinity;
-
+      const ultimoMensaje = mensajesValidos.sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))[0];
+      const minutosDesdeUltimo = ultimoMensaje ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000 : Infinity;
       let estado = "Archivado";
       if (minutosDesdeUltimo <= 2) estado = "Activa";
-      else if (minutosDesdeUltimo > 2 && minutosDesdeUltimo <= 10) estado = "Inactiva";
-
-      const nuevos = mensajesValidos.filter(
-        (m) =>
-          m.from?.toLowerCase() === "usuario" &&
-          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-      ).length;
-
-      return {
-        userId: id,
-        nuevos,
-        estado,
-        lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
-        iniciales: id.slice(0, 2).toUpperCase(),
-        intervenida: info.intervenida || false,
-        intervenidaPor: info.intervenidaPor || null,
-        pais: info.pais || "Desconocido",
-        navegador: info.navegador || "Desconocido",
-        historial: info.historial || [],
-      };
+      else if (minutosDesdeUltimo <= 10) estado = "Inactiva";
+      const nuevos = mensajesValidos.filter((m) => m.from?.toLowerCase() === "usuario" && (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))).length;
+      return { userId: id, nuevos, estado, lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction, iniciales: id.slice(0, 2).toUpperCase(), intervenida: info.intervenida || false, intervenidaPor: info.intervenidaPor || null, pais: info.pais || "Desconocido", navegador: info.navegador || "Desconocido", historial: info.historial || [] };
     })
     .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-    .filter((c) => {
-      if (filtro === "todas") return true;
-      if (filtro === "gpt") return !c.intervenida;
-      if (filtro === "humanas") return c.intervenida;
-    });
+    .filter((c) => filtro === "todas" || (filtro === "gpt" && !c.intervenida) || (filtro === "humanas" && c.intervenida));
 
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
-      detail: { total: totalNoLeidos }
-    }));
+    window.dispatchEvent(new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } }));
   }, [totalNoLeidos]);
 
-  const estadoColor = {
-    Activa: "bg-green-500",
-    Inactiva: "bg-gray-400",
-    Archivado: "bg-black"
-  };
+  const estadoColor = { Activa: "bg-green-500", Inactiva: "bg-gray-400", Archivado: "bg-black" };
 
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
-      <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna izquierda */}
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
+      <div className={`flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]`}>
+        {/* Lista de conversaciones */}
+        <div className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full 
+        ${vistaMovil === "lista" ? "flex-1 md:w-1/5" : "hidden md:block md:w-1/5"}`}>
+          {/* resto columna lista... */}
+                    <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
             {["todas", "gpt", "humanas"].map((f) => (
               <button
@@ -210,7 +172,10 @@ export default function Conversaciones() {
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
-              onClick={() => setSearchParams({ userId: c.userId })}
+              onClick={() => {
+                setSearchParams({ userId: c.userId });
+                setVistaMovil("chat");
+              }}
               className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${
                 c.userId === userId ? "bg-blue-50" : ""
               }`}
@@ -249,9 +214,9 @@ export default function Conversaciones() {
           ))}
         </div>
 
-        {/* resto igual... */}
-                {/* Columna central */}
-        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
+        {/* Columna chat */}
+        <div className={`bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative
+          ${vistaMovil === "chat" ? "flex-1 md:flex" : "hidden md:flex md:flex-1"}`}>
           <div
             ref={chatRef}
             onScroll={() => {
@@ -322,6 +287,7 @@ export default function Conversaciones() {
               );
             })}
           </div>
+
           {mostrarScrollBtn && (
             <button
               onClick={() =>
@@ -340,7 +306,6 @@ export default function Conversaciones() {
             onSubmit={async (e) => {
               e.preventDefault();
               if (!userId) return;
-
               if (imagen) {
                 const formData = new FormData();
                 formData.append("file", imagen);
@@ -352,9 +317,7 @@ export default function Conversaciones() {
                 setImagen(null);
                 return;
               }
-
               if (!respuesta.trim()) return;
-
               await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -368,7 +331,6 @@ export default function Conversaciones() {
                   },
                 }),
               });
-
               setRespuesta("");
             }}
             className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
@@ -410,9 +372,39 @@ export default function Conversaciones() {
               </button>
             </div>
           </form>
+
+          {/* Botones flotantes móvil */}
+          <div className="md:hidden fixed bottom-4 right-4 flex flex-col gap-3">
+            {vistaMovil === "chat" && (
+              <>
+                <button
+                  onClick={() => setVistaMovil("lista")}
+                  className="bg-gray-700 text-white px-3 py-2 rounded-full shadow"
+                >
+                  Volver
+                </button>
+                <button
+                  onClick={() => setVistaMovil("detalles")}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-full shadow"
+                >
+                  Ver detalles
+                </button>
+              </>
+            )}
+            {vistaMovil === "detalles" && (
+              <button
+                onClick={() => setVistaMovil("chat")}
+                className="bg-gray-700 text-white px-3 py-2 rounded-full shadow"
+              >
+                Volver
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
+        {/* Columna detalles */}
+        <div className={`bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto 
+          ${vistaMovil === "detalles" ? "flex-1 md:w-1/5" : "hidden md:block md:w-1/5"}`}>
           {agente && (
             <div className="mb-4">
               <h3 className="text-xs text-gray-500">Intervenido por</h3>

@@ -1,5 +1,14 @@
+// src/pages/Inicio.jsx
 import { useEffect, useState } from "react";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  CartesianGrid,
+  Area,
+  AreaChart,
+} from "recharts";
 
 export default function Inicio() {
   const [data, setData] = useState([]);
@@ -30,52 +39,37 @@ export default function Inicio() {
     return () => clearInterval(intervalo);
   }, []);
 
-  const filtrarPorTiempo = (timestamp, periodo = "actual") => {
+  const filtrarPorTiempo = (timestamp) => {
     const fecha = new Date(timestamp);
-    const ahora = new Date();
     const diffMs = ahora - fecha;
     const dias = diffMs / (1000 * 60 * 60 * 24);
-
-    if (filtro === "hoy") return periodo === "actual" ? dias < 1 : dias >=1 && dias < 2;
-    if (filtro === "semana") return periodo === "actual" ? dias < 7 : dias >=7 && dias < 14;
-    if (filtro === "mes") return periodo === "actual" ? dias < 30 : dias >=30 && dias < 60;
+    if (filtro === "hoy") return dias < 1;
+    if (filtro === "semana") return dias < 7;
+    if (filtro === "mes") return dias < 30;
     return true;
   };
 
-  const mensajes = data.flatMap((c) => c.mensajes || []);
+  const mensajes = data.flatMap((c) => c.mensajes || []).filter((m) =>
+    filtrarPorTiempo(m.lastInteraction)
+  );
 
-  const mensajesActuales = mensajes.filter((m) => filtrarPorTiempo(m.lastInteraction, "actual"));
-  const mensajesPrevios = mensajes.filter((m) => filtrarPorTiempo(m.lastInteraction, "previo"));
+  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario").length;
+  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
+  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
 
-  const contar = (array, filtro) => array.filter(filtro).length;
-
-  const countRecibidos = contar(mensajesActuales, (m) => m.from === "usuario");
-  const countGPT = contar(mensajesActuales, (m) => m.from === "asistente" && !m.manual);
-  const countPanel = contar(mensajesActuales, (m) => m.from === "asistente" && m.manual);
-
-  const prevRecibidos = contar(mensajesPrevios, (m) => m.from === "usuario");
-  const prevGPT = contar(mensajesPrevios, (m) => m.from === "asistente" && !m.manual);
-  const prevPanel = contar(mensajesPrevios, (m) => m.from === "asistente" && m.manual);
-
-  const calcCambio = (actual, previo) =>
-    previo === 0 ? 0 : ((actual - previo) / previo) * 100;
-
-  const cambioRecibidos = calcCambio(countRecibidos, prevRecibidos);
-  const cambioGPT = calcCambio(countGPT, prevGPT);
-  const cambioPanel = calcCambio(countPanel, prevPanel);
-
-  const dataRecibidos = mensajesActuales
+  // TRANSFORMACIÓN DE DATOS PARA RECHARTS
+  const dataRecibidos = mensajes
     .filter((m) => m.from === "usuario")
-    .map((m, i) => ({ x: i, y: 1 }));
-  const dataGPT = mensajesActuales
+    .map((_, index) => ({ index, value: index + 1 }));
+  const dataGPT = mensajes
     .filter((m) => m.from === "asistente" && !m.manual)
-    .map((m, i) => ({ x: i, y: 1 }));
-  const dataPanel = mensajesActuales
+    .map((_, index) => ({ index, value: index + 1 }));
+  const dataPanel = mensajes
     .filter((m) => m.from === "asistente" && m.manual)
-    .map((m, i) => ({ x: i, y: 1 }));
+    .map((_, index) => ({ index, value: index + 1 }));
 
-  const Tarjeta = ({ titulo, valor, color, data, cambio }) => (
-    <div className="bg-white rounded-lg p-4 flex flex-col shadow-sm">
+  const Tarjeta = ({ titulo, valor, color, dataChart, cambio }) => (
+    <div className="bg-white rounded-lg shadow p-4 flex flex-col relative">
       <div className="flex justify-between items-start">
         <h2 className="text-sm text-gray-500">{titulo}</h2>
         <div
@@ -87,15 +81,22 @@ export default function Inicio() {
         </div>
       </div>
       <p className="text-3xl font-bold text-gray-800 mt-1">{valor}</p>
-      <div className="h-24 mt-2">
+      <div className="mt-auto w-full h-20">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart data={dataChart}>
+            <defs>
+              <linearGradient id={`color-${color}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                <stop offset="100%" stopColor={color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} horizontal={false} />
+            <Tooltip contentStyle={{ fontSize: "10px" }} />
             <Area
               type="monotone"
-              dataKey="y"
+              dataKey="value"
               stroke={color}
-              fill={color}
-              fillOpacity={0.1}
+              fill={`url(#color-${color})`}
               strokeWidth={2}
             />
           </AreaChart>
@@ -126,24 +127,24 @@ export default function Inicio() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Tarjeta
           titulo="Mensajes recibidos"
-          valor={countRecibidos}
+          valor={mensajesRecibidos}
           color="#3b82f6"
-          data={dataRecibidos}
-          cambio={cambioRecibidos}
+          dataChart={dataRecibidos}
+          cambio={0}
         />
         <Tarjeta
           titulo="Respuestas GPT"
-          valor={countGPT}
+          valor={respuestasGPT}
           color="#10b981"
-          data={dataGPT}
-          cambio={cambioGPT}
+          dataChart={dataGPT}
+          cambio={0}
         />
         <Tarjeta
           titulo="Respuestas humanas"
-          valor={countPanel}
+          valor={respuestasPanel}
           color="#f97316"
-          data={dataPanel}
-          cambio={cambioPanel}
+          dataChart={dataPanel}
+          cambio={0}
         />
       </div>
 

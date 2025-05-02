@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { app } from "../firebaseAuth";
 
 export default function AgenteDetalle() {
   const { uid } = useParams();
@@ -9,13 +11,29 @@ export default function AgenteDetalle() {
   const [perfil, setPerfil] = useState(null);
 
   useEffect(() => {
+    // Cargar los mensajes enviados por el agente
     fetch(`https://web-production-51989.up.railway.app/api/mensajes-agente/${uid}`)
       .then((res) => res.json())
       .then((data) => {
-        setMensajes(data.mensajes || []);
-        setPerfil(data.perfil || null);
+        setMensajes(data || []);
       })
       .catch(console.error);
+
+    // Cargar perfil del agente directamente desde Firestore
+    const fetchPerfil = async () => {
+      try {
+        const db = getFirestore(app);
+        const ref = doc(db, "agentes", uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          setPerfil(snap.data());
+        }
+      } catch (error) {
+        console.error("❌ Error obteniendo perfil del agente:", error);
+      }
+    };
+
+    fetchPerfil();
   }, [uid]);
 
   const mensajesPorDia = mensajes.reduce((acc, msg) => {

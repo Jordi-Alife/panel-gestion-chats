@@ -188,8 +188,7 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
   };
-
-  return (
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
@@ -248,7 +247,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-                <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
+        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
             onScroll={() => {
@@ -360,6 +359,7 @@ export default function Conversaciones() {
                   agente: {
                     nombre: perfil.nombre || "",
                     foto: perfil.foto || "",
+                    uid: localStorage.getItem("id-usuario-panel") || null // ✅ AÑADIMOS uid aquí
                   },
                 }),
               });

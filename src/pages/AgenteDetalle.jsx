@@ -11,6 +11,7 @@ export default function AgenteDetalle() {
   const [perfil, setPerfil] = useState(null);
 
   useEffect(() => {
+    // Cargar mensajes
     fetch(`https://web-production-51989.up.railway.app/api/mensajes-agente/${uid}`)
       .then((res) => res.json())
       .then((data) => {
@@ -18,6 +19,7 @@ export default function AgenteDetalle() {
       })
       .catch(console.error);
 
+    // Cargar perfil desde Firestore
     const fetchPerfil = async () => {
       try {
         const db = getFirestore(app);
@@ -45,14 +47,6 @@ export default function AgenteDetalle() {
     fecha,
     count,
   }));
-
-  const tiempoRespuestaPromedio = (() => {
-    const tiempos = mensajes
-      .filter((m) => m && m.tipo === "texto" && m.manual)
-      .map((m) => Number(m.tiempoRespuesta) || 0);
-    if (!tiempos.length) return null;
-    return tiempos.reduce((a, b) => a + b, 0) / tiempos.length;
-  })();
 
   return (
     <div className="p-6 space-y-6">
@@ -83,12 +77,6 @@ export default function AgenteDetalle() {
           <div className="bg-gray-50 rounded p-3 text-center">
             <h3 className="text-xs text-gray-500">Mensajes enviados</h3>
             <p className="text-2xl font-bold text-blue-600">{mensajes.length}</p>
-          </div>
-          <div className="bg-gray-50 rounded p-3 text-center">
-            <h3 className="text-xs text-gray-500">Promedio respuesta</h3>
-            <p className="text-2xl font-bold text-green-600">
-              {tiempoRespuestaPromedio !== null ? `${tiempoRespuestaPromedio.toFixed(1)}s` : "—"}
-            </p>
           </div>
           <div className="bg-gray-50 rounded p-3 text-center">
             <h3 className="text-xs text-gray-500">Días activos</h3>

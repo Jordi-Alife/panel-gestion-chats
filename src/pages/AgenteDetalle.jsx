@@ -11,7 +11,6 @@ export default function AgenteDetalle() {
   const [perfil, setPerfil] = useState(null);
 
   useEffect(() => {
-    // Cargar mensajes
     fetch(`https://web-production-51989.up.railway.app/api/mensajes-agente/${uid}`)
       .then((res) => res.json())
       .then((data) => {
@@ -19,7 +18,6 @@ export default function AgenteDetalle() {
       })
       .catch(console.error);
 
-    // Cargar perfil desde Firestore
     const fetchPerfil = async () => {
       try {
         const db = getFirestore(app);
@@ -38,7 +36,7 @@ export default function AgenteDetalle() {
   }, [uid]);
 
   const mensajesPorDia = mensajes.reduce((acc, msg) => {
-    const dia = msg.timestamp?.split("T")[0];
+    const dia = msg?.timestamp?.split("T")[0];
     if (dia) acc[dia] = (acc[dia] || 0) + 1;
     return acc;
   }, {});
@@ -50,12 +48,13 @@ export default function AgenteDetalle() {
 
   const tiempoRespuestaPromedio = (() => {
     const tiempos = mensajes
-      .filter((m) => m.tipo === "texto" && m.manual)
+      .filter((m) => m && m.tipo === "texto" && m.manual)
       .map((m) => Number(m.tiempoRespuesta) || 0);
-    if (!tiempos.length) return 0;
+    if (!tiempos.length) return null;
     return tiempos.reduce((a, b) => a + b, 0) / tiempos.length;
   })();
-    return (
+
+  return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-800">Actividad del Agente</h1>
@@ -88,7 +87,7 @@ export default function AgenteDetalle() {
           <div className="bg-gray-50 rounded p-3 text-center">
             <h3 className="text-xs text-gray-500">Promedio respuesta</h3>
             <p className="text-2xl font-bold text-green-600">
-              {isNaN(tiempoRespuestaPromedio) ? "—" : `${tiempoRespuestaPromedio.toFixed(1)}s`}
+              {tiempoRespuestaPromedio !== null ? `${tiempoRespuestaPromedio.toFixed(1)}s` : "—"}
             </p>
           </div>
           <div className="bg-gray-50 rounded p-3 text-center">

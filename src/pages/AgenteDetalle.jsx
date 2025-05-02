@@ -38,7 +38,7 @@ export default function AgenteDetalle() {
   }, [uid]);
 
   const mensajesPorDia = mensajes.reduce((acc, msg) => {
-    const dia = msg.timestamp.split("T")[0];
+    const dia = msg.timestamp?.split("T")[0];
     acc[dia] = (acc[dia] || 0) + 1;
     return acc;
   }, {});
@@ -57,6 +57,8 @@ export default function AgenteDetalle() {
   })();
     return (
     <div className="p-6 space-y-6">
+      <pre className="text-xs text-red-500 overflow-x-auto whitespace-pre-wrap max-h-40">{JSON.stringify(mensajes, null, 2)}</pre>
+
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-800">Actividad del Agente</h1>
         <Link

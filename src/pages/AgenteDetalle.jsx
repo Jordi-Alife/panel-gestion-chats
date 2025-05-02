@@ -50,13 +50,12 @@ export default function AgenteDetalle() {
 
   const tiempoRespuestaPromedio = (() => {
     const tiempos = mensajes
-      .filter((m) => m.tipo === "texto" && m.manual)
-      .map((m) => m.tiempoRespuesta || 0);
+      .filter((m) => m.tipo === "texto" && m.manual && typeof m.tiempoRespuesta === "number")
+      .map((m) => m.tiempoRespuesta);
     if (!tiempos.length) return 0;
     return tiempos.reduce((a, b) => a + b, 0) / tiempos.length;
   })();
-
-  return (
+    return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-800">Actividad del Agente</h1>

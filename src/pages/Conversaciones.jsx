@@ -38,7 +38,8 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-    const cargarMensajes = () => {
+
+  const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -83,15 +84,16 @@ export default function Conversaciones() {
   }, [userId, todasConversaciones]);
 
   useEffect(() => {
-    if (userId && mensajes.length > 0) {
+    if (userId) {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })  // <--- ✅ solo userId (ahora se guarda globalmente para todos)
+        body: JSON.stringify({ userId })
       });
     }
-  }, [mensajes]);
-    const formatearTiempo = (fecha) => {
+  }, [userId]);
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -186,10 +188,10 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
   };
-    return (
+
+  return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
-        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -205,7 +207,6 @@ export default function Conversaciones() {
               </button>
             ))}
           </div>
-
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
@@ -247,8 +248,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-                {/* Columna central */}
-        <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
+                <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
             onScroll={() => {
@@ -281,10 +281,12 @@ export default function Conversaciones() {
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
                         <button
-                          onClick={() => setOriginalesVisibles((prev) => ({
-                            ...prev,
-                            [index]: !prev[index],
-                          }))}
+                          onClick={() =>
+                            setOriginalesVisibles((prev) => ({
+                              ...prev,
+                              [index]: !prev[index],
+                            }))
+                          }
                           className={`underline text-xs ${
                             isAsistente ? "text-white/70" : "text-blue-600"
                           } focus:outline-none`}
@@ -317,7 +319,7 @@ export default function Conversaciones() {
               );
             })}
           </div>
-                    {mostrarScrollBtn && (
+          {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -330,8 +332,6 @@ export default function Conversaciones() {
               Ir al final
             </button>
           )}
-
-          {/* Formulario */}
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -377,7 +377,7 @@ export default function Conversaciones() {
                 className="hidden"
               />
             </label>
-                        {imagen && (
+            {imagen && (
               <div className="text-xs text-gray-600 flex items-center gap-1">
                 <span>{imagen.name}</span>
                 <button
@@ -406,8 +406,6 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-
-        {/* Columna derecha */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -424,7 +422,7 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
-                    <h2 className="text-sm text-gray-400 font-semibold mb-2">
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">
             Datos del usuario
           </h2>
           {usuarioSeleccionado ? (
@@ -455,8 +453,6 @@ export default function Conversaciones() {
           )}
         </div>
       </div>
-
-      {/* Formulario de email */}
       <div className="w-full px-6 py-4">
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input

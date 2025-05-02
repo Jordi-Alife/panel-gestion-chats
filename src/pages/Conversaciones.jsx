@@ -38,8 +38,7 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-
-  const cargarMensajes = () => {
+    const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -58,7 +57,8 @@ export default function Conversaciones() {
       })
       .catch(console.error);
   };
-    useEffect(() => {
+
+  useEffect(() => {
     cargarMensajes();
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
@@ -87,12 +87,11 @@ export default function Conversaciones() {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, agente: perfil?.nombre || "" }),
+        body: JSON.stringify({ userId })  // <--- ✅ solo userId (ahora se guarda globalmente para todos)
       });
     }
   }, [mensajes]);
-
-  const formatearTiempo = (fecha) => {
+    const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -106,7 +105,8 @@ export default function Conversaciones() {
     if (diffDays === 1) return "ayer";
     return `hace ${diffDays}d`;
   };
-    const paisAToIso = (paisTexto) => {
+
+  const paisAToIso = (paisTexto) => {
     const mapa = {
       Spain: "es",
       France: "fr",
@@ -166,7 +166,7 @@ export default function Conversaciones() {
         historial: info.historial || [],
       };
     })
-      .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
     .filter((c) => {
       if (filtro === "todas") return true;
       if (filtro === "gpt") return !c.intervenida;
@@ -174,6 +174,7 @@ export default function Conversaciones() {
     });
 
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
+
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
       detail: { total: totalNoLeidos }
@@ -185,8 +186,7 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
   };
-
-  return (
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
         {/* Columna izquierda */}
@@ -205,7 +205,8 @@ export default function Conversaciones() {
               </button>
             ))}
           </div>
-                    {listaAgrupada.map((c) => (
+
+          {listaAgrupada.map((c) => (
             <div
               key={c.userId}
               onClick={() => setSearchParams({ userId: c.userId })}
@@ -423,7 +424,7 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">
+                    <h2 className="text-sm text-gray-400 font-semibold mb-2">
             Datos del usuario
           </h2>
           {usuarioSeleccionado ? (

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModalCrearAgente from "../components/ModalCrearAgente";
 import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB";
+import { useNavigate } from "react-router-dom"; // ✅ añadido
 
 const Agentes = () => {
   const [agentes, setAgentes] = useState([]);
@@ -8,6 +9,7 @@ const Agentes = () => {
   const [agenteEditar, setAgenteEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
   const [rolUsuario, setRolUsuario] = useState("Soporte");
+  const navigate = useNavigate(); // ✅ añadido
 
   useEffect(() => {
     const desuscribir = escucharAgentes((nuevosAgentes) => {
@@ -95,7 +97,11 @@ const Agentes = () => {
               className="grid grid-cols-[1.8fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-sm text-gray-700 py-3"
             >
               {/* Foto y Nombre */}
-              <div className="flex items-center gap-4 pl-6">
+              <div
+                className="flex items-center gap-4 pl-6 cursor-pointer hover:underline"
+                onClick={() => navigate(`/agente/${agente.id}`)} // ✅ añadido para navegar
+                title="Ver detalle del agente"
+              >
                 {agente.foto ? (
                   <img
                     src={agente.foto}

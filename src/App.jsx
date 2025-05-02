@@ -8,13 +8,14 @@ import {
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
 import Agentes from "./pages/agentes";
+import AgenteDetalle from "./pages/AgenteDetalle"; // ✅ importamos la nueva página
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
-import Inicio from "./pages/Inicio"; // ✅ añadido import
+import Inicio from "./pages/Inicio"; // ✅ ya estaba añadido
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -101,9 +102,10 @@ const App = () => {
             usuarioActual ? (
               <DashboardLayout>
                 <Routes>
-                  <Route path="/" element={<Inicio />} /> {/* ✅ cambiado aquí */}
+                  <Route path="/" element={<Inicio />} />
                   <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
+                  <Route path="/agente/:uid" element={<AgenteDetalle />} /> {/* ✅ nueva ruta añadida */}
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>
               </DashboardLayout>

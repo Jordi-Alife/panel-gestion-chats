@@ -1,14 +1,6 @@
 // src/pages/Inicio.jsx
 import { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  CartesianGrid,
-  Area,
-  AreaChart,
-} from "recharts";
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function Inicio() {
   const [data, setData] = useState([]);
@@ -57,46 +49,40 @@ export default function Inicio() {
   const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
   const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
 
-  // TRANSFORMACIÓN DE DATOS PARA RECHARTS
-  const dataRecibidos = mensajes
-    .filter((m) => m.from === "usuario")
-    .map((_, index) => ({ index, value: index + 1 }));
-  const dataGPT = mensajes
-    .filter((m) => m.from === "asistente" && !m.manual)
-    .map((_, index) => ({ index, value: index + 1 }));
-  const dataPanel = mensajes
-    .filter((m) => m.from === "asistente" && m.manual)
-    .map((_, index) => ({ index, value: index + 1 }));
+  // Agrupar por día
+  const agruparPorDia = (mensajes) => {
+    const conteo = {};
+    mensajes.forEach((m) => {
+      const dia = new Date(m.lastInteraction).toLocaleDateString();
+      conteo[dia] = (conteo[dia] || 0) + 1;
+    });
+    return Object.entries(conteo).map(([fecha, value]) => ({ fecha, value }));
+  };
 
-  const Tarjeta = ({ titulo, valor, color, dataChart, cambio }) => (
+  const dataRecibidos = agruparPorDia(mensajes.filter((m) => m.from === "usuario"));
+  const dataGPT = agruparPorDia(mensajes.filter((m) => m.from === "asistente" && !m.manual));
+  const dataPanel = agruparPorDia(mensajes.filter((m) => m.from === "asistente" && m.manual));
+
+  const Tarjeta = ({ titulo, valor, color, data }) => (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col relative">
-      <div className="flex justify-between items-start">
-        <h2 className="text-sm text-gray-500">{titulo}</h2>
-        <div
-          className={`text-xs flex items-center ${
-            cambio >= 0 ? "text-green-500" : "text-red-500"
-          }`}
-        >
-          {cambio >= 0 ? "▲" : "▼"} {Math.abs(cambio).toFixed(2)}%
-        </div>
-      </div>
+      <h2 className="text-sm text-gray-500">{titulo}</h2>
       <p className="text-3xl font-bold text-gray-800 mt-1">{valor}</p>
-      <div className="mt-auto w-full h-20">
+      <div className="mt-auto h-20">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={dataChart}>
+          <AreaChart data={data}>
             <defs>
-              <linearGradient id={`color-${color}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+              <linearGradient id={`color${color}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={color} stopOpacity={0.3} />
                 <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} horizontal={false} />
-            <Tooltip contentStyle={{ fontSize: "10px" }} />
+            <XAxis dataKey="fecha" hide />
+            <Tooltip />
             <Area
               type="monotone"
               dataKey="value"
               stroke={color}
-              fill={`url(#color-${color})`}
+              fill={`url(#color${color})`}
               strokeWidth={2}
             />
           </AreaChart>
@@ -129,22 +115,19 @@ export default function Inicio() {
           titulo="Mensajes recibidos"
           valor={mensajesRecibidos}
           color="#3b82f6"
-          dataChart={dataRecibidos}
-          cambio={0}
+          data={dataRecibidos}
         />
         <Tarjeta
           titulo="Respuestas GPT"
           valor={respuestasGPT}
           color="#10b981"
-          dataChart={dataGPT}
-          cambio={0}
+          data={dataGPT}
         />
         <Tarjeta
           titulo="Respuestas humanas"
           valor={respuestasPanel}
           color="#f97316"
-          dataChart={dataPanel}
-          cambio={0}
+          data={dataPanel}
         />
       </div>
 

@@ -80,7 +80,8 @@ const DashboardLayout = ({ children }) => {
           </button>
         )}
       </header>
-            {/* Layout principal */}
+
+      {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
         {/* Sidebar para escritorio */}
         <aside
@@ -102,7 +103,6 @@ const DashboardLayout = ({ children }) => {
             </button>
 
             <div className="mt-4 space-y-1 text-sm relative z-20">
-              {/* Inicio */}
               <Link
                 to="/"
                 className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
@@ -113,7 +113,6 @@ const DashboardLayout = ({ children }) => {
                 {!colapsado && <span>Inicio</span>}
               </Link>
 
-              {/* Conversaciones */}
               <Link
                 to="/conversaciones"
                 className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${
@@ -129,7 +128,6 @@ const DashboardLayout = ({ children }) => {
                 )}
               </Link>
 
-              {/* Agentes */}
               {rolUsuario !== "Soporte" && (
                 <Link
                   to="/agentes"
@@ -144,7 +142,6 @@ const DashboardLayout = ({ children }) => {
             </div>
           </div>
 
-          {/* Perfil */}
           <div className="px-4 pb-6 z-20">
             {colapsado ? (
               <div className="flex justify-center">
@@ -188,7 +185,7 @@ const DashboardLayout = ({ children }) => {
             onClick={() => setMenuMovilAbierto(false)}
           >
             <aside
-              className="bg-[#1E2431] w-56 p-4 flex flex-col justify-between h-full"
+              className="bg-[#1E2431] w-64 p-4 flex flex-col justify-between h-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="space-y-4">
@@ -223,6 +220,29 @@ const DashboardLayout = ({ children }) => {
                     <span>Agentes</span>
                   </Link>
                 )}
+              </div>
+
+              {/* PERFIL MÓVIL */}
+              <div
+                onClick={() => {
+                  navigate("/perfil");
+                  setMenuMovilAbierto(false);
+                }}
+                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-4"
+              >
+                <img
+                  src={fotoPerfil || "https://i.pravatar.cc/100"}
+                  alt="Perfil"
+                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
+                    cargandoFoto ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+                <div>
+                  <div className="font-semibold text-sm leading-tight">
+                    {nombrePerfil || "Mi perfil"}
+                  </div>
+                  <div className="text-xs text-gray-400">Editar</div>
+                </div>
               </div>
             </aside>
           </div>

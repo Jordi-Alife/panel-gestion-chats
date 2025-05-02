@@ -133,10 +133,9 @@ export default function Conversaciones() {
     acc[item.userId] = actual;
     return acc;
   }, {});
-
-  const listaAgrupada = Object.entries(conversacionesPorUsuario)
+    const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
-      const ultimaVista = vistas[id];
+      const ultimaVista = id === userId ? new Date() : vistas[id]; // ✅ si es la conversación abierta, considerarla vista
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
 
       const ultimoMensaje = mensajesValidos
@@ -175,17 +174,15 @@ export default function Conversaciones() {
       if (filtro === "humanas") return c.intervenida;
     });
 
-  // ✅ AQUI ACTUALIZAMOS el contador global excluyendo la conversación abierta
-  const totalNoLeidos = listaAgrupada
-    .filter((c) => c.nuevos > 0 && c.userId !== userId)
-    .length;
+  const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("notificaciones-nuevas", {
       detail: { total: totalNoLeidos }
     }));
   }, [totalNoLeidos]);
-    const estadoColor = {
+
+  const estadoColor = {
     Activa: "bg-green-500",
     Inactiva: "bg-gray-400",
     Archivado: "bg-black"
@@ -194,6 +191,7 @@ export default function Conversaciones() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)]">
+        {/* Columna izquierda */}
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto h-full">
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3">
@@ -250,6 +248,9 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
+
+        {/* resto igual... */}
+                {/* Columna central */}
         <div className="flex-1 bg-white rounded-lg shadow-md flex flex-col overflow-hidden h-full relative">
           <div
             ref={chatRef}
@@ -334,6 +335,7 @@ export default function Conversaciones() {
               Ir al final
             </button>
           )}
+
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -409,6 +411,7 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
+
         <div className="w-1/5 bg-white rounded-lg shadow-md p-4 h-full overflow-y-auto">
           {agente && (
             <div className="mb-4">
@@ -456,6 +459,7 @@ export default function Conversaciones() {
           )}
         </div>
       </div>
+
       <div className="w-full px-6 py-4">
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input

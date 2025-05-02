@@ -10,7 +10,12 @@ export default function Inicio() {
 
   const ahora = new Date();
   const hora = ahora.getHours();
-  const saludo = hora < 12 ? "Buenos días" : hora < 20 ? "Buenas tardes" : "Buenas noches";
+  const saludo =
+    hora < 12
+      ? "Buenos días"
+      : hora < 20
+      ? "Buenas tardes"
+      : "Buenas noches";
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -43,39 +48,24 @@ export default function Inicio() {
   const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
   const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
 
-  const crearDatosGrafica = (lista) =>
-    lista.map((_, index) => ({ valor: index + 1 }));
+  const dataRecibidos = mensajes.filter((m) => m.from === "usuario").map((m, i) => ({ x: i, y: 1 }));
+  const dataGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).map((m, i) => ({ x: i, y: 1 }));
+  const dataPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).map((m, i) => ({ x: i, y: 1 }));
 
-  const dataRecibidos = crearDatosGrafica(
-    mensajes.filter((m) => m.from === "usuario")
-  );
-  const dataGPT = crearDatosGrafica(
-    mensajes.filter((m) => m.from === "asistente" && !m.manual)
-  );
-  const dataPanel = crearDatosGrafica(
-    mensajes.filter((m) => m.from === "asistente" && m.manual)
-  );
-
-  const Tarjeta = ({ titulo, valor, color, datos }) => (
-    <div className="bg-white rounded-lg shadow p-4 flex flex-col relative">
-      <h2 className="text-sm text-gray-500 mb-1">{titulo}</h2>
-      <p className="text-3xl font-bold text-gray-800">{valor}</p>
-      <div className="mt-2 h-20">
+  const Tarjeta = ({ titulo, valor, color, data }) => (
+    <div className="bg-white rounded-lg p-4 flex flex-col shadow-sm">
+      <h2 className="text-sm text-gray-500">{titulo}</h2>
+      <p className="text-3xl font-bold text-gray-800 mt-1">{valor}</p>
+      <div className="h-24 mt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={datos}>
-            <defs>
-              <linearGradient id={`color-${color}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-                <stop offset="100%" stopColor={color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
+          <AreaChart data={data}>
             <Area
               type="monotone"
-              dataKey="valor"
+              dataKey="y"
               stroke={color}
-              fill={`url(#color-${color})`}
+              fill={color}
+              fillOpacity={0.1}
               strokeWidth={2}
-              dot={false}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -89,15 +79,17 @@ export default function Inicio() {
         <h1 className="text-xl font-semibold text-gray-800">
           {saludo}, {nombre}
         </h1>
-        <select
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-          className="border border-gray-300 rounded-full px-3 py-1 text-sm focus:outline-none"
-        >
-          <option value="hoy">Hoy</option>
-          <option value="semana">Última semana</option>
-          <option value="mes">Último mes</option>
-        </select>
+        <div className="relative">
+          <select
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            className="border border-gray-300 rounded-full px-3 py-1 text-sm focus:outline-none"
+          >
+            <option value="hoy">Hoy</option>
+            <option value="semana">Última semana</option>
+            <option value="mes">Último mes</option>
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -105,19 +97,19 @@ export default function Inicio() {
           titulo="Mensajes recibidos"
           valor={mensajesRecibidos}
           color="#3b82f6"
-          datos={dataRecibidos}
+          data={dataRecibidos}
         />
         <Tarjeta
           titulo="Respuestas GPT"
           valor={respuestasGPT}
           color="#10b981"
-          datos={dataGPT}
+          data={dataGPT}
         />
         <Tarjeta
           titulo="Respuestas humanas"
           valor={respuestasPanel}
           color="#f97316"
-          datos={dataPanel}
+          data={dataPanel}
         />
       </div>
 

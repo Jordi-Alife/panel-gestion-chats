@@ -39,25 +39,28 @@ export default function AgenteDetalle() {
 
   const mensajesPorDia = mensajes.reduce((acc, msg) => {
     const dia = msg.timestamp?.split("T")[0];
-    acc[dia] = (acc[dia] || 0) + 1;
+    if (dia) acc[dia] = (acc[dia] || 0) + 1;
     return acc;
   }, {});
-
-  const datosGrafico = Object.entries(mensajesPorDia).map(([fecha, count]) => ({
+    const datosGrafico = Object.entries(mensajesPorDia).map(([fecha, count]) => ({
     fecha,
     count,
   }));
 
-  const tiempoRespuestaPromedio = (() => {
-    const tiempos = mensajes
-      .filter((m) => m.tipo === "texto" && m.manual && typeof m.tiempoRespuesta === "number")
-      .map((m) => m.tiempoRespuesta);
-    if (!tiempos.length) return 0;
-    return tiempos.reduce((a, b) => a + b, 0) / tiempos.length;
-  })();
-    return (
+  const tiempos = mensajes
+    .filter((m) => m.manual && typeof m.tiempoRespuesta === "number")
+    .map((m) => m.tiempoRespuesta);
+
+  const tiempoRespuestaPromedio =
+    tiempos.length > 0
+      ? tiempos.reduce((a, b) => a + b, 0) / tiempos.length
+      : 0;
+
+  return (
     <div className="p-6 space-y-6">
-      <pre className="text-xs text-red-500 overflow-x-auto whitespace-pre-wrap max-h-40">{JSON.stringify(mensajes, null, 2)}</pre>
+      <pre className="bg-red-100 text-red-800 text-xs p-2 overflow-x-auto rounded">
+        DEBUG mensajes: {JSON.stringify(mensajes, null, 2)}
+      </pre>
 
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-800">Actividad del Agente</h1>
@@ -77,7 +80,9 @@ export default function AgenteDetalle() {
             className="w-16 h-16 rounded-full border"
           />
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">{perfil?.nombre || "Agente desconocido"}</h2>
+            <h2 className="text-lg font-semibold text-gray-800">
+              {perfil?.nombre || "Agente desconocido"}
+            </h2>
             <p className="text-sm text-gray-500">{perfil?.email || "Sin email"}</p>
           </div>
         </div>
@@ -110,7 +115,12 @@ export default function AgenteDetalle() {
                 <XAxis dataKey="fecha" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>

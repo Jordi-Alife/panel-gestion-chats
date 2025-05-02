@@ -11,7 +11,7 @@ export default function AgenteDetalle() {
   const [perfil, setPerfil] = useState(null);
 
   useEffect(() => {
-    // Cargar los mensajes enviados por el agente
+    // Cargar mensajes
     fetch(`https://web-production-51989.up.railway.app/api/mensajes-agente/${uid}`)
       .then((res) => res.json())
       .then((data) => {
@@ -19,7 +19,7 @@ export default function AgenteDetalle() {
       })
       .catch(console.error);
 
-    // Cargar perfil del agente directamente desde Firestore
+    // Cargar perfil desde Firestore
     const fetchPerfil = async () => {
       try {
         const db = getFirestore(app);
@@ -27,12 +27,13 @@ export default function AgenteDetalle() {
         const snap = await getDoc(ref);
         if (snap.exists()) {
           setPerfil(snap.data());
+        } else {
+          console.warn("No existe agente con UID:", uid);
         }
       } catch (error) {
-        console.error("❌ Error obteniendo perfil del agente:", error);
+        console.error("❌ Error obteniendo perfil:", error);
       }
     };
-
     fetchPerfil();
   }, [uid]);
 

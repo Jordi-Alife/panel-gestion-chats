@@ -1,6 +1,6 @@
 // src/pages/Inicio.jsx
 import { useEffect, useState } from "react";
-import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 
 export default function Inicio() {
   const [data, setData] = useState([]);
@@ -12,11 +12,7 @@ export default function Inicio() {
   const ahora = new Date();
   const hora = ahora.getHours();
   const saludo =
-    hora < 12
-      ? "Buenos días"
-      : hora < 20
-      ? "Buenas tardes"
-      : "Buenas noches";
+    hora < 12 ? "Buenos días" : hora < 20 ? "Buenas tardes" : "Buenas noches";
 
   const cargarDatos = () => {
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -49,41 +45,40 @@ export default function Inicio() {
   const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual).length;
   const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual).length;
 
-  // Agrupar por día
-  const agruparPorDia = (mensajes) => {
-    const conteo = {};
-    mensajes.forEach((m) => {
-      const dia = new Date(m.lastInteraction).toLocaleDateString();
-      conteo[dia] = (conteo[dia] || 0) + 1;
-    });
-    return Object.entries(conteo).map(([fecha, value]) => ({ fecha, value }));
-  };
+  const dataRecibidos = mensajes
+    .filter((m) => m.from === "usuario")
+    .map((_, i) => ({ x: i, y: i + 1 }));
 
-  const dataRecibidos = agruparPorDia(mensajes.filter((m) => m.from === "usuario"));
-  const dataGPT = agruparPorDia(mensajes.filter((m) => m.from === "asistente" && !m.manual));
-  const dataPanel = agruparPorDia(mensajes.filter((m) => m.from === "asistente" && m.manual));
+  const dataGPT = mensajes
+    .filter((m) => m.from === "asistente" && !m.manual)
+    .map((_, i) => ({ x: i, y: i + 1 }));
 
-  const Tarjeta = ({ titulo, valor, color, data }) => (
+  const dataPanel = mensajes
+    .filter((m) => m.from === "asistente" && m.manual)
+    .map((_, i) => ({ x: i, y: i + 1 }));
+
+  const Tarjeta = ({ titulo, valor, color, chartData }) => (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col relative">
-      <h2 className="text-sm text-gray-500">{titulo}</h2>
-      <p className="text-3xl font-bold text-gray-800 mt-1">{valor}</p>
-      <div className="mt-auto h-20">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+      <h2 className="text-sm text-gray-500 mb-1">{titulo}</h2>
+      <p className="text-3xl font-bold text-gray-800 mb-2">{valor}</p>
+      <div className="flex-1">
+        <ResponsiveContainer width="100%" height={50}>
+          <AreaChart data={chartData}>
             <defs>
-              <linearGradient id={`color${color}`} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`color-${color}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={color} stopOpacity={0.3} />
                 <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="fecha" hide />
+            <XAxis dataKey="x" hide />
             <Tooltip />
             <Area
               type="monotone"
-              dataKey="value"
+              dataKey="y"
               stroke={color}
-              fill={`url(#color${color})`}
+              fill={`url(#color-${color})`}
               strokeWidth={2}
+              dot={false}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -97,17 +92,15 @@ export default function Inicio() {
         <h1 className="text-xl font-semibold text-gray-800">
           {saludo}, {nombre}
         </h1>
-        <div className="relative">
-          <select
-            value={filtro}
-            onChange={(e) => setFiltro(e.target.value)}
-            className="border border-gray-300 rounded-full px-3 py-1 text-sm focus:outline-none"
-          >
-            <option value="hoy">Hoy</option>
-            <option value="semana">Última semana</option>
-            <option value="mes">Último mes</option>
-          </select>
-        </div>
+        <select
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+          className="border border-gray-300 rounded-full px-3 py-1 text-sm focus:outline-none"
+        >
+          <option value="hoy">Hoy</option>
+          <option value="semana">Última semana</option>
+          <option value="mes">Último mes</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -115,19 +108,19 @@ export default function Inicio() {
           titulo="Mensajes recibidos"
           valor={mensajesRecibidos}
           color="#3b82f6"
-          data={dataRecibidos}
+          chartData={dataRecibidos}
         />
         <Tarjeta
           titulo="Respuestas GPT"
           valor={respuestasGPT}
           color="#10b981"
-          data={dataGPT}
+          chartData={dataGPT}
         />
         <Tarjeta
           titulo="Respuestas humanas"
           valor={respuestasPanel}
           color="#f97316"
-          data={dataPanel}
+          chartData={dataPanel}
         />
       </div>
 

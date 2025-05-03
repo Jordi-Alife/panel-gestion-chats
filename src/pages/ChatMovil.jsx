@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function ChatMovil({ userId }) {
+export default function ChatMovil() {
+  const { userId } = useParams();
+  const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
+  const [agente, setAgente] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -34,38 +38,67 @@ export default function ChatMovil({ userId }) {
     return () => clearInterval(interval);
   }, [userId]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      }
+    }, 100);
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+    }
+  }, [userId]);
+
+  const formatearTiempo = (fecha) => {
+    const ahora = new Date();
+    const pasada = new Date(fecha);
+    const diffMs = ahora - pasada;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHrs = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHrs / 24);
+    if (diffSec < 60) return `hace ${diffSec}s`;
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    if (diffDays === 1) return "ayer";
+    return `hace ${diffDays}d`;
+  };
+
   return (
-    <div className="md:hidden flex flex-col w-screen h-screen bg-[#f0f4f8]">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white shadow">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-sm font-bold">💬</span>
-          </div>
-          <div>
-            <div className="text-sm font-semibold">Soporte Canal Digital</div>
-            <div className="text-xs text-gray-500">Funeraria Esperanza</div>
-          </div>
-        </div>
-        <button className="text-gray-500 text-xl">×</button>
+    <div className="flex flex-col h-screen bg-white">
+      <div className="flex items-center justify-between p-4 shadow">
+        <button
+          onClick={() => navigate("/conversaciones")}
+          className="text-sm text-blue-600 underline"
+        >
+          Volver
+        </button>
+        <h2 className="text-md font-semibold">Chat con {userId}</h2>
+        <div></div>
       </div>
 
-      {/* Chat */}
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-3"
         onScroll={() => {
           const el = chatRef.current;
           if (!el) return;
           const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
           scrollForzado.current = alFinal;
         }}
+        className="flex-1 overflow-y-auto p-4 space-y-3"
       >
         {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente";
           const bubbleColor = isAsistente
             ? "bg-[#ff5733] text-white"
-            : "bg-white text-gray-800 border";
+            : "bg-gray-100 text-gray-800";
           const align = isAsistente ? "justify-end" : "justify-start";
           return (
             <div key={index} className={`flex ${align}`}>
@@ -121,7 +154,6 @@ export default function ChatMovil({ userId }) {
         })}
       </div>
 
-      {/* Input */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -153,10 +185,10 @@ export default function ChatMovil({ userId }) {
           });
           setRespuesta("");
         }}
-        className="border-t bg-white px-4 py-3 flex items-center gap-2 flex-shrink-0"
+        className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
       >
         <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-          📎
+          Seleccionar archivo
           <input
             type="file"
             accept="image/*"
@@ -164,19 +196,33 @@ export default function ChatMovil({ userId }) {
             className="hidden"
           />
         </label>
-        <input
-          type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-        >
-          ➤
-        </button>
+        {imagen && (
+          <div className="text-xs text-gray-600 flex items-center gap-1">
+            <span>{imagen.name}</span>
+            <button
+              type="button"
+              onClick={() => setImagen(null)}
+              className="text-red-500 text-xs underline"
+            >
+              Quitar
+            </button>
+          </div>
+        )}
+        <div className="flex flex-1 gap-2">
+          <input
+            type="text"
+            value={respuesta}
+            onChange={(e) => setRespuesta(e.target.value)}
+            placeholder="Escribe un mensaje..."
+            className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+          >
+            Enviar
+          </button>
+        </div>
       </form>
     </div>
   );

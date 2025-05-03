@@ -6,8 +6,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
-import Conversaciones from "./pages/Conversaciones"; // ✅ volvemos a usar Conversaciones aquí
-import ChatMovil from "./pages/ChatMovil"; // ✅ importamos ChatMovil
+import Conversaciones from "./pages/Conversaciones";
+import ChatMovil from "./pages/ChatMovil";
 import Agentes from "./pages/agentes";
 import AgenteDetalle from "./pages/AgenteDetalle";
 import Perfil from "./pages/Perfil";
@@ -96,6 +96,13 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        {/* ✅ ChatMovil FUERA del DashboardLayout */}
+        <Route
+          path="/conversaciones/:userId"
+          element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
+        />
+
         <Route
           path="*"
           element={
@@ -103,8 +110,7 @@ const App = () => {
               <DashboardLayout>
                 <Routes>
                   <Route path="/" element={<Inicio />} />
-                  <Route path="/conversaciones" element={<Conversaciones />} /> {/* ✅ la lista normal */}
-                  <Route path="/conversaciones/:userId" element={<ChatMovil />} /> {/* ✅ la vista móvil al seleccionar */}
+                  <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />

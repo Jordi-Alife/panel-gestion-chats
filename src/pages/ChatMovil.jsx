@@ -1,21 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ChatMovil() {
-  const [searchParams] = useSearchParams();
-  const userId = searchParams.get("userId") || null;
+  const { userId } = useParams();
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);
-  const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarMensajes = () => {
-    if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -23,11 +21,14 @@ export default function ChatMovil() {
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
         setMensajes(ordenados);
-        setTimeout(() => {
-          if (chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-          }
-        }, 100);
+      })
+      .catch(console.error);
+
+    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      .then((res) => res.json())
+      .then((convs) => {
+        const info = convs.find((c) => c.userId === userId);
+        setUsuarioSeleccionado(info || null);
       })
       .catch(console.error);
   };
@@ -39,78 +40,62 @@ export default function ChatMovil() {
   }, [userId]);
 
   useEffect(() => {
-    if (userId) {
-      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
+    if (chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
     }
-  }, [userId]);
-    const iniciales = userId ? userId.slice(0, 2).toUpperCase() : "--";
+  }, [mensajes]);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-100">
-      {/* HEADER estilo asistente */}
-      <div className="relative z-10 bg-gradient-to-b from-white/80 to-white/20 backdrop-blur-lg shadow-sm px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {usuarioSeleccionado?.foto ? (
-            <img
-              src={usuarioSeleccionado.foto}
-              alt="Usuario"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-700">
-              {iniciales}
+    <div className="flex flex-col h-screen bg-[#f0f4f8]">
+      {/* Header estilo asistente */}
+      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-b from-white/80 to-white/30 shadow">
+        <div className="flex items-center gap-2">
+          {usuarioSeleccionado ? (
+            <div className="bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
+              {usuarioSeleccionado.userId.slice(0, 2).toUpperCase()}
             </div>
+          ) : (
+            <div className="bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm text-gray-700">--</div>
           )}
-          <div className="flex flex-col">
-            <span className="font-medium text-sm text-gray-800">{userId}</span>
-            <span className="text-xs text-gray-500">ID: {userId}</span>
+          <div className="text-xs">
+            <div className="font-medium">
+              ID: {usuarioSeleccionado ? usuarioSeleccionado.userId : ""}
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/conversaciones")}
-            className="text-gray-600 hover:text-gray-900"
-            title="Volver"
+            className="text-gray-600 text-xl"
           >
             ←
           </button>
           <button
-            onClick={() => alert("Ver detalles (placeholder)")}
-            className="text-gray-600 hover:text-gray-900"
-            title="Detalles"
+            onClick={() => alert("Detalles próximamente")}
+            className="text-gray-600 text-xl"
           >
             ℹ️
           </button>
         </div>
       </div>
-            {/* MENSAJES */}
-      <div ref={chatRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+
+      {/* Chat */}
+      <div
+        ref={chatRef}
+        className="flex-1 overflow-y-auto p-4 space-y-3"
+      >
         {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente";
+          const bubbleColor = isAsistente
+            ? "bg-white text-gray-800"
+            : "bg-black text-white";
+          const align = isAsistente ? "justify-start" : "justify-end";
           return (
-            <div key={index} className={`flex ${isAsistente ? "justify-start" : "justify-end"}`}>
-              <div
-                className={`rounded-xl max-w-[85%] p-3 shadow ${
-                  isAsistente
-                    ? "bg-white text-gray-800"
-                    : "bg-black text-white"
-                }`}
-              >
-                {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                  <img
-                    src={msg.message}
-                    alt="Imagen"
-                    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                  />
-                ) : (
-                  <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
-                )}
+            <div key={index} className={`flex ${align}`}>
+              <div className={`rounded-2xl px-4 py-2 max-w-[80%] shadow ${bubbleColor}`}>
+                <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
                 {msg.original && (
-                  <div className="mt-1 text-[11px]">
+                  <div className="mt-1 text-[10px] text-right">
                     <button
                       onClick={() =>
                         setOriginalesVisibles((prev) => ({
@@ -118,49 +103,60 @@ export default function ChatMovil() {
                           [index]: !prev[index],
                         }))
                       }
-                      className={`underline text-xs ${
-                        isAsistente ? "text-gray-500" : "text-white/70"
-                      }`}
+                      className="underline text-[10px]"
                     >
                       {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                     </button>
                     {originalesVisibles[index] && (
-                      <p
-                        className={`mt-1 italic ${
-                          isAsistente ? "text-gray-500" : "text-white/70"
-                        }`}
-                      >
-                        {msg.original}
-                      </p>
+                      <p className="italic text-[11px] mt-1">{msg.original}</p>
                     )}
                   </div>
                 )}
+                <div className="text-[10px] opacity-60 text-right mt-1">
+                  {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-            {/* INPUT */}
+
+      {/* Input */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          if (!respuesta.trim()) return;
-          await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId,
-              message: respuesta,
-              agente: {
-                nombre: perfil.nombre || "",
-                foto: perfil.foto || "",
-                uid: localStorage.getItem("id-usuario-panel") || null,
-              },
-            }),
-          });
-          setRespuesta("");
+          if (!respuesta.trim() && !imagen) return;
+
+          if (imagen) {
+            const formData = new FormData();
+            formData.append("file", imagen);
+            formData.append("userId", userId);
+            await fetch("https://web-production-51989.up.railway.app/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+            setImagen(null);
+          } else {
+            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                message: respuesta,
+                agente: {
+                  nombre: perfil.nombre || "",
+                  foto: perfil.foto || "",
+                  uid: localStorage.getItem("id-usuario-panel") || null,
+                },
+              }),
+            });
+            setRespuesta("");
+          }
         }}
-        className="flex items-center gap-2 px-4 py-3 border-t bg-white"
+        className="flex items-center gap-2 p-3 border-t bg-white"
       >
         <input
           type="text"
@@ -171,7 +167,7 @@ export default function ChatMovil() {
         />
         <button
           type="submit"
-          className="bg-black text-white rounded-full px-4 py-2 text-sm hover:bg-gray-800"
+          className="bg-black text-white rounded-full px-4 py-2 text-sm"
         >
           Enviar
         </button>

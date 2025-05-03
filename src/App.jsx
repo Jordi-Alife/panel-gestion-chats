@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
-import Conversaciones from "./pages/Conversaciones";
+import ConversacionesWrapper from "./pages/ConversacionesWrapper"; // ✅ añadida esta importación
 import Agentes from "./pages/agentes";
 import AgenteDetalle from "./pages/AgenteDetalle"; // ✅ importamos la nueva página
 import Perfil from "./pages/Perfil";
@@ -103,9 +103,9 @@ const App = () => {
               <DashboardLayout>
                 <Routes>
                   <Route path="/" element={<Inicio />} />
-                  <Route path="/conversaciones" element={<Conversaciones />} />
+                  <Route path="/conversaciones" element={<ConversacionesWrapper />} /> {/* ✅ reemplazada aquí */}
                   <Route path="/agentes" element={<Agentes />} />
-                  <Route path="/agente/:uid" element={<AgenteDetalle />} /> {/* ✅ nueva ruta añadida */}
+                  <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />
                 </Routes>
               </DashboardLayout>

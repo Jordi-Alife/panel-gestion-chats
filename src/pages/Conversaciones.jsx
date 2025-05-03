@@ -188,7 +188,7 @@ export default function Conversaciones() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
+    <div className="flex flex-col min-h-screen bg-[#f0f4f8] relative">
       <div
         className={`flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)] flex-col md:flex-row`}
       >
@@ -256,9 +256,9 @@ export default function Conversaciones() {
 
         {/* Columna chat */}
         <div
-          className={`${
+          className={`flex flex-col justify-between ${
             userId
-              ? "bg-white md:rounded-lg md:shadow-md md:flex md:flex-col md:overflow-hidden md:h-full"
+              ? "bg-white rounded-none shadow-none md:rounded-lg md:shadow-md md:flex md:flex-col md:overflow-hidden md:h-full"
               : "hidden md:flex md:flex-1 bg-white rounded-lg shadow-md flex-col overflow-hidden h-full"
           } ${userId ? "w-full md:flex-1" : ""}`}
         >

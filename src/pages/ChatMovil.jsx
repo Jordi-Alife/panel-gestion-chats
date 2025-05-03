@@ -8,7 +8,6 @@ export default function ChatMovil() {
   const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
-  const [agente, setAgente] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -72,16 +71,19 @@ export default function ChatMovil() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <div className="flex items-center justify-between p-4 shadow">
+    <div className="chat-container">
+      <div className="chat-header">
+        <div className="avatar"></div>
+        <div>
+          <div className="title">Soporte Canal Digital</div>
+          <div className="subtitle">Funeraria Esperanza</div>
+        </div>
         <button
           onClick={() => navigate("/conversaciones")}
-          className="text-sm text-blue-600 underline"
+          style={{ marginLeft: "auto", fontSize: "16px", background: "none", border: "none", cursor: "pointer" }}
         >
-          Volver
+          ✕
         </button>
-        <h2 className="text-md font-semibold">Chat con {userId}</h2>
-        <div></div>
       </div>
 
       <div
@@ -92,62 +94,54 @@ export default function ChatMovil() {
           const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
           scrollForzado.current = alFinal;
         }}
-        className="flex-1 overflow-y-auto p-4 space-y-3"
+        className="chat-messages"
       >
         {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente";
-          const bubbleColor = isAsistente
-            ? "bg-[#ff5733] text-white"
-            : "bg-gray-100 text-gray-800";
-          const align = isAsistente ? "justify-end" : "justify-start";
+          const tipoClase = isAsistente ? "assistant" : "user";
           return (
-            <div key={index} className={`flex ${align}`}>
-              <div className={`rounded-xl max-w-[85%] p-3 shadow ${bubbleColor}`}>
-                {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                  <img
-                    src={msg.message}
-                    alt="Imagen"
-                    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                  />
-                ) : (
-                  <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
-                )}
-                {msg.original && (
-                  <div className="mt-2 text-[11px] text-right">
-                    <button
-                      onClick={() =>
-                        setOriginalesVisibles((prev) => ({
-                          ...prev,
-                          [index]: !prev[index],
-                        }))
-                      }
-                      className={`underline text-xs ${
-                        isAsistente ? "text-white/70" : "text-blue-600"
-                      } focus:outline-none`}
-                    >
-                      {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                    </button>
-                    {originalesVisibles[index] && (
-                      <p
-                        className={`mt-1 italic text-left ${
-                          isAsistente ? "text-white/70" : "text-gray-500"
-                        }`}
-                      >
-                        {msg.original}
-                      </p>
-                    )}
-                  </div>
-                )}
-                <div
-                  className={`text-[10px] mt-1 opacity-60 text-right ${
-                    isAsistente ? "text-white" : "text-gray-500"
-                  }`}
-                >
-                  {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+            <div key={index} className={`message ${tipoClase}`}>
+              {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+                <img
+                  src={msg.message}
+                  alt="Imagen"
+                  style={{ maxWidth: "100%", borderRadius: "8px" }}
+                />
+              ) : (
+                <p>{msg.message}</p>
+              )}
+              {msg.original && (
+                <div style={{ marginTop: "4px", fontSize: "11px", textAlign: "right" }}>
+                  <button
+                    onClick={() =>
+                      setOriginalesVisibles((prev) => ({
+                        ...prev,
+                        [index]: !prev[index],
+                      }))
+                    }
+                    style={{
+                      textDecoration: "underline",
+                      fontSize: "11px",
+                      color: isAsistente ? "#888" : "#007bff",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                  </button>
+                  {originalesVisibles[index] && (
+                    <p style={{ marginTop: "2px", fontStyle: "italic", color: "#666" }}>
+                      {msg.original}
+                    </p>
+                  )}
                 </div>
+              )}
+              <div style={{ fontSize: "10px", opacity: 0.6, textAlign: "right", marginTop: "4px" }}>
+                {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </div>
             </div>
           );
@@ -185,44 +179,36 @@ export default function ChatMovil() {
           });
           setRespuesta("");
         }}
-        className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
+        className="chat-input"
       >
-        <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-          Seleccionar archivo
+        <label style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <span style={{ fontSize: "20px", cursor: "pointer" }}>➕</span>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => setImagen(e.target.files[0])}
-            className="hidden"
+            style={{ display: "none" }}
           />
         </label>
         {imagen && (
-          <div className="text-xs text-gray-600 flex items-center gap-1">
-            <span>{imagen.name}</span>
+          <div style={{ fontSize: "11px", color: "#555" }}>
+            {imagen.name}
             <button
               type="button"
               onClick={() => setImagen(null)}
-              className="text-red-500 text-xs underline"
+              style={{ color: "red", marginLeft: "4px", fontSize: "11px", textDecoration: "underline", background: "none", border: "none" }}
             >
               Quitar
             </button>
           </div>
         )}
-        <div className="flex flex-1 gap-2">
-          <input
-            type="text"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            placeholder="Escribe un mensaje..."
-            className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-          >
-            Enviar
-          </button>
-        </div>
+        <input
+          type="text"
+          value={respuesta}
+          onChange={(e) => setRespuesta(e.target.value)}
+          placeholder="Escribe un mensaje..."
+        />
+        <button type="submit">Enviar</button>
       </form>
     </div>
   );

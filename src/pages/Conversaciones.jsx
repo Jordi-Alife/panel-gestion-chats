@@ -189,9 +189,7 @@ export default function Conversaciones() {
 
   return (
     <div className="flex flex-col h-screen min-h-screen bg-[#f0f4f8] relative">
-      <div
-        className="flex flex-1 p-4 gap-4 overflow-hidden flex-col md:flex-row"
-      >
+      <div className="flex flex-1 p-4 gap-4 overflow-hidden flex-col md:flex-row">
         {/* Lista de conversaciones */}
         <div
           className={`bg-white rounded-lg shadow-md overflow-y-auto ${
@@ -256,11 +254,12 @@ export default function Conversaciones() {
 
         {/* Columna chat */}
         <div
-          className={`flex flex-col justify-between w-[100vw] md:w-auto ${
+          className={`flex flex-col justify-between w-full ${
             userId
               ? "bg-white rounded-none shadow-none md:rounded-lg md:shadow-md md:flex md:flex-col md:overflow-hidden md:h-full"
               : "hidden md:flex md:flex-1 bg-white rounded-lg shadow-md flex-col overflow-hidden h-full"
           }`}
+          style={{ width: window.innerWidth < 768 ? "100vw" : undefined }}
         >
           <div
             ref={chatRef}
@@ -384,7 +383,7 @@ export default function Conversaciones() {
               });
               setRespuesta("");
             }}
-            className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
+            className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2 flex-shrink-0"
           >
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo

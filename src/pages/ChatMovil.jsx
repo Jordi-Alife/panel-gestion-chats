@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ChatMovil() {
-  const { userId } = useParams();
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get("userId") || null;
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const chatRef = useRef(null);
-  const scrollForzado = useRef(true);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
@@ -23,7 +24,7 @@ export default function ChatMovil() {
         );
         setMensajes(ordenados);
         setTimeout(() => {
-          if (scrollForzado.current && chatRef.current) {
+          if (chatRef.current) {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
           }
         }, 100);
@@ -38,14 +39,6 @@ export default function ChatMovil() {
   }, [userId]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
-  }, [userId]);
-
-  useEffect(() => {
     if (userId) {
       fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
         method: "POST",
@@ -54,115 +47,103 @@ export default function ChatMovil() {
       });
     }
   }, [userId]);
-
-  const formatearTiempo = (fecha) => {
-    const ahora = new Date();
-    const pasada = new Date(fecha);
-    const diffMs = ahora - pasada;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHrs = Math.floor(diffMin / 60);
-    const diffDays = Math.floor(diffHrs / 24);
-    if (diffSec < 60) return `hace ${diffSec}s`;
-    if (diffMin < 60) return `hace ${diffMin}m`;
-    if (diffHrs < 24) return `hace ${diffHrs}h`;
-    if (diffDays === 1) return "ayer";
-    return `hace ${diffDays}d`;
-  };
+    const iniciales = userId ? userId.slice(0, 2).toUpperCase() : "--";
 
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <div className="avatar"></div>
-        <div>
-          <div className="title">Soporte Canal Digital</div>
-          <div className="subtitle">Funeraria Esperanza</div>
+    <div className="flex flex-col h-screen w-screen bg-gray-100">
+      {/* HEADER estilo asistente */}
+      <div className="relative z-10 bg-gradient-to-b from-white/80 to-white/20 backdrop-blur-lg shadow-sm px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {usuarioSeleccionado?.foto ? (
+            <img
+              src={usuarioSeleccionado.foto}
+              alt="Usuario"
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-700">
+              {iniciales}
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span className="font-medium text-sm text-gray-800">{userId}</span>
+            <span className="text-xs text-gray-500">ID: {userId}</span>
+          </div>
         </div>
-        <button
-          onClick={() => navigate("/conversaciones")}
-          style={{ marginLeft: "auto", fontSize: "16px", background: "none", border: "none", cursor: "pointer" }}
-        >
-          ✕
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/conversaciones")}
+            className="text-gray-600 hover:text-gray-900"
+            title="Volver"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => alert("Ver detalles (placeholder)")}
+            className="text-gray-600 hover:text-gray-900"
+            title="Detalles"
+          >
+            ℹ️
+          </button>
+        </div>
       </div>
-
-      <div
-        ref={chatRef}
-        onScroll={() => {
-          const el = chatRef.current;
-          if (!el) return;
-          const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-          scrollForzado.current = alFinal;
-        }}
-        className="chat-messages"
-      >
+            {/* MENSAJES */}
+      <div ref={chatRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente";
-          const tipoClase = isAsistente ? "assistant" : "user";
           return (
-            <div key={index} className={`message ${tipoClase}`}>
-              {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                <img
-                  src={msg.message}
-                  alt="Imagen"
-                  style={{ maxWidth: "100%", borderRadius: "8px" }}
-                />
-              ) : (
-                <p>{msg.message}</p>
-              )}
-              {msg.original && (
-                <div style={{ marginTop: "4px", fontSize: "11px", textAlign: "right" }}>
-                  <button
-                    onClick={() =>
-                      setOriginalesVisibles((prev) => ({
-                        ...prev,
-                        [index]: !prev[index],
-                      }))
-                    }
-                    style={{
-                      textDecoration: "underline",
-                      fontSize: "11px",
-                      color: isAsistente ? "#888" : "#007bff",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                  </button>
-                  {originalesVisibles[index] && (
-                    <p style={{ marginTop: "2px", fontStyle: "italic", color: "#666" }}>
-                      {msg.original}
-                    </p>
-                  )}
-                </div>
-              )}
-              <div style={{ fontSize: "10px", opacity: 0.6, textAlign: "right", marginTop: "4px" }}>
-                {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+            <div key={index} className={`flex ${isAsistente ? "justify-start" : "justify-end"}`}>
+              <div
+                className={`rounded-xl max-w-[85%] p-3 shadow ${
+                  isAsistente
+                    ? "bg-white text-gray-800"
+                    : "bg-black text-white"
+                }`}
+              >
+                {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+                  <img
+                    src={msg.message}
+                    alt="Imagen"
+                    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+                )}
+                {msg.original && (
+                  <div className="mt-1 text-[11px]">
+                    <button
+                      onClick={() =>
+                        setOriginalesVisibles((prev) => ({
+                          ...prev,
+                          [index]: !prev[index],
+                        }))
+                      }
+                      className={`underline text-xs ${
+                        isAsistente ? "text-gray-500" : "text-white/70"
+                      }`}
+                    >
+                      {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                    </button>
+                    {originalesVisibles[index] && (
+                      <p
+                        className={`mt-1 italic ${
+                          isAsistente ? "text-gray-500" : "text-white/70"
+                        }`}
+                      >
+                        {msg.original}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
       </div>
-
+            {/* INPUT */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          if (!userId) return;
-          if (imagen) {
-            const formData = new FormData();
-            formData.append("file", imagen);
-            formData.append("userId", userId);
-            await fetch("https://web-production-51989.up.railway.app/api/upload", {
-              method: "POST",
-              body: formData,
-            });
-            setImagen(null);
-            return;
-          }
           if (!respuesta.trim()) return;
           await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
             method: "POST",
@@ -179,36 +160,21 @@ export default function ChatMovil() {
           });
           setRespuesta("");
         }}
-        className="chat-input"
+        className="flex items-center gap-2 px-4 py-3 border-t bg-white"
       >
-        <label style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <span style={{ fontSize: "20px", cursor: "pointer" }}>➕</span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImagen(e.target.files[0])}
-            style={{ display: "none" }}
-          />
-        </label>
-        {imagen && (
-          <div style={{ fontSize: "11px", color: "#555" }}>
-            {imagen.name}
-            <button
-              type="button"
-              onClick={() => setImagen(null)}
-              style={{ color: "red", marginLeft: "4px", fontSize: "11px", textDecoration: "underline", background: "none", border: "none" }}
-            >
-              Quitar
-            </button>
-          </div>
-        )}
         <input
           type="text"
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
+          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
         />
-        <button type="submit">Enviar</button>
+        <button
+          type="submit"
+          className="bg-black text-white rounded-full px-4 py-2 text-sm hover:bg-gray-800"
+        >
+          Enviar
+        </button>
       </form>
     </div>
   );

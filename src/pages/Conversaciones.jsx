@@ -92,8 +92,7 @@ export default function Conversaciones() {
       });
     }
   }, [userId]);
-
-  const formatearTiempo = (fecha) => {
+    const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -180,25 +179,25 @@ export default function Conversaciones() {
       new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } })
     );
   }, [totalNoLeidos]);
-    const estadoColor = {
+
+  const estadoColor = {
     Activa: "bg-green-500",
     Inactiva: "bg-gray-400",
     Archivado: "bg-black",
   };
-
-  return (
+    return (
     <div className="flex flex-col h-[100dvh] bg-[#f0f4f8] relative">
       <div
         className={`flex flex-1 p-4 gap-4 overflow-hidden h-[calc(100dvh-5.5rem)] flex-col md:flex-row`}
       >
         {/* Lista de conversaciones */}
         <div
-          className={`bg-white rounded-lg shadow-md p-2 md:p-4 overflow-y-auto ${
+          className={`bg-white rounded-lg shadow-md overflow-y-auto ${
             userId ? "hidden md:block md:w-1/5" : "w-full"
           }`}
         >
-          <h2 className="text-sm text-gray-400 font-semibold mb-2 md:pl-2">Conversaciones</h2>
-          <div className="flex gap-2 mb-3 md:pl-2">
+          <h2 className="text-sm text-gray-400 font-semibold mb-2 px-4 md:px-2">Conversaciones</h2>
+          <div className="flex gap-2 mb-3 px-4 md:px-2">
             {["todas", "gpt", "humanas"].map((f) => (
               <button
                 key={f}
@@ -215,13 +214,13 @@ export default function Conversaciones() {
             <div
               key={c.userId}
               onClick={() => setSearchParams({ userId: c.userId })}
-              className={`flex items-center justify-between cursor-pointer p-2 rounded hover:bg-gray-100 ${
+              className={`flex items-center justify-between cursor-pointer px-4 py-3 rounded hover:bg-gray-100 ${
                 c.userId === userId ? "bg-blue-50" : ""
-              }`}
+              } md:px-2 md:py-2`}
             >
-              <div className="flex items-center gap-2 relative">
+              <div className="flex items-center gap-3 relative">
                 <div className="relative">
-                  <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
+                  <div className="bg-gray-200 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-gray-700 md:w-8 md:h-8">
                     {c.iniciales}
                   </div>
                   {paisAToIso(c.pais) ? (
@@ -268,7 +267,9 @@ export default function Conversaciones() {
               scrollForzado.current = alFinal;
               setMostrarScrollBtn(!alFinal);
             }}
-            className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 h-0"
+            className={`flex-1 overflow-y-auto ${
+              userId ? "p-2 md:p-6 space-y-3" : "p-4 md:p-6 space-y-4"
+            } h-0`}
           >
             {mensajes.map((msg, index) => {
               const isAsistente = msg.from?.toLowerCase() === "asistente";
@@ -278,7 +279,11 @@ export default function Conversaciones() {
               const align = isAsistente ? "justify-end" : "justify-start";
               return (
                 <div key={index} className={`flex ${align}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl shadow-md ${bubbleColor}`}>
+                  <div
+                    className={`${
+                      userId ? "rounded-xl" : "rounded-2xl"
+                    } max-w-[85%] p-3 md:p-4 shadow ${bubbleColor}`}
+                  >
                     {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                       <img
                         src={msg.message}
@@ -329,8 +334,7 @@ export default function Conversaciones() {
               );
             })}
           </div>
-
-          {mostrarScrollBtn && (
+                    {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({

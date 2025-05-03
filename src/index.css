@@ -18,3 +18,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* ✅ Ocultar el footer en pantallas menores de 768px (mobile) */
+@media (max-width: 767px) {
+  footer {
+    display: none;
+  }
+}

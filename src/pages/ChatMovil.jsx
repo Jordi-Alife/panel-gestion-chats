@@ -9,8 +9,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const chatRef = useRef(null);
-  const [primeraCarga, setPrimeraCarga] = useState(true); // ← NUEVO para controlar autoscroll solo al abrir
-
+  const ultimaLongitud = useRef(0); // ← para detectar nuevos mensajes
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   useEffect(() => {
@@ -21,6 +20,7 @@ const ChatMovil = () => {
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
         setMensajes(ordenados);
+        ultimaLongitud.current = ordenados.length;
       });
 
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -37,6 +37,13 @@ const ChatMovil = () => {
           const ordenados = (data || []).sort(
             (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
           );
+          if (ordenados.length > ultimaLongitud.current) {
+            ultimaLongitud.current = ordenados.length;
+            // solo hace scroll si hay nuevos mensajes
+            if (chatRef.current) {
+              chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+            }
+          }
           setMensajes(ordenados);
         });
     }, 2000);
@@ -45,11 +52,11 @@ const ChatMovil = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (primeraCarga && chatRef.current) {
+    // hace scroll al abrir la conversación
+    if (chatRef.current) {
       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      setPrimeraCarga(false); // ← solo hace scroll al principio
     }
-  }, [mensajes, primeraCarga]);
+  }, []);
 
   return (
     <div className="chat-container">
@@ -80,17 +87,19 @@ const ChatMovil = () => {
       {/* MENSAJES */}
       <div ref={chatRef} className="chat-messages">
         {mensajes.map((msg, index) => {
-          const esEnviadoDesdePanel = msg.from?.toLowerCase() === "panel"; // ← usamos 'panel' para enviados
+          const esPanel = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "panel";
+          const align = esPanel ? "flex-end" : "flex-start";
+          const backgroundColor = esPanel ? "#FC6655" : "#FFFFFF";
+          const colorTexto = esPanel ? "#FFFFFF" : "#000000";
+
           return (
             <div
               key={index}
-              className={`message ${esEnviadoDesdePanel ? "user" : "assistant"} ${
-                esEnviadoDesdePanel ? "text-white" : "text-black"
-              }`}
+              className="message"
               style={{
-                alignSelf: esEnviadoDesdePanel ? "flex-end" : "flex-start",
-                backgroundColor: esEnviadoDesdePanel ? "#FC6655" : "#ffffff",
-                color: esEnviadoDesdePanel ? "#ffffff" : "#000000",
+                alignSelf: align,
+                backgroundColor,
+                color: colorTexto,
               }}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
@@ -112,7 +121,7 @@ const ChatMovil = () => {
                       }))
                     }
                     className={`underline text-xs ${
-                      esEnviadoDesdePanel ? "text-white/80" : "text-black/70"
+                      esPanel ? "text-white/80" : "text-black/70"
                     }`}
                   >
                     {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -120,7 +129,7 @@ const ChatMovil = () => {
                   {originalesVisibles[index] && (
                     <p
                       className={`mt-1 italic text-left ${
-                        esEnviadoDesdePanel ? "text-white/80" : "text-black/70"
+                        esPanel ? "text-white/80" : "text-black/70"
                       }`}
                     >
                       {msg.original}
@@ -130,7 +139,7 @@ const ChatMovil = () => {
               )}
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  esEnviadoDesdePanel ? "text-white" : "text-black"
+                  esPanel ? "text-white" : "text-black"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

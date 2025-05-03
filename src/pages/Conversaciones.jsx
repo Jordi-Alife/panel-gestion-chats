@@ -92,8 +92,7 @@ export default function Conversaciones() {
       });
     }
   }, [userId]);
-
-  const formatearTiempo = (fecha) => {
+    const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -196,7 +195,7 @@ export default function Conversaciones() {
             userId ? "hidden md:block md:w-1/5" : "w-full"
           }`}
         >
-                    <h2 className="text-sm text-gray-400 font-semibold mb-2 px-4 md:px-2">Conversaciones</h2>
+          <h2 className="text-sm text-gray-400 font-semibold mb-2 px-4 md:px-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3 px-4 md:px-2">
             {["todas", "gpt", "humanas"].map((f) => (
               <button
@@ -254,14 +253,13 @@ export default function Conversaciones() {
 
         {/* Columna chat */}
         <div
-          className={`flex flex-col justify-between w-full ${
+          className={`flex flex-col justify-between w-screen md:w-auto flex-1 min-w-0 max-w-full ${
             userId
               ? "bg-white rounded-none shadow-none md:rounded-lg md:shadow-md md:flex md:flex-col md:overflow-hidden md:h-full"
               : "hidden md:flex md:flex-1 bg-white rounded-lg shadow-md flex-col overflow-hidden h-full"
           }`}
-          style={{ width: window.innerWidth < 768 ? "100vw" : undefined }}
         >
-          <div
+                    <div
             ref={chatRef}
             onScroll={() => {
               const el = chatRef.current;
@@ -274,7 +272,7 @@ export default function Conversaciones() {
               userId ? "p-2 md:p-6 space-y-3" : "p-4 md:p-6 space-y-4"
             }`}
           >
-                        {mensajes.map((msg, index) => {
+            {mensajes.map((msg, index) => {
               const isAsistente = msg.from?.toLowerCase() === "asistente";
               const bubbleColor = isAsistente
                 ? "bg-[#ff5733] text-white"

@@ -92,7 +92,8 @@ export default function Conversaciones() {
       });
     }
   }, [userId]);
-    const formatearTiempo = (fecha) => {
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -197,7 +198,7 @@ export default function Conversaciones() {
             userId ? "hidden md:block md:w-1/5" : "w-full"
           }`}
         >
-          <h2 className="text-sm text-gray-400 font-semibold mb-2 px-4 md:px-2">Conversaciones</h2>
+                    <h2 className="text-sm text-gray-400 font-semibold mb-2 px-4 md:px-2">Conversaciones</h2>
           <div className="flex gap-2 mb-3 px-4 md:px-2">
             {["todas", "gpt", "humanas"].map((f) => (
               <button
@@ -252,7 +253,8 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-                {/* Columna chat */}
+
+        {/* Columna chat */}
         <div
           className={`${
             userId
@@ -271,9 +273,9 @@ export default function Conversaciones() {
             }}
             className={`flex-1 overflow-y-auto ${
               userId ? "p-2 md:p-6 space-y-3" : "p-4 md:p-6 space-y-4"
-            } h-0`}
+            }`}
           >
-            {mensajes.map((msg, index) => {
+                        {mensajes.map((msg, index) => {
               const isAsistente = msg.from?.toLowerCase() === "asistente";
               const bubbleColor = isAsistente
                 ? "bg-[#ff5733] text-white"

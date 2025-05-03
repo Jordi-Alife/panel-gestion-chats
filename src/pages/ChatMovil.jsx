@@ -9,10 +9,9 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const chatRef = useRef(null);
-  const ultimaLongitud = useRef(0);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
-  // Cargar usuario y mensajes iniciales
   useEffect(() => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -21,15 +20,6 @@ const ChatMovil = () => {
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
         setMensajes(ordenados);
-        ultimaLongitud.current = ordenados.length;
-
-        // Scroll al abrir conversación → al último mensaje
-        if (chatRef.current) {
-          chatRef.current.scrollTo({
-            top: chatRef.current.scrollHeight,
-            behavior: "auto",
-          });
-        }
       });
 
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -39,7 +29,6 @@ const ChatMovil = () => {
         setUsuario(info || {});
       });
 
-    // Intervalo para comprobar nuevos mensajes
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
         .then((res) => res.json())
@@ -47,25 +36,20 @@ const ChatMovil = () => {
           const ordenados = (data || []).sort(
             (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
           );
-          if (ordenados.length > ultimaLongitud.current) {
-            ultimaLongitud.current = ordenados.length;
-            setMensajes(ordenados);
-
-            // Scroll al llegar nuevo mensaje
-            if (chatRef.current) {
-              chatRef.current.scrollTo({
-                top: chatRef.current.scrollHeight,
-                behavior: "smooth",
-              });
-            }
-          } else {
-            setMensajes(ordenados);
-          }
+          setMensajes(ordenados);
         });
     }, 2000);
 
     return () => clearInterval(interval);
   }, [userId]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      }
+    }, 100);
+  }, [mensajes]);
 
   return (
     <div className="chat-container">
@@ -96,20 +80,11 @@ const ChatMovil = () => {
       {/* MENSAJES */}
       <div ref={chatRef} className="chat-messages">
         {mensajes.map((msg, index) => {
-          const esPanel = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "panel";
-          const align = esPanel ? "flex-end" : "flex-start";
-          const backgroundColor = esPanel ? "#FC6655" : "#FFFFFF";
-          const colorTexto = esPanel ? "#FFFFFF" : "#000000";
-
+          const isAsistente = msg.from?.toLowerCase() === "asistente";
           return (
             <div
               key={index}
-              className="message"
-              style={{
-                alignSelf: align,
-                backgroundColor,
-                color: colorTexto,
-              }}
+              className={`message ${isAsistente ? "assistant" : "user"}`}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
@@ -130,7 +105,7 @@ const ChatMovil = () => {
                       }))
                     }
                     className={`underline text-xs ${
-                      esPanel ? "text-white/80" : "text-black/70"
+                      isAsistente ? "text-black/70" : "text-blue-600"
                     }`}
                   >
                     {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -138,7 +113,7 @@ const ChatMovil = () => {
                   {originalesVisibles[index] && (
                     <p
                       className={`mt-1 italic text-left ${
-                        esPanel ? "text-white/80" : "text-black/70"
+                        isAsistente ? "text-black/70" : "text-gray-500"
                       }`}
                     >
                       {msg.original}
@@ -148,7 +123,7 @@ const ChatMovil = () => {
               )}
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  esPanel ? "text-white" : "text-black"
+                  isAsistente ? "text-black" : "text-gray-500"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

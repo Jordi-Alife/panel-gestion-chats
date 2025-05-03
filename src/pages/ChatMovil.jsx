@@ -9,6 +9,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const chatRef = useRef(null);
+  const [primeraCarga, setPrimeraCarga] = useState(true); // ← NUEVO para controlar autoscroll solo al abrir
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
@@ -44,12 +45,11 @@ const ChatMovil = () => {
   }, [userId]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
-  }, [mensajes]);
+    if (primeraCarga && chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      setPrimeraCarga(false); // ← solo hace scroll al principio
+    }
+  }, [mensajes, primeraCarga]);
 
   return (
     <div className="chat-container">
@@ -80,17 +80,17 @@ const ChatMovil = () => {
       {/* MENSAJES */}
       <div ref={chatRef} className="chat-messages">
         {mensajes.map((msg, index) => {
-          const isAsistente = msg.from?.toLowerCase() === "asistente";
+          const esEnviadoDesdePanel = msg.from?.toLowerCase() === "panel"; // ← usamos 'panel' para enviados
           return (
             <div
               key={index}
-              className={`message ${isAsistente ? "assistant" : "user"} ${
-                isAsistente ? "text-black" : "text-white"
+              className={`message ${esEnviadoDesdePanel ? "user" : "assistant"} ${
+                esEnviadoDesdePanel ? "text-white" : "text-black"
               }`}
               style={{
-                alignSelf: isAsistente ? "flex-start" : "flex-end",
-                backgroundColor: isAsistente ? "#ffffff" : "#f97316", // mismo naranja de escritorio
-                color: isAsistente ? "#000000" : "#ffffff",
+                alignSelf: esEnviadoDesdePanel ? "flex-end" : "flex-start",
+                backgroundColor: esEnviadoDesdePanel ? "#FC6655" : "#ffffff",
+                color: esEnviadoDesdePanel ? "#ffffff" : "#000000",
               }}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
@@ -112,7 +112,7 @@ const ChatMovil = () => {
                       }))
                     }
                     className={`underline text-xs ${
-                      isAsistente ? "text-black/70" : "text-white/80"
+                      esEnviadoDesdePanel ? "text-white/80" : "text-black/70"
                     }`}
                   >
                     {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -120,7 +120,7 @@ const ChatMovil = () => {
                   {originalesVisibles[index] && (
                     <p
                       className={`mt-1 italic text-left ${
-                        isAsistente ? "text-black/70" : "text-white/80"
+                        esEnviadoDesdePanel ? "text-white/80" : "text-black/70"
                       }`}
                     >
                       {msg.original}
@@ -130,7 +130,7 @@ const ChatMovil = () => {
               )}
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isAsistente ? "text-black" : "text-white"
+                  esEnviadoDesdePanel ? "text-white" : "text-black"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

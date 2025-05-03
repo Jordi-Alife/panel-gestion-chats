@@ -6,16 +6,17 @@ import {
   Navigate,
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
-import ConversacionesWrapper from "./pages/ConversacionesWrapper"; // ✅ añadida esta importación
+import Conversaciones from "./pages/Conversaciones"; // ✅ volvemos a usar Conversaciones aquí
+import ChatMovil from "./pages/ChatMovil"; // ✅ importamos ChatMovil
 import Agentes from "./pages/agentes";
-import AgenteDetalle from "./pages/AgenteDetalle"; // ✅ importamos la nueva página
+import AgenteDetalle from "./pages/AgenteDetalle";
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
-import Inicio from "./pages/Inicio"; // ✅ ya estaba añadido
+import Inicio from "./pages/Inicio";
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -57,7 +58,6 @@ const App = () => {
     return () => unsub();
   }, []);
 
-  // ✅ Notificaciones globales desde cualquier ruta
   useEffect(() => {
     const interval = setInterval(() => {
       fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -103,7 +103,8 @@ const App = () => {
               <DashboardLayout>
                 <Routes>
                   <Route path="/" element={<Inicio />} />
-                  <Route path="/conversaciones" element={<ConversacionesWrapper />} /> {/* ✅ reemplazada aquí */}
+                  <Route path="/conversaciones" element={<Conversaciones />} /> {/* ✅ la lista normal */}
+                  <Route path="/conversaciones/:userId" element={<ChatMovil />} /> {/* ✅ la vista móvil al seleccionar */}
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />

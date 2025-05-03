@@ -1,203 +1,171 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ChatMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
-  const [mostrarBoton, setMostrarBoton] = useState(false);
+  const [respuesta, setRespuesta] = useState("");
+  const [originalesVisibles, setOriginalesVisibles] = useState({});
+  const [usuario, setUsuario] = useState({});
   const chatRef = useRef(null);
-  const [haHechoScrollInicial, setHaHechoScrollInicial] = useState(false);
 
-  // Cargar mensajes
+  const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
   useEffect(() => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        setMensajes(data.mensajes || []);
-      })
-      .catch((err) => console.error("Error cargando mensajes", err));
+        const ordenados = (data || []).sort(
+          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+        );
+        setMensajes(ordenados);
+      });
+
+    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      .then((res) => res.json())
+      .then((all) => {
+        const info = all.find((c) => c.userId === userId);
+        setUsuario(info || {});
+      });
+
+    const interval = setInterval(() => {
+      fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const ordenados = (data || []).sort(
+            (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+          );
+          setMensajes(ordenados);
+        });
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, [userId]);
 
-  // Scroll inicial solo la primera vez
   useEffect(() => {
-    if (mensajes.length > 0 && chatRef.current && !haHechoScrollInicial) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "auto",
-      });
-      setHaHechoScrollInicial(true);
-    }
-  }, [mensajes, haHechoScrollInicial]);
-
-  const handleScroll = () => {
-    if (!chatRef.current) return;
-    const { scrollTop, clientHeight, scrollHeight } = chatRef.current;
-    const enElFinal = scrollTop + clientHeight >= scrollHeight - 20;
-    setMostrarBoton(!enElFinal);
-  };
-
-  const scrollAbajo = () => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  };
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      }
+    }, 100);
+  }, [mensajes]);
 
   return (
     <div className="chat-container">
-      {/* CABECERA TRANSLÚCIDA */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.8)",
-          backdropFilter: "blur(8px)",
-          borderBottom: "1px solid #ddd",
-          padding: "1rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
-        <div
-          style={{
-            background: "#ccc",
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            fontWeight: "bold",
-            fontSize: "14px",
-          }}
-        >
-          {userId?.slice(0, 2).toUpperCase()}
+      {/* HEADER */}
+      <div className="chat-header">
+        <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700">
+          {usuario.iniciales || "--"}
         </div>
-        <div>
-          <div style={{ fontSize: "14px", fontWeight: "bold" }}>ID: {userId}</div>
+        <div className="flex flex-col">
+          <div className="title">ID: {usuario.userId || userId}</div>
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", gap: "8px" }}>
+        <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => navigate("/conversaciones")}
-            style={{ fontSize: "18px", color: "#000" }}
-            title="Volver"
+            className="text-gray-600 text-xl"
           >
             ←
           </button>
-          <button style={{ fontSize: "18px", color: "#000" }} title="Detalles">
-            i
+          <button
+            onClick={() => alert("Ver detalles")}
+            className="text-gray-600 text-xl"
+          >
+            ℹ️
           </button>
         </div>
       </div>
 
       {/* MENSAJES */}
-      <div
-        ref={chatRef}
-        onScroll={handleScroll}
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "1rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-          background: "#f5f5f5",
-          height: "calc(100vh - 140px)",
-        }}
-      >
-        {mensajes.length === 0 ? (
-          <div style={{ textAlign: "center", color: "#999" }}>Cargando conversación...</div>
-        ) : (
-          mensajes.map((msg, idx) => (
+      <div ref={chatRef} className="chat-messages">
+        {mensajes.map((msg, index) => {
+          const isAsistente = msg.from?.toLowerCase() === "asistente";
+          return (
             <div
-              key={idx}
-              style={{
-                alignSelf: msg.from?.toLowerCase() === "usuario" ? "flex-end" : "flex-start",
-                background: msg.from?.toLowerCase() === "usuario" ? "#000" : "#fff",
-                color: msg.from?.toLowerCase() === "usuario" ? "#fff" : "#000",
-                border: msg.from?.toLowerCase() === "usuario" ? "none" : "1px solid #ddd",
-                borderRadius: "16px",
-                padding: "0.75rem 1rem",
-                maxWidth: "75%",
-                fontSize: "15px",
-              }}
+              key={index}
+              className={`message ${isAsistente ? "assistant" : "user"}`}
             >
-              {msg.texto}
+              {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+                <img
+                  src={msg.message}
+                  alt="Imagen"
+                  className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+                />
+              ) : (
+                <p className="whitespace-pre-wrap text-base">{msg.message}</p>
+              )}
               {msg.original && (
-                <div>
-                  <a
-                    href="#"
-                    className="text-xs underline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert(msg.original);
-                    }}
+                <div className="mt-1 text-[11px] text-right">
+                  <button
+                    onClick={() =>
+                      setOriginalesVisibles((prev) => ({
+                        ...prev,
+                        [index]: !prev[index],
+                      }))
+                    }
+                    className={`underline text-xs ${
+                      isAsistente ? "text-black/70" : "text-blue-600"
+                    }`}
                   >
-                    Ver original
-                  </a>
-                  <div style={{ fontSize: "12px", color: "#888" }}>{msg.timestamp}</div>
+                    {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                  </button>
+                  {originalesVisibles[index] && (
+                    <p
+                      className={`mt-1 italic text-left ${
+                        isAsistente ? "text-black/70" : "text-gray-500"
+                      }`}
+                    >
+                      {msg.original}
+                    </p>
+                  )}
                 </div>
               )}
+              <div
+                className={`text-[10px] mt-1 opacity-60 text-right ${
+                  isAsistente ? "text-black" : "text-gray-500"
+                }`}
+              >
+                {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
 
-      {/* BOTÓN FLOTANTE */}
-      {mostrarBoton && (
-        <button
-          onClick={scrollAbajo}
-          style={{
-            position: "fixed",
-            bottom: "90px",
-            right: "20px",
-            background: "#000",
-            color: "#fff",
-            borderRadius: "999px",
-            padding: "0.75rem",
-            fontSize: "20px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-          }}
-        >
-          ↓
-        </button>
-      )}
-
       {/* INPUT */}
-      <div
-        style={{
-          background: "#fff",
-          borderTop: "1px solid #ddd",
-          padding: "0.75rem",
-          display: "flex",
-          gap: "0.5rem",
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!respuesta.trim()) return;
+          await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              message: respuesta,
+              agente: {
+                nombre: perfil.nombre || "",
+                foto: perfil.foto || "",
+                uid: localStorage.getItem("id-usuario-panel") || null,
+              },
+            }),
+          });
+          setRespuesta("");
         }}
+        className="chat-input"
       >
         <input
           type="text"
+          value={respuesta}
+          onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          style={{
-            flex: 1,
-            border: "1px solid #ccc",
-            borderRadius: "999px",
-            padding: "0.5rem 1rem",
-            fontSize: "14px",
-          }}
         />
-        <button
-          style={{
-            background: "#000",
-            color: "#fff",
-            borderRadius: "999px",
-            padding: "0.5rem 1rem",
-            fontSize: "14px",
-          }}
-        >
-          Enviar
-        </button>
-      </div>
+        <button type="submit">Enviar</button>
+      </form>
     </div>
   );
 };

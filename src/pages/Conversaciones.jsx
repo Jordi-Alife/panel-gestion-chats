@@ -92,7 +92,8 @@ export default function Conversaciones() {
       });
     }
   }, [userId]);
-    const formatearTiempo = (fecha) => {
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -212,7 +213,13 @@ export default function Conversaciones() {
           {listaAgrupada.map((c) => (
             <div
               key={c.userId}
-              onClick={() => setSearchParams({ userId: c.userId })}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  navigate(`/conversaciones/${c.userId}`);
+                } else {
+                  setSearchParams({ userId: c.userId });
+                }
+              }}
               className={`flex items-center justify-between cursor-pointer px-4 py-3 rounded hover:bg-gray-100 ${
                 c.userId === userId ? "bg-blue-50" : ""
               } md:px-2 md:py-2`}
@@ -250,8 +257,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-
-        {/* Columna chat */}
+                {/* Columna chat */}
         <div
           className={`flex flex-col justify-between w-screen md:w-auto flex-1 min-w-0 max-w-full ${
             userId
@@ -259,7 +265,7 @@ export default function Conversaciones() {
               : "hidden md:flex md:flex-1 bg-white rounded-lg shadow-md flex-col overflow-hidden h-full"
           }`}
         >
-                    <div
+          <div
             ref={chatRef}
             onScroll={() => {
               const el = chatRef.current;

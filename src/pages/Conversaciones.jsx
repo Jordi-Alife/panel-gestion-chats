@@ -38,8 +38,7 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-
-  const cargarMensajes = () => {
+    const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -92,7 +91,8 @@ export default function Conversaciones() {
       });
     }
   }, [userId]);
-    const formatearTiempo = (fecha) => {
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -121,8 +121,7 @@ export default function Conversaciones() {
     };
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
-
-  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+    const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
@@ -334,8 +333,7 @@ export default function Conversaciones() {
               );
             })}
           </div>
-
-          {mostrarScrollBtn && (
+                    {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -349,6 +347,7 @@ export default function Conversaciones() {
             </button>
           )}
 
+          {/* Formulario de respuesta (oculto en móvil si userId existe) */}
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -380,7 +379,9 @@ export default function Conversaciones() {
               });
               setRespuesta("");
             }}
-            className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2"
+            className={`border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2 ${
+              userId ? "" : "hidden md:flex"
+            }`}
           >
             <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
               Seleccionar archivo
@@ -421,7 +422,7 @@ export default function Conversaciones() {
           </form>
         </div>
 
-        {/* Columna detalles solo visible en desktop */}
+        {/* Columna detalles */}
         <div
           className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto ${
             userId ? "hidden md:block md:w-1/5" : "hidden"
@@ -474,8 +475,8 @@ export default function Conversaciones() {
         </div>
       </div>
 
-      {/* Footer email solo visible en desktop */}
-      <div className={`w-full px-6 py-4 ${userId ? "hidden md:block" : "hidden md:block"}`}>
+      {/* Footer solo en escritorio */}
+      <div className="w-full px-6 py-4 hidden md:block">
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input
             type="email"

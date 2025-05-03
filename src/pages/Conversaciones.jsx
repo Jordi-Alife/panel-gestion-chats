@@ -334,7 +334,8 @@ export default function Conversaciones() {
               );
             })}
           </div>
-                    {mostrarScrollBtn && (
+
+          {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -420,7 +421,7 @@ export default function Conversaciones() {
           </form>
         </div>
 
-        {/* Columna detalles */}
+        {/* Columna detalles solo visible en desktop */}
         <div
           className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto ${
             userId ? "hidden md:block md:w-1/5" : "hidden"
@@ -473,8 +474,8 @@ export default function Conversaciones() {
         </div>
       </div>
 
-      {/* Bloque email solo visible en desktop */}
-      <div className="w-full px-6 py-4 hidden md:block">
+      {/* Footer email solo visible en desktop */}
+      <div className={`w-full px-6 py-4 ${userId ? "hidden md:block" : "hidden md:block"}`}>
         <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
           <input
             type="email"

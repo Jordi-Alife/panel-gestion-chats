@@ -1,171 +1,157 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const ChatMovil = () => {
   const { userId } = useParams();
-  const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
-  const [respuesta, setRespuesta] = useState("");
-  const [originalesVisibles, setOriginalesVisibles] = useState({});
-  const [usuario, setUsuario] = useState({});
   const chatRef = useRef(null);
-
-  const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+  const [primeraVez, setPrimeraVez] = useState(true);
+  const [mostrarBoton, setMostrarBoton] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        const ordenados = (data || []).sort(
-          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-        );
-        setMensajes(ordenados);
-      });
-
-    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
-      .then((all) => {
-        const info = all.find((c) => c.userId === userId);
-        setUsuario(info || {});
-      });
-
-    const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const ordenados = (data || []).sort(
-            (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-          );
-          setMensajes(ordenados);
-        });
-    }, 2000);
-
-    return () => clearInterval(interval);
+        setMensajes(data.mensajes || []);
+      })
+      .catch((err) => console.error("Error cargando mensajes", err));
   }, [userId]);
 
+  // Auto scroll solo al cargar por primera vez
   useEffect(() => {
-    setTimeout(() => {
-      if (chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
-  }, [mensajes]);
+    if (primeraVez && chatRef.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+      setPrimeraVez(false);
+    }
+  }, [mensajes, primeraVez]);
+
+  const handleScroll = () => {
+    if (!chatRef.current) return;
+    const { scrollTop, clientHeight, scrollHeight } = chatRef.current;
+    const enElFinal = scrollTop + clientHeight >= scrollHeight - 20;
+    setMostrarBoton(!enElFinal);
+  };
 
   return (
     <div className="chat-container">
-      {/* HEADER */}
-      <div className="chat-header">
-        <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700">
-          {usuario.iniciales || "--"}
+      {/* Barra superior translúcida */}
+      <div
+        className="chat-header"
+        style={{
+          background: "rgba(255,255,255,0.8)",
+          backdropFilter: "blur(6px)",
+          borderBottom: "1px solid #ddd",
+          padding: "1rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+        }}
+      >
+        <div className="avatar bg-gray-300 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+          {userId?.slice(0, 2).toUpperCase()}
         </div>
-        <div className="flex flex-col">
-          <div className="title">ID: {usuario.userId || userId}</div>
+        <div>
+          <div className="title text-sm font-bold">ID: {userId}</div>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex gap-2">
           <button
             onClick={() => navigate("/conversaciones")}
-            className="text-gray-600 text-xl"
+            className="text-black"
+            title="Volver atrás"
           >
             ←
           </button>
-          <button
-            onClick={() => alert("Ver detalles")}
-            className="text-gray-600 text-xl"
-          >
-            ℹ️
-          </button>
+          <button className="text-black" title="Ver detalles">i</button>
         </div>
       </div>
 
-      {/* MENSAJES */}
-      <div ref={chatRef} className="chat-messages">
-        {mensajes.map((msg, index) => {
-          const isAsistente = msg.from?.toLowerCase() === "asistente";
-          return (
-            <div
-              key={index}
-              className={`message ${isAsistente ? "assistant" : "user"}`}
-            >
-              {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                <img
-                  src={msg.message}
-                  alt="Imagen"
-                  className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                />
-              ) : (
-                <p className="whitespace-pre-wrap text-base">{msg.message}</p>
-              )}
-              {msg.original && (
-                <div className="mt-1 text-[11px] text-right">
-                  <button
-                    onClick={() =>
-                      setOriginalesVisibles((prev) => ({
-                        ...prev,
-                        [index]: !prev[index],
-                      }))
-                    }
-                    className={`underline text-xs ${
-                      isAsistente ? "text-black/70" : "text-blue-600"
-                    }`}
-                  >
-                    {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                  </button>
-                  {originalesVisibles[index] && (
-                    <p
-                      className={`mt-1 italic text-left ${
-                        isAsistente ? "text-black/70" : "text-gray-500"
-                      }`}
-                    >
-                      {msg.original}
-                    </p>
-                  )}
-                </div>
-              )}
-              <div
-                className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isAsistente ? "text-black" : "text-gray-500"
-                }`}
-              >
-                {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+      {/* Mensajes */}
+      <div
+        ref={chatRef}
+        className="chat-messages"
+        onScroll={handleScroll}
+        style={{
+          flex: 1,
+          padding: "1rem",
+          overflowY: "auto",
+          background: "#f5f5f5",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+        }}
+      >
+        {mensajes.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`message ${msg.from?.toLowerCase() === "usuario" ? "user" : "assistant"}`}
+            style={{
+              alignSelf: msg.from?.toLowerCase() === "usuario" ? "flex-end" : "flex-start",
+              background: msg.from?.toLowerCase() === "usuario" ? "#000" : "#fff",
+              color: msg.from?.toLowerCase() === "usuario" ? "#fff" : "#000",
+              border: msg.from?.toLowerCase() === "usuario" ? "none" : "1px solid #ddd",
+              borderRadius: "16px",
+              padding: "0.75rem 1rem",
+              maxWidth: "75%",
+              fontSize: "15px", // aumentamos tamaño texto
+            }}
+          >
+            {msg.texto}
+            {msg.original && (
+              <div>
+                <a
+                  href="#"
+                  className="text-xs underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    alert(msg.original);
+                  }}
+                >
+                  Ver original
+                </a>
+                <div className="text-xs text-gray-500">{msg.timestamp}</div>
               </div>
-            </div>
-          );
-        })}
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* INPUT */}
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!respuesta.trim()) return;
-          await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId,
-              message: respuesta,
-              agente: {
-                nombre: perfil.nombre || "",
-                foto: perfil.foto || "",
-                uid: localStorage.getItem("id-usuario-panel") || null,
-              },
-            }),
-          });
-          setRespuesta("");
-        }}
+      {/* Botón flotante para volver abajo */}
+      {mostrarBoton && (
+        <button
+          onClick={() =>
+            chatRef.current.scrollTo({
+              top: chatRef.current.scrollHeight,
+              behavior: "smooth",
+            })
+          }
+          className="fixed bottom-24 right-4 bg-black text-white rounded-full p-3 shadow-lg"
+        >
+          ↓
+        </button>
+      )}
+
+      {/* Input */}
+      <div
         className="chat-input"
+        style={{
+          background: "#fff",
+          borderTop: "1px solid #ddd",
+          padding: "0.75rem",
+          display: "flex",
+          gap: "0.5rem",
+        }}
       >
         <input
           type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
+          className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm"
         />
-        <button type="submit">Enviar</button>
-      </form>
+        <button className="bg-black text-white rounded-full px-4 py-2 text-sm">Enviar</button>
+      </div>
     </div>
   );
 };

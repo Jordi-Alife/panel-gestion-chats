@@ -84,15 +84,13 @@ const ChatMovil = () => {
           return (
             <div
               key={index}
-              className={`message ${
-                isAsistente ? "assistant" : "user"
-              } ${isAsistente ? "text-left" : "text-right"}`}
+              className={`message ${isAsistente ? "assistant" : "user"} ${
+                isAsistente ? "text-black" : "text-white"
+              }`}
               style={{
                 alignSelf: isAsistente ? "flex-start" : "flex-end",
-                background: isAsistente
-                  ? "#fff"
-                  : "#3b82f6", // Color de escritorio (azul)
-                color: isAsistente ? "#000" : "#fff",
+                backgroundColor: isAsistente ? "#ffffff" : "#f97316", // mismo naranja de escritorio
+                color: isAsistente ? "#000000" : "#ffffff",
               }}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
@@ -114,7 +112,7 @@ const ChatMovil = () => {
                       }))
                     }
                     className={`underline text-xs ${
-                      isAsistente ? "text-black/70" : "text-white"
+                      isAsistente ? "text-black/70" : "text-white/80"
                     }`}
                   >
                     {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -122,7 +120,7 @@ const ChatMovil = () => {
                   {originalesVisibles[index] && (
                     <p
                       className={`mt-1 italic text-left ${
-                        isAsistente ? "text-black/70" : "text-gray-300"
+                        isAsistente ? "text-black/70" : "text-white/80"
                       }`}
                     >
                       {msg.original}
@@ -131,8 +129,8 @@ const ChatMovil = () => {
                 </div>
               )}
               <div
-                className={`text-[10px] mt-1 opacity-60 ${
-                  isAsistente ? "text-black text-left" : "text-white text-right"
+                className={`text-[10px] mt-1 opacity-60 text-right ${
+                  isAsistente ? "text-black" : "text-white"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

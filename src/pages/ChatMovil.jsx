@@ -84,7 +84,16 @@ const ChatMovil = () => {
           return (
             <div
               key={index}
-              className={`message ${isAsistente ? "assistant" : "user"}`}
+              className={`message ${
+                isAsistente ? "assistant" : "user"
+              } ${isAsistente ? "text-left" : "text-right"}`}
+              style={{
+                alignSelf: isAsistente ? "flex-start" : "flex-end",
+                background: isAsistente
+                  ? "#fff"
+                  : "#3b82f6", // Color de escritorio (azul)
+                color: isAsistente ? "#000" : "#fff",
+              }}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
@@ -105,7 +114,7 @@ const ChatMovil = () => {
                       }))
                     }
                     className={`underline text-xs ${
-                      isAsistente ? "text-black/70" : "text-blue-600"
+                      isAsistente ? "text-black/70" : "text-white"
                     }`}
                   >
                     {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -113,7 +122,7 @@ const ChatMovil = () => {
                   {originalesVisibles[index] && (
                     <p
                       className={`mt-1 italic text-left ${
-                        isAsistente ? "text-black/70" : "text-gray-500"
+                        isAsistente ? "text-black/70" : "text-gray-300"
                       }`}
                     >
                       {msg.original}
@@ -122,8 +131,8 @@ const ChatMovil = () => {
                 </div>
               )}
               <div
-                className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isAsistente ? "text-black" : "text-gray-500"
+                className={`text-[10px] mt-1 opacity-60 ${
+                  isAsistente ? "text-black text-left" : "text-white text-right"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

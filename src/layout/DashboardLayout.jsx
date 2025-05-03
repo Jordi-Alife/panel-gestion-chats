@@ -56,7 +56,6 @@ const DashboardLayout = ({ children }) => {
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
         <div className="flex items-center gap-3">
-          {/* Botón menú móvil */}
           <button
             className="md:hidden"
             onClick={() => setMenuMovilAbierto(true)}
@@ -83,7 +82,6 @@ const DashboardLayout = ({ children }) => {
 
       {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
-        {/* Sidebar para escritorio */}
         <aside
           className={`relative hidden md:flex flex-col justify-between ${
             colapsado ? "w-20" : "w-56"
@@ -178,7 +176,6 @@ const DashboardLayout = ({ children }) => {
           </div>
         </aside>
 
-        {/* Sidebar móvil */}
         {menuMovilAbierto && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40 flex"
@@ -222,7 +219,6 @@ const DashboardLayout = ({ children }) => {
                 )}
               </div>
 
-              {/* PERFIL MÓVIL */}
               <div
                 onClick={() => {
                   navigate("/perfil");
@@ -248,9 +244,9 @@ const DashboardLayout = ({ children }) => {
           </div>
         )}
 
-        {/* Contenido */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
+          {/* Footer solo visible en escritorio */}
           <footer className="hidden md:flex mt-12 border-t pt-4 text-xs text-gray-500 flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

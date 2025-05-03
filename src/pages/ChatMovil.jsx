@@ -9,9 +9,10 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const chatRef = useRef(null);
-  const ultimaLongitud = useRef(0); // ← para detectar nuevos mensajes
+  const ultimaLongitud = useRef(0);
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
+  // Cargar usuario y mensajes iniciales
   useEffect(() => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -21,6 +22,14 @@ const ChatMovil = () => {
         );
         setMensajes(ordenados);
         ultimaLongitud.current = ordenados.length;
+
+        // Scroll al abrir conversación → al último mensaje
+        if (chatRef.current) {
+          chatRef.current.scrollTo({
+            top: chatRef.current.scrollHeight,
+            behavior: "auto",
+          });
+        }
       });
 
     fetch("https://web-production-51989.up.railway.app/api/conversaciones")
@@ -30,6 +39,7 @@ const ChatMovil = () => {
         setUsuario(info || {});
       });
 
+    // Intervalo para comprobar nuevos mensajes
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
         .then((res) => res.json())
@@ -39,24 +49,23 @@ const ChatMovil = () => {
           );
           if (ordenados.length > ultimaLongitud.current) {
             ultimaLongitud.current = ordenados.length;
-            // solo hace scroll si hay nuevos mensajes
+            setMensajes(ordenados);
+
+            // Scroll al llegar nuevo mensaje
             if (chatRef.current) {
-              chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+              chatRef.current.scrollTo({
+                top: chatRef.current.scrollHeight,
+                behavior: "smooth",
+              });
             }
+          } else {
+            setMensajes(ordenados);
           }
-          setMensajes(ordenados);
         });
     }, 2000);
 
     return () => clearInterval(interval);
   }, [userId]);
-
-  useEffect(() => {
-    // hace scroll al abrir la conversación
-    if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-    }
-  }, []);
 
   return (
     <div className="chat-container">

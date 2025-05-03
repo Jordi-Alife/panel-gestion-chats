@@ -36,7 +36,7 @@ body {
 }
 
 .chat-header {
-  background: #fff;
+  background: white !important; /* ✅ ahora blanco forzado */
   padding: 1rem;
   border-bottom: 1px solid #ddd;
   display: flex;
@@ -74,8 +74,7 @@ body {
   max-width: 75%;
   padding: 0.75rem 1rem;
   border-radius: 16px;
-  font-size: 14px;
-  overflow-wrap: anywhere; /* ✅ añadido */
+  font-size: 15px; /* ✅ aumentamos ligeramente para mejor lectura */
 }
 
 .message.user {
@@ -97,6 +96,7 @@ body {
   padding: 0.75rem;
   display: flex;
   gap: 0.5rem;
+  margin-bottom: 0.25rem; /* ✅ separa un poco del borde inferior */
 }
 
 .chat-input input {
@@ -104,7 +104,7 @@ body {
   border: 1px solid #ddd;
   border-radius: 999px;
   padding: 0.5rem 1rem;
-  font-size: 14px;
+  font-size: 16px; /* ✅ evita zoom en iOS */
 }
 
 .chat-input button {
@@ -116,25 +116,7 @@ body {
   cursor: pointer;
 }
 
-/* ✅ EVITAR ZOOM EN INPUT SOLO EN MOVIL */
-@media (max-width: 767px) {
-  .chat-input input {
-    font-size: 16px;
-  }
-}
-
-/* ✅ CAMBIAR BARRA SUPERIOR SOLO EN MOVIL */
-@media (max-width: 767px) {
-  .chat-header {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent);
-    backdrop-filter: blur(2px);
-    padding: 1.25rem 1rem;
-  }
-}
-
-/* ✅ MOVER CAJA DE TEXTO ARRIBA EN MOVIL */
-@media (max-width: 767px) {
-  .chat-input {
-    margin-bottom: 0.5rem;
-  }
+/* ✅ aplicamos también la regla de zoom a select y textarea */
+input, textarea, select {
+  font-size: 16px;
 }

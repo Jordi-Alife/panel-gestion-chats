@@ -1,17 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function ChatMovil() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
-  const [respuesta, setRespuesta] = useState("");
-  const [imagen, setImagen] = useState(null);
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-  const [originalesVisibles, setOriginalesVisibles] = useState({});
   const chatRef = useRef(null);
-
-  const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+  const [originalesVisibles, setOriginalesVisibles] = useState({});
 
   const cargarMensajes = () => {
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
@@ -21,14 +16,12 @@ export default function ChatMovil() {
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
         setMensajes(ordenados);
-      })
-      .catch(console.error);
-
-    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
-      .then((convs) => {
-        const info = convs.find((c) => c.userId === userId);
-        setUsuarioSeleccionado(info || null);
+        setTimeout(() => {
+          chatRef.current?.scrollTo({
+            top: chatRef.current.scrollHeight,
+            behavior: "auto",
+          });
+        }, 100);
       })
       .catch(console.error);
   };
@@ -39,63 +32,51 @@ export default function ChatMovil() {
     return () => clearInterval(interval);
   }, [userId]);
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-    }
-  }, [mensajes]);
-
   return (
-    <div className="flex flex-col h-screen bg-[#f0f4f8]">
-      {/* Header estilo asistente */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-b from-white/80 to-white/30 shadow">
-        <div className="flex items-center gap-2">
-          {usuarioSeleccionado ? (
-            <div className="bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
-              {usuarioSeleccionado.userId.slice(0, 2).toUpperCase()}
-            </div>
-          ) : (
-            <div className="bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm text-gray-700">--</div>
-          )}
-          <div className="text-xs">
-            <div className="font-medium">
-              ID: {usuarioSeleccionado ? usuarioSeleccionado.userId : ""}
-            </div>
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* HEADER */}
+      <div className="flex items-center justify-between px-4 py-3 bg-orange-500/80 backdrop-blur-sm text-white shadow-md" style={{ minHeight: "60px" }}>
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-300 text-gray-700 font-bold w-10 h-10 rounded-full flex items-center justify-center text-sm">
+            {userId?.slice(0, 2).toUpperCase()}
+          </div>
+          <div className="text-sm leading-tight">
+            <div className="font-medium text-white">ID: {userId}</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/conversaciones")}
-            className="text-gray-600 text-xl"
+            className="text-white text-lg"
+            title="Volver atrás"
           >
             ←
           </button>
-          <button
-            onClick={() => alert("Detalles próximamente")}
-            className="text-gray-600 text-xl"
-          >
+          <button className="text-white text-lg" title="Ver detalles">
             ℹ️
           </button>
         </div>
       </div>
 
-      {/* Chat */}
+      {/* MENSAJES */}
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto p-4 space-y-3"
       >
         {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente";
-          const bubbleColor = isAsistente
-            ? "bg-white text-gray-800"
-            : "bg-black text-white";
           const align = isAsistente ? "justify-start" : "justify-end";
+          const bubbleColor = isAsistente
+            ? "bg-white text-gray-900"
+            : "bg-black text-white";
           return (
             <div key={index} className={`flex ${align}`}>
-              <div className={`rounded-2xl px-4 py-2 max-w-[80%] shadow ${bubbleColor}`}>
-                <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+              <div
+                className={`rounded-xl p-3 shadow max-w-[80%] ${bubbleColor}`}
+              >
+                <p className="text-[15px] whitespace-pre-wrap">{msg.message}</p>
                 {msg.original && (
-                  <div className="mt-1 text-[10px] text-right">
+                  <div className="mt-1 text-[11px] text-right">
                     <button
                       onClick={() =>
                         setOriginalesVisibles((prev) => ({
@@ -103,16 +84,30 @@ export default function ChatMovil() {
                           [index]: !prev[index],
                         }))
                       }
-                      className="underline text-[10px]"
+                      className={`underline text-xs ${
+                        isAsistente ? "text-gray-500" : "text-white/70"
+                      }`}
                     >
-                      {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                      {originalesVisibles[index]
+                        ? "Ocultar original"
+                        : "Ver original"}
                     </button>
                     {originalesVisibles[index] && (
-                      <p className="italic text-[11px] mt-1">{msg.original}</p>
+                      <p
+                        className={`mt-1 italic text-left ${
+                          isAsistente ? "text-gray-500" : "text-white/70"
+                        }`}
+                      >
+                        {msg.original}
+                      </p>
                     )}
                   </div>
                 )}
-                <div className="text-[10px] opacity-60 text-right mt-1">
+                <div
+                  className={`text-[10px] mt-1 opacity-60 text-right ${
+                    isAsistente ? "text-gray-500" : "text-white"
+                  }`}
+                >
                   {new Date(msg.lastInteraction).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -124,50 +119,20 @@ export default function ChatMovil() {
         })}
       </div>
 
-      {/* Input */}
+      {/* INPUT */}
       <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!respuesta.trim() && !imagen) return;
-
-          if (imagen) {
-            const formData = new FormData();
-            formData.append("file", imagen);
-            formData.append("userId", userId);
-            await fetch("https://web-production-51989.up.railway.app/api/upload", {
-              method: "POST",
-              body: formData,
-            });
-            setImagen(null);
-          } else {
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
-            setRespuesta("");
-          }
-        }}
-        className="flex items-center gap-2 p-3 border-t bg-white"
+        onSubmit={(e) => e.preventDefault()}
+        className="flex items-center gap-2 px-4 py-3 bg-white shadow-md border-t"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
       >
         <input
           type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+          className="flex-1 border rounded-full px-4 py-2 text-[15px] focus:outline-none"
         />
         <button
           type="submit"
-          className="bg-black text-white rounded-full px-4 py-2 text-sm"
+          className="bg-black text-white rounded-full px-4 py-2 text-[14px]"
         >
           Enviar
         </button>

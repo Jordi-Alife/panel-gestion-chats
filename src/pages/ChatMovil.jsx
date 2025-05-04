@@ -94,27 +94,31 @@ const ChatMovil = () => {
                 <p className="whitespace-pre-wrap text-base">{msg.message}</p>
               )}
 
-              {/* ✅ CAMBIO: solo la clase del botón */}
-              {isAsistente && (
-                <div className="mt-1 text-[11px] text-right">
-                  <button
-                    onClick={() =>
-                      setOriginalesVisibles((prev) => ({
-                        ...prev,
-                        [index]: !prev[index],
-                      }))
-                    }
-                    className={`underline text-xs ${isAsistente ? "text-white" : "text-blue-600"}`}
+              {/* ✅ CAMBIO: ahora también para mensajes de usuario */}
+              <div className="mt-1 text-[11px] text-right">
+                <button
+                  onClick={() =>
+                    setOriginalesVisibles((prev) => ({
+                      ...prev,
+                      [index]: !prev[index],
+                    }))
+                  }
+                  className={`underline text-xs ${
+                    isAsistente ? "text-white" : "text-blue-600"
+                  }`}
+                >
+                  {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                </button>
+                {originalesVisibles[index] && (
+                  <p
+                    className={`mt-1 italic text-left ${
+                      isAsistente ? "text-white" : "text-gray-700"
+                    }`}
                   >
-                    {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                  </button>
-                  {originalesVisibles[index] && (
-                    <p className="mt-1 italic text-left text-white">
-                      {msg.original || "No disponible"}
-                    </p>
-                  )}
-                </div>
-              )}
+                    {msg.original || "No disponible"}
+                  </p>
+                )}
+              </div>
 
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${

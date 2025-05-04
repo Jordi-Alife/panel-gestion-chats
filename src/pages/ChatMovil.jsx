@@ -84,11 +84,19 @@ const ChatMovil = () => {
       {/* MENSAJES */}
       <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
-          const className = msg.manual
-            ? "message bg-black text-white"  // humano → negro
-            : "message bg-gray-700 text-white"; // GPT → gris oscuro
+          const isGPT = msg.from?.toLowerCase() === "asistente";
+          const isAgente = msg.from?.toLowerCase() === "agente";
           return (
-            <div key={index} className={className}>
+            <div
+              key={index}
+              className={`message ${
+                isGPT
+                  ? "assistant bg-gray-700 text-white"
+                  : isAgente
+                  ? "assistant bg-black text-white"
+                  : "user"
+              }`}
+            >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
                   src={msg.message}
@@ -107,18 +115,28 @@ const ChatMovil = () => {
                       [index]: !prev[index],
                     }))
                   }
-                  className={`underline text-xs text-white`}
+                  className={`underline text-xs ${
+                    isGPT || isAgente ? "text-white" : "text-blue-600"
+                  }`}
                 >
                   {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                 </button>
                 {originalesVisibles[index] && (
-                  <p className={`mt-1 italic text-left text-white`}>
+                  <p
+                    className={`mt-1 italic text-left ${
+                      isGPT || isAgente ? "text-white" : "text-gray-700"
+                    }`}
+                  >
                     {msg.original || "No disponible"}
                   </p>
                 )}
               </div>
 
-              <div className="text-[10px] mt-1 opacity-60 text-right text-white">
+              <div
+                className={`text-[10px] mt-1 opacity-60 text-right ${
+                  isGPT || isAgente ? "text-white" : "text-gray-500"
+                }`}
+              >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",

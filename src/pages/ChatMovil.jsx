@@ -84,7 +84,7 @@ const ChatMovil = () => {
           return (
             <div
               key={index}
-              className={`message ${isAsistente ? "assistant" : "user"}`}
+              className={`message ${isAsistente ? "assistant align-right" : "user align-left"}`}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img

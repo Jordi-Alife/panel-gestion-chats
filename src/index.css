@@ -77,15 +77,16 @@ body {
   gap: 0.75rem;
 }
 
+/* ✅ AJUSTADA FORMA DE LAS BURBUJAS IGUAL QUE ASISTENTE */
 .message {
   max-width: 75%;
-  padding: 0.75rem 1rem;
-  border-radius: 18px;
+  padding: 0.875rem 1.25rem; /* ligero ajuste de padding */
+  border-radius: 1rem; /* equivale a 16px */
   font-size: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); /* sombra más suave */
 }
 
-/* ✅ CORREGIDO: mensajes del usuario alineados a la izquierda */
+/* ✅ mensajes del usuario alineados a la izquierda */
 .message.user {
   align-self: flex-start;
   background: #fff;
@@ -93,7 +94,7 @@ body {
   border: 1px solid #ddd;
 }
 
-/* ✅ CORREGIDO: mensajes del agente/GPT alineados a la derecha */
+/* ✅ mensajes del agente/GPT alineados a la derecha */
 .message.assistant {
   align-self: flex-end;
   background: #000;

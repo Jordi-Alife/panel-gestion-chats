@@ -6,8 +6,8 @@
 html,
 body {
   height: 100%;
-  overflow-x: hidden; /* ✅ solo bloquea scroll lateral */
-  overflow-y: auto;   /* ✅ permite scroll vertical si fuera necesario */
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-overflow-scrolling: touch;
@@ -19,7 +19,7 @@ body {
   flex-direction: column;
 }
 
-/* ✅ Ocultar el footer en pantallas menores de 768px (mobile) */
+/* ✅ Ocultar el footer en pantallas menores de 768px */
 @media (max-width: 767px) {
   footer {
     display: none;
@@ -35,27 +35,21 @@ body {
   background: #f5f5f5;
 }
 
+/* ✅ Cambios SOLO aplican a ChatMovil porque solo aquí existe esta clase */
 .chat-header {
-  background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background: white !important;
   padding: 1rem;
   border-bottom: 1px solid #ddd;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  position: relative;
-}
 
-.chat-header::after {
-  content: "";
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 50%;
+  /* NUEVOS CAMBIOS PARA LA BARRA */
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .chat-header .avatar {
@@ -87,7 +81,7 @@ body {
 .message {
   max-width: 75%;
   padding: 0.75rem 1rem;
-  border-radius: 20px; /* ✅ más redondeado */
+  border-radius: 16px;
   font-size: 15px;
 }
 
@@ -95,7 +89,6 @@ body {
   align-self: flex-end;
   background: #000;
   color: white;
-  border-radius: 20px 20px 4px 20px; /* ✅ forma específica */
 }
 
 .message.assistant {
@@ -103,7 +96,6 @@ body {
   background: #fff;
   color: #000;
   border: 1px solid #ddd;
-  border-radius: 20px 20px 20px 4px; /* ✅ forma específica */
 }
 
 .chat-input {
@@ -112,7 +104,7 @@ body {
   padding: 0.75rem;
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 0.25rem; /* ✅ separa un poco del borde inferior */
+  margin-bottom: 0.25rem;
 }
 
 .chat-input input {
@@ -120,7 +112,7 @@ body {
   border: 1px solid #ddd;
   border-radius: 999px;
   padding: 0.5rem 1rem;
-  font-size: 16px; /* ✅ evita zoom en iOS */
+  font-size: 16px;
 }
 
 .chat-input button {
@@ -132,7 +124,6 @@ body {
   cursor: pointer;
 }
 
-/* ✅ aplicamos también la regla de zoom a select y textarea */
 input, textarea, select {
   font-size: 16px;
 }

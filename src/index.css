@@ -105,13 +105,14 @@ html, body {
   border-bottom-right-radius: 4px;
 }
 
-/* ✅ Ajuste SOLO en escritorio: mismo radius en todos los bordes */
+/* ✅ Ajuste SOLO en escritorio: mismo radius + color distinto para assistant */
 @media (min-width: 768px) {
   .message.user {
     border-radius: 18px !important;
   }
   .message.assistant {
     border-radius: 18px !important;
+    background: #ff5733 !important; /* Cambiamos color solo en escritorio */
   }
 }
 

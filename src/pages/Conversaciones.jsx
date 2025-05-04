@@ -16,7 +16,7 @@ export default function Conversaciones() {
   const [agente, setAgente] = useState(null);
   const [emailDestino, setEmailDestino] = useState("");
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-  const [textoEscribiendo, setTextoEscribiendo] = useState(""); // ✅ NUEVO estado
+  const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -38,8 +38,7 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-
-  const cargarMensajes = () => {
+    const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -65,7 +64,6 @@ export default function Conversaciones() {
     return () => clearInterval(interval);
   }, [userId]);
 
-  // ✅ NUEVO efecto para consultar texto escribiendo
   useEffect(() => {
     if (!userId) return;
     const interval = setInterval(() => {
@@ -199,7 +197,7 @@ export default function Conversaciones() {
     <div className="flex flex-col h-screen min-h-screen bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden flex-col md:flex-row">
         {/* Lista de conversaciones */}
-        {/* ... tu código de lista se mantiene igual ... */}
+        {/* ... aquí sigue igual, tu lista ya está bien ... */}
 
         {/* Columna chat */}
         <div
@@ -284,7 +282,7 @@ export default function Conversaciones() {
               );
             })}
 
-            {/* ✅ NUEVA BURBUJA de escribiendo */}
+            {/* ✅ NUEVA BURBUJA escribiendo */}
             {textoEscribiendo && (
               <div className="flex justify-start">
                 <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
@@ -293,8 +291,7 @@ export default function Conversaciones() {
               </div>
             )}
           </div>
-
-          {mostrarScrollBtn && (
+                    {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -307,7 +304,8 @@ export default function Conversaciones() {
               Ir al final
             </button>
           )}
-                    <form
+
+          <form
             onSubmit={async (e) => {
               e.preventDefault();
               if (!userId) return;
@@ -389,11 +387,20 @@ export default function Conversaciones() {
             <div className="mb-4">
               <h3 className="text-xs text-gray-500">Intervenido por</h3>
               <div className="flex items-center gap-2 mt-1">
-                <img
-                  src={agente.foto || "https://i.pravatar.cc/100"}
-                  alt="Agente"
-                  className="w-8 h-8 rounded-full"
-                />
+                {agente.foto ? (
+                  <img
+                    src={agente.foto}
+                    alt="Agente"
+                    className="w-8 h-8 rounded-full object-cover"
+                    onError={(e) => (e.currentTarget.src = "https://i.pravatar.cc/100")}
+                  />
+                ) : (
+                  <img
+                    src="https://i.pravatar.cc/100"
+                    alt="Agente"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                )}
                 <span className="text-sm font-medium text-gray-700">
                   {agente.nombre || "—"}
                 </span>

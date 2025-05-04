@@ -9,6 +9,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
+  const [textoEscribiendo, setTextoEscribiendo] = useState(""); // ✅ NUEVO
   const chatRef = useRef(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
@@ -39,14 +40,24 @@ const ChatMovil = () => {
     }, 100);
   }, [mensajes]);
 
+  // ✅ NUEVO efecto para consultar texto escribiendo
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
+        .then((res) => res.json())
+        .then((data) => setTextoEscribiendo(data.texto || ""))
+        .catch(console.error);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
   const handleScroll = () => {
     if (!chatRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
     const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
     setMostrarScrollBtn(!cercaDelFinal);
   };
-
-  return (
+    return (
     <div className="chat-container">
       {/* HEADER */}
       <div className="chat-header">
@@ -128,6 +139,15 @@ const ChatMovil = () => {
             </div>
           );
         })}
+
+        {/* ✅ BURBUJA ESCRIBIENDO */}
+        {textoEscribiendo && (
+          <div className="flex justify-start">
+            <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
+              {textoEscribiendo}...
+            </div>
+          </div>
+        )}
       </div>
 
       {/* BOTÓN FLOTANTE */}

@@ -54,26 +54,18 @@ const ChatMovil = () => {
   return (
     <div className="chat-container">
       {/* HEADER */}
-      <div className="chat-header">
-        <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700">
-          {usuario.iniciales || "--"}
-        </div>
-        <div className="flex flex-col">
+      <div className="chat-header relative flex items-center justify-center">
+        <button
+          onClick={() => navigate("/conversaciones")}
+          className="absolute left-4 text-gray-600 text-xl"
+        >
+          ←
+        </button>
+        <div className="flex flex-col items-center justify-center">
+          <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700">
+            {usuario.iniciales || "--"}
+          </div>
           <div className="title">ID: {usuario.userId || userId}</div>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            onClick={() => navigate("/conversaciones")}
-            className="text-gray-600 text-xl"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => alert("Ver detalles")}
-            className="text-gray-600 text-xl"
-          >
-            ℹ️
-          </button>
         </div>
       </div>
 

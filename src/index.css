@@ -80,22 +80,24 @@ body {
 .message {
   max-width: 75%;
   padding: 0.75rem 1rem;
-  border-radius: 18px; /* ✅ igual forma que asistente */
+  border-radius: 18px;
   font-size: 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ CORREGIDO: mensajes del usuario alineados a la izquierda */
 .message.user {
-  align-self: flex-end;
-  background: #000;
-  color: white;
-}
-
-.message.assistant {
   align-self: flex-start;
   background: #fff;
   color: #000;
   border: 1px solid #ddd;
+}
+
+/* ✅ CORREGIDO: mensajes del agente/GPT alineados a la derecha */
+.message.assistant {
+  align-self: flex-end;
+  background: #000;
+  color: white;
 }
 
 .chat-input {

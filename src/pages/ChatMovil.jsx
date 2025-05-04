@@ -57,7 +57,8 @@ const ChatMovil = () => {
     const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
     setMostrarScrollBtn(!cercaDelFinal);
   };
-    return (
+
+  return (
     <div className="chat-container">
       {/* HEADER */}
       <div className="chat-header">
@@ -183,6 +184,15 @@ const ChatMovil = () => {
             }),
           });
           setRespuesta("");
+          // ✅ AÑADIDO: actualizar mensajes tras enviar
+          await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
+            .then((res) => res.json())
+            .then((data) => {
+              const ordenados = (data || []).sort(
+                (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+              );
+              setMensajes(ordenados);
+            });
         }}
         className="chat-input"
       >

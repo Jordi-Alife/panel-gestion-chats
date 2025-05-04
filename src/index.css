@@ -24,6 +24,15 @@ body {
   footer {
     display: none;
   }
+
+  /* ✅ solo aplicamos la inversión en vista móvil */
+  .message.user {
+    align-self: flex-start;
+  }
+
+  .message.assistant {
+    align-self: flex-end;
+  }
 }
 
 /* --- ESTILOS DEL CHAT MOVIL --- */

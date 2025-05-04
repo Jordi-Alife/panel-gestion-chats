@@ -9,7 +9,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
-  const [textoEscribiendo, setTextoEscribiendo] = useState("");
+  const [textoEscribiendo, setTextoEscribiendo] = useState(""); // ✅ NUEVO
   const chatRef = useRef(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
@@ -40,6 +40,7 @@ const ChatMovil = () => {
     }, 100);
   }, [mensajes]);
 
+  // ✅ NUEVO efecto para consultar texto escribiendo
   useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
@@ -84,18 +85,12 @@ const ChatMovil = () => {
       {/* MENSAJES */}
       <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
-          const isGPT = msg.from?.toLowerCase() === "asistente";
-          const isAgente = msg.from?.toLowerCase() === "agente";
+          const isAsistente =
+            msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           return (
             <div
               key={index}
-              className={`message ${
-                isGPT
-                  ? "assistant bg-gray-700 text-white"
-                  : isAgente
-                  ? "assistant bg-black text-white"
-                  : "user"
-              }`}
+              className={`message ${isAsistente ? "assistant" : "user"}`}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
@@ -116,7 +111,7 @@ const ChatMovil = () => {
                     }))
                   }
                   className={`underline text-xs ${
-                    isGPT || isAgente ? "text-white" : "text-blue-600"
+                    isAsistente ? "text-white" : "text-blue-600"
                   }`}
                 >
                   {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -124,7 +119,7 @@ const ChatMovil = () => {
                 {originalesVisibles[index] && (
                   <p
                     className={`mt-1 italic text-left ${
-                      isGPT || isAgente ? "text-white" : "text-gray-700"
+                      isAsistente ? "text-white" : "text-gray-700"
                     }`}
                   >
                     {msg.original || "No disponible"}
@@ -134,7 +129,7 @@ const ChatMovil = () => {
 
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isGPT || isAgente ? "text-white" : "text-gray-500"
+                  isAsistente ? "text-black" : "text-gray-500"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {
@@ -189,6 +184,7 @@ const ChatMovil = () => {
             }),
           });
           setRespuesta("");
+          // ✅ AÑADIDO: actualizar mensajes tras enviar
           await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
             .then((res) => res.json())
             .then((data) => {

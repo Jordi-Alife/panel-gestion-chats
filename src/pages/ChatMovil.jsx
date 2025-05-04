@@ -87,13 +87,32 @@ const ChatMovil = () => {
           const isGPT = msg.from?.toLowerCase() === "asistente";
           const isAgenteHumano = msg.from?.toLowerCase() === "agente";
 
+          let backgroundColor = undefined;
+          let color = undefined;
+
+          if (isGPT) {
+            backgroundColor = "#4b5563"; // gris oscuro
+            color = "#ffffff"; // texto blanco
+          } else if (isAgenteHumano) {
+            backgroundColor = "#000000"; // negro
+            color = "#ffffff"; // texto blanco
+          }
+
           return (
             <div
               key={index}
-              className={`message ${isGPT || isAgenteHumano ? "assistant" : "user"}`}
+              className={`message ${isGPT ? "" : isAgenteHumano ? "" : "user"}`}
               style={{
-                backgroundColor: isGPT ? "#4b5563" : isAgenteHumano ? "#000000" : undefined,
-                color: (isGPT || isAgenteHumano) ? "#ffffff" : undefined,
+                backgroundColor,
+                color,
+                alignSelf: isGPT || isAgenteHumano ? "flex-start" : "flex-end",
+                borderRadius: 18,
+                padding: "10px 14px",
+                margin: "6px 0",
+                maxWidth: "80%",
+                wordWrap: "break-word",
+                lineHeight: 1.4,
+                fontSize: 15,
               }}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (

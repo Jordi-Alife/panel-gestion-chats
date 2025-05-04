@@ -85,17 +85,16 @@ const ChatMovil = () => {
       <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           const isGPT = msg.from?.toLowerCase() === "asistente";
-          const isAgente = msg.from?.toLowerCase() === "agente";
+          const isAgenteHumano = msg.from?.toLowerCase() === "agente";
+
           return (
             <div
               key={index}
-              className={`message ${
-                isGPT
-                  ? "assistant bg-gray-700 text-white"
-                  : isAgente
-                  ? "assistant bg-black text-white"
-                  : "user"
-              }`}
+              className={`message ${isGPT || isAgenteHumano ? "assistant" : "user"}`}
+              style={{
+                backgroundColor: isGPT ? "#4b5563" : isAgenteHumano ? "#000000" : undefined,
+                color: (isGPT || isAgenteHumano) ? "#ffffff" : undefined,
+              }}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
@@ -116,7 +115,7 @@ const ChatMovil = () => {
                     }))
                   }
                   className={`underline text-xs ${
-                    isGPT || isAgente ? "text-white" : "text-blue-600"
+                    isGPT || isAgenteHumano ? "text-white" : "text-blue-600"
                   }`}
                 >
                   {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -124,7 +123,7 @@ const ChatMovil = () => {
                 {originalesVisibles[index] && (
                   <p
                     className={`mt-1 italic text-left ${
-                      isGPT || isAgente ? "text-white" : "text-gray-700"
+                      isGPT || isAgenteHumano ? "text-white" : "text-gray-700"
                     }`}
                   >
                     {msg.original || "No disponible"}
@@ -134,7 +133,7 @@ const ChatMovil = () => {
 
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isGPT || isAgente ? "text-white" : "text-gray-500"
+                  isGPT || isAgenteHumano ? "text-white" : "text-gray-500"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

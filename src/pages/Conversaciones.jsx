@@ -38,8 +38,7 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-
-  const cargarMensajes = () => {
+    const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -64,15 +63,15 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-    useEffect(() => {
+
+  useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
       }
     }, 100);
   }, [userId]);
-
-  useEffect(() => {
+    useEffect(() => {
     if (!userId) return;
     const conversacion = todasConversaciones.find((c) => c.userId === userId);
     if (conversacion && conversacion.intervenidaPor) {
@@ -106,8 +105,7 @@ export default function Conversaciones() {
     if (diffDays === 1) return "ayer";
     return `hace ${diffDays}d`;
   };
-
-  const paisAToIso = (paisTexto) => {
+    const paisAToIso = (paisTexto) => {
     const mapa = {
       Spain: "es",
       France: "fr",
@@ -132,7 +130,8 @@ export default function Conversaciones() {
     acc[item.userId] = actual;
     return acc;
   }, {});
-    const listaAgrupada = Object.entries(conversacionesPorUsuario)
+
+  const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = id === userId ? new Date() : vistas[id];
       const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
@@ -170,8 +169,7 @@ export default function Conversaciones() {
         (filtro === "gpt" && !c.intervenida) ||
         (filtro === "humanas" && c.intervenida)
     );
-
-  const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
+    const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
 
   useEffect(() => {
     window.dispatchEvent(
@@ -184,7 +182,8 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black",
   };
-    return (
+
+  return (
     <div className="flex flex-col h-screen min-h-screen bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden flex-col md:flex-row">
         {/* Lista de conversaciones */}
@@ -254,8 +253,7 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-
-        {/* Columna chat */}
+                {/* Columna chat */}
         <div
           className={`flex flex-col justify-between w-screen md:w-auto flex-1 min-w-0 max-w-full ${
             userId
@@ -282,7 +280,7 @@ export default function Conversaciones() {
               return (
                 <div key={index} className={`flex ${align}`}>
                   <div
-                    className={`rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
+                    className={`message ${isAsistente ? "assistant" : "user"} rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
                       isAsistente
                         ? "bg-black text-white"
                         : "bg-white text-gray-800 border"

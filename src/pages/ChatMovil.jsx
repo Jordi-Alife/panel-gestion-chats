@@ -9,7 +9,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
-  const [textoEscribiendo, setTextoEscribiendo] = useState(""); // ✅ NUEVO
+  const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const chatRef = useRef(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
@@ -40,7 +40,6 @@ const ChatMovil = () => {
     }, 100);
   }, [mensajes]);
 
-  // ✅ NUEVO efecto para consultar texto escribiendo
   useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
@@ -90,7 +89,7 @@ const ChatMovil = () => {
           return (
             <div
               key={index}
-              className={`message ${isAsistente ? "assistant" : "user"}`}
+              className={`message ${isAsistente ? "assistant bg-gray-300 text-black" : "user"}`}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
@@ -184,7 +183,6 @@ const ChatMovil = () => {
             }),
           });
           setRespuesta("");
-          // ✅ AÑADIDO: actualizar mensajes tras enviar
           await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
             .then((res) => res.json())
             .then((data) => {

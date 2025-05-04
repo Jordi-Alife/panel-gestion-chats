@@ -61,12 +61,20 @@ const ChatMovil = () => {
         >
           ←
         </button>
-        <div className="flex flex-col items-center justify-center">
-          <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700">
+        <div className="flex items-center gap-2">
+          <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700 w-8 h-8 rounded-full">
             {usuario.iniciales || "--"}
           </div>
-          <div className="title">ID: {usuario.userId || userId}</div>
+          <div className="title text-sm font-bold">
+            ID: {usuario.userId || userId}
+          </div>
         </div>
+        <button
+          onClick={() => alert("Ver detalles")}
+          className="absolute right-4 text-gray-600 text-xl"
+        >
+          ℹ️
+        </button>
       </div>
 
       {/* MENSAJES */}

@@ -35,7 +35,7 @@ body {
 }
 
 .chat-header {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.5);  /* ✅ más transparente que antes */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 1rem;
@@ -76,8 +76,6 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   background: #f5f5f5;
-
-  /* ✅ Ajuste clave: subir la zona de mensajes detrás de la cabecera */
   margin-top: -1rem; /* mismo valor que el padding de .chat-header */
   padding-top: 2rem; /* compensamos para que el texto no quede debajo de la cabecera */
 }

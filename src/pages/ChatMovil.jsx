@@ -85,35 +85,17 @@ const ChatMovil = () => {
       <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           const isGPT = msg.from?.toLowerCase() === "asistente";
-          const isAgenteHumano = msg.from?.toLowerCase() === "agente";
-
-          let backgroundColor = undefined;
-          let color = undefined;
-
-          if (isGPT) {
-            backgroundColor = "#4b5563"; // gris oscuro
-            color = "#ffffff"; // texto blanco
-          } else if (isAgenteHumano) {
-            backgroundColor = "#000000"; // negro
-            color = "#ffffff"; // texto blanco
-          }
-
+          const isAgente = msg.from?.toLowerCase() === "agente";
           return (
             <div
               key={index}
-              className={`message ${isGPT ? "" : isAgenteHumano ? "" : "user"}`}
-              style={{
-                backgroundColor,
-                color,
-                alignSelf: isGPT || isAgenteHumano ? "flex-start" : "flex-end",
-                borderRadius: 18,
-                padding: "10px 14px",
-                margin: "6px 0",
-                maxWidth: "80%",
-                wordWrap: "break-word",
-                lineHeight: 1.4,
-                fontSize: 15,
-              }}
+              className={`message ${
+                isGPT
+                  ? "assistant bg-gray-700 text-white"
+                  : isAgente
+                  ? "assistant bg-black text-white"
+                  : "user"
+              }`}
             >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
@@ -134,7 +116,7 @@ const ChatMovil = () => {
                     }))
                   }
                   className={`underline text-xs ${
-                    isGPT || isAgenteHumano ? "text-white" : "text-blue-600"
+                    isGPT || isAgente ? "text-white" : "text-blue-600"
                   }`}
                 >
                   {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -142,7 +124,7 @@ const ChatMovil = () => {
                 {originalesVisibles[index] && (
                   <p
                     className={`mt-1 italic text-left ${
-                      isGPT || isAgenteHumano ? "text-white" : "text-gray-700"
+                      isGPT || isAgente ? "text-white" : "text-gray-700"
                     }`}
                   >
                     {msg.original || "No disponible"}
@@ -152,7 +134,7 @@ const ChatMovil = () => {
 
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isGPT || isAgenteHumano ? "text-white" : "text-gray-500"
+                  isGPT || isAgente ? "text-white" : "text-gray-500"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {

@@ -94,7 +94,7 @@ const ChatMovil = () => {
                 <p className="whitespace-pre-wrap text-base">{msg.message}</p>
               )}
 
-              {/* ✅ CAMBIO: mostrar SIEMPRE en asistente, como en escritorio */}
+              {/* ✅ CAMBIO: solo la clase del botón */}
               {isAsistente && (
                 <div className="mt-1 text-[11px] text-right">
                   <button
@@ -104,12 +104,12 @@ const ChatMovil = () => {
                         [index]: !prev[index],
                       }))
                     }
-                    className="underline text-xs text-black/70"
+                    className={`underline text-xs ${isAsistente ? "text-white" : "text-blue-600"}`}
                   >
                     {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                   </button>
                   {originalesVisibles[index] && (
-                    <p className="mt-1 italic text-left text-black/70">
+                    <p className="mt-1 italic text-left text-white">
                       {msg.original || "No disponible"}
                     </p>
                   )}

@@ -8,6 +8,7 @@ const ChatMovil = () => {
   const [respuesta, setRespuesta] = useState("");
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
+  const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const chatRef = useRef(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
@@ -28,19 +29,6 @@ const ChatMovil = () => {
         const info = all.find((c) => c.userId === userId);
         setUsuario(info || {});
       });
-
-    const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const ordenados = (data || []).sort(
-            (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-          );
-          setMensajes(ordenados);
-        });
-    }, 2000);
-
-    return () => clearInterval(interval);
   }, [userId]);
 
   useEffect(() => {
@@ -50,6 +38,13 @@ const ChatMovil = () => {
       }
     }, 100);
   }, [mensajes]);
+
+  const handleScroll = () => {
+    if (!chatRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
+    const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
+    setMostrarScrollBtn(!cercaDelFinal);
+  };
 
   return (
     <div className="chat-container">
@@ -76,9 +71,10 @@ const ChatMovil = () => {
       </div>
 
       {/* MENSAJES */}
-      <div ref={chatRef} className="chat-messages">
+      <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
-          const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+          const isAsistente =
+            msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           return (
             <div
               key={index}
@@ -94,7 +90,6 @@ const ChatMovil = () => {
                 <p className="whitespace-pre-wrap text-base">{msg.message}</p>
               )}
 
-              {/* ✅ CAMBIO: ahora también para mensajes de usuario */}
               <div className="mt-1 text-[11px] text-right">
                 <button
                   onClick={() =>
@@ -134,6 +129,20 @@ const ChatMovil = () => {
           );
         })}
       </div>
+
+      {/* BOTÓN FLOTANTE */}
+      {mostrarScrollBtn && (
+        <button
+          onClick={() => {
+            if (chatRef.current) {
+              chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+            }
+          }}
+          className="fixed bottom-20 right-4 bg-black text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+        >
+          ↓
+        </button>
+      )}
 
       {/* INPUT */}
       <form

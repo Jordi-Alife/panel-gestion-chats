@@ -35,13 +35,14 @@ body {
 }
 
 .chat-header {
-  background: rgba(255, 255, 255, 0.5);  /* ✅ más transparente que antes */
+  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
+  justify-content: center; /* ✅ centramos contenido */
   gap: 0.5rem;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
@@ -49,6 +50,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  position: relative; /* ✅ para ubicar el botón back */
 }
 
 .chat-header .avatar {
@@ -61,11 +63,25 @@ body {
 .chat-header .title {
   font-weight: bold;
   font-size: 14px;
+  text-align: center;
 }
 
 .chat-header .subtitle {
   font-size: 12px;
   color: #777;
+  text-align: center;
+}
+
+/* ✅ posicionar botón atrás a la izquierda sin afectar centrado */
+.chat-header .back-button {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: #555;
+  background: none;
+  border: none;
 }
 
 .chat-messages {
@@ -76,8 +92,8 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   background: #f5f5f5;
-  margin-top: -1rem; /* mismo valor que el padding de .chat-header */
-  padding-top: 2rem; /* compensamos para que el texto no quede debajo de la cabecera */
+  margin-top: -1rem;
+  padding-top: 2rem;
 }
 
 .message {

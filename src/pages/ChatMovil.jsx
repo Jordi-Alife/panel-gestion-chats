@@ -9,7 +9,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [usuario, setUsuario] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
-  const [textoEscribiendo, setTextoEscribiendo] = useState("");
+  const [textoEscribiendo, setTextoEscribiendo] = useState(""); // ✅ NUEVO
   const chatRef = useRef(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
@@ -31,7 +31,8 @@ const ChatMovil = () => {
         setUsuario(info || {});
       });
   }, [userId]);
-    useEffect(() => {
+
+  useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
@@ -39,6 +40,7 @@ const ChatMovil = () => {
     }, 100);
   }, [mensajes]);
 
+  // ✅ NUEVO efecto para consultar texto escribiendo
   useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
@@ -55,10 +57,15 @@ const ChatMovil = () => {
     const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
     setMostrarScrollBtn(!cercaDelFinal);
   };
-    return (
+
+  return (
     <div className="chat-container">
+      {/* HEADER */}
       <div className="chat-header">
-        <button onClick={() => navigate("/conversaciones")} className="text-gray-600 text-xl">
+        <button
+          onClick={() => navigate("/conversaciones")}
+          className="text-gray-600 text-xl"
+        >
           ←
         </button>
         <div className="chat-header-center">
@@ -67,22 +74,24 @@ const ChatMovil = () => {
           </div>
           <div className="title">ID: {usuario.userId || userId}</div>
         </div>
-        <button onClick={() => alert("Ver detalles")} className="text-gray-600 text-xl">
+        <button
+          onClick={() => alert("Ver detalles")}
+          className="text-gray-600 text-xl"
+        >
           ℹ️
         </button>
       </div>
-            <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
-        {mensajes.map((msg, index) => {
-          const isGPT = msg.from?.toLowerCase() === "asistente";
-          const isHumano = msg.from?.toLowerCase() === "agente";
-          const claseBurb = isGPT
-            ? "bg-gray-300 text-black"
-            : isHumano
-            ? "bg-black text-white"
-            : "bg-white text-black";
 
+      {/* MENSAJES */}
+      <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
+        {mensajes.map((msg, index) => {
+          const isAsistente =
+            msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           return (
-            <div key={index} className={`message ${claseBurb} rounded-lg p-3 mb-2 max-w-[85%]`}>
+            <div
+              key={index}
+              className={`message ${isAsistente ? "assistant" : "user"}`}
+            >
               {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
                   src={msg.message}
@@ -92,7 +101,8 @@ const ChatMovil = () => {
               ) : (
                 <p className="whitespace-pre-wrap text-base">{msg.message}</p>
               )}
-                            <div className="mt-1 text-[11px] text-right">
+
+              <div className="mt-1 text-[11px] text-right">
                 <button
                   onClick={() =>
                     setOriginalesVisibles((prev) => ({
@@ -101,7 +111,7 @@ const ChatMovil = () => {
                     }))
                   }
                   className={`underline text-xs ${
-                    isHumano ? "text-white" : "text-blue-600"
+                    isAsistente ? "text-white" : "text-blue-600"
                   }`}
                 >
                   {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -109,7 +119,7 @@ const ChatMovil = () => {
                 {originalesVisibles[index] && (
                   <p
                     className={`mt-1 italic text-left ${
-                      isHumano ? "text-white" : "text-gray-700"
+                      isAsistente ? "text-white" : "text-gray-700"
                     }`}
                   >
                     {msg.original || "No disponible"}
@@ -119,7 +129,7 @@ const ChatMovil = () => {
 
               <div
                 className={`text-[10px] mt-1 opacity-60 text-right ${
-                  isHumano ? "text-white" : "text-gray-500"
+                  isAsistente ? "text-black" : "text-gray-500"
                 }`}
               >
                 {new Date(msg.lastInteraction).toLocaleTimeString([], {
@@ -130,7 +140,9 @@ const ChatMovil = () => {
             </div>
           );
         })}
-                      {textoEscribiendo && (
+
+        {/* ✅ BURBUJA ESCRIBIENDO */}
+        {textoEscribiendo && (
           <div className="flex justify-start">
             <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
               {textoEscribiendo}...
@@ -139,6 +151,7 @@ const ChatMovil = () => {
         )}
       </div>
 
+      {/* BOTÓN FLOTANTE */}
       {mostrarScrollBtn && (
         <button
           onClick={() => {
@@ -152,6 +165,7 @@ const ChatMovil = () => {
         </button>
       )}
 
+      {/* INPUT */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -170,6 +184,7 @@ const ChatMovil = () => {
             }),
           });
           setRespuesta("");
+          // ✅ AÑADIDO: actualizar mensajes tras enviar
           await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
             .then((res) => res.json())
             .then((data) => {

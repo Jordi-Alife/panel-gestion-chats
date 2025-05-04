@@ -82,6 +82,7 @@ html, body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Burbujas usuario */
 .message.user {
   align-self: flex-start;
   background: #fff;
@@ -93,6 +94,7 @@ html, body {
   border-bottom-right-radius: 20px;
 }
 
+/* Burbujas agente/GPT */
 .message.assistant {
   align-self: flex-end;
   background: #000;
@@ -101,6 +103,16 @@ html, body {
   border-top-right-radius: 20px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 4px;
+}
+
+/* ✅ Ajuste SOLO en escritorio: mismo radius en todos los bordes */
+@media (min-width: 768px) {
+  .message.user {
+    border-radius: 18px;
+  }
+  .message.assistant {
+    border-radius: 18px;
+  }
 }
 
 .chat-input {

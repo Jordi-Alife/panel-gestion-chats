@@ -108,10 +108,10 @@ html, body {
 /* ✅ Ajuste SOLO en escritorio: mismo radius en todos los bordes */
 @media (min-width: 768px) {
   .message.user {
-    border-radius: 18px;
+    border-radius: 18px !important;
   }
   .message.assistant {
-    border-radius: 18px;
+    border-radius: 18px !important;
   }
 }
 

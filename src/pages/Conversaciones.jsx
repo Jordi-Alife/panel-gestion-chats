@@ -16,7 +16,7 @@ export default function Conversaciones() {
   const [agente, setAgente] = useState(null);
   const [emailDestino, setEmailDestino] = useState("");
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-  const [textoEscribiendo, setTextoEscribiendo] = useState(""); // ✅ NUEVO estado
+  const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -39,7 +39,8 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-    const cargarMensajes = () => {
+
+  const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -64,9 +65,7 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-
-  // ✅ NUEVO efecto para consultar texto escribiendo
-  useEffect(() => {
+    useEffect(() => {
     if (!userId) return;
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
@@ -76,7 +75,8 @@ export default function Conversaciones() {
     }, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-    useEffect(() => {
+
+  useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
@@ -103,7 +103,8 @@ export default function Conversaciones() {
       });
     }
   }, [userId]);
-    const formatearTiempo = (fecha) => {
+
+  const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
@@ -132,8 +133,7 @@ export default function Conversaciones() {
     };
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
-
-  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+    const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
@@ -182,7 +182,8 @@ export default function Conversaciones() {
         (filtro === "gpt" && !c.intervenida) ||
         (filtro === "humanas" && c.intervenida)
     );
-    const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
+
+  const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
 
   useEffect(() => {
     window.dispatchEvent(
@@ -307,7 +308,9 @@ export default function Conversaciones() {
                         className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
                       />
                     ) : (
-                      <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+                      <p className="whitespace-pre-wrap text-sm">
+                        {isAsistente && msg.original ? msg.original : msg.message}
+                      </p>
                     )}
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
@@ -330,7 +333,7 @@ export default function Conversaciones() {
                               isAsistente ? "text-white/70" : "text-gray-500"
                             }`}
                           >
-                            {msg.original}
+                            {msg.message}
                           </p>
                         )}
                       </div>
@@ -349,7 +352,8 @@ export default function Conversaciones() {
                 </div>
               );
             })}
-                        {/* ✅ NUEVA BURBUJA de escribiendo */}
+
+            {/* ✅ NUEVA BURBUJA de escribiendo */}
             {textoEscribiendo && (
               <div className="flex justify-start">
                 <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
@@ -358,8 +362,7 @@ export default function Conversaciones() {
               </div>
             )}
           </div>
-
-          {mostrarScrollBtn && (
+                    {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -444,7 +447,8 @@ export default function Conversaciones() {
             </div>
           </form>
         </div>
-                {/* Columna detalles */}
+
+        {/* Columna detalles */}
         <div
           className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto ${
             userId ? "hidden md:block md:w-1/5" : "hidden"

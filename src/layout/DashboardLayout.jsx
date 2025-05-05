@@ -84,7 +84,7 @@ const DashboardLayout = ({ children }) => {
       <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
         <aside
           className={`relative hidden md:flex flex-col justify-between ${
-            colapsado ? "w-20" : "w-56"
+            colapsado ? "w-20" : "w-64"
           } bg-[#1E2431] transition-all duration-200`}
         >
           <div>
@@ -140,7 +140,22 @@ const DashboardLayout = ({ children }) => {
             </div>
           </div>
 
-          <div className="px-4 pb-6 z-20">
+          <div className="px-4 pb-6 z-20 space-y-2">
+            {!colapsado && (
+              <>
+                <button
+                  className="w-full bg-[#FC6655] text-white font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition"
+                >
+                  Soporte Familias
+                </button>
+                <button
+                  className="w-full bg-[#4560FE] text-white font-semibold py-2 rounded-xl text-sm opacity-60 cursor-not-allowed"
+                >
+                  Soporte Empresas
+                </button>
+              </>
+            )}
+
             {colapsado ? (
               <div className="flex justify-center">
                 <button onClick={() => navigate("/perfil")}>
@@ -176,77 +191,8 @@ const DashboardLayout = ({ children }) => {
           </div>
         </aside>
 
-        {menuMovilAbierto && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 flex"
-            onClick={() => setMenuMovilAbierto(false)}
-          >
-            <aside
-              className="bg-[#1E2431] w-64 p-4 flex flex-col justify-between h-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="space-y-4">
-                <Link
-                  to="/"
-                  className="flex items-center gap-3 text-white hover:bg-[#2d3444] rounded px-4 py-2"
-                  onClick={() => setMenuMovilAbierto(false)}
-                >
-                  <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
-                  <span>Inicio</span>
-                </Link>
-                <Link
-                  to="/conversaciones"
-                  className="flex items-center gap-3 text-white hover:bg-[#2d3444] rounded px-4 py-2 relative"
-                  onClick={() => setMenuMovilAbierto(false)}
-                >
-                  <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
-                  <span>Conversaciones</span>
-                  {notificaciones > 0 && (
-                    <span className="absolute -top-1 right-2 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
-                      {notificaciones}
-                    </span>
-                  )}
-                </Link>
-                {rolUsuario !== "Soporte" && (
-                  <Link
-                    to="/agentes"
-                    className="flex items-center gap-3 text-white hover:bg-[#2d3444] rounded px-4 py-2"
-                    onClick={() => setMenuMovilAbierto(false)}
-                  >
-                    <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
-                    <span>Agentes</span>
-                  </Link>
-                )}
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/perfil");
-                  setMenuMovilAbierto(false);
-                }}
-                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-4"
-              >
-                <img
-                  src={fotoPerfil || "https://i.pravatar.cc/100"}
-                  alt="Perfil"
-                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                    cargandoFoto ? "opacity-0" : "opacity-100"
-                  }`}
-                />
-                <div>
-                  <div className="font-semibold text-sm leading-tight">
-                    {nombrePerfil || "Mi perfil"}
-                  </div>
-                  <div className="text-xs text-gray-400">Editar</div>
-                </div>
-              </div>
-            </aside>
-          </div>
-        )}
-
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
-          {/* Footer solo visible en escritorio */}
           <footer className="hidden md:flex mt-12 border-t pt-4 text-xs text-gray-500 flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">

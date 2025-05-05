@@ -4,6 +4,8 @@ import IconInicio from "../assets/dashboard-1.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
 import IconConversaciones from "../assets/chat.svg";
+import IconUserFamily from "../assets/user-family.svg";
+import IconSkyscraper from "../assets/skyscraper.svg";
 import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
 
@@ -141,24 +143,45 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           <div className="px-4 pb-6 z-20 space-y-2">
-            {!colapsado && (
+            {colapsado ? (
+              <>
+                <button className="w-full bg-[#FC6655] rounded-xl flex items-center justify-center h-12">
+                  <img src={IconUserFamily} alt="Soporte Familias" className="w-6 h-6" />
+                </button>
+                <button className="w-full bg-[#4560FE] rounded-xl flex items-center justify-center h-12 opacity-60 cursor-not-allowed">
+                  <img src={IconSkyscraper} alt="Soporte Empresas" className="w-6 h-6" />
+                </button>
+                <div className="flex justify-center mt-2">
+                  <button onClick={() => navigate("/perfil")}>
+                    <img
+                      src={fotoPerfil || "https://i.pravatar.cc/100"}
+                      alt="Perfil"
+                      className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
+                        cargandoFoto ? "opacity-0" : "opacity-100"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </>
+            ) : (
               <>
                 <button
-                  className="w-full bg-[#FC6655] text-white font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition"
+                  className="w-full bg-[#FC6655] text-white font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition flex items-center gap-2 justify-center"
                 >
+                  <img src={IconUserFamily} alt="Icono Familias" className="w-4 h-4" />
                   Soporte Familias
                 </button>
                 <button
-                  className="w-full bg-[#4560FE] text-white font-semibold py-2 rounded-xl text-sm opacity-60 cursor-not-allowed"
+                  className="w-full bg-[#4560FE] text-white font-semibold py-2 rounded-xl text-sm opacity-60 cursor-not-allowed flex items-center gap-2 justify-center"
                 >
+                  <img src={IconSkyscraper} alt="Icono Empresas" className="w-4 h-4" />
                   Soporte Empresas
                 </button>
-              </>
-            )}
 
-            {colapsado ? (
-              <div className="flex justify-center">
-                <button onClick={() => navigate("/perfil")}>
+                <div
+                  onClick={() => navigate("/perfil")}
+                  className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-2"
+                >
                   <img
                     src={fotoPerfil || "https://i.pravatar.cc/100"}
                     alt="Perfil"
@@ -166,27 +189,14 @@ const DashboardLayout = ({ children }) => {
                       cargandoFoto ? "opacity-0" : "opacity-100"
                     }`}
                   />
-                </button>
-              </div>
-            ) : (
-              <div
-                onClick={() => navigate("/perfil")}
-                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260]"
-              >
-                <img
-                  src={fotoPerfil || "https://i.pravatar.cc/100"}
-                  alt="Perfil"
-                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                    cargandoFoto ? "opacity-0" : "opacity-100"
-                  }`}
-                />
-                <div>
-                  <div className="font-semibold text-sm leading-tight">
-                    {nombrePerfil || "Mi perfil"}
+                  <div>
+                    <div className="font-semibold text-sm leading-tight">
+                      {nombrePerfil || "Mi perfil"}
+                    </div>
+                    <div className="text-xs text-gray-400">Editar</div>
                   </div>
-                  <div className="text-xs text-gray-400">Editar</div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </aside>

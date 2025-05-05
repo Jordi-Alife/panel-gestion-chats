@@ -39,8 +39,7 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-
-  const cargarMensajes = () => {
+    const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -65,7 +64,8 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-    useEffect(() => {
+
+  useEffect(() => {
     if (!userId) return;
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
@@ -75,8 +75,7 @@ export default function Conversaciones() {
     }, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-
-  useEffect(() => {
+    useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
@@ -118,8 +117,7 @@ export default function Conversaciones() {
     if (diffDays === 1) return "ayer";
     return `hace ${diffDays}d`;
   };
-
-  const paisAToIso = (paisTexto) => {
+    const paisAToIso = (paisTexto) => {
     const mapa = {
       Spain: "es",
       France: "fr",
@@ -133,7 +131,8 @@ export default function Conversaciones() {
     };
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
-    const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
@@ -184,8 +183,7 @@ export default function Conversaciones() {
     );
 
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
-
-  useEffect(() => {
+    useEffect(() => {
     window.dispatchEvent(
       new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } })
     );
@@ -309,7 +307,8 @@ export default function Conversaciones() {
                       />
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">
-                        {isAsistente && msg.original ? msg.original : msg.message}
+                        {/* ✅ CAMBIO APLICADO AQUÍ */}
+                        {msg.message}
                       </p>
                     )}
                     {msg.original && (
@@ -333,7 +332,7 @@ export default function Conversaciones() {
                               isAsistente ? "text-white/70" : "text-gray-500"
                             }`}
                           >
-                            {msg.message}
+                            {msg.original}
                           </p>
                         )}
                       </div>
@@ -352,9 +351,7 @@ export default function Conversaciones() {
                 </div>
               );
             })}
-
-            {/* ✅ NUEVA BURBUJA de escribiendo */}
-            {textoEscribiendo && (
+                        {textoEscribiendo && (
               <div className="flex justify-start">
                 <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
                   {textoEscribiendo}...
@@ -362,7 +359,8 @@ export default function Conversaciones() {
               </div>
             )}
           </div>
-                    {mostrarScrollBtn && (
+
+          {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -473,9 +471,7 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">
-            Datos del usuario
-          </h2>
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           {usuarioSeleccionado ? (
             <div className="text-sm text-gray-700 space-y-1">
               <p>ID: {usuarioSeleccionado.userId}</p>

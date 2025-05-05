@@ -307,9 +307,8 @@ export default function Conversaciones() {
                       />
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">
-                        {/* ✅ CAMBIO APLICADO AQUÍ */}
-                        {msg.message}
-                      </p>
+  {msg.manual ? msg.original : msg.message}
+</p>
                     )}
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">

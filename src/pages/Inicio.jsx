@@ -53,22 +53,13 @@ export default function Inicio() {
   const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual);
   const mensajesTotales = respuestasGPT.length + respuestasPanel.length;
 
-  const chatsAbiertos = data.filter((c) => c.estado !== "cerrado");
+  const chatsEnPeriodo = data.filter((c) =>
+    (c.mensajes || []).some((m) => filtrarPorTiempo(m.lastInteraction))
+  );
 
-  const duraciones = data
-    .map((c) => {
-      const mensajesValidos = (c.mensajes || []).filter((m) => m.lastInteraction);
-      if (mensajesValidos.length < 2) return 0;
-      const tiempos = mensajesValidos.map((m) => new Date(m.lastInteraction).getTime());
-      const inicio = Math.min(...tiempos);
-      const fin = Math.max(...tiempos);
-      return (fin - inicio) / 60000; // minutos
-    })
-    .filter((dur) => dur > 0);
-
-  const duracionMedia = duraciones.length
-    ? (duraciones.reduce((a, b) => a + b, 0) / duraciones.length).toFixed(1)
-    : "0";
+  const promedioMensajesPorChat = chatsEnPeriodo.length
+    ? Math.round(mensajes.length / chatsEnPeriodo.length)
+    : 0;
 
   const crearDatosGrafica = (mensajesFiltrados) => {
     const porHora = {};
@@ -135,10 +126,10 @@ export default function Inicio() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Tarjeta
-          titulo="Chats abiertos"
-          valor={chatsAbiertos.length}
+          titulo="Total Chats"
+          valor={chatsEnPeriodo.length}
           color="#0ea5e9"
-          datos={crearDatosGrafica(chatsAbiertos.flatMap((c) => c.mensajes || []))}
+          datos={crearDatosGrafica(chatsEnPeriodo.flatMap((c) => c.mensajes || []))}
         />
         <Tarjeta
           titulo="Mensajes recibidos"
@@ -165,8 +156,8 @@ export default function Inicio() {
           datos={dataPanel}
         />
         <Tarjeta
-          titulo="Duración media de los chats (min)"
-          valor={duracionMedia}
+          titulo="Promedio de mensajes por chat"
+          valor={promedioMensajesPorChat}
           color="#ef4444"
           datos={[]} // no tiene gráfica detallada por ahora
         />

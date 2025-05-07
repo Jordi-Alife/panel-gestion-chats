@@ -17,6 +17,7 @@ export default function Conversaciones() {
   const [emailDestino, setEmailDestino] = useState("");
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
+  const [chatCerrado, setChatCerrado] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -39,7 +40,8 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-    const cargarMensajes = () => {
+
+  const cargarMensajes = () => {
     if (!userId) return;
     fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
       .then((res) => res.json())
@@ -50,6 +52,7 @@ export default function Conversaciones() {
         setMensajes(ordenados);
         const info = todasConversaciones.find((c) => c.userId === userId);
         setUsuarioSeleccionado(info || null);
+        setChatCerrado(info?.chatCerrado || false);
         setTimeout(() => {
           if (scrollForzado.current && chatRef.current) {
             chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
@@ -75,7 +78,8 @@ export default function Conversaciones() {
     }, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-    useEffect(() => {
+
+  useEffect(() => {
     setTimeout(() => {
       if (chatRef.current) {
         chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
@@ -117,7 +121,8 @@ export default function Conversaciones() {
     if (diffDays === 1) return "ayer";
     return `hace ${diffDays}d`;
   };
-    const paisAToIso = (paisTexto) => {
+
+  const paisAToIso = (paisTexto) => {
     const mapa = {
       Spain: "es",
       France: "fr",
@@ -139,6 +144,7 @@ export default function Conversaciones() {
     actual.navegador = item.navegador;
     actual.historial = item.historial || [];
     actual.intervenida = item.intervenida || false;
+    actual.chatCerrado = item.chatCerrado || false;
     acc[item.userId] = actual;
     return acc;
   }, {});
@@ -172,6 +178,7 @@ export default function Conversaciones() {
         pais: info.pais || "Desconocido",
         navegador: info.navegador || "Desconocido",
         historial: info.historial || [],
+        chatCerrado: info.chatCerrado || false,
       };
     })
     .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
@@ -183,7 +190,8 @@ export default function Conversaciones() {
     );
 
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
-    useEffect(() => {
+
+  useEffect(() => {
     window.dispatchEvent(
       new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } })
     );
@@ -194,8 +202,7 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black",
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen min-h-screen bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden flex-col md:flex-row">
         {/* Lista de conversaciones */}
@@ -255,6 +262,9 @@ export default function Conversaciones() {
                 <div>
                   <div className="font-medium text-sm">{c.userId}</div>
                   <div className="text-xs text-gray-500">{formatearTiempo(c.lastInteraction)}</div>
+                  {c.chatCerrado && (
+                    <div className="text-[10px] text-red-500 mt-1">⚠ Usuario ha cerrado el chat</div>
+                  )}
                 </div>
               </div>
               <span
@@ -265,7 +275,8 @@ export default function Conversaciones() {
             </div>
           ))}
         </div>
-                {/* Columna chat */}
+
+        {/* Columna chat */}
         <div
           className={`flex flex-col justify-between w-screen md:w-auto flex-1 min-w-0 max-w-full ${
             userId
@@ -307,8 +318,8 @@ export default function Conversaciones() {
                       />
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">
-  {msg.message}
-</p>
+                        {msg.message}
+                      </p>
                     )}
                     {msg.original && (
                       <div className="mt-2 text-[11px] text-right">
@@ -350,7 +361,7 @@ export default function Conversaciones() {
                 </div>
               );
             })}
-                        {textoEscribiendo && (
+            {textoEscribiendo && (
               <div className="flex justify-start">
                 <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
                   {textoEscribiendo}...
@@ -358,8 +369,7 @@ export default function Conversaciones() {
               </div>
             )}
           </div>
-
-          {mostrarScrollBtn && (
+                    {mostrarScrollBtn && (
             <button
               onClick={() =>
                 chatRef.current?.scrollTo({
@@ -487,6 +497,9 @@ export default function Conversaciones() {
                   <span className="ml-1">🌐</span>
                 )}
               </p>
+              {usuarioSeleccionado.chatCerrado && (
+                <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
+              )}
               <p>Historial:</p>
               <ul className="list-disc list-inside text-xs text-gray-600">
                 {usuarioSeleccionado.historial.map((url, idx) => (

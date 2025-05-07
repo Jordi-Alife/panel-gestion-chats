@@ -82,6 +82,28 @@ const DashboardLayout = ({ children }) => {
         )}
       </header>
 
+      {/* Menú móvil */}
+      {menuMovilAbierto && (
+        <div className="fixed inset-0 bg-[#1E2431] text-white flex flex-col p-6 z-30 md:hidden">
+          <button
+            className="self-end mb-6"
+            onClick={() => setMenuMovilAbierto(false)}
+            aria-label="Cerrar menú"
+          >
+            <img src={IconToggle} alt="Cerrar menú" className="w-8 h-8 rotate-180" />
+          </button>
+
+          <nav className="space-y-4">
+            <Link to="/" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Inicio</Link>
+            <Link to="/conversaciones" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Conversaciones</Link>
+            {rolUsuario !== "Soporte" && (
+              <Link to="/agentes" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Agentes</Link>
+            )}
+            <button onClick={() => navigate("/perfil")} className="block py-2">Mi perfil</button>
+          </nav>
+        </div>
+      )}
+
       {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
         <aside

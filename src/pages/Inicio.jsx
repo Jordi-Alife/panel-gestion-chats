@@ -74,6 +74,28 @@ export default function Inicio() {
   const dataRecibidos = crearDatosGrafica(mensajesRecibidos);
   const dataGPT = crearDatosGrafica(respuestasGPT);
   const dataPanel = crearDatosGrafica(respuestasPanel);
+  const dataTotalChats = crearDatosGrafica(
+    chatsEnPeriodo.flatMap((c) => c.mensajes || [])
+  );
+
+  const dataPromedioMensajes = (() => {
+    const agrupados = {};
+    chatsEnPeriodo.forEach((c) => {
+      c.mensajes.forEach((m) => {
+        const fecha = new Date(m.lastInteraction);
+        const clave = `${fecha.getFullYear()}-${fecha.getMonth()}-${fecha.getDate()} ${fecha.getHours()}:00`;
+        if (!agrupados[clave]) agrupados[clave] = { mensajes: 0, chats: new Set() };
+        agrupados[clave].mensajes += 1;
+        agrupados[clave].chats.add(c.userId);
+      });
+    });
+    return Object.entries(agrupados).map(([hora, obj]) => ({
+      hora,
+      cantidad: obj.chats.size > 0
+        ? Math.round(obj.mensajes / obj.chats.size)
+        : 0,
+    }));
+  })();
 
   const Tarjeta = ({ titulo, valor, color, datos }) => (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col">
@@ -129,7 +151,7 @@ export default function Inicio() {
           titulo="Total Chats"
           valor={chatsEnPeriodo.length}
           color="#0ea5e9"
-          datos={crearDatosGrafica(chatsEnPeriodo.flatMap((c) => c.mensajes || []))}
+          datos={dataTotalChats}
         />
         <Tarjeta
           titulo="Mensajes recibidos"
@@ -159,7 +181,7 @@ export default function Inicio() {
           titulo="Promedio de mensajes por chat"
           valor={promedioMensajesPorChat}
           color="#ef4444"
-          datos={[]} // no tiene gráfica detallada por ahora
+          datos={dataPromedioMensajes}
         />
       </div>
 

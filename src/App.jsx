@@ -17,7 +17,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
 import Inicio from "./pages/Inicio";
-import Monitor from "./pages/Monitor"; // ✅ IMPORTAMOS EL NUEVO COMPONENTE
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -115,7 +114,6 @@ const App = () => {
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />
-                  <Route path="/monitor" element={<Monitor />} /> {/* ✅ NUEVA RUTA */}
                 </Routes>
               </DashboardLayout>
             ) : (

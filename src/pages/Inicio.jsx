@@ -51,6 +51,13 @@ export default function Inicio() {
   const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario");
   const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual);
   const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual);
+  const chatsAbiertos = data.filter((c) => c.estado !== "Cerrado");
+  const mensajesTotales = mensajes.length;
+  const duracionMedia = data.length
+    ? Math.round(
+        data.reduce((acc, c) => acc + (c.duracion || 0), 0) / data.length
+      )
+    : 0;
 
   const crearDatosGrafica = (mensajesFiltrados) => {
     const porHora = {};
@@ -88,7 +95,7 @@ export default function Inicio() {
               stroke={color}
               fill={`url(#color${color})`}
               strokeWidth={2}
-              isAnimationActive={false} // ✅ animación solo al montar
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -116,29 +123,17 @@ export default function Inicio() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Tarjeta
-          titulo="Mensajes recibidos"
-          valor={mensajesRecibidos.length}
-          color="#3b82f6"
-          datos={dataRecibidos}
-        />
-        <Tarjeta
-          titulo="Respuestas GPT"
-          valor={respuestasGPT.length}
-          color="#10b981"
-          datos={dataGPT}
-        />
-        <Tarjeta
-          titulo="Respuestas humanas"
-          valor={respuestasPanel.length}
-          color="#f97316"
-          datos={dataPanel}
-        />
+        <Tarjeta titulo="Chats abiertos" valor={chatsAbiertos.length} color="#6366f1" datos={[]} />
+        <Tarjeta titulo="Mensajes recibidos" valor={mensajesRecibidos.length} color="#3b82f6" datos={dataRecibidos} />
+        <Tarjeta titulo="Mensajes totales enviados" valor={mensajesTotales} color="#8b5cf6" datos={[]} />
+        <Tarjeta titulo="Respuestas GPT" valor={respuestasGPT.length} color="#10b981" datos={dataGPT} />
+        <Tarjeta titulo="Respuestas humanas" valor={respuestasPanel.length} color="#f97316" datos={dataPanel} />
+        <Tarjeta titulo="Duración media de los chats" valor={`${duracionMedia} min`} color="#ef4444" datos={[]} />
       </div>
 
       <h1 className="text-lg font-semibold text-gray-700 mt-8">Resúmenes automáticos</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         <div className="bg-white rounded-lg shadow p-4 h-40 flex flex-col">
           <h2 className="text-sm text-gray-500 mb-2">Resumen diario</h2>
           <p className="text-sm text-gray-400 flex-1">Todavía no generado</p>

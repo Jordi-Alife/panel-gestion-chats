@@ -12,11 +12,11 @@ import Agentes from "./pages/agentes";
 import AgenteDetalle from "./pages/AgenteDetalle";
 import Perfil from "./pages/Perfil";
 import Login from "./pages/Login";
-import Notificaciones from "./components/Notificaciones";
+import Inicio from "./pages/Inicio";
+import Monitor from "./pages/Monitor"; // ✅ nueva importación añadida
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
-import Inicio from "./pages/Inicio";
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -97,7 +97,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* ✅ ChatMovil FUERA del DashboardLayout */}
+        {/* ✅ ChatMovil fuera del DashboardLayout */}
         <Route
           path="/conversaciones/:userId"
           element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
@@ -114,6 +114,7 @@ const App = () => {
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />
+                  <Route path="/monitor" element={<Monitor />} /> {/* ✅ nueva ruta monitor */}
                 </Routes>
               </DashboardLayout>
             ) : (

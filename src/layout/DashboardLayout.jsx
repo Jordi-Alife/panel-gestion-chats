@@ -6,6 +6,7 @@ import IconToggle from "../assets/menu.svg";
 import IconConversaciones from "../assets/chat.svg";
 import IconUserFamily from "../assets/user-family.svg";
 import IconSkyscraper from "../assets/skyscraper.svg";
+import IconMonitor from "../assets/icon-monitor-estado.svg"; // ✅ nuevo icono
 import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
 
@@ -96,6 +97,7 @@ const DashboardLayout = ({ children }) => {
           <nav className="space-y-4">
             <Link to="/" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Inicio</Link>
             <Link to="/conversaciones" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Conversaciones</Link>
+            <Link to="/monitor" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Monitor</Link>
             {rolUsuario !== "Soporte" && (
               <Link to="/agentes" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Agentes</Link>
             )}
@@ -148,6 +150,16 @@ const DashboardLayout = ({ children }) => {
                     {notificaciones}
                   </span>
                 )}
+              </Link>
+
+              <Link
+                to="/monitor"
+                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+                  colapsado ? "justify-center" : "gap-3"
+                }`}
+              >
+                <img src={IconMonitor} alt="Monitor" className="w-5 h-5" />
+                {!colapsado && <span>Monitor</span>}
               </Link>
 
               {rolUsuario !== "Soporte" && (

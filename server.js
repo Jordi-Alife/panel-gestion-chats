@@ -3,11 +3,6 @@ import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fetch from 'node-fetch'
-import fs from 'fs' // ✅ añadido para el check de uploads
-import { db } from './src/firebase.js' // ✅ asegúrate de exportar db desde tu config
-import OpenAI from 'openai' // ✅ asegúrate de tenerlo instalado y configurado
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -18,87 +13,44 @@ const port = process.env.PORT || 3000
 // Server Key de Firebase Cloud Messaging
 const SERVER_KEY = 'AAAAieDkF0g:APA91bGp0b8xUua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A'
 
+// Archivos estáticos (sin index para evitar conflictos con rutas internas)
 app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }))
 app.use(express.json())
 
-// ✅ NUEVO ENDPOINT DE STATUS
-app.get('/api/status', async (req, res) => {
-  const status = {
-    backend: {
-      status: '✅ OK',
-      port: port,
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString()
-    },
-    firestore: null,
-    openai: null,
-    lastImageUpload: null
-  }
-
-  try {
-    // Firestore check
-    await db.collection('test_status').doc('ping').set({ time: Date.now() }, { merge: true })
-    status.firestore = '✅ Conectado'
-  } catch (e) {
-    status.firestore = '❌ Error: ' + e.message
-  }
-
-  try {
-    // OpenAI check
-    const aiRes = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: 'Di "pong"' }]
-    })
-    status.openai = '✅ Respuesta recibida'
-  } catch (e) {
-    status.openai = '❌ Error: ' + e.message
-  }
-
-  try {
-    const files = fs.readdirSync('./uploads')
-    const latest = files.sort((a, b) => fs.statSync(`./uploads/${b}`).mtime - fs.statSync(`./uploads/${a}`).mtime)[0]
-    status.lastImageUpload = latest ? `✅ Última imagen: ${latest}` : '⚠ No hay imágenes recientes'
-  } catch (e) {
-    status.lastImageUpload = '❌ Error leyendo imágenes'
-  }
-
-  res.json(status)
-})
-
-// ✅ NOTIFICACIONES
+// Enviar notificación push
 app.post('/api/send-notification', async (req, res) => {
   const { token, title, body } = req.body
 
   const mensaje = {
     to: token,
-    priority: 'high',
+    priority: "high",
     notification: {
-      title: title || 'Título por defecto',
-      body: body || 'Contenido por defecto',
-      icon: '/icon-192x192.png'
+      title: title || "Título por defecto",
+      body: body || "Contenido por defecto",
+      icon: "/icon-192x192.png"
     }
   }
 
   try {
-    const response = await fetch('https://fcm.googleapis.com/fcm/send', {
-      method: 'POST',
+    const response = await fetch("https://fcm.googleapis.com/fcm/send", {
+      method: "POST",
       headers: {
-        Authorization: `key=${SERVER_KEY}`,
-        'Content-Type': 'application/json'
+        "Authorization": `key=${SERVER_KEY}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(mensaje)
     })
 
     const data = await response.json()
-    console.log('✅ Notificación enviada:', data)
+    console.log("✅ Notificación enviada:", data)
     res.status(200).json({ success: true, data })
   } catch (error) {
-    console.error('❌ Error al enviar notificación:', error)
+    console.error("❌ Error al enviar notificación:", error)
     res.status(500).json({ success: false, error })
   }
 })
 
-// ⚠️ MUY IMPORTANTE: este va al final
+// SPA: enviar siempre index.html para rutas internas
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'dist/index.html'))
 })

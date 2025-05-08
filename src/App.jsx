@@ -15,23 +15,23 @@ import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { app } from "./firebaseAuth"; // ✅ asegúrate de tener esta importación bien
+import { app } from "./firebaseAuth";
 import Inicio from "./pages/Inicio";
-import Monitor from "./pages/Monitor"; // ✅ nueva importación
+import Monitor from "./pages/Monitor"; // ✅ añadida
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
   const [cargandoAuth, setCargandoAuth] = useState(true);
 
   useEffect(() => {
-    const auth = getAuth(app); // ✅ usamos la instancia de app aquí también
+    const auth = getAuth(); // ✅ volvemos al uso simple
     const unsub = onAuthStateChanged(auth, async (user) => {
       setUsuarioActual(user);
       setCargandoAuth(false);
 
       if (user) {
         try {
-          const db = getFirestore(app);
+          const db = getFirestore(); // ✅ volvemos al uso simple
           const agenteRef = doc(db, "agentes", user.uid);
           const agenteSnap = await getDoc(agenteRef);
 
@@ -98,11 +98,13 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
+        {/* ✅ ChatMovil fuera del layout */}
         <Route
           path="/conversaciones/:userId"
           element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
         />
 
+        {/* ✅ Dashboard con rutas internas */}
         <Route
           path="*"
           element={

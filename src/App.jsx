@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import Notificaciones from "./components/Notificaciones";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { app } from "./firebaseAuth";
+import { app } from "./firebaseAuth"; // ✅ asegúrate de tener esta importación bien
 import Inicio from "./pages/Inicio";
 import Monitor from "./pages/Monitor"; // ✅ nueva importación
 
@@ -24,7 +24,7 @@ const App = () => {
   const [cargandoAuth, setCargandoAuth] = useState(true);
 
   useEffect(() => {
-    const auth = getAuth();
+    const auth = getAuth(app); // ✅ usamos la instancia de app aquí también
     const unsub = onAuthStateChanged(auth, async (user) => {
       setUsuarioActual(user);
       setCargandoAuth(false);
@@ -98,7 +98,6 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* ✅ ChatMovil FUERA del DashboardLayout */}
         <Route
           path="/conversaciones/:userId"
           element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
@@ -115,7 +114,7 @@ const App = () => {
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />
-                  <Route path="/monitor" element={<Monitor />} /> {/* ✅ nueva ruta añadida */}
+                  <Route path="/monitor" element={<Monitor />} /> {/* ✅ nueva ruta */}
                 </Routes>
               </DashboardLayout>
             ) : (

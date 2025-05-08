@@ -3,6 +3,10 @@ import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fetch from 'node-fetch'
+import fs from 'fs'
+import OpenAI from 'openai'  // ✅ usamos el paquete instalado
+import admin from 'firebase-admin'
+import serviceAccount from './serviceAccountKey.json' assert { type: 'json' }
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -10,14 +14,20 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const port = process.env.PORT || 3000
 
-// Server Key de Firebase Cloud Messaging
+// ✅ Inicializamos Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+})
+const db = admin.firestore()
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
 const SERVER_KEY = 'AAAAieDkF0g:APA91bGp0b8xUua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4CbquXL28qa8y-pPevdP7tC_e-EdLpxQCJ_Vjn2fTOpru6A'
 
-// Archivos estáticos (sin index para evitar conflictos con rutas internas)
 app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }))
 app.use(express.json())
 
-// Enviar notificación push
+// ✅ Enviar notificación push (sin cambios)
 app.post('/api/send-notification', async (req, res) => {
   const { token, title, body } = req.body
 
@@ -50,7 +60,54 @@ app.post('/api/send-notification', async (req, res) => {
   }
 })
 
-// SPA: enviar siempre index.html para rutas internas
+// ✅ NUEVO ENDPOINT DE MONITOR
+app.get('/api/status', async (req, res) => {
+  const status = {
+    backend: {
+      status: "✅ OK",
+      port: port,
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    },
+    firestore: null,
+    openai: null,
+    lastImageUpload: null,
+  }
+
+  // Firestore check
+  try {
+    await db.collection('test_status').doc('ping').set({ time: Date.now() }, { merge: true })
+    status.firestore = "✅ Conectado"
+  } catch (e) {
+    status.firestore = "❌ Error: " + e.message
+  }
+
+  // OpenAI check
+  try {
+    const aiRes = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "user", content: "Di 'pong'" }],
+    })
+    status.openai = "✅ Respuesta recibida"
+  } catch (e) {
+    status.openai = "❌ Error: " + e.message
+  }
+
+  // Última imagen subida
+  try {
+    const files = fs.readdirSync('./uploads')
+    const latest = files.sort((a, b) =>
+      fs.statSync(`./uploads/${b}`).mtime - fs.statSync(`./uploads/${a}`).mtime
+    )[0]
+    status.lastImageUpload = latest ? `✅ Última imagen: ${latest}` : "⚠ No hay imágenes recientes"
+  } catch (e) {
+    status.lastImageUpload = "❌ Error leyendo imágenes"
+  }
+
+  res.json(status)
+})
+
+// SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'dist/index.html'))
 })

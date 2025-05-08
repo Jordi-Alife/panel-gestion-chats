@@ -1,4 +1,3 @@
-// server.js COMPLETO CON FIX PARA private_key
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,13 +12,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ✅ Tomamos y corregimos la clave privada de la variable de entorno
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT, (key, value) => {
-  if (key === 'private_key') {
-    return value.replace(/\\n/g, '\n');
-  }
-  return value;
-});
+// ✅ Tomamos las credenciales desde la variable de entorno
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -77,7 +71,7 @@ app.get('/api/status', async (req, res) => {
     },
     firestore: null,
     openai: null,
-    lastImageUpload: null,
+    lastImageUpload: "⚠ No hay datos disponibles",
   };
 
   try {
@@ -95,16 +89,6 @@ app.get('/api/status', async (req, res) => {
     status.openai = "✅ Respuesta recibida";
   } catch (e) {
     status.openai = "❌ Error: " + e.message;
-  }
-
-  try {
-    const files = fs.readdirSync('./uploads');
-    const latest = files.sort((a, b) =>
-      fs.statSync(`./uploads/${b}`).mtime - fs.statSync(`./uploads/${a}`).mtime
-    )[0];
-    status.lastImageUpload = latest ? `✅ Última imagen: ${latest}` : "⚠ No hay imágenes recientes";
-  } catch (e) {
-    status.lastImageUpload = "❌ Error leyendo imágenes";
   }
 
   res.json(status);

@@ -21,7 +21,7 @@
     "node-fetch": "^3.3.2",
     "react-sparklines": "^1.7.0",
     "recharts": "^2.8.0",
-    "openai": "^4.27.0"    // ✅ añadido
+    "openai": "^4.27.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.3",

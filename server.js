@@ -1,3 +1,5 @@
+// ✅ server.js actualizado para usar SOLO la variable FIREBASE_SERVICE_ACCOUNT correctamente
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,8 +14,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ✅ Tomamos las credenciales desde la variable de entorno
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// ✅ Tomamos las credenciales seguras desde la variable de entorno
+let serviceAccount;
+try {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} catch (err) {
+  console.error('❌ Error leyendo FIREBASE_SERVICE_ACCOUNT:', err);
+  process.exit(1);
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -27,7 +35,6 @@ const SERVER_KEY = 'AAAAieDkF0g:APA91bGp0b8xUua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4Cb
 app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }));
 app.use(express.json());
 
-// ✅ Enviar notificación push
 app.post('/api/send-notification', async (req, res) => {
   const { token, title, body } = req.body;
 
@@ -60,7 +67,6 @@ app.post('/api/send-notification', async (req, res) => {
   }
 });
 
-// ✅ Endpoint de monitor
 app.get('/api/status', async (req, res) => {
   const status = {
     backend: {
@@ -104,7 +110,6 @@ app.get('/api/status', async (req, res) => {
   res.json(status);
 });
 
-// SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'dist/index.html'));
 });

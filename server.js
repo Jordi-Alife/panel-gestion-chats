@@ -1,12 +1,10 @@
-// server.js
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fetch from 'node-fetch'
 import fs from 'fs'
-import OpenAI from 'openai'  // ✅ usamos el paquete instalado
+import OpenAI from 'openai'
 import admin from 'firebase-admin'
-import serviceAccount from './serviceAccountKey.json' assert { type: 'json' }
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -14,7 +12,9 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const port = process.env.PORT || 3000
 
-// ✅ Inicializamos Firebase Admin
+// ✅ Parseamos la clave de Firebase desde la variable de entorno
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 })
@@ -27,7 +27,6 @@ const SERVER_KEY = 'AAAAieDkF0g:APA91bGp0b8xUua7_QSiRd_QHLp6ZvwSRN2gq00Fm8VGk4Cb
 app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }))
 app.use(express.json())
 
-// ✅ Enviar notificación push (sin cambios)
 app.post('/api/send-notification', async (req, res) => {
   const { token, title, body } = req.body
 
@@ -74,7 +73,6 @@ app.get('/api/status', async (req, res) => {
     lastImageUpload: null,
   }
 
-  // Firestore check
   try {
     await db.collection('test_status').doc('ping').set({ time: Date.now() }, { merge: true })
     status.firestore = "✅ Conectado"
@@ -82,7 +80,6 @@ app.get('/api/status', async (req, res) => {
     status.firestore = "❌ Error: " + e.message
   }
 
-  // OpenAI check
   try {
     const aiRes = await openai.chat.completions.create({
       model: "gpt-4",
@@ -93,7 +90,6 @@ app.get('/api/status', async (req, res) => {
     status.openai = "❌ Error: " + e.message
   }
 
-  // Última imagen subida
   try {
     const files = fs.readdirSync('./uploads')
     const latest = files.sort((a, b) =>

@@ -499,6 +499,8 @@ cargarDatos();
         const data = await res.json();
       if (data.ok) {
   alert("✅ Conversación liberada");
+
+  // SOLO recargamos datos frescos desde backend, no tocamos el estado local directo
   await cargarDatos();
 } else {
   alert("⚠️ Error al liberar conversación");
@@ -517,54 +519,58 @@ cargarDatos();
     Traspasado a GPT
   </div>
 )}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
-          {usuarioSeleccionado ? (
-            <div className="text-sm text-gray-700 space-y-1">
-              <p>ID: {usuarioSeleccionado.userId}</p>
-              <p>Navegador: {usuarioSeleccionado.navegador}</p>
-              <p>
-                País:{" "}
-                {paisAToIso(usuarioSeleccionado.pais) ? (
-                  <img
-                    src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
-                    alt={usuarioSeleccionado.pais}
-                    className="inline-block ml-1"
-                  />
-                ) : (
-                  <span className="ml-1">🌐</span>
-                )}
-              </p>
-              {usuarioSeleccionado.chatCerrado && (
-                <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
-              )}
-              <p>Historial:</p>
-              <ul className="list-disc list-inside text-xs text-gray-600">
-                {usuarioSeleccionado.historial.map((url, idx) => (
-                  <li key={idx}>{url}</li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p className="text-xs text-gray-500">Selecciona una conversación</p>
-          )}
-        </div>
-      </div>
+<h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+{usuarioSeleccionado ? (
+  <div className="text-sm text-gray-700 space-y-1">
+    <p>ID: {usuarioSeleccionado.userId}</p>
+    <p>Navegador: {usuarioSeleccionado.navegador}</p>
+    <p>
+      País:{" "}
+      {paisAToIso(usuarioSeleccionado.pais) ? (
+        <img
+          src={`https://flagcdn.com/24x18/${paisAToIso(
+            usuarioSeleccionado.pais
+          )}.png`}
+          alt={usuarioSeleccionado.pais}
+          className="inline-block ml-1"
+        />
+      ) : (
+        <span className="ml-1">🌐</span>
+      )}
+    </p>
+    {usuarioSeleccionado.chatCerrado && (
+      <p className="text-xs text-red-500 mt-1">
+        ⚠ Usuario ha cerrado el chat
+      </p>
+    )}
+    <p>Historial:</p>
+    <ul className="list-disc list-inside text-xs text-gray-600">
+      {usuarioSeleccionado.historial.map((url, idx) => (
+        <li key={idx}>{url}</li>
+      ))}
+    </ul>
+  </div>
+) : (
+  <p className="text-xs text-gray-500">Selecciona una conversación</p>
+)}
+</div>
+</div>
 
-      {/* Bloque email solo visible en desktop */}
-      <div className="w-full px-6 py-4 hidden md:block">
-        <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
-          <input
-            type="email"
-            value={emailDestino}
-            onChange={(e) => setEmailDestino(e.target.value)}
-            placeholder="Correo electrónico del destinatario"
-            className="w-full sm:w-2/3 border border-gray-300 rounded px-4 py-2 text-sm"
-          />
-          <button className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700">
-            Enviar por email
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+{/* Bloque email solo visible en desktop */}
+<div className="w-full px-6 py-4 hidden md:block">
+  <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
+    <input
+      type="email"
+      value={emailDestino}
+      onChange={(e) => setEmailDestino(e.target.value)}
+      placeholder="Correo electrónico del destinatario"
+      className="w-full sm:w-2/3 border border-gray-300 rounded px-4 py-2 text-sm"
+    />
+    <button className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700">
+      Enviar por email
+    </button>
+  </div>
+</div>
+</div>
+);
 }

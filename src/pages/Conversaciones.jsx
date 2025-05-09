@@ -205,17 +205,39 @@ export default function Conversaciones() {
 
   const totalNoLeidos = listaAgrupada.filter((c) => c.nuevos > 0).length;
 
-  useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } })
-    );
-  }, [totalNoLeidos]);
+ useEffect(() => {
+  window.dispatchEvent(
+    new CustomEvent("notificaciones-nuevas", { detail: { total: totalNoLeidos } })
+  );
+}, [totalNoLeidos]);
 
-  const estadoColor = {
-    Activa: "bg-green-500",
-    Inactiva: "bg-gray-400",
-    Archivado: "bg-black",
-  };
+// 🔥 Nuevo useEffect para liberar automáticamente si está Archivado
+useEffect(() => {
+  todasConversaciones.forEach(async (conv) => {
+    if (conv.intervenida && conv.estado === "Archivado") {
+      try {
+        const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: conv.userId }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          console.log(`✅ Conversación ${conv.userId} liberada automáticamente`);
+          await cargarDatos();
+        }
+      } catch (error) {
+        console.error(`❌ Error liberando conversación ${conv.userId}:`, error);
+      }
+    }
+  });
+}, [todasConversaciones]);
+
+const estadoColor = {
+  Activa: "bg-green-500",
+  Inactiva: "bg-gray-400",
+  Archivado: "bg-black",
+};
     return (
     <div className="flex flex-col h-screen min-h-screen bg-[#f0f4f8] relative">
       <div className="flex flex-1 p-4 gap-4 overflow-hidden flex-col md:flex-row">

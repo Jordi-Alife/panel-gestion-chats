@@ -480,7 +480,7 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
-          {usuarioSeleccionado?.intervenida && (
+         {usuarioSeleccionado?.intervenida ? (
   <button
     onClick={async () => {
       try {
@@ -505,6 +505,10 @@ export default function Conversaciones() {
   >
     Liberar conversación
   </button>
+) : (
+  <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
+    Traspasado a GPT
+  </div>
 )}
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           {usuarioSeleccionado ? (

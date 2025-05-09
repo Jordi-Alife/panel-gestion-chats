@@ -109,7 +109,7 @@ app.get('/api/status', async (req, res) => {
   res.json(status);
 });
 
-// ✅ Nuevo endpoint: usage real de OpenAI usando fechas correctas
+// ✅ Nuevo endpoint: uso de OpenAI
 app.get('/api/openai-usage', async (req, res) => {
   try {
     const headers = {
@@ -125,18 +125,18 @@ app.get('/api/openai-usage', async (req, res) => {
 
     const totalLimit = subData.hard_limit_usd;
 
-    // Calcular fecha del inicio del mes hasta hoy (formato YYYY-MM-DD)
+    // Calcular fecha desde inicio de mes hasta hoy
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
     const end = now.toISOString().split('T')[0];
 
-    // Pedir uso del mes
+    // Pedir uso mensual
     const usageResponse = await fetch(`https://api.openai.com/v1/dashboard/billing/usage?start_date=${start}&end_date=${end}`, {
       headers,
     });
     const usageData = await usageResponse.json();
 
-    const totalUsage = usageData.total_usage / 100; // viene en centavos
+    const totalUsage = usageData.total_usage / 100; // centavos a USD
     const remaining = totalLimit - totalUsage;
 
     res.json({

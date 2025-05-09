@@ -47,12 +47,14 @@ export default function Monitor() {
         <Tarjeta titulo="Última imagen subida" detalle={estado.lastImageUpload} />
         <Tarjeta titulo="Uptime backend (s)" detalle={Math.floor(estado.backend.uptime)} />
         <Tarjeta titulo="Última actualización" detalle={new Date(estado.backend.timestamp).toLocaleString()} />
-        {openAIUsage && (
+        {openAIUsage ? (
           <>
             <Tarjeta titulo="OpenAI Límite Total (USD)" detalle={`$${openAIUsage.totalLimit}`} />
             <Tarjeta titulo="OpenAI Gastado (USD)" detalle={`$${openAIUsage.totalUsage}`} />
             <Tarjeta titulo="OpenAI Restante (USD)" detalle={`$${openAIUsage.remaining}`} />
           </>
+        ) : (
+          <Tarjeta titulo="Uso OpenAI" detalle="Cargando datos..." />
         )}
       </div>
     </div>

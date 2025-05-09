@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { FiPaperclip, FiSend } from "react-icons/fi";
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -59,22 +60,24 @@ const ChatMovil = () => {
   };
 
   return (
-    <div className="chat-container">
+    <div className="flex flex-col h-screen">
       {/* HEADER */}
-      <div className="chat-header">
+      <div className="flex items-center p-2 border-b">
         <button onClick={() => navigate("/conversaciones")} className="text-gray-600 text-xl">
           ←
         </button>
-        <div className="chat-header-center">
-          <div className="avatar flex items-center justify-center bg-gray-300 text-sm text-gray-700">
-            {userId.slice(0, 2).toUpperCase()}
-          </div>
-          <div className="title">ID: {userId}</div>
-        </div>
+        <div className="flex-1 text-center font-semibold">ID: {userId}</div>
+        <button onClick={() => alert("Ver detalles")} className="text-gray-600 text-xl">
+          ℹ️
+        </button>
       </div>
 
       {/* MENSAJES */}
-      <div ref={chatRef} className="chat-messages" onScroll={handleScroll}>
+      <div
+        ref={chatRef}
+        className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50"
+        onScroll={handleScroll}
+      >
         {mensajes.map((msg, index) => {
           const isAsistente =
             msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
@@ -90,7 +93,7 @@ const ChatMovil = () => {
           return (
             <div key={index} className={`flex ${align}`}>
               <div
-                className={`message max-w-[85%] p-3 shadow ${shapeClass} ${
+                className={`message max-w-[80%] p-3 shadow ${shapeClass} ${
                   msg.manual
                     ? "bg-[#2563eb] text-white"
                     : isAsistente
@@ -170,7 +173,7 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* NUEVO INPUT MODERNO */}
+      {/* INPUT MODERNO */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -202,10 +205,10 @@ const ChatMovil = () => {
           setRespuesta("");
           cargarMensajes();
         }}
-        className="w-full px-3 py-2 flex items-center gap-2 bg-white border-t"
+        className="flex items-center px-2 py-2 border-t bg-white"
       >
-        <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-          Seleccionar archivo
+        <label className="cursor-pointer px-2">
+          <FiPaperclip className="text-2xl text-gray-600" />
           <input
             type="file"
             accept="image/*"
@@ -218,13 +221,13 @@ const ChatMovil = () => {
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none placeholder-gray-400"
+          className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none"
         />
         <button
           type="submit"
-          className="bg-black text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-900 transition"
+          className="ml-2 bg-black text-white rounded-full p-2"
         >
-          ➤
+          <FiSend className="text-xl" />
         </button>
       </form>
     </div>

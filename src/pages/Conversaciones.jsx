@@ -102,8 +102,8 @@ export default function Conversaciones() {
     setAgente(null);
   }
 
-  // NUEVO: actualizar también usuarioSeleccionado cuando cambien los datos
-  setUsuarioSeleccionado(conversacion || null);
+  // ✅ Ya no tocamos usuarioSeleccionado aquí porque se actualiza con cargarMensajes()
+  // setUsuarioSeleccionado(conversacion || null);
 
 }, [userId, todasConversaciones]);
 

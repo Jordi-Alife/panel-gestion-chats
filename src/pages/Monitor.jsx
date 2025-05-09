@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 export default function Monitor() {
   const [estado, setEstado] = useState(null);
+  const [openAIUsage, setOpenAIUsage] = useState(null);
 
   useEffect(() => {
     const cargarEstado = () => {
@@ -12,6 +13,18 @@ export default function Monitor() {
     };
     cargarEstado();
     const intervalo = setInterval(cargarEstado, 10000); // cada 10 segundos
+    return () => clearInterval(intervalo);
+  }, []);
+
+  useEffect(() => {
+    const cargarOpenAIUsage = () => {
+      fetch("/api/openai-usage")
+        .then((res) => res.json())
+        .then(setOpenAIUsage)
+        .catch((e) => console.error("Error cargando uso OpenAI:", e));
+    };
+    cargarOpenAIUsage();
+    const intervalo = setInterval(cargarOpenAIUsage, 60000); // cada 60 segundos
     return () => clearInterval(intervalo);
   }, []);
 
@@ -34,6 +47,13 @@ export default function Monitor() {
         <Tarjeta titulo="Última imagen subida" detalle={estado.lastImageUpload} />
         <Tarjeta titulo="Uptime backend (s)" detalle={Math.floor(estado.backend.uptime)} />
         <Tarjeta titulo="Última actualización" detalle={new Date(estado.backend.timestamp).toLocaleString()} />
+        {openAIUsage && (
+          <>
+            <Tarjeta titulo="OpenAI Límite Total (USD)" detalle={`$${openAIUsage.totalLimit}`} />
+            <Tarjeta titulo="OpenAI Gastado (USD)" detalle={`$${openAIUsage.totalUsage}`} />
+            <Tarjeta titulo="OpenAI Restante (USD)" detalle={`$${openAIUsage.remaining}`} />
+          </>
+        )}
       </div>
     </div>
   );

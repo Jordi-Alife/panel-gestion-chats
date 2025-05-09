@@ -494,8 +494,13 @@ cargarDatos();
         const data = await res.json();
         if (data.ok) {
   alert("✅ Conversación liberada");
-  cargarDatos();
+  // Primero actualizamos el estado local para reflejar visualmente
   setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
+  
+  // Luego, tras pequeño delay, recargamos desde backend
+  setTimeout(() => {
+    cargarDatos();
+  }, 500);
 } else {
           alert("⚠️ Error al liberar conversación");
         }

@@ -78,8 +78,9 @@ const ChatMovil = () => {
         {mensajes.map((msg, index) => {
           const isAsistente =
             msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+          const align = isAsistente ? "justify-end" : "justify-start";
           return (
-            <div key={index} className={`flex ${isAsistente ? "justify-end" : "justify-start"}`}>
+            <div key={index} className={`flex ${align}`}>
               <div
                 className={`message rounded-[18px] max-w-[85%] p-3 shadow ${
                   msg.manual
@@ -209,8 +210,14 @@ const ChatMovil = () => {
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
+          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
         />
-        <button type="submit">Enviar</button>
+        <button
+          type="submit"
+          className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+        >
+          Enviar
+        </button>
       </form>
     </div>
   );

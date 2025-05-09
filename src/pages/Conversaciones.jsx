@@ -337,12 +337,14 @@ const estadoColor = {
   const isAsistente =
     msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
   const align = isAsistente ? "justify-end" : "justify-start";
+  const isManual = msg.manual;
+
   return (
     <div key={index} className={`flex ${align}`}>
       <div
         className={`message rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
-          msg.manual
-            ? "bg-[#2563eb] text-white"
+          isManual
+            ? "bg-[#2563eb] text-white assistant"
             : isAsistente
             ? "bg-black text-white assistant"
             : "bg-white text-gray-800 border user"
@@ -369,7 +371,7 @@ const estadoColor = {
                 }))
               }
               className={`underline text-xs ${
-                isAsistente ? "text-white/70" : "text-blue-600"
+                isAsistente || isManual ? "text-white/70" : "text-blue-600"
               } focus:outline-none`}
             >
               {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -377,7 +379,7 @@ const estadoColor = {
             {originalesVisibles[index] && (
               <p
                 className={`mt-1 italic text-left ${
-                  isAsistente ? "text-white/70" : "text-gray-500"
+                  isAsistente || isManual ? "text-white/70" : "text-gray-500"
                 }`}
               >
                 {msg.original}
@@ -387,7 +389,7 @@ const estadoColor = {
         )}
         <div
           className={`text-[10px] mt-1 opacity-60 text-right ${
-            isAsistente ? "text-white" : "text-gray-500"
+            isAsistente || isManual ? "text-white" : "text-gray-500"
           }`}
         >
           {new Date(msg.lastInteraction).toLocaleTimeString([], {

@@ -23,17 +23,19 @@ export default function Conversaciones() {
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
-  const cargarDatos = () => {
-    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
-      .then(setTodasConversaciones)
-      .catch(console.error);
+  const cargarDatos = async () => {
+  try {
+    const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
+    const data = await res.json();
+    setTodasConversaciones(data);
 
-    fetch("https://web-production-51989.up.railway.app/api/vistas")
-      .then((res) => res.json())
-      .then(setVistas)
-      .catch(console.error);
-  };
+    // devolvemos los datos para que quien llame a cargarDatos los pueda usar
+    return data;
+  } catch (err) {
+    console.error(err);
+    return []; // si falla, devolvemos array vacío
+  }
+};
 
   useEffect(() => {
     cargarDatos();

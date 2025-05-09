@@ -344,10 +344,10 @@ const estadoColor = {
       <div
         className={`message rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
           isManual
-            ? "bg-[#2563eb] text-white assistant"
+            ? "bg-[#2563eb] text-white"
             : isAsistente
-            ? "bg-black text-white assistant"
-            : "bg-white text-gray-800 border user"
+            ? "bg-black text-white"
+            : "bg-white text-gray-800 border"
         }`}
       >
         {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (

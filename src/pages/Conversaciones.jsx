@@ -509,14 +509,6 @@ cargarDatos();
                   : conv
               )
             );
-
-            // ⚡ Aquí importante: refrescar después de actualizar la lista
-            const conversacion = todasConversaciones.find(
-              (c) => c.userId === usuarioSeleccionado.userId
-            );
-            if (conversacion) {
-              setUsuarioSeleccionado(conversacion);
-            }
           } else {
             alert("⚠️ Error al liberar conversación");
           }
@@ -570,21 +562,18 @@ cargarDatos();
   )}
 </div>
 
-      {/* Bloque email solo visible en desktop */}
-      <div className="w-full px-6 py-4 hidden md:block">
-        <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
-          <input
-            type="email"
-            value={emailDestino}
-            onChange={(e) => setEmailDestino(e.target.value)}
-            placeholder="Correo electrónico del destinatario"
-            className="w-full sm:w-2/3 border border-gray-300 rounded px-4 py-2 text-sm"
-          />
-          <button className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700">
-            Enviar por email
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+{/* Bloque email solo visible en desktop */}
+<div className="w-full px-6 py-4 hidden md:block">
+  <div className="w-full bg-white rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center gap-4">
+    <input
+      type="email"
+      value={emailDestino}
+      onChange={(e) => setEmailDestino(e.target.value)}
+      placeholder="Correo electrónico del destinatario"
+      className="w-full sm:w-2/3 border border-gray-300 rounded px-4 py-2 text-sm"
+    />
+    <button className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700">
+      Enviar por email
+    </button>
+  </div>
+</div>

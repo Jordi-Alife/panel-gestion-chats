@@ -112,17 +112,24 @@ app.get('/api/status', async (req, res) => {
 // ✅ Nuevo endpoint: usage de OpenAI
 app.get('/api/openai-usage', async (req, res) => {
   try {
-    const usage = await openai.billing.getUsage();
-    const subscription = await openai.billing.getSubscription();
+    const headers = {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    };
 
-    const totalUsage = (usage.total_usage / 100).toFixed(2); // convertir de centavos a USD
-    const totalLimit = (subscription.hard_limit_usd).toFixed(2);
-    const remaining = (totalLimit - totalUsage).toFixed(2);
+    const subscriptionRes = await fetch('https://api.openai.com/v1/dashboard/billing/subscription', { headers });
+    const subscriptionData = await subscriptionRes.json();
+
+    const usageRes = await fetch('https://api.openai.com/v1/dashboard/billing/usage', { headers });
+    const usageData = await usageRes.json();
+
+    const totalLimit = subscriptionData?.hard_limit_usd || 0;
+    const totalUsage = (usageData?.total_usage || 0) / 100; // centavos a USD
+    const remaining = totalLimit - totalUsage;
 
     res.json({
-      totalUsage,
-      totalLimit,
-      remaining,
+      totalLimit: totalLimit.toFixed(2),
+      totalUsage: totalUsage.toFixed(2),
+      remaining: remaining.toFixed(2),
     });
   } catch (error) {
     console.error("❌ Error obteniendo uso de OpenAI:", error);

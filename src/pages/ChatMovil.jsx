@@ -78,11 +78,19 @@ const ChatMovil = () => {
         {mensajes.map((msg, index) => {
           const isAsistente =
             msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+
           const align = isAsistente ? "justify-end" : "justify-start";
+
+          const shapeClass = msg.manual
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // manual azul
+            : isAsistente
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // asistente negro
+            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]"; // usuario blanco
+
           return (
             <div key={index} className={`flex ${align}`}>
               <div
-                className={`message rounded-[18px] max-w-[85%] p-3 shadow ${
+                className={`message max-w-[85%] p-3 shadow ${shapeClass} ${
                   msg.manual
                     ? "bg-[#2563eb] text-white"
                     : isAsistente
@@ -110,7 +118,7 @@ const ChatMovil = () => {
                         }))
                       }
                       className={`underline text-xs ${
-                        isAsistente ? "text-white/70" : "text-blue-600"
+                        isAsistente || msg.manual ? "text-white/70" : "text-blue-600"
                       }`}
                     >
                       {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -118,7 +126,7 @@ const ChatMovil = () => {
                     {originalesVisibles[index] && (
                       <p
                         className={`mt-1 italic text-left ${
-                          isAsistente ? "text-white/70" : "text-gray-500"
+                          isAsistente || msg.manual ? "text-white/70" : "text-gray-500"
                         }`}
                       >
                         {msg.original}
@@ -129,7 +137,7 @@ const ChatMovil = () => {
 
                 <div
                   className={`text-[10px] mt-1 opacity-60 text-right ${
-                    isAsistente ? "text-white" : "text-gray-500"
+                    isAsistente || msg.manual ? "text-white" : "text-gray-500"
                   }`}
                 >
                   {new Date(msg.lastInteraction).toLocaleTimeString([], {

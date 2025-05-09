@@ -334,69 +334,71 @@ const estadoColor = {
             }`}
           >
             {mensajes.map((msg, index) => {
-              const isAsistente =
-                msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
-              const align = isAsistente ? "justify-end" : "justify-start";
-              return (
-                <div key={index} className={`flex ${align}`}>
-                  <div
-                    className={`message ${isAsistente ? "assistant" : "user"} rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
-                      isAsistente
-                        ? "bg-black text-white"
-                        : "bg-white text-gray-800 border"
-                    }`}
-                  >
-                    {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                      <img
-                        src={msg.message}
-                        alt="Imagen"
-                        className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                      />
-                    ) : (
-                      <p className="whitespace-pre-wrap text-sm">
-                        {msg.message}
-                      </p>
-                    )}
-                    {msg.original && (
-                      <div className="mt-2 text-[11px] text-right">
-                        <button
-                          onClick={() =>
-                            setOriginalesVisibles((prev) => ({
-                              ...prev,
-                              [index]: !prev[index],
-                            }))
-                          }
-                          className={`underline text-xs ${
-                            isAsistente ? "text-white/70" : "text-blue-600"
-                          } focus:outline-none`}
-                        >
-                          {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                        </button>
-                        {originalesVisibles[index] && (
-                          <p
-                            className={`mt-1 italic text-left ${
-                              isAsistente ? "text-white/70" : "text-gray-500"
-                            }`}
-                          >
-                            {msg.original}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                    <div
-                      className={`text-[10px] mt-1 opacity-60 text-right ${
-                        isAsistente ? "text-white" : "text-gray-500"
-                      }`}
-                    >
-                      {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+  const isAsistente =
+    msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+  const align = isAsistente ? "justify-end" : "justify-start";
+  return (
+    <div key={index} className={`flex ${align}`}>
+      <div
+        className={`message ${isAsistente ? "assistant" : "user"} rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
+          msg.manual
+            ? "bg-blue-100 text-black"
+            : isAsistente
+            ? "bg-black text-white"
+            : "bg-white text-gray-800 border"
+        }`}
+      >
+        {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+          <img
+            src={msg.message}
+            alt="Imagen"
+            className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+          />
+        ) : (
+          <p className="whitespace-pre-wrap text-sm">
+            {msg.message}
+          </p>
+        )}
+        {msg.original && (
+          <div className="mt-2 text-[11px] text-right">
+            <button
+              onClick={() =>
+                setOriginalesVisibles((prev) => ({
+                  ...prev,
+                  [index]: !prev[index],
+                }))
+              }
+              className={`underline text-xs ${
+                isAsistente ? "text-white/70" : "text-blue-600"
+              } focus:outline-none`}
+            >
+              {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+            </button>
+            {originalesVisibles[index] && (
+              <p
+                className={`mt-1 italic text-left ${
+                  isAsistente ? "text-white/70" : "text-gray-500"
+                }`}
+              >
+                {msg.original}
+              </p>
+            )}
+          </div>
+        )}
+        <div
+          className={`text-[10px] mt-1 opacity-60 text-right ${
+            isAsistente ? "text-white" : "text-gray-500"
+          }`}
+        >
+          {new Date(msg.lastInteraction).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
+      </div>
+    </div>
+  );
+})}
             {textoEscribiendo && (
               <div className="flex justify-start">
                 <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">

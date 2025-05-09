@@ -340,13 +340,13 @@ const estadoColor = {
   return (
     <div key={index} className={`flex ${align}`}>
       <div
-        className={`message ${isAsistente ? "assistant" : "user"} rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
-          msg.manual
-            ? "bg-blue-100 text-black"
-            : isAsistente
-            ? "bg-black text-white"
-            : "bg-white text-gray-800 border"
-        }`}
+        className={`message rounded-[18px] max-w-[85%] p-3 md:p-4 shadow ${
+  msg.manual
+    ? "bg-blue-100 text-black"
+    : isAsistente
+    ? "bg-black text-white assistant"
+    : "bg-white text-gray-800 border user"
+}`}
       >
         {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
           <img

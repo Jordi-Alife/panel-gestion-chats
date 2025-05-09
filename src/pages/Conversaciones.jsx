@@ -500,11 +500,11 @@ cargarDatos();
       if (data.ok) {
   alert("✅ Conversación liberada");
 
-  // Esperamos cargar los datos frescos del backend
-  await cargarDatos();
+  // Esperamos cargar los datos frescos del backend y los usamos directamente
+  const nuevasConversaciones = await cargarDatos();
 
   // Buscamos la conversación actualizada recién cargada
-  const conversacionActualizada = todasConversaciones.find(
+  const conversacionActualizada = nuevasConversaciones.find(
     (c) => c.userId === usuarioSeleccionado.userId
   );
 

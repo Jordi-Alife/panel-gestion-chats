@@ -109,21 +109,34 @@ app.get('/api/status', async (req, res) => {
   res.json(status);
 });
 
-// ✅ Nuevo endpoint: usage de OpenAI
+// ✅ Nuevo endpoint: usage real de OpenAI usando fechas correctas
 app.get('/api/openai-usage', async (req, res) => {
   try {
     const headers = {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
     };
 
-    const subscriptionRes = await fetch('https://api.openai.com/v1/dashboard/billing/subscription', { headers });
-    const subscriptionData = await subscriptionRes.json();
+    // Pedir límites de suscripción
+    const subResponse = await fetch('https://api.openai.com/v1/dashboard/billing/subscription', {
+      headers,
+    });
+    const subData = await subResponse.json();
 
-    const usageRes = await fetch('https://api.openai.com/v1/dashboard/billing/usage', { headers });
-    const usageData = await usageRes.json();
+    const totalLimit = subData.hard_limit_usd;
 
-    const totalLimit = subscriptionData?.hard_limit_usd || 0;
-    const totalUsage = (usageData?.total_usage || 0) / 100; // centavos a USD
+    // Calcular fecha del inicio del mes hasta hoy (formato YYYY-MM-DD)
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const end = now.toISOString().split('T')[0];
+
+    // Pedir uso del mes
+    const usageResponse = await fetch(`https://api.openai.com/v1/dashboard/billing/usage?start_date=${start}&end_date=${end}`, {
+      headers,
+    });
+    const usageData = await usageResponse.json();
+
+    const totalUsage = usageData.total_usage / 100; // viene en centavos
     const remaining = totalLimit - totalUsage;
 
     res.json({
@@ -132,8 +145,8 @@ app.get('/api/openai-usage', async (req, res) => {
       remaining: remaining.toFixed(2),
     });
   } catch (error) {
-    console.error("❌ Error obteniendo uso de OpenAI:", error);
-    res.status(500).json({ error: "Error obteniendo uso de OpenAI" });
+    console.error("❌ Error obteniendo uso real de OpenAI:", error);
+    res.status(500).json({ error: "Error obteniendo uso real de OpenAI" });
   }
 });
 

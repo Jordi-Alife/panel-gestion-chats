@@ -23,19 +23,17 @@ export default function Conversaciones() {
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
-  const cargarDatos = async () => {
-  try {
-    const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
-    const data = await res.json();
-    setTodasConversaciones(data);
+  const cargarDatos = () => {
+    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      .then((res) => res.json())
+      .then(setTodasConversaciones)
+      .catch(console.error);
 
-    // devolvemos los datos para que quien llame a cargarDatos los pueda usar
-    return data;
-  } catch (err) {
-    console.error(err);
-    return []; // si falla, devolvemos array vacío
-  }
-};
+    fetch("https://web-production-51989.up.railway.app/api/vistas")
+      .then((res) => res.json())
+      .then(setVistas)
+      .catch(console.error);
+  };
 
   useEffect(() => {
     cargarDatos();
@@ -502,11 +500,11 @@ cargarDatos();
       if (data.ok) {
   alert("✅ Conversación liberada");
 
-  // Esperamos cargar los datos frescos del backend y los usamos directamente
-  const nuevasConversaciones = await cargarDatos();
+  // Esperamos cargar los datos frescos del backend
+  await cargarDatos();
 
   // Buscamos la conversación actualizada recién cargada
-  const conversacionActualizada = nuevasConversaciones.find(
+  const conversacionActualizada = todasConversaciones.find(
     (c) => c.userId === usuarioSeleccionado.userId
   );
 

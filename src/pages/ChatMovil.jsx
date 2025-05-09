@@ -170,7 +170,7 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* INPUT */}
+      {/* NUEVO INPUT MODERNO */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -202,7 +202,7 @@ const ChatMovil = () => {
           setRespuesta("");
           cargarMensajes();
         }}
-        className="chat-input"
+        className="w-full px-3 py-2 flex items-center gap-2 bg-white border-t"
       >
         <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
           Seleccionar archivo
@@ -218,13 +218,13 @@ const ChatMovil = () => {
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+          className="flex-1 rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none placeholder-gray-400"
         />
         <button
           type="submit"
-          className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+          className="bg-black text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-900 transition"
         >
-          Enviar
+          ➤
         </button>
       </form>
     </div>

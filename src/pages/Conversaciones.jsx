@@ -499,26 +499,7 @@ cargarDatos();
         const data = await res.json();
       if (data.ok) {
   alert("✅ Conversación liberada");
-
-  // Primero actualizamos el estado local del usuario seleccionado
-  setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
-
-  // También actualizamos la lista general para que se refleje sin refrescar
-  setTodasConversaciones((prev) =>
-    prev.map((conv) =>
-      conv.userId === usuarioSeleccionado.userId
-        ? { ...conv, intervenida: false }
-        : conv
-    )
-  );
-
-  // Luego, recargamos datos frescos y actualizamos el usuario seleccionado
   await cargarDatos();
-  const infoActualizada = todasConversaciones.find(
-    (c) => c.userId === usuarioSeleccionado.userId
-  );
-  setUsuarioSeleccionado(infoActualizada || null);
-
 } else {
   alert("⚠️ Error al liberar conversación");
 }

@@ -480,6 +480,32 @@ export default function Conversaciones() {
               </div>
             </div>
           )}
+          {usuarioSeleccionado?.intervenida && (
+  <button
+    onClick={async () => {
+      try {
+        const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert("✅ Conversación liberada");
+          cargarDatos();
+        } else {
+          alert("⚠️ Error al liberar conversación");
+        }
+      } catch (error) {
+        console.error("❌ Error liberando conversación:", error);
+        alert("❌ Error liberando conversación");
+      }
+    }}
+    className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
+  >
+    Liberar conversación
+  </button>
+)}
           <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
           {usuarioSeleccionado ? (
             <div className="text-sm text-gray-700 space-y-1">

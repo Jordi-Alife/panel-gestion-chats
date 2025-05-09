@@ -492,18 +492,22 @@ cargarDatos();
           body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
         });
         const data = await res.json();
-        if (data.ok) {
+       if (data.ok) {
   alert("✅ Conversación liberada");
+
   // Primero actualizamos el estado local para reflejar visualmente
   setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
-  
-  // Luego, tras pequeño delay, recargamos desde backend
-  setTimeout(() => {
-    cargarDatos();
-  }, 500);
+
+  // Luego, recargamos datos frescos y actualizamos el usuario seleccionado
+  await cargarDatos();
+  const infoActualizada = todasConversaciones.find(
+    (c) => c.userId === usuarioSeleccionado.userId
+  );
+  setUsuarioSeleccionado(infoActualizada || null);
+
 } else {
-          alert("⚠️ Error al liberar conversación");
-        }
+  alert("⚠️ Error al liberar conversación");
+}
       } catch (error) {
         console.error("❌ Error liberando conversación:", error);
         alert("❌ Error liberando conversación");

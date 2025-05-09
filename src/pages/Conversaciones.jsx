@@ -46,27 +46,31 @@ export default function Conversaciones() {
     return () => clearInterval(intervalo);
   }, []);
 
-  const cargarMensajes = () => {
-    if (!userId) return;
-    fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const ordenados = (data || []).sort(
-          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-        );
-        setMensajes(ordenados);
-        const info = todasConversaciones.find((c) => c.userId === userId);
-        setUsuarioSeleccionado(info || null);
-        setChatCerrado(info?.chatCerrado || false);
-        setTimeout(() => {
-          if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-          }
-        }, 100);
-      })
-      .catch(console.error);
-  };
+  const cargarMensajes = async () => {
+  if (!userId) return;
+  try {
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const data = await res.json();
+    const ordenados = (data || []).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+    setMensajes(ordenados);
 
+    // 🚀 Aquí actualizamos buscando la conversación del backend más reciente
+    const nuevasConversaciones = await cargarDatos();
+    const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+    setUsuarioSeleccionado(nuevaInfo || null);
+    setChatCerrado(nuevaInfo?.chatCerrado || false);
+
+    setTimeout(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  }
+};
   useEffect(() => {
     cargarMensajes();
     const interval = setInterval(cargarMensajes, 2000);

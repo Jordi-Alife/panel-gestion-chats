@@ -109,11 +109,32 @@ app.get('/api/status', async (req, res) => {
   res.json(status);
 });
 
+// ✅ Nuevo endpoint: usage de OpenAI
+app.get('/api/openai-usage', async (req, res) => {
+  try {
+    const usage = await openai.billing.getUsage();
+    const subscription = await openai.billing.getSubscription();
+
+    const totalUsage = (usage.total_usage / 100).toFixed(2); // convertir de centavos a USD
+    const totalLimit = (subscription.hard_limit_usd).toFixed(2);
+    const remaining = (totalLimit - totalUsage).toFixed(2);
+
+    res.json({
+      totalUsage,
+      totalLimit,
+      remaining,
+    });
+  } catch (error) {
+    console.error("❌ Error obteniendo uso de OpenAI:", error);
+    res.status(500).json({ error: "Error obteniendo uso de OpenAI" });
+  }
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'dist/index.html'));
 });
 
 app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
 });

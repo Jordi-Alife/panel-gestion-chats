@@ -458,111 +458,117 @@ cargarDatos();
         </div>
 
         {/* Columna detalles */}
-        <div
-          className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto ${
-            userId ? "hidden md:block md:w-1/5" : "hidden"
-          }`}
-        >
-          {agente && (
-            <div className="mb-4">
-              <h3 className="text-xs text-gray-500">Intervenido por</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <img
-                  src={agente.foto || "https://i.pravatar.cc/100?u=default"}
-                  alt="Agente"
-                  className="w-8 h-8 rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "https://i.pravatar.cc/100?u=fallback";
-                  }}
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {agente.nombre || "—"}
-                </span>
-              </div>
-            </div>
-          )}
-         {usuarioSeleccionado?.intervenida ? (
-  <button
-    onClick={async () => {
-      try {
-        const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
-        });
-        const data = await res.json();
-      if (data.ok) {
-  alert("✅ Conversación liberada");
-
-  // Primero actualizamos el estado local del usuario seleccionado
-  setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
-
-  // También actualizamos la lista general para que se refleje sin refrescar
-  setTodasConversaciones((prev) =>
-    prev.map((conv) =>
-      conv.userId === usuarioSeleccionado.userId
-        ? { ...conv, intervenida: false }
-        : conv
-    )
-  );
-
-  // Luego, recargamos datos frescos y actualizamos el usuario seleccionado
-  await cargarDatos();
-  const infoActualizada = todasConversaciones.find(
-    (c) => c.userId === usuarioSeleccionado.userId
-  );
-  setUsuarioSeleccionado(infoActualizada || null);
-
-} else {
-  alert("⚠️ Error al liberar conversación");
-}
-      } catch (error) {
-        console.error("❌ Error liberando conversación:", error);
-        alert("❌ Error liberando conversación");
-      }
-    }}
-    className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
-  >
-    Liberar conversación
-  </button>
-) : (
-  <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
-    Traspasado a GPT
-  </div>
-)}
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
-          {usuarioSeleccionado ? (
-            <div className="text-sm text-gray-700 space-y-1">
-              <p>ID: {usuarioSeleccionado.userId}</p>
-              <p>Navegador: {usuarioSeleccionado.navegador}</p>
-              <p>
-                País:{" "}
-                {paisAToIso(usuarioSeleccionado.pais) ? (
-                  <img
-                    src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
-                    alt={usuarioSeleccionado.pais}
-                    className="inline-block ml-1"
-                  />
-                ) : (
-                  <span className="ml-1">🌐</span>
-                )}
-              </p>
-              {usuarioSeleccionado.chatCerrado && (
-                <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
-              )}
-              <p>Historial:</p>
-              <ul className="list-disc list-inside text-xs text-gray-600">
-                {usuarioSeleccionado.historial.map((url, idx) => (
-                  <li key={idx}>{url}</li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p className="text-xs text-gray-500">Selecciona una conversación</p>
-          )}
-        </div>
+<div
+  className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto ${
+    userId ? "hidden md:block md:w-1/5" : "hidden"
+  }`}
+>
+  {agente && (
+    <div className="mb-4">
+      <h3 className="text-xs text-gray-500">Intervenido por</h3>
+      <div className="flex items-center gap-2 mt-1">
+        <img
+          src={agente.foto || "https://i.pravatar.cc/100?u=default"}
+          alt="Agente"
+          className="w-8 h-8 rounded-full object-cover"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://i.pravatar.cc/100?u=fallback";
+          }}
+        />
+        <span className="text-sm font-medium text-gray-700">
+          {agente.nombre || "—"}
+        </span>
       </div>
+    </div>
+  )}
+  {usuarioSeleccionado?.intervenida ? (
+    <button
+      onClick={async () => {
+        try {
+          const res = await fetch(
+            "https://web-production-51989.up.railway.app/api/liberar-conversacion",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
+            }
+          );
+          const data = await res.json();
+          if (data.ok) {
+            alert("✅ Conversación liberada");
+
+            // Actualizar estado local del usuario seleccionado
+            setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
+
+            // También actualizar la lista general
+            setTodasConversaciones((prev) =>
+              prev.map((conv) =>
+                conv.userId === usuarioSeleccionado.userId
+                  ? { ...conv, intervenida: false }
+                  : conv
+              )
+            );
+
+            // ⚡ Aquí importante: refrescar después de actualizar la lista
+            const conversacion = todasConversaciones.find(
+              (c) => c.userId === usuarioSeleccionado.userId
+            );
+            if (conversacion) {
+              setUsuarioSeleccionado(conversacion);
+            }
+          } else {
+            alert("⚠️ Error al liberar conversación");
+          }
+        } catch (error) {
+          console.error("❌ Error liberando conversación:", error);
+          alert("❌ Error liberando conversación");
+        }
+      }}
+      className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
+    >
+      Liberar conversación
+    </button>
+  ) : (
+    <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
+      Traspasado a GPT
+    </div>
+  )}
+  <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+  {usuarioSeleccionado ? (
+    <div className="text-sm text-gray-700 space-y-1">
+      <p>ID: {usuarioSeleccionado.userId}</p>
+      <p>Navegador: {usuarioSeleccionado.navegador}</p>
+      <p>
+        País:{" "}
+        {paisAToIso(usuarioSeleccionado.pais) ? (
+          <img
+            src={`https://flagcdn.com/24x18/${paisAToIso(
+              usuarioSeleccionado.pais
+            )}.png`}
+            alt={usuarioSeleccionado.pais}
+            className="inline-block ml-1"
+          />
+        ) : (
+          <span className="ml-1">🌐</span>
+        )}
+      </p>
+      {usuarioSeleccionado.chatCerrado && (
+        <p className="text-xs text-red-500 mt-1">
+          ⚠ Usuario ha cerrado el chat
+        </p>
+      )}
+      <p>Historial:</p>
+      <ul className="list-disc list-inside text-xs text-gray-600">
+        {usuarioSeleccionado.historial.map((url, idx) => (
+          <li key={idx}>{url}</li>
+        ))}
+      </ul>
+    </div>
+  ) : (
+    <p className="text-xs text-gray-500">Selecciona una conversación</p>
+  )}
+</div>
 
       {/* Bloque email solo visible en desktop */}
       <div className="w-full px-6 py-4 hidden md:block">

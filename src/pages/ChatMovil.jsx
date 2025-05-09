@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiPaperclip, FiSend } from "react-icons/fi";
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -62,22 +61,23 @@ const ChatMovil = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* HEADER */}
-      <div className="flex items-center p-2 border-b">
-        <button onClick={() => navigate("/conversaciones")} className="text-gray-600 text-xl">
+      <div className="flex items-center justify-between p-3 border-b">
+        <button onClick={() => navigate("/conversaciones")} className="text-xl">
           ←
         </button>
-        <div className="flex-1 text-center font-semibold">ID: {userId}</div>
-        <button onClick={() => alert("Ver detalles")} className="text-gray-600 text-xl">
+        <div className="flex items-center gap-2">
+          <div className="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+            {userId.slice(0, 2).toUpperCase()}
+          </div>
+          <span className="text-sm font-semibold">ID: {userId}</span>
+        </div>
+        <button onClick={() => alert("Ver detalles")} className="text-xl">
           ℹ️
         </button>
       </div>
 
       {/* MENSAJES */}
-      <div
-        ref={chatRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50"
-        onScroll={handleScroll}
-      >
+      <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           const isAsistente =
             msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
@@ -85,7 +85,7 @@ const ChatMovil = () => {
           const align = isAsistente ? "justify-end" : "justify-start";
 
           const shapeClass = msg.manual
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // manual azul
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // azul manual
             : isAsistente
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // asistente negro
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]"; // usuario blanco
@@ -93,7 +93,7 @@ const ChatMovil = () => {
           return (
             <div key={index} className={`flex ${align}`}>
               <div
-                className={`message max-w-[80%] p-3 shadow ${shapeClass} ${
+                className={`max-w-[80%] p-3 shadow ${shapeClass} ${
                   msg.manual
                     ? "bg-[#2563eb] text-white"
                     : isAsistente
@@ -162,18 +162,19 @@ const ChatMovil = () => {
         )}
       </div>
 
+      {/* BOTÓN FLOTANTE */}
       {mostrarScrollBtn && (
         <button
           onClick={() =>
             chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })
           }
-          className="fixed bottom-20 right-4 bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+          className="fixed bottom-24 right-4 bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
         >
           ↓
         </button>
       )}
 
-      {/* INPUT MODERNO */}
+      {/* INPUT MODERNO CON EMOJIS */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -205,29 +206,29 @@ const ChatMovil = () => {
           setRespuesta("");
           cargarMensajes();
         }}
-        className="flex items-center px-2 py-2 border-t bg-white"
+        className="flex items-center gap-2 p-3 border-t"
       >
-        <label className="cursor-pointer px-2">
-          <FiPaperclip className="text-2xl text-gray-600" />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImagen(e.target.files[0])}
-            className="hidden"
-          />
-        </label>
+        <button type="button" onClick={() => alert("Adjuntar archivo")} className="text-xl">
+          📎
+        </button>
+        <button type="button" onClick={() => alert("Etiquetas")} className="text-xl">
+          🏷️
+        </button>
+        <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
+          #
+        </button>
         <input
           type="text"
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none"
+          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
         />
         <button
           type="submit"
-          className="ml-2 bg-black text-white rounded-full p-2"
+          className="bg-black text-white rounded-full w-10 h-10 flex items-center justify-center"
         >
-          <FiSend className="text-xl" />
+          ⬆️
         </button>
       </form>
     </div>

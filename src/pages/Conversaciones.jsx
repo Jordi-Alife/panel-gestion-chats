@@ -399,20 +399,22 @@ export default function Conversaciones() {
                 return;
               }
               if (!respuesta.trim()) return;
-              await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  userId,
-                  message: respuesta,
-                  agente: {
-                    nombre: perfil.nombre || "",
-                    foto: perfil.foto || "",
-                    uid: localStorage.getItem("id-usuario-panel") || null,
-                  },
-                }),
-              });
-              setRespuesta("");
+             await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userId,
+    message: respuesta,
+    agente: {
+      nombre: perfil.nombre || "",
+      foto: perfil.foto || "",
+      uid: localStorage.getItem("id-usuario-panel") || null,
+    },
+  }),
+});
+setRespuesta("");
+setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
+cargarDatos();
             }}
             className="border-t px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2 flex-shrink-0"
           >

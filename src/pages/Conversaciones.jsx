@@ -500,8 +500,19 @@ cargarDatos();
       if (data.ok) {
   alert("✅ Conversación liberada");
 
-  // SOLO recargamos datos frescos desde backend, no tocamos el estado local directo
+  // Esperamos cargar los datos frescos del backend
   await cargarDatos();
+
+  // Buscamos la conversación actualizada recién cargada
+  const conversacionActualizada = todasConversaciones.find(
+    (c) => c.userId === usuarioSeleccionado.userId
+  );
+
+  // Actualizamos el estado local del usuario seleccionado si la encontramos
+  if (conversacionActualizada) {
+    setUsuarioSeleccionado(conversacionActualizada);
+  }
+
 } else {
   alert("⚠️ Error al liberar conversación");
 }

@@ -491,9 +491,10 @@ export default function Conversaciones() {
         });
         const data = await res.json();
         if (data.ok) {
-          alert("✅ Conversación liberada");
-          cargarDatos();
-        } else {
+  alert("✅ Conversación liberada");
+  cargarDatos();
+  setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
+} else {
           alert("⚠️ Error al liberar conversación");
         }
       } catch (error) {

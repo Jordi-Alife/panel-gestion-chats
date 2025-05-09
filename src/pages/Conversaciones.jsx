@@ -88,14 +88,19 @@ export default function Conversaciones() {
   }, [userId]);
 
   useEffect(() => {
-    if (!userId) return;
-    const conversacion = todasConversaciones.find((c) => c.userId === userId);
-    if (conversacion && conversacion.intervenidaPor) {
-      setAgente(conversacion.intervenidaPor);
-    } else {
-      setAgente(null);
-    }
-  }, [userId, todasConversaciones]);
+  if (!userId) return;
+  const conversacion = todasConversaciones.find((c) => c.userId === userId);
+
+  if (conversacion && conversacion.intervenidaPor) {
+    setAgente(conversacion.intervenidaPor);
+  } else {
+    setAgente(null);
+  }
+
+  // NUEVO: actualizar también usuarioSeleccionado cuando cambien los datos
+  setUsuarioSeleccionado(conversacion || null);
+
+}, [userId, todasConversaciones]);
 
   useEffect(() => {
     if (userId) {

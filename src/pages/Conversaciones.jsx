@@ -458,7 +458,7 @@ cargarDatos();
         </div>
 
         {/* Columna detalles */}
-<div
+        <div
   className={`bg-white rounded-lg shadow-md p-4 overflow-y-auto ${
     userId ? "hidden md:block md:w-1/5" : "hidden"
   }`}
@@ -498,10 +498,10 @@ cargarDatos();
           if (data.ok) {
             alert("✅ Conversación liberada");
 
-            // Actualizar estado local del usuario seleccionado
+            // Primero actualizamos el estado local del usuario seleccionado
             setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: false }));
 
-            // También actualizar la lista general
+            // También actualizamos la lista general para que se refleje sin refrescar
             setTodasConversaciones((prev) =>
               prev.map((conv) =>
                 conv.userId === usuarioSeleccionado.userId
@@ -509,6 +509,13 @@ cargarDatos();
                   : conv
               )
             );
+
+            // Luego, recargamos datos frescos y actualizamos el usuario seleccionado
+            await cargarDatos();
+            const infoActualizada = todasConversaciones.find(
+              (c) => c.userId === usuarioSeleccionado.userId
+            );
+            setUsuarioSeleccionado(infoActualizada || null);
           } else {
             alert("⚠️ Error al liberar conversación");
           }

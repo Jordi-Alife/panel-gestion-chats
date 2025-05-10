@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import iconVer from '/src/assets/ver.svg'; // ✅ Import del icono nuevo
+import iconVer from '/src/assets/ver.svg';
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -86,10 +86,10 @@ const ChatMovil = () => {
           const align = isAsistente ? "justify-end" : "justify-start";
 
           const shapeClass = msg.manual
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // azul manual
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : isAsistente
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // asistente negro
-            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]"; // usuario blanco
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
           return (
             <div key={index} className={`flex ${align}`}>
@@ -176,59 +176,64 @@ const ChatMovil = () => {
       )}
 
       {/* INPUT */}
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (imagen) {
-            const formData = new FormData();
-            formData.append("file", imagen);
-            formData.append("userId", userId);
-            await fetch("https://web-production-51989.up.railway.app/api/upload", {
+      <div className="p-4 bg-white border-t">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (imagen) {
+              const formData = new FormData();
+              formData.append("file", imagen);
+              formData.append("userId", userId);
+              await fetch("https://web-production-51989.up.railway.app/api/upload", {
+                method: "POST",
+                body: formData,
+              });
+              setImagen(null);
+              return;
+            }
+            if (!respuesta.trim()) return;
+            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
               method: "POST",
-              body: formData,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                message: respuesta,
+                agente: {
+                  nombre: perfil.nombre || "",
+                  foto: perfil.foto || "",
+                  uid: localStorage.getItem("id-usuario-panel") || null,
+                },
+              }),
             });
-            setImagen(null);
-            return;
-          }
-          if (!respuesta.trim()) return;
-          await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId,
-              message: respuesta,
-              agente: {
-                nombre: perfil.nombre || "",
-                foto: perfil.foto || "",
-                uid: localStorage.getItem("id-usuario-panel") || null,
-              },
-            }),
-          });
-          setRespuesta("");
-          cargarMensajes();
-        }}
-        className="flex items-center gap-2 p-3 border-t"
-      >
-        <button type="button" onClick={() => alert("Adjuntar archivo")} className="text-xl">
-          📎
-        </button>
-        <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
-          #
-        </button>
-        <input
-          type="text"
-          value={respuesta}
-          onChange={(e) => setRespuesta(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="bg-black text-white rounded-full w-10 h-10 flex items-center justify-center"
+            setRespuesta("");
+            cargarMensajes();
+          }}
+          className="flex items-center gap-2"
         >
-          ⬆️
-        </button>
-      </form>
+          <button type="button" onClick={() => alert("Adjuntar archivo")} className="text-xl">
+            📎
+          </button>
+          <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
+            #
+          </button>
+          <input
+            type="text"
+            value={respuesta}
+            onChange={(e) => setRespuesta(e.target.value)}
+            placeholder="Escribe un mensaje..."
+            className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all ${
+              respuesta.trim() ? "ring-2 ring-blue-400" : ""
+            }`}
+            style={{ fontSize: "16px" }} // evita zoom en iPhone
+          />
+          <button
+            type="submit"
+            className="bg-black text-white rounded-full w-10 h-10 flex items-center justify-center"
+          >
+            ⬆️
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

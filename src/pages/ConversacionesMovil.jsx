@@ -60,7 +60,7 @@ const ConversacionesMovil = () => {
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
     actual.intervenida = item.intervenida || false;
-    actual.chatCerrado = item.estado === "cerrado";
+    actual.estadoConversacion = item.estado || "abierta";
     acc[item.userId] = actual;
     return acc;
   }, {});
@@ -77,7 +77,7 @@ const ConversacionesMovil = () => {
         : Infinity;
 
       let estado = "Archivado";
-      if (info.chatCerrado) {
+      if (info.estadoConversacion === "cerrado") {
         estado = "Cerrado";
       } else if (minutosDesdeUltimo <= 2) {
         estado = "Activa";
@@ -98,7 +98,6 @@ const ConversacionesMovil = () => {
         lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : null,
         iniciales: id.slice(0, 2).toUpperCase(),
         intervenida: info.intervenida || false,
-        chatCerrado: info.chatCerrado || false,
         pais: info.pais || "Desconocido",
       };
     })
@@ -113,7 +112,6 @@ const ConversacionesMovil = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* HEADER con volver + buscador */}
       <div className="p-4 border-b flex items-center gap-2">
         <button onClick={() => navigate("/")} className="text-xl">
           ←
@@ -130,7 +128,6 @@ const ConversacionesMovil = () => {
         />
       </div>
 
-      {/* LISTA DE CONVERSACIONES */}
       <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
         {listaAgrupada.map((c) => (
           <div
@@ -170,7 +167,7 @@ const ConversacionesMovil = () => {
               <span
                 className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
                   c.estado === "Activa"
-                    ? "bg-green-100 text-green-700 estado-activa"
+                    ? "bg-green-100 text-green-700"
                     : c.estado === "Inactiva"
                     ? "bg-yellow-100 text-yellow-700"
                     : c.estado === "Cerrado"
@@ -185,7 +182,6 @@ const ConversacionesMovil = () => {
         ))}
       </div>
 
-      {/* MENÚ INFERIOR */}
       <div className="flex justify-around items-center border-t bg-white py-8">
         <button
           onClick={() => setFiltro("todas")}

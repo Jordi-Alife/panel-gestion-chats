@@ -1,3 +1,4 @@
+// (Archivo completo actualizado con el estado Cerrado)
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -77,8 +78,13 @@ const ConversacionesMovil = () => {
         : Infinity;
 
       let estado = "Archivado";
-      if (minutosDesdeUltimo <= 2) estado = "Activa";
-      else if (minutosDesdeUltimo <= 10) estado = "Inactiva";
+      if (info.chatCerrado) {
+        estado = "Cerrado";
+      } else if (minutosDesdeUltimo <= 2) {
+        estado = "Activa";
+      } else if (minutosDesdeUltimo <= 10) {
+        estado = "Inactiva";
+      }
 
       const nuevos = mensajesValidos.filter(
         (m) =>
@@ -168,6 +174,8 @@ const ConversacionesMovil = () => {
                     ? "bg-green-100 text-green-700 estado-activa"
                     : c.estado === "Inactiva"
                     ? "bg-yellow-100 text-yellow-700"
+                    : c.estado === "Cerrado"
+                    ? "bg-red-100 text-red-600"
                     : "bg-gray-200 text-gray-700"
                 }`}
               >
@@ -178,7 +186,7 @@ const ConversacionesMovil = () => {
         ))}
       </div>
 
-      {/* MENÚ INFERIOR centrado y más alto */}
+      {/* MENÚ INFERIOR */}
       <div className="flex justify-around items-center border-t bg-white py-8">
         <button
           onClick={() => setFiltro("todas")}

@@ -4,8 +4,16 @@ import { useNavigate, useParams } from "react-router-dom";
 const DetallesMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-  const [agente, setAgente] = useState(null);
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      .then((res) => res.json())
+      .then((all) => {
+        const info = all.find((c) => c.userId === userId);
+        setUsuario(info || null);
+      });
+  }, [userId]);
 
   const paisAToIso = (paisTexto) => {
     const mapa = {
@@ -22,123 +30,91 @@ const DetallesMovil = () => {
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
 
-  const cargarDatos = async () => {
-    try {
-      const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
-      const data = await res.json();
-      const info = data.find((c) => c.userId === userId);
-      setUsuarioSeleccionado(info || null);
-      if (info?.intervenidaPor) {
-        setAgente(info.intervenidaPor);
-      }
-    } catch (error) {
-      console.error("Error cargando datos:", error);
-    }
-  };
-
-  useEffect(() => {
-    cargarDatos();
-  }, [userId]);
-
   return (
-    <div className="flex flex-col h-screen p-4">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate(-1)} className="text-xl">
-          ←
-        </button>
-        <h1 className="text-lg font-semibold">Detalles del usuario</h1>
-        <div className="w-6"></div> {/* espacio para alinear */}
-      </div>
+    <div className="p-4 space-y-4">
+      <button onClick={() => navigate(-1)} className="text-sm mb-2">
+        ← Volver
+      </button>
+      <h1 className="text-lg font-semibold mb-4">Detalles del usuario</h1>
 
-      {usuarioSeleccionado ? (
-        <div className="space-y-4">
-          {agente && (
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="text-sm text-gray-500 mb-2">Intervenido por</h3>
-              <div className="flex items-center gap-2">
-                <img
-                  src={agente.foto || "https://i.pravatar.cc/100?u=default"}
-                  alt="Agente"
-                  className="w-10 h-10 rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "https://i.pravatar.cc/100?u=fallback";
-                  }}
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {agente.nombre || "—"}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-sm text-gray-500 mb-2">Datos del usuario</h2>
-            <div className="text-sm text-gray-700 space-y-1">
-              <p><strong>ID:</strong> {usuarioSeleccionado.userId}</p>
-              <p><strong>Navegador:</strong> {usuarioSeleccionado.navegador}</p>
-              <p>
-                <strong>País:</strong>{" "}
-                {paisAToIso(usuarioSeleccionado.pais) ? (
-                  <img
-                    src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
-                    alt={usuarioSeleccionado.pais}
-                    className="inline-block ml-1"
-                  />
-                ) : (
-                  <span className="ml-1">🌐</span>
-                )}
-              </p>
-              {usuarioSeleccionado.chatCerrado && (
-                <p className="text-xs text-red-500 mt-1">
-                  ⚠ Usuario ha cerrado el chat
-                </p>
-              )}
-              <div>
-                <strong>Historial:</strong>
-                <ul className="list-disc list-inside text-xs text-gray-600">
-                  {usuarioSeleccionado.historial.map((url, idx) => (
-                    <li key={idx}>{url}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={async () => {
-              try {
-                const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
-                });
-                const data = await res.json();
-                if (data.ok) {
-                  alert("✅ Conversación liberada");
-                  cargarDatos();
-                } else {
-                  alert("⚠️ Error al liberar conversación");
-                }
-              } catch (error) {
-                console.error("❌ Error liberando conversación:", error);
-                alert("❌ Error liberando conversación");
+      {/* ✅ BOTÓN MOVIDO ARRIBA */}
+      {usuario?.intervenida ? (
+        <button
+          onClick={async () => {
+            try {
+              const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: usuario.userId }),
+              });
+              const data = await res.json();
+              if (data.ok) {
+                alert("✅ Conversación liberada");
+                const updatedRes = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
+                const updatedData = await updatedRes.json();
+                const updatedUser = updatedData.find((c) => c.userId === userId);
+                setUsuario(updatedUser || null);
+              } else {
+                alert("⚠️ Error al liberar conversación");
               }
-            }}
-            className={`w-full py-2 rounded text-white text-sm ${
-              usuarioSeleccionado.intervenida
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-            disabled={!usuarioSeleccionado.intervenida}
-          >
-            {usuarioSeleccionado.intervenida ? "Liberar conversación" : "Traspasado a GPT"}
-          </button>
-        </div>
+            } catch (error) {
+              console.error("❌ Error liberando conversación:", error);
+              alert("❌ Error liberando conversación");
+            }
+          }}
+          className="w-full bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-2 rounded"
+        >
+          Liberar conversación
+        </button>
       ) : (
-        <p className="text-center text-gray-500 mt-10">Cargando datos...</p>
+        <div className="w-full bg-gray-400 text-white text-sm px-3 py-2 rounded text-center">
+          Traspasado a GPT
+        </div>
       )}
+
+      {usuario && usuario.intervenidaPor && (
+        <div className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-xs text-gray-500 mb-2">Intervenido por</h3>
+          <div className="flex items-center gap-2">
+            <img
+              src={usuario.intervenidaPor.foto || "https://i.pravatar.cc/100?u=default"}
+              alt="Agente"
+              className="w-10 h-10 rounded-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://i.pravatar.cc/100?u=fallback";
+              }}
+            />
+            <span className="text-sm font-medium">{usuario.intervenidaPor.nombre || "—"}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow p-4">
+        <h2 className="text-sm text-gray-500 mb-2">Datos del usuario</h2>
+        <div className="text-sm text-gray-700 space-y-1">
+          <p><strong>ID:</strong> {usuario?.userId || "—"}</p>
+          <p><strong>Navegador:</strong> {usuario?.navegador || "—"}</p>
+          <p>
+            <strong>País:</strong>{" "}
+            {paisAToIso(usuario?.pais) ? (
+              <img
+                src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
+                alt={usuario.pais}
+                className="inline-block ml-1"
+              />
+            ) : (
+              <span className="ml-1">🌐</span>
+            )}
+          </p>
+          <p><strong>Historial:</strong></p>
+          <ul className="list-disc list-inside text-xs text-gray-600">
+            {(usuario?.historial || []).map((url, idx) => (
+              <li key={idx}>{url}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

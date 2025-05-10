@@ -92,20 +92,20 @@ const ChatMovil = () => {
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
-          // Aquí aplicamos la lógica del contenido principal/secundario
           const contenidoPrincipal = msg.manual ? msg.original : msg.message;
           const contenidoSecundario = msg.manual ? msg.message : msg.original;
 
           return (
             <div key={index} className={`flex ${align}`}>
               <div
-                className={`max-w-[80%] p-3 shadow ${shapeClass} ${
+                className={`max-w-[80%] p-3 shadow message-animate ${shapeClass} ${
                   msg.manual
                     ? "bg-[#2563eb] text-white"
                     : isAsistente
                     ? "bg-black text-white"
                     : "bg-white text-gray-800 border"
                 }`}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                   <img

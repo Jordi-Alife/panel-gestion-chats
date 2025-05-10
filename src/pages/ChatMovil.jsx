@@ -72,7 +72,7 @@ const ChatMovil = () => {
           </div>
           <span className="text-sm font-semibold">ID: {userId}</span>
         </div>
-        <button onClick={() => alert("Ver detalles")} className="w-6 h-6">
+        <button onClick={() => navigate(`/detalles/${userId}`)} className="w-6 h-6">
           <img src={iconVer} alt="Detalles" className="w-full h-full" />
         </button>
       </div>

@@ -37,7 +37,7 @@ const DetallesMovil = () => {
       </button>
       <h1 className="text-lg font-semibold mb-4">Detalles del usuario</h1>
 
-      {/* ✅ BOTÓN MOVIDO ARRIBA */}
+      {/* ✅ BOTÓN CON NUEVO ESTILO */}
       {usuario?.intervenida ? (
         <button
           onClick={async () => {
@@ -62,12 +62,12 @@ const DetallesMovil = () => {
               alert("❌ Error liberando conversación");
             }
           }}
-          className="w-full bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-2 rounded"
+          className="estado-tag estado-activa w-full text-center"
         >
           Liberar conversación
         </button>
       ) : (
-        <div className="w-full bg-gray-400 text-white text-sm px-3 py-2 rounded text-center">
+        <div className="estado-tag estado-archivado w-full text-center">
           Traspasado a GPT
         </div>
       )}

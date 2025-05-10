@@ -337,6 +337,11 @@ const estadoColor = {
   const isAsistente =
     msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
   const align = isAsistente ? "justify-end" : "justify-start";
+
+  // Aquí definimos qué mostrar como principal y qué como secundario según manual
+  const contenidoPrincipal = msg.manual ? msg.original : msg.message;
+  const contenidoSecundario = msg.manual ? msg.message : msg.original;
+
   return (
     <div key={index} className={`flex ${align}`}>
       <div
@@ -348,18 +353,18 @@ const estadoColor = {
             : "bg-white text-gray-800 border user"
         }`}
       >
-        {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+        {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
           <img
-            src={msg.message}
+            src={contenidoPrincipal}
             alt="Imagen"
             className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
           />
         ) : (
           <p className="whitespace-pre-wrap text-sm">
-            {msg.message}
+            {contenidoPrincipal}
           </p>
         )}
-        {msg.original && (
+        {contenidoSecundario && (
           <div className="mt-2 text-[11px] text-right">
             <button
               onClick={() =>
@@ -369,7 +374,7 @@ const estadoColor = {
                 }))
               }
               className={`underline text-xs ${
-                isAsistente ? "text-white/70" : "text-blue-600"
+                isAsistente || msg.manual ? "text-white/70" : "text-blue-600"
               } focus:outline-none`}
             >
               {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
@@ -377,17 +382,17 @@ const estadoColor = {
             {originalesVisibles[index] && (
               <p
                 className={`mt-1 italic text-left ${
-                  isAsistente ? "text-white/70" : "text-gray-500"
+                  isAsistente || msg.manual ? "text-white/70" : "text-gray-500"
                 }`}
               >
-                {msg.original}
+                {contenidoSecundario}
               </p>
             )}
           </div>
         )}
         <div
           className={`text-[10px] mt-1 opacity-60 text-right ${
-            isAsistente ? "text-white" : "text-gray-500"
+            isAsistente || msg.manual ? "text-white" : "text-gray-500"
           }`}
         >
           {new Date(msg.lastInteraction).toLocaleTimeString([], {

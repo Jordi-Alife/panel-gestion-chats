@@ -31,7 +31,7 @@ const ChatMovil = () => {
         if (scrollForzado.current && chatRef.current) {
           chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
         }
-        setAnimacionesActivas(true); // Activamos animación tras render
+        setAnimacionesActivas(true);
       }, 100);
     } catch (err) {
       console.error(err);
@@ -179,7 +179,7 @@ const ChatMovil = () => {
           onClick={() =>
             chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })
           }
-          className="fixed bottom-24 right-4 bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg scroll-button-animate"
         >
           ↓
         </button>

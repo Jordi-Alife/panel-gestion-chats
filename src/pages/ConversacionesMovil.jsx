@@ -149,7 +149,17 @@ const ConversacionesMovil = () => {
                   ) : (
                     <span>🌐</span>
                   )}
-                  <span className="ml-1">{c.estado}</span>
+                  <span
+                    className={`ml-1 px-2 py-0.5 rounded-full text-white text-[10px] ${
+                      c.estado === "Activa"
+                        ? "bg-green-500"
+                        : c.estado === "Inactiva"
+                        ? "bg-gray-400"
+                        : "bg-black"
+                    }`}
+                  >
+                    {c.estado}
+                  </span>
                   {c.lastInteraction && (
                     <span className="ml-2 text-gray-400">{tiempoRelativo(c.lastInteraction)}</span>
                   )}

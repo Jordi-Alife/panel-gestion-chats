@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from '/src/assets/ver.svg';
-import iconFile from '/src/assets/file.svg'; // ✅ nuevo icono
-import { FaArrowUp } from 'react-icons/fa';  // ✅ flecha blanca en botón azul
+import iconFile from '/src/assets/file.svg'; // ✅ NUEVO import del icono archivo
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -213,7 +212,7 @@ const ChatMovil = () => {
           className="flex items-center gap-2"
         >
           <button type="button" onClick={() => alert("Adjuntar archivo")} className="w-6 h-6">
-            <img src={iconFile} alt="Adjuntar" className="w-full h-full" />
+            <img src={iconFile} alt="Archivo" className="w-full h-full" />
           </button>
           <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
             #
@@ -223,16 +222,25 @@ const ChatMovil = () => {
             value={respuesta}
             onChange={(e) => setRespuesta(e.target.value)}
             placeholder="Escribe un mensaje..."
-            className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all ${
+            className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all duration-200 ease-in-out ${
               respuesta.trim() ? "ring-2 ring-blue-400" : ""
             }`}
-            style={{ fontSize: "16px" }}
+            style={{ fontSize: "16px" }} // evita zoom en iPhone
           />
           <button
             type="submit"
             className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
           >
-            <FaArrowUp />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
           </button>
         </form>
       </div>

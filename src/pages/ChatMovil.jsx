@@ -64,7 +64,7 @@ const ChatMovil = () => {
     <div className="flex flex-col h-screen">
       {/* HEADER */}
       <div className="flex items-center justify-between p-3 border-b">
-        <button onClick={() => navigate("/conversaciones")} className="text-xl">
+        <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">
           ←
         </button>
         <div className="flex items-center gap-2">

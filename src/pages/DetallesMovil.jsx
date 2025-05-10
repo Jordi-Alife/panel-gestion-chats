@@ -31,13 +31,13 @@ const DetallesMovil = () => {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <button onClick={() => navigate(-1)} className="text-sm mb-2">
+    <div className="p-4 space-y-4 text-[15px]">
+      <button onClick={() => navigate(-1)} className="text-base mb-2">
         ← Volver
       </button>
-      <h1 className="text-lg font-semibold mb-4">Detalles del usuario</h1>
+      <h1 className="text-xl font-semibold mb-4">Detalles del usuario</h1>
 
-      {/* ✅ BOTÓN CON NUEVO ESTILO */}
+      {/* ✅ ETIQUETA DE ESTADO */}
       {usuario?.intervenida ? (
         <button
           onClick={async () => {
@@ -62,19 +62,19 @@ const DetallesMovil = () => {
               alert("❌ Error liberando conversación");
             }
           }}
-          className="estado-tag estado-activa w-full text-center"
+          className="w-full bg-green-500 hover:bg-green-600 text-white text-base font-semibold py-2.5 rounded-full text-center"
         >
           Liberar conversación
         </button>
       ) : (
-        <div className="estado-tag estado-archivado w-full text-center">
+        <div className="w-full bg-gray-400 text-white text-base font-semibold py-2.5 rounded-full text-center">
           Traspasado a GPT
         </div>
       )}
 
       {usuario && usuario.intervenidaPor && (
         <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-xs text-gray-500 mb-2">Intervenido por</h3>
+          <h3 className="text-sm text-gray-500 mb-2">Intervenido por</h3>
           <div className="flex items-center gap-2">
             <img
               src={usuario.intervenidaPor.foto || "https://i.pravatar.cc/100?u=default"}
@@ -85,18 +85,18 @@ const DetallesMovil = () => {
                 e.target.src = "https://i.pravatar.cc/100?u=fallback";
               }}
             />
-            <span className="text-sm font-medium">{usuario.intervenidaPor.nombre || "—"}</span>
+            <span className="text-base font-medium">{usuario.intervenidaPor.nombre || "—"}</span>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-4">
+      <div className="bg-white rounded-lg shadow p-4 text-base">
         <h2 className="text-sm text-gray-500 mb-2">Datos del usuario</h2>
-        <div className="text-sm text-gray-700 space-y-1">
+        <div className="text-gray-700 space-y-2">
           <p><strong>ID:</strong> {usuario?.userId || "—"}</p>
           <p><strong>Navegador:</strong> {usuario?.navegador || "—"}</p>
-          <p>
-            <strong>País:</strong>{" "}
+          <p className="flex items-center gap-1">
+            <strong>País:</strong>
             {paisAToIso(usuario?.pais) ? (
               <img
                 src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
@@ -108,7 +108,7 @@ const DetallesMovil = () => {
             )}
           </p>
           <p><strong>Historial:</strong></p>
-          <ul className="list-disc list-inside text-xs text-gray-600">
+          <ul className="list-disc list-inside text-sm text-gray-600">
             {(usuario?.historial || []).map((url, idx) => (
               <li key={idx}>{url}</li>
             ))}

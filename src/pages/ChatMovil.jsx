@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import iconVer from '/src/assets/ver.svg'; // ✅ Import del icono nuevo
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -72,7 +73,7 @@ const ChatMovil = () => {
           <span className="text-sm font-semibold">ID: {userId}</span>
         </div>
         <button onClick={() => alert("Ver detalles")} className="w-6 h-6">
-          <img src="/src/assets/ver.svg" alt="Detalles" className="w-full h-full" />
+          <img src={iconVer} alt="Detalles" className="w-full h-full" />
         </button>
       </div>
 
@@ -85,10 +86,10 @@ const ChatMovil = () => {
           const align = isAsistente ? "justify-end" : "justify-start";
 
           const shapeClass = msg.manual
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // azul manual
             : isAsistente
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // asistente negro
+            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]"; // usuario blanco
 
           return (
             <div key={index} className={`flex ${align}`}>
@@ -174,7 +175,7 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* INPUT SIN BOTÓN DE ETIQUETA */}
+      {/* INPUT */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -206,12 +207,12 @@ const ChatMovil = () => {
           setRespuesta("");
           cargarMensajes();
         }}
-        className="flex items-center gap-2 p-4 border-t"
+        className="flex items-center gap-2 p-3 border-t"
       >
-        <button type="button" onClick={() => alert("Adjuntar archivo")} className="w-10 h-10 flex items-center justify-center">
+        <button type="button" onClick={() => alert("Adjuntar archivo")} className="text-xl">
           📎
         </button>
-        <button type="button" onClick={() => alert("Hashtags")} className="w-10 h-10 flex items-center justify-center">
+        <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
           #
         </button>
         <input
@@ -219,7 +220,7 @@ const ChatMovil = () => {
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 text-base focus:outline-none"
+          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
         />
         <button
           type="submit"

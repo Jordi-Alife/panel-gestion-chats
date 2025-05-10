@@ -49,13 +49,6 @@ const ConversacionesMovil = () => {
     return `hace ${diffDias}d`;
   };
 
-  const listaFiltrada = todasConversaciones.filter(
-    (c) =>
-      filtro === "todas" ||
-      (filtro === "gpt" && !c.intervenida) ||
-      (filtro === "humanas" && c.intervenida)
-  );
-
   const estadoConversacion = (c) => {
     if (!c.ultimoMensaje) return "Nuevo";
     const minutos = (new Date() - new Date(c.ultimoMensaje)) / (1000 * 60);
@@ -63,6 +56,13 @@ const ConversacionesMovil = () => {
     if (minutos < 10) return "Activa";
     return "Inactiva";
   };
+
+  const listaFiltrada = todasConversaciones.filter(
+    (c) =>
+      filtro === "todas" ||
+      (filtro === "gpt" && !c.intervenida) ||
+      (filtro === "humanas" && c.intervenida)
+  );
 
   return (
     <div className="flex flex-col h-screen">
@@ -76,7 +76,7 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* LISTA DE CONVERSACIONES */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-16">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-24">
         {listaFiltrada.map((c) => (
           <div
             key={c.userId}
@@ -89,7 +89,7 @@ const ConversacionesMovil = () => {
               </div>
               <div>
                 <div className="font-medium text-sm">{c.userId}</div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
+                <div className="text-xs text-gray-500 flex items-center gap-2">
                   {paisAToIso(c.pais) ? (
                     <img
                       src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
@@ -99,9 +99,11 @@ const ConversacionesMovil = () => {
                   ) : (
                     <span>🌐</span>
                   )}
-                  <span className="ml-1">{estadoConversacion(c)}</span>
+                  <span>{estadoConversacion(c)}</span>
                   {c.ultimoMensaje && (
-                    <span className="ml-2 text-gray-400">{tiempoRelativo(c.ultimoMensaje)}</span>
+                    <span className="text-gray-400">
+                      {tiempoRelativo(c.ultimoMensaje)}
+                    </span>
                   )}
                 </div>
               </div>

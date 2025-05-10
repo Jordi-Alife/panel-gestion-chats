@@ -106,12 +106,15 @@ const ConversacionesMovil = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* HEADER */}
-      <div className="p-4 border-b">
+      {/* HEADER con botón volver + buscador */}
+      <div className="p-4 border-b flex items-center gap-2">
+        <button onClick={() => navigate("/")} className="text-xl">
+          ←
+        </button>
         <input
           type="text"
           placeholder="Buscar conversaciones..."
-          className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none"
+          className="w-10/12 border rounded-full px-4 py-2 text-sm focus:outline-none"
         />
       </div>
 
@@ -155,8 +158,8 @@ const ConversacionesMovil = () => {
         ))}
       </div>
 
-      {/* MENÚ INFERIOR */}
-      <div className="flex justify-around border-t bg-white py-5">
+      {/* MENÚ INFERIOR con más margen */}
+      <div className="flex justify-around border-t bg-white py-6">
         <button
           onClick={() => setFiltro("todas")}
           className={`text-sm ${

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const ConversacionesMovil = () => {
   const navigate = useNavigate();
   const [todasConversaciones, setTodasConversaciones] = useState([]);
+  const [vistas, setVistas] = useState({});
   const [filtro, setFiltro] = useState("todas");
 
   useEffect(() => {
@@ -12,6 +13,10 @@ const ConversacionesMovil = () => {
         const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
         const data = await res.json();
         setTodasConversaciones(data);
+
+        const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
+        const vistasData = await vistasRes.json();
+        setVistas(vistasData);
       } catch (err) {
         console.error(err);
       }
@@ -49,20 +54,55 @@ const ConversacionesMovil = () => {
     return `hace ${diffDias}d`;
   };
 
-  const estadoConversacion = (c) => {
-    if (!c.ultimoMensaje) return "Nuevo";
-    const minutos = (new Date() - new Date(c.ultimoMensaje)) / (1000 * 60);
-    if (c.chatCerrado) return "Archivado";
-    if (minutos < 10) return "Activa";
-    return "Inactiva";
-  };
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+    const actual = acc[item.userId] || { mensajes: [], estado: "Archivado" };
+    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
+    actual.pais = item.pais;
+    actual.intervenida = item.intervenida || false;
+    actual.chatCerrado = item.chatCerrado || false;
+    acc[item.userId] = actual;
+    return acc;
+  }, {});
 
-  const listaFiltrada = todasConversaciones.filter(
-    (c) =>
-      filtro === "todas" ||
-      (filtro === "gpt" && !c.intervenida) ||
-      (filtro === "humanas" && c.intervenida)
-  );
+  const listaAgrupada = Object.entries(conversacionesPorUsuario)
+    .map(([id, info]) => {
+      const ultimaVista = vistas[id];
+      const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
+      const ultimoMensaje = mensajesValidos.sort(
+        (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
+      )[0];
+      const minutosDesdeUltimo = ultimoMensaje
+        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+        : Infinity;
+
+      let estado = "Archivado";
+      if (minutosDesdeUltimo <= 2) estado = "Activa";
+      else if (minutosDesdeUltimo <= 10) estado = "Inactiva";
+
+      const nuevos = mensajesValidos.filter(
+        (m) =>
+          m.from?.toLowerCase() === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
+
+      return {
+        userId: id,
+        nuevos,
+        estado,
+        lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : null,
+        iniciales: id.slice(0, 2).toUpperCase(),
+        intervenida: info.intervenida || false,
+        chatCerrado: info.chatCerrado || false,
+        pais: info.pais || "Desconocido",
+      };
+    })
+    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+    .filter(
+      (c) =>
+        filtro === "todas" ||
+        (filtro === "gpt" && !c.intervenida) ||
+        (filtro === "humanas" && c.intervenida)
+    );
 
   return (
     <div className="flex flex-col h-screen">
@@ -76,8 +116,8 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* LISTA DE CONVERSACIONES */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-24">
-        {listaFiltrada.map((c) => (
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-20">
+        {listaAgrupada.map((c) => (
           <div
             key={c.userId}
             onClick={() => navigate(`/conversaciones/${c.userId}`)}
@@ -85,11 +125,11 @@ const ConversacionesMovil = () => {
           >
             <div className="flex items-center gap-3">
               <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
-                {c.userId.slice(0, 2).toUpperCase()}
+                {c.iniciales}
               </div>
               <div>
                 <div className="font-medium text-sm">{c.userId}</div>
-                <div className="text-xs text-gray-500 flex items-center gap-2">
+                <div className="text-xs text-gray-500 flex items-center gap-1">
                   {paisAToIso(c.pais) ? (
                     <img
                       src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
@@ -99,11 +139,9 @@ const ConversacionesMovil = () => {
                   ) : (
                     <span>🌐</span>
                   )}
-                  <span>{estadoConversacion(c)}</span>
-                  {c.ultimoMensaje && (
-                    <span className="text-gray-400">
-                      {tiempoRelativo(c.ultimoMensaje)}
-                    </span>
+                  <span className="ml-1">{c.estado}</span>
+                  {c.lastInteraction && (
+                    <span className="ml-2 text-gray-400">{tiempoRelativo(c.lastInteraction)}</span>
                   )}
                 </div>
               </div>
@@ -118,7 +156,7 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* MENÚ INFERIOR */}
-      <div className="flex justify-around border-t bg-white py-4">
+      <div className="flex justify-around border-t bg-white py-5">
         <button
           onClick={() => setFiltro("todas")}
           className={`text-sm ${

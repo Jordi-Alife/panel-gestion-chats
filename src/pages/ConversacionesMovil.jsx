@@ -106,14 +106,9 @@ const ConversacionesMovil = () => {
         c.userId.toLowerCase().includes(busqueda.toLowerCase())
     );
 
-  const estadoColor = {
-    Activa: "bg-green-500",
-    Inactiva: "bg-yellow-500",
-    Archivado: "bg-black",
-  };
-
   return (
     <div className="flex flex-col h-screen">
+      {/* HEADER con volver + buscador */}
       <div className="p-4 border-b flex items-center gap-2">
         <button onClick={() => navigate("/")} className="text-xl">
           ←
@@ -130,20 +125,21 @@ const ConversacionesMovil = () => {
         />
       </div>
 
+      {/* LISTA DE CONVERSACIONES */}
       <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
         {listaAgrupada.map((c) => (
           <div
             key={c.userId}
             onClick={() => navigate(`/conversaciones/${c.userId}`)}
-            className="flex items-center justify-between bg-white rounded-xl shadow p-4 cursor-pointer"
+            className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
+              <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
                 {c.iniciales}
               </div>
-              <div className="flex flex-col">
+              <div>
                 <div className="font-medium text-base">{c.userId}</div>
-                <div className="text-sm text-gray-500 flex items-center gap-1">
+                <div className="text-xs text-gray-500 flex items-center gap-1">
                   {paisAToIso(c.pais) ? (
                     <img
                       src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
@@ -154,11 +150,12 @@ const ConversacionesMovil = () => {
                     <span>🌐</span>
                   )}
                   {c.lastInteraction && (
-                    <span className="ml-1">{tiempoRelativo(c.lastInteraction)}</span>
+                    <span className="ml-2 text-gray-400">{tiempoRelativo(c.lastInteraction)}</span>
                   )}
                 </div>
               </div>
             </div>
+
             <div className="flex items-center gap-2">
               {c.nuevos > 0 && (
                 <span className="bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
@@ -166,7 +163,13 @@ const ConversacionesMovil = () => {
                 </span>
               )}
               <span
-                className={`text-xs px-3 py-1 rounded-full text-white font-semibold ${estadoColor[c.estado]} shadow-sm`}
+                className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold ${
+                  c.estado === "Activa"
+                    ? "bg-green-100 text-green-700"
+                    : c.estado === "Inactiva"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-gray-200 text-gray-700"
+                }`}
               >
                 {c.estado}
               </span>
@@ -175,6 +178,7 @@ const ConversacionesMovil = () => {
         ))}
       </div>
 
+      {/* MENÚ INFERIOR centrado y más alto */}
       <div className="flex justify-around items-center border-t bg-white py-8">
         <button
           onClick={() => setFiltro("todas")}

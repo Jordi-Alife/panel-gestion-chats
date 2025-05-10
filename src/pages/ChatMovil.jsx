@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from '/src/assets/ver.svg';
-import iconFile from '/src/assets/file.svg'; // ✅ NUEVO import del icono archivo
+import iconFile from '/src/assets/file.svg';
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -92,6 +92,10 @@ const ChatMovil = () => {
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
+          // Aquí aplicamos la lógica del contenido principal/secundario
+          const contenidoPrincipal = msg.manual ? msg.original : msg.message;
+          const contenidoSecundario = msg.manual ? msg.message : msg.original;
+
           return (
             <div key={index} className={`flex ${align}`}>
               <div
@@ -103,17 +107,17 @@ const ChatMovil = () => {
                     : "bg-white text-gray-800 border"
                 }`}
               >
-                {msg.message.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+                {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                   <img
-                    src={msg.message}
+                    src={contenidoPrincipal}
                     alt="Imagen"
                     className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm">{msg.message}</p>
+                  <p className="whitespace-pre-wrap text-sm">{contenidoPrincipal}</p>
                 )}
 
-                {msg.original && (
+                {contenidoSecundario && (
                   <div className="mt-2 text-[11px] text-right">
                     <button
                       onClick={() =>
@@ -134,7 +138,7 @@ const ChatMovil = () => {
                           isAsistente || msg.manual ? "text-white/70" : "text-gray-500"
                         }`}
                       >
-                        {msg.original}
+                        {contenidoSecundario}
                       </p>
                     )}
                   </div>
@@ -225,7 +229,7 @@ const ChatMovil = () => {
             className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all duration-200 ease-in-out ${
               respuesta.trim() ? "ring-2 ring-blue-400" : ""
             }`}
-            style={{ fontSize: "16px" }} // evita zoom en iPhone
+            style={{ fontSize: "16px" }}
           />
           <button
             type="submit"

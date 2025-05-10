@@ -37,12 +37,32 @@ const ConversacionesMovil = () => {
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
 
+  const tiempoRelativo = (fecha) => {
+    const ahora = new Date();
+    const diffMs = ahora - new Date(fecha);
+    const diffMin = Math.floor(diffMs / (1000 * 60));
+    if (diffMin < 1) return "ahora";
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    const diffHrs = Math.floor(diffMin / 60);
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    const diffDias = Math.floor(diffHrs / 24);
+    return `hace ${diffDias}d`;
+  };
+
   const listaFiltrada = todasConversaciones.filter(
     (c) =>
       filtro === "todas" ||
       (filtro === "gpt" && !c.intervenida) ||
       (filtro === "humanas" && c.intervenida)
   );
+
+  const estadoConversacion = (c) => {
+    if (!c.ultimoMensaje) return "Nuevo";
+    const minutos = (new Date() - new Date(c.ultimoMensaje)) / (1000 * 60);
+    if (c.chatCerrado) return "Archivado";
+    if (minutos < 10) return "Activa";
+    return "Inactiva";
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -56,7 +76,7 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* LISTA DE CONVERSACIONES */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-16">
         {listaFiltrada.map((c) => (
           <div
             key={c.userId}
@@ -69,18 +89,19 @@ const ConversacionesMovil = () => {
               </div>
               <div>
                 <div className="font-medium text-sm">{c.userId}</div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 flex items-center gap-1">
                   {paisAToIso(c.pais) ? (
                     <img
                       src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
                       alt={c.pais}
-                      className="inline-block ml-1"
+                      className="inline-block"
                     />
                   ) : (
-                    <span className="ml-1">🌐</span>
+                    <span>🌐</span>
                   )}
-                  {c.chatCerrado && (
-                    <span className="ml-2 text-red-500 text-[10px]">Cerrado</span>
+                  <span className="ml-1">{estadoConversacion(c)}</span>
+                  {c.ultimoMensaje && (
+                    <span className="ml-2 text-gray-400">{tiempoRelativo(c.ultimoMensaje)}</span>
                   )}
                 </div>
               </div>
@@ -95,7 +116,7 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* MENÚ INFERIOR */}
-      <div className="flex justify-around border-t bg-white py-2">
+      <div className="flex justify-around border-t bg-white py-4">
         <button
           onClick={() => setFiltro("todas")}
           className={`text-sm ${

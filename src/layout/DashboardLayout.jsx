@@ -6,7 +6,7 @@ import IconToggle from "../assets/menu.svg";
 import IconConversaciones from "../assets/chat.svg";
 import IconUserFamily from "../assets/user-family.svg";
 import IconSkyscraper from "../assets/skyscraper.svg";
-import IconMonitor from "../assets/icon-monitor-estado.svg"; // ✅ nuevo icono
+import IconMonitor from "../assets/icon-monitor-estado.svg";
 import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
 
@@ -95,13 +95,30 @@ const DashboardLayout = ({ children }) => {
           </button>
 
           <nav className="space-y-4">
-            <Link to="/" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Inicio</Link>
-            <Link to="/conversaciones" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Conversaciones</Link>
-            <Link to="/monitor" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Monitor</Link>
+            <Link to="/" onClick={() => setMenuMovilAbierto(false)} className="block py-2">
+              Inicio
+            </Link>
+            <button
+              onClick={() => {
+                const destino = window.innerWidth < 768 ? "/conversaciones-movil" : "/conversaciones";
+                navigate(destino);
+                setMenuMovilAbierto(false);
+              }}
+              className="block py-2 w-full text-left"
+            >
+              Conversaciones
+            </button>
+            <Link to="/monitor" onClick={() => setMenuMovilAbierto(false)} className="block py-2">
+              Monitor
+            </Link>
             {rolUsuario !== "Soporte" && (
-              <Link to="/agentes" onClick={() => setMenuMovilAbierto(false)} className="block py-2">Agentes</Link>
+              <Link to="/agentes" onClick={() => setMenuMovilAbierto(false)} className="block py-2">
+                Agentes
+              </Link>
             )}
-            <button onClick={() => navigate("/perfil")} className="block py-2">Mi perfil</button>
+            <button onClick={() => navigate("/perfil")} className="block py-2">
+              Mi perfil
+            </button>
           </nav>
         </div>
       )}
@@ -240,9 +257,15 @@ const DashboardLayout = ({ children }) => {
           <footer className="hidden md:flex mt-12 border-t pt-4 text-xs text-gray-500 flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">
-              <a href="#" className="hover:underline">Condiciones generales</a>
-              <a href="#" className="hover:underline">Política de privacidad</a>
-              <a href="#" className="hover:underline">Política de cookies</a>
+              <a href="#" className="hover:underline">
+                Condiciones generales
+              </a>
+              <a href="#" className="hover:underline">
+                Política de privacidad
+              </a>
+              <a href="#" className="hover:underline">
+                Política de cookies
+              </a>
             </div>
           </footer>
         </main>

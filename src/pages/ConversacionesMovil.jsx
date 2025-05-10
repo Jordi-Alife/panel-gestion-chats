@@ -1,4 +1,3 @@
-// (Archivo completo actualizado con el estado Cerrado)
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -61,7 +60,7 @@ const ConversacionesMovil = () => {
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
     actual.intervenida = item.intervenida || false;
-    actual.chatCerrado = item.chatCerrado || false;
+    actual.chatCerrado = item.estado === "cerrado";
     acc[item.userId] = actual;
     return acc;
   }, {});

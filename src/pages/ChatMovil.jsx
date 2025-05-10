@@ -71,8 +71,8 @@ const ChatMovil = () => {
           </div>
           <span className="text-sm font-semibold">ID: {userId}</span>
         </div>
-        <button onClick={() => alert("Ver detalles")} className="text-xl">
-          ℹ️
+        <button onClick={() => alert("Ver detalles")} className="w-6 h-6">
+          <img src="/src/assets/ver.svg" alt="Detalles" className="w-full h-full" />
         </button>
       </div>
 
@@ -174,7 +174,7 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* INPUT MODERNO CON EMOJIS Y 16px */}
+      {/* INPUT SIN BOTÓN DE ETIQUETA */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -210,9 +210,6 @@ const ChatMovil = () => {
       >
         <button type="button" onClick={() => alert("Adjuntar archivo")} className="w-10 h-10 flex items-center justify-center">
           📎
-        </button>
-        <button type="button" onClick={() => alert("Etiquetas")} className="w-10 h-10 flex items-center justify-center">
-          🏷️
         </button>
         <button type="button" onClick={() => alert("Hashtags")} className="w-10 h-10 flex items-center justify-center">
           #

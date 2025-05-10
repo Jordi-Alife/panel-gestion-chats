@@ -12,6 +12,7 @@ const ChatMovil = () => {
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
+  const [animacionesActivas, setAnimacionesActivas] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -30,6 +31,7 @@ const ChatMovil = () => {
         if (scrollForzado.current && chatRef.current) {
           chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
         }
+        setAnimacionesActivas(true); // Activamos animación tras render
       }, 100);
     } catch (err) {
       console.error(err);
@@ -85,7 +87,6 @@ const ChatMovil = () => {
             msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
 
           const align = isAsistente ? "justify-end" : "justify-start";
-
           const shapeClass = msg.manual
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : isAsistente
@@ -96,16 +97,20 @@ const ChatMovil = () => {
           const contenidoSecundario = msg.manual ? msg.message : msg.original;
 
           return (
-            <div key={index} className={`flex ${align}`}>
+            <div
+              key={index}
+              className={`flex ${align} ${
+                animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"
+              }`}
+            >
               <div
-                className={`max-w-[80%] p-3 shadow message-animate ${shapeClass} ${
+                className={`max-w-[80%] p-3 shadow ${shapeClass} ${
                   msg.manual
                     ? "bg-[#2563eb] text-white"
                     : isAsistente
                     ? "bg-black text-white"
                     : "bg-white text-gray-800 border"
                 }`}
-                style={{ animationDelay: `${index * 50}ms` }}
               >
                 {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                   <img

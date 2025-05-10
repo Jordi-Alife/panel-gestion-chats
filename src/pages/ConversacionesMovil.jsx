@@ -6,6 +6,7 @@ const ConversacionesMovil = () => {
   const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
   const [filtro, setFiltro] = useState("todas");
+  const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -99,14 +100,15 @@ const ConversacionesMovil = () => {
     .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
     .filter(
       (c) =>
-        filtro === "todas" ||
-        (filtro === "gpt" && !c.intervenida) ||
-        (filtro === "humanas" && c.intervenida)
+        (filtro === "todas" ||
+          (filtro === "gpt" && !c.intervenida) ||
+          (filtro === "humanas" && c.intervenida)) &&
+        c.userId.toLowerCase().includes(busqueda.toLowerCase())
     );
 
   return (
     <div className="flex flex-col h-screen">
-      {/* HEADER con botón volver + buscador */}
+      {/* HEADER con volver + buscador */}
       <div className="p-4 border-b flex items-center gap-2">
         <button onClick={() => navigate("/")} className="text-xl">
           ←
@@ -114,12 +116,17 @@ const ConversacionesMovil = () => {
         <input
           type="text"
           placeholder="Buscar conversaciones..."
-          className="w-10/12 border rounded-full px-4 py-2 text-sm focus:outline-none"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className={`w-10/12 border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
+            busqueda.trim() ? "ring-2 ring-blue-400" : ""
+          }`}
+          style={{ fontSize: "16px" }} // evita zoom en iPhone
         />
       </div>
 
       {/* LISTA DE CONVERSACIONES */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-20">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-24">
         {listaAgrupada.map((c) => (
           <div
             key={c.userId}
@@ -158,8 +165,8 @@ const ConversacionesMovil = () => {
         ))}
       </div>
 
-      {/* MENÚ INFERIOR con más margen */}
-      <div className="flex justify-around border-t bg-white py-6">
+      {/* MENÚ INFERIOR centrado y más alto */}
+      <div className="flex justify-around items-center border-t bg-white py-8">
         <button
           onClick={() => setFiltro("todas")}
           className={`text-sm ${

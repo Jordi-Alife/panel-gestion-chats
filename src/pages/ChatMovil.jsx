@@ -66,9 +66,7 @@ const ChatMovil = () => {
     <div className="flex flex-col h-screen">
       {/* HEADER */}
       <div className="flex items-center justify-between p-3 border-b">
-        <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">
-          ←
-        </button>
+        <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
         <div className="flex items-center gap-2">
           <div className="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm">
             {userId.slice(0, 2).toUpperCase()}
@@ -83,35 +81,25 @@ const ChatMovil = () => {
       {/* MENSAJES */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
-          const isAsistente =
-            msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
-
+          const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : isAsistente
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
-
           const contenidoPrincipal = msg.manual ? msg.original : msg.message;
           const contenidoSecundario = msg.manual ? msg.message : msg.original;
 
           return (
-            <div
-              key={index}
-              className={`flex ${align} ${
-                animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"
-              }`}
-            >
-              <div
-                className={`max-w-[80%] p-3 shadow ${shapeClass} ${
-                  msg.manual
-                    ? "bg-[#2563eb] text-white"
-                    : isAsistente
-                    ? "bg-black text-white"
-                    : "bg-white text-gray-800 border"
-                }`}
-              >
+            <div key={index} className={`flex ${align} ${animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"}`}>
+              <div className={`max-w-[80%] p-3 shadow ${shapeClass} ${
+                msg.manual
+                  ? "bg-[#2563eb] text-white"
+                  : isAsistente
+                  ? "bg-black text-white"
+                  : "bg-[#f7f7f7] text-gray-800 border"
+              }`}>
                 {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                   <img
                     src={contenidoPrincipal}
@@ -119,7 +107,7 @@ const ChatMovil = () => {
                     className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm">{contenidoPrincipal}</p>
+                  <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
                 )}
 
                 {contenidoSecundario && (
@@ -131,29 +119,19 @@ const ChatMovil = () => {
                           [index]: !prev[index],
                         }))
                       }
-                      className={`underline text-xs ${
-                        isAsistente || msg.manual ? "text-white/70" : "text-blue-600"
-                      }`}
+                      className={`underline text-xs ${isAsistente || msg.manual ? "text-white/70" : "text-blue-600"}`}
                     >
                       {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
                     </button>
                     {originalesVisibles[index] && (
-                      <p
-                        className={`mt-1 italic text-left ${
-                          isAsistente || msg.manual ? "text-white/70" : "text-gray-500"
-                        }`}
-                      >
+                      <p className={`mt-1 italic text-left ${isAsistente || msg.manual ? "text-white/70" : "text-gray-500"}`}>
                         {contenidoSecundario}
                       </p>
                     )}
                   </div>
                 )}
 
-                <div
-                  className={`text-[10px] mt-1 opacity-60 text-right ${
-                    isAsistente || msg.manual ? "text-white" : "text-gray-500"
-                  }`}
-                >
+                <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
                   {new Date(msg.lastInteraction).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -176,9 +154,7 @@ const ChatMovil = () => {
       {/* BOTÓN FLOTANTE */}
       {mostrarScrollBtn && (
         <button
-          onClick={() =>
-            chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })
-          }
+          onClick={() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })}
           className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg scroll-button-animate"
         >
           ↓
@@ -223,9 +199,7 @@ const ChatMovil = () => {
           <button type="button" onClick={() => alert("Adjuntar archivo")} className="w-6 h-6">
             <img src={iconFile} alt="Archivo" className="w-full h-full" />
           </button>
-          <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
-            #
-          </button>
+          <button type="button" onClick={() => alert("Hashtags")} className="text-xl">#</button>
           <input
             type="text"
             value={respuesta}

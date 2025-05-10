@@ -150,3 +150,39 @@ html, body {
 input, textarea, select {
   font-size: 16px;
 }
+
+/* ✅ NUEVAS ANIMACIONES SUAVES */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.estado-tag {
+  animation: fadeIn 0.5s ease forwards;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.estado-activa {
+  animation: fadeIn 0.5s ease forwards, pulse 2s infinite ease-in-out;
+  background-color: #22c55e; /* verde */
+  color: white;
+}
+
+.estado-inactiva {
+  background-color: #facc15; /* amarillo */
+  color: black;
+}
+
+.estado-archivado {
+  background-color: #9ca3af; /* gris */
+  color: white;
+}

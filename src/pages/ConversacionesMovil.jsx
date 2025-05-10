@@ -108,13 +108,12 @@ const ConversacionesMovil = () => {
 
   const estadoColor = {
     Activa: "bg-green-500",
-    Inactiva: "bg-gray-400",
+    Inactiva: "bg-yellow-500",
     Archivado: "bg-black",
   };
 
   return (
     <div className="flex flex-col h-screen">
-      {/* HEADER con volver + buscador */}
       <div className="p-4 border-b flex items-center gap-2">
         <button onClick={() => navigate("/")} className="text-xl">
           ←
@@ -124,26 +123,25 @@ const ConversacionesMovil = () => {
           placeholder="Buscar conversaciones..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className={`w-10/12 border rounded-full px-4 py-2 text-base focus:outline-none transition-all duration-200 ease-in-out ${
+          className={`w-10/12 border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
             busqueda.trim() ? "ring-2 ring-blue-400" : ""
           }`}
-          style={{ fontSize: "16px" }} // evita zoom en iPhone
+          style={{ fontSize: "16px" }}
         />
       </div>
 
-      {/* LISTA DE CONVERSACIONES */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3 pb-24">
+      <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
         {listaAgrupada.map((c) => (
           <div
             key={c.userId}
             onClick={() => navigate(`/conversaciones/${c.userId}`)}
-            className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
+            className="flex items-center justify-between bg-white rounded-xl shadow p-4 cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
+              <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
                 {c.iniciales}
               </div>
-              <div>
+              <div className="flex flex-col">
                 <div className="font-medium text-base">{c.userId}</div>
                 <div className="text-sm text-gray-500 flex items-center gap-1">
                   {paisAToIso(c.pais) ? (
@@ -156,32 +154,31 @@ const ConversacionesMovil = () => {
                     <span>🌐</span>
                   )}
                   {c.lastInteraction && (
-                    <span className="ml-2 text-gray-400">{tiempoRelativo(c.lastInteraction)}</span>
+                    <span className="ml-1">{tiempoRelativo(c.lastInteraction)}</span>
                   )}
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span
-                className={`text-xs text-white px-2 py-1 rounded-full ${estadoColor[c.estado]}`}
-              >
-                {c.estado}
-              </span>
               {c.nuevos > 0 && (
                 <span className="bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
                   {c.nuevos}
                 </span>
               )}
+              <span
+                className={`text-xs px-3 py-1 rounded-full text-white font-semibold ${estadoColor[c.estado]} shadow-sm`}
+              >
+                {c.estado}
+              </span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* MENÚ INFERIOR centrado y más alto */}
       <div className="flex justify-around items-center border-t bg-white py-8">
         <button
           onClick={() => setFiltro("todas")}
-          className={`text-base ${
+          className={`text-sm ${
             filtro === "todas" ? "text-blue-600 font-semibold" : "text-gray-600"
           }`}
         >
@@ -189,7 +186,7 @@ const ConversacionesMovil = () => {
         </button>
         <button
           onClick={() => setFiltro("gpt")}
-          className={`text-base ${
+          className={`text-sm ${
             filtro === "gpt" ? "text-blue-600 font-semibold" : "text-gray-600"
           }`}
         >
@@ -197,7 +194,7 @@ const ConversacionesMovil = () => {
         </button>
         <button
           onClick={() => setFiltro("humanas")}
-          className={`text-base ${
+          className={`text-sm ${
             filtro === "humanas" ? "text-blue-600 font-semibold" : "text-gray-600"
           }`}
         >

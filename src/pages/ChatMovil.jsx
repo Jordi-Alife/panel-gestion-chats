@@ -85,10 +85,10 @@ const ChatMovil = () => {
           const align = isAsistente ? "justify-end" : "justify-start";
 
           const shapeClass = msg.manual
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // azul manual
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : isAsistente
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]" // asistente negro
-            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]"; // usuario blanco
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
           return (
             <div key={index} className={`flex ${align}`}>
@@ -174,7 +174,7 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* INPUT MODERNO CON EMOJIS */}
+      {/* INPUT MODERNO CON EMOJIS Y 16px */}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -206,15 +206,15 @@ const ChatMovil = () => {
           setRespuesta("");
           cargarMensajes();
         }}
-        className="flex items-center gap-2 p-3 border-t"
+        className="flex items-center gap-2 p-4 border-t"
       >
-        <button type="button" onClick={() => alert("Adjuntar archivo")} className="text-xl">
+        <button type="button" onClick={() => alert("Adjuntar archivo")} className="w-10 h-10 flex items-center justify-center">
           📎
         </button>
-        <button type="button" onClick={() => alert("Etiquetas")} className="text-xl">
+        <button type="button" onClick={() => alert("Etiquetas")} className="w-10 h-10 flex items-center justify-center">
           🏷️
         </button>
-        <button type="button" onClick={() => alert("Hashtags")} className="text-xl">
+        <button type="button" onClick={() => alert("Hashtags")} className="w-10 h-10 flex items-center justify-center">
           #
         </button>
         <input
@@ -222,7 +222,7 @@ const ChatMovil = () => {
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+          className="flex-1 border rounded-full px-4 py-2 text-base focus:outline-none"
         />
         <button
           type="submit"

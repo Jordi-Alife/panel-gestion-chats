@@ -115,10 +115,10 @@ const ConversacionesMovil = () => {
         </button>
         <input
           type="text"
-          placeholder="Buscar..."
+          placeholder="Buscar conversaciones..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className={`flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
+          className={`w-10/12 border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
             busqueda.trim() ? "ring-2 ring-blue-400" : ""
           }`}
           style={{ fontSize: "16px" }} // evita zoom en iPhone
@@ -126,7 +126,7 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* LISTA DE CONVERSACIONES */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-28">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-24">
         {listaAgrupada.map((c) => (
           <div
             key={c.userId}
@@ -166,7 +166,7 @@ const ConversacionesMovil = () => {
       </div>
 
       {/* MENÚ INFERIOR centrado y más alto */}
-      <div className="flex justify-around items-center border-t bg-white py-10">
+      <div className="flex justify-around items-center border-t bg-white py-8">
         <button
           onClick={() => setFiltro("todas")}
           className={`text-sm ${

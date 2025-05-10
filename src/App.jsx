@@ -7,8 +7,9 @@ import {
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
+import ConversacionesMovil from "./pages/ConversacionesMovil"; // ✅ nueva importación
 import ChatMovil from "./pages/ChatMovil";
-import DetallesMovil from "./pages/DetallesMovil"; // ✅ nueva importación
+import DetallesMovil from "./pages/DetallesMovil";
 import Agentes from "./pages/agentes";
 import AgenteDetalle from "./pages/AgenteDetalle";
 import Perfil from "./pages/Perfil";
@@ -108,6 +109,12 @@ const App = () => {
         <Route
           path="/detalles/:userId"
           element={usuarioActual ? <DetallesMovil /> : <Navigate to="/login" />}
+        />
+
+        {/* ✅ Nueva ruta para ConversacionesMovil */}
+        <Route
+          path="/conversaciones-movil"
+          element={usuarioActual ? <ConversacionesMovil /> : <Navigate to="/login" />}
         />
 
         <Route

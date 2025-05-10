@@ -163,15 +163,15 @@ const ConversacionesMovil = () => {
                 </span>
               )}
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold fade-in ${
+                className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold ${
                   c.estado === "Activa"
-                    ? "bg-green-100 text-green-700 estado-activa"
+                    ? "bg-green-100 text-green-700"
                     : c.estado === "Inactiva"
-                    ? "bg-yellow-100 text-yellow-700 estado-inactiva"
-                    : "bg-gray-200 text-gray-700 estado-archivado"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-gray-200 text-gray-700"
                 }`}
               >
-                {c.estado.toUpperCase()}
+                {c.estado}
               </span>
             </div>
           </div>

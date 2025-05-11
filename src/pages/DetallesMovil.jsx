@@ -15,8 +15,8 @@ const DetallesMovil = () => {
 
         // ✅ Guardar en localStorage para uso en ChatMovil
         if (info) {
-          localStorage.setItem("estado-conversacion", info.estado || "abierta");
-          localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
+          localStorage.setItem(`estado-conversacion-${userId}`, info.estado || "abierta");
+          localStorage.setItem(`intervenida-${userId}`, info.intervenida ? "true" : "false");
         }
       });
   }, [userId]);
@@ -60,6 +60,12 @@ const DetallesMovil = () => {
                 const updatedData = await updatedRes.json();
                 const updatedUser = updatedData.find((c) => c.userId === userId);
                 setUsuario(updatedUser || null);
+
+                // ✅ Actualizar localStorage con los nuevos valores
+                if (updatedUser) {
+                  localStorage.setItem(`estado-conversacion-${userId}`, updatedUser.estado || "abierta");
+                  localStorage.setItem(`intervenida-${userId}`, updatedUser.intervenida ? "true" : "false");
+                }
               } else {
                 alert("⚠️ Error al liberar conversación");
               }

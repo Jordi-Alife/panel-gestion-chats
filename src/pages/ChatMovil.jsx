@@ -35,36 +35,37 @@ const ChatMovil = () => {
         (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
       );
 
+      const etiquetaTexto = intervenida ? "Intervenida" : estado;
+      const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
+
+      let insertada = false;
       const mensajesConEtiqueta = [];
-      let etiquetaInsertada = false;
 
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
 
-        // Insertar etiqueta "Intervenida" justo antes del primer mensaje manual
         if (
-          !etiquetaInsertada &&
-          intervenida &&
+          mostrarEtiqueta &&
+          !insertada &&
           msg.manual &&
           msg.from?.toLowerCase() === "asistente"
         ) {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
-            mensaje: "Intervenida",
+            mensaje: etiquetaTexto,
             timestamp: msg.lastInteraction,
           });
-          etiquetaInsertada = true;
+          insertada = true;
         }
 
         mensajesConEtiqueta.push(msg);
       }
 
-      // Insertar al final si no es intervenida
-      if (!intervenida && (estado === "Cerrado" || estado === "Traspasado a GPT")) {
-        mensajesConEtiqueta.push({
+      if (mostrarEtiqueta && !insertada && ordenados.length > 0) {
+        mensajesConEtiqueta.unshift({
           tipo: "etiqueta",
-          mensaje: estado,
-          timestamp: ordenados[ordenados.length - 1]?.lastInteraction || new Date().toISOString(),
+          mensaje: etiquetaTexto,
+          timestamp: ordenados[0].lastInteraction,
         });
       }
 
@@ -186,12 +187,16 @@ const ChatMovil = () => {
                   </div>
                 )}
                 <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-                  {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(msg.lastInteraction).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             </div>
           );
         })}
+
         {textoEscribiendo && (
           <div className="flex justify-start">
             <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
@@ -200,15 +205,6 @@ const ChatMovil = () => {
           </div>
         )}
       </div>
-
-      {mostrarScrollBtn && (
-        <button
-          onClick={() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg scroll-button-animate"
-        >
-          ↓
-        </button>
-      )}
 
       <div className="p-4 bg-white border-t">
         <form

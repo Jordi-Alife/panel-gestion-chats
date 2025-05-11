@@ -1,3 +1,4 @@
+// ChatMovil.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from '/src/assets/ver.svg';
@@ -42,6 +43,7 @@ const ChatMovil = () => {
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
 
+        // Etiqueta Intervenida
         if (
           !insertadaIntervenida &&
           msg.manual &&
@@ -55,6 +57,7 @@ const ChatMovil = () => {
           insertadaIntervenida = true;
         }
 
+        // Etiqueta Traspasado a GPT
         if (
           !insertadaGPT &&
           msg.tipo === "estado" &&
@@ -62,7 +65,7 @@ const ChatMovil = () => {
         ) {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
-            mensaje: "Traspasada a GPT",
+            mensaje: "Traspasado a GPT",
             timestamp: msg.lastInteraction,
           });
           insertadaGPT = true;
@@ -130,17 +133,12 @@ const ChatMovil = () => {
             return (
               <div key={`etiqueta-${index}`} className="flex justify-center">
                 <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-                  msg.mensaje === "Activa"
-                    ? "bg-green-100 text-green-700"
-                    : msg.mensaje === "Cerrado"
-                    ? "bg-red-100 text-red-600"
-                    : msg.mensaje === "Intervenida"
-                    ? "bg-blue-100 text-blue-600"
-                    : msg.mensaje === "Traspasada a GPT"
+                  msg.mensaje === "Intervenida" || msg.mensaje === "Traspasado a GPT"
                     ? "bg-blue-100 text-blue-600"
                     : "bg-gray-200 text-gray-800"
                 }`}>
-                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
             );

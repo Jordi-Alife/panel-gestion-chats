@@ -1,3 +1,4 @@
+// ChatMovil.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from '/src/assets/ver.svg';
@@ -108,7 +109,8 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-    return (
+
+  return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
@@ -126,25 +128,25 @@ const ChatMovil = () => {
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
-  return (
-    <div key={`etiqueta-${index}`} className="flex justify-center">
-      <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-        msg.mensaje === "Activa"
-          ? "bg-green-100 text-green-700"
-          : msg.mensaje === "Cerrado"
-          ? "bg-red-100 text-red-600"
-          : msg.mensaje === "Intervenida"
-          ? "bg-blue-100 text-blue-600"
-          : msg.mensaje === "Traspasado a GPT"
-          ? "bg-gray-300 text-gray-700"
-          : "bg-gray-200 text-gray-800"
-      }`}>
-        {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-        {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-      </span>
-    </div>
-  );
-}
+            return (
+              <div key={`etiqueta-${index}`} className="flex justify-center">
+                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+                  msg.mensaje === "Activa"
+                    ? "bg-green-100 text-green-700"
+                    : msg.mensaje === "Cerrado"
+                    ? "bg-red-100 text-red-600"
+                    : msg.mensaje === "Intervenida"
+                    ? "bg-blue-100 text-blue-600"
+                    : msg.mensaje === "Traspasado a GPT"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-200 text-gray-800"
+                }`}>
+                  {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            );
+          }
 
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";

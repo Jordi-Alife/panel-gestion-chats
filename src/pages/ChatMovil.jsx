@@ -21,8 +21,8 @@ const ChatMovil = () => {
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   useEffect(() => {
-    const est = localStorage.getItem(`estado-${userId}`);
-    const interv = localStorage.getItem(`intervenida-${userId}`);
+    const est = localStorage.getItem(`estado-conversacion-${userId}`);
+const interv = localStorage.getItem(`intervenida-${userId}`);
     if (est) setEstado(est);
     if (interv) setIntervenida(interv === "true");
   }, [userId]);

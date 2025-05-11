@@ -20,6 +20,13 @@ const ChatMovil = () => {
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
+  useEffect(() => {
+    const est = localStorage.getItem(`estado-conversacion-${userId}`);
+    const interv = localStorage.getItem(`intervenida-${userId}`);
+    if (est) setEstado(est);
+    if (interv) setIntervenida(interv === "true");
+  }, [userId]);
+
   const cargarMensajes = async () => {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
@@ -28,39 +35,39 @@ const ChatMovil = () => {
         (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
       );
 
-      const etiquetaTexto = intervenida ? "Intervenida" : estado;
-      const mostrarEtiqueta =
-        ["cerrado", "activa", "traspasado a gpt"].includes(estado.toLowerCase()) || intervenida;
-
-      let insertada = false;
       const mensajesConEtiqueta = [];
+      let insertadaIntervenida = false;
 
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
 
+        // Etiqueta INTERVENIDA
         if (
-          mostrarEtiqueta &&
-          !insertada &&
+          intervenida &&
+          !insertadaIntervenida &&
           msg.manual &&
           msg.from?.toLowerCase() === "asistente"
         ) {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
-            mensaje: etiquetaTexto,
+            mensaje: "Intervenida",
             timestamp: msg.lastInteraction,
           });
-          insertada = true;
+          insertadaIntervenida = true;
         }
 
         mensajesConEtiqueta.push(msg);
       }
 
-      if (mostrarEtiqueta && !insertada && ordenados.length > 0) {
-        mensajesConEtiqueta.unshift({
-          tipo: "etiqueta",
-          mensaje: etiquetaTexto,
-          timestamp: ordenados[0].lastInteraction,
-        });
+      // Etiquetas flotantes como CERRADO o TRASPASADO
+      const etiquetaFinal = estado === "Cerrado" || estado === "Traspasado a GPT" ? {
+        tipo: "etiqueta",
+        mensaje: estado,
+        timestamp: ordenados[ordenados.length - 1]?.lastInteraction || new Date().toISOString()
+      } : null;
+
+      if (etiquetaFinal) {
+        mensajesConEtiqueta.push(etiquetaFinal);
       }
 
       setMensajes(mensajesConEtiqueta);
@@ -77,14 +84,9 @@ const ChatMovil = () => {
   };
 
   useEffect(() => {
-    const est = localStorage.getItem(`estado-conversacion-${userId}`);
-    const interv = localStorage.getItem(`intervenida-${userId}`);
-    if (est) setEstado(est);
-    if (interv) setIntervenida(interv === "true");
-
-    setTimeout(() => {
-      cargarMensajes();
-    }, 50);
+    cargarMensajes();
+    const interval = setInterval(cargarMensajes, 2000);
+    return () => clearInterval(interval);
   }, [userId]);
 
   useEffect(() => {
@@ -96,15 +98,15 @@ const ChatMovil = () => {
     }, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-    const handleScroll = () => {
+
+  const handleScroll = () => {
     if (!chatRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
     const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
@@ -204,6 +206,15 @@ const ChatMovil = () => {
           </div>
         )}
       </div>
+
+      {mostrarScrollBtn && (
+        <button
+          onClick={() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })}
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg scroll-button-animate"
+        >
+          ↓
+        </button>
+      )}
 
       <div className="p-4 bg-white border-t">
         <form

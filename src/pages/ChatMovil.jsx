@@ -22,7 +22,7 @@ const ChatMovil = () => {
 
   useEffect(() => {
     const est = localStorage.getItem(`estado-conversacion-${userId}`);
-const interv = localStorage.getItem(`intervenida-${userId}`);
+    const interv = localStorage.getItem(`intervenida-${userId}`);
     if (est) setEstado(est);
     if (interv) setIntervenida(interv === "true");
   }, [userId]);
@@ -34,7 +34,21 @@ const interv = localStorage.getItem(`intervenida-${userId}`);
       const ordenados = (data || []).sort(
         (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
       );
-      setMensajes(ordenados);
+
+      // Insertar etiqueta como mensaje artificial
+      const etiquetaVisible = estado === "Cerrado" || estado === "Activa" || intervenida || estado === "Traspasado a GPT";
+      const etiquetaTexto = intervenida ? "Intervenida" : estado === "Traspasado a GPT" ? "Traspasado a GPT" : estado;
+
+      const mensajeEtiqueta = etiquetaVisible
+        ? {
+            tipo: "etiqueta",
+            mensaje: etiquetaTexto,
+            estado: estado,
+          }
+        : null;
+
+      const nuevosMensajes = mensajeEtiqueta ? [mensajeEtiqueta, ...ordenados] : ordenados;
+      setMensajes(nuevosMensajes);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {
@@ -87,26 +101,29 @@ const interv = localStorage.getItem(`intervenida-${userId}`);
       </div>
 
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
-  {(estado === "Cerrado" || estado === "Activa" || intervenida || estado === "Traspasado a GPT") && (
-    <div className="flex justify-center">
-      <span
-        className={`text-xs uppercase tracking-wide px-4 py-2 rounded-2xl font-semibold fade-in ${
-          estado === "Activa"
-            ? "bg-green-100 text-green-700"
-            : estado === "Cerrado"
-            ? "bg-red-100 text-red-600"
-            : intervenida
-            ? "bg-blue-100 text-blue-600"
-            : estado === "Traspasado a GPT"
-            ? "bg-gray-300 text-gray-700"
-            : ""
-        }`}
-      >
-        {intervenida ? "Intervenida" : estado === "Traspasado a GPT" ? "Traspasado a GPT" : estado}
-      </span>
-    </div>
-  )}
-                {mensajes.map((msg, index) => {
+        {mensajes.map((msg, index) => {
+          if (msg.tipo === "etiqueta") {
+            return (
+              <div key={`etiqueta-${index}`} className="flex justify-center">
+                <span
+                  className={`text-xs uppercase tracking-wide px-4 py-2 rounded-2xl font-semibold fade-in ${
+                    msg.mensaje === "Activa"
+                      ? "bg-green-100 text-green-700"
+                      : msg.mensaje === "Cerrado"
+                      ? "bg-red-100 text-red-600"
+                      : msg.mensaje === "Intervenida"
+                      ? "bg-blue-100 text-blue-600"
+                      : msg.mensaje === "Traspasado a GPT"
+                      ? "bg-gray-300 text-gray-700"
+                      : ""
+                  }`}
+                >
+                  {msg.mensaje}
+                </span>
+              </div>
+            );
+          }
+
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual

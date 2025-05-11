@@ -80,10 +80,11 @@ const ChatMovil = () => {
   };
 
   useEffect(() => {
-    cargarMensajes();
-    const interval = setInterval(cargarMensajes, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
+  if (!estado && !intervenida) return; // Espera a que estén cargados
+  cargarMensajes();
+  const interval = setInterval(cargarMensajes, 2000);
+  return () => clearInterval(interval);
+}, [userId, estado, intervenida]);
 
   useEffect(() => {
     const interval = setInterval(() => {

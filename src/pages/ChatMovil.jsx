@@ -28,49 +28,58 @@ const ChatMovil = () => {
   }, [userId]);
 
   const cargarMensajes = async () => {
-    try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-      const data = await res.json();
-      const ordenados = (data || []).sort(
-        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-      );
+  try {
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const data = await res.json();
+    const ordenados = (data || []).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
 
-      const etiquetaTexto = intervenida ? "Intervenida" : estado;
-      const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
+    const etiquetaTexto = intervenida ? "Intervenida" : estado;
+    const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
 
-      let insertada = false;
-      const mensajesConEtiqueta = ordenados.flatMap((msg, index) => {
-        if (
-          mostrarEtiqueta &&
-          !insertada &&
-          msg.manual &&
-          msg.from?.toLowerCase() === "asistente"
-        ) {
-          insertada = true;
-          return [
-            msg,
-            {
-              tipo: "etiqueta",
-              mensaje: etiquetaTexto,
-              timestamp: msg.lastInteraction,
-            },
-          ];
-        }
-        return [msg];
-      });
+    let insertada = false;
+    const mensajesConEtiqueta = [];
 
-      setMensajes(mensajesConEtiqueta);
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
+      mensajesConEtiqueta.push(msg);
 
-      setTimeout(() => {
-        if (scrollForzado.current && chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-        }
-        setAnimacionesActivas(true);
-      }, 100);
-    } catch (err) {
-      console.error(err);
+      if (
+        mostrarEtiqueta &&
+        !insertada &&
+        msg.manual &&
+        msg.from?.toLowerCase() === "asistente"
+      ) {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: etiquetaTexto,
+          timestamp: msg.lastInteraction,
+        });
+        insertada = true;
+      }
     }
-  };
+
+    if (mostrarEtiqueta && !insertada && ordenados.length > 0) {
+      mensajesConEtiqueta.unshift({
+        tipo: "etiqueta",
+        mensaje: etiquetaTexto,
+        timestamp: ordenados[0].lastInteraction,
+      });
+    }
+
+    setMensajes(mensajesConEtiqueta);
+
+    setTimeout(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+      setAnimacionesActivas(true);
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   useEffect(() => {
     cargarMensajes();

@@ -62,8 +62,8 @@ const ChatMovil = () => {
         ) {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction || msg.timestamp, // Fallback si no existe lastInteraction
+            mensaje: "Traspasada a GPT",
+            timestamp: msg.lastInteraction,
           });
           insertadaGPT = true;
         }
@@ -136,12 +136,11 @@ const ChatMovil = () => {
                     ? "bg-red-100 text-red-600"
                     : msg.mensaje === "Intervenida"
                     ? "bg-blue-100 text-blue-600"
-                    : msg.mensaje === "Traspasado a GPT"
+                    : msg.mensaje === "Traspasada a GPT"
                     ? "bg-blue-100 text-blue-600"
                     : "bg-gray-200 text-gray-800"
                 }`}>
-                  {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
             );

@@ -42,7 +42,7 @@ const ChatMovil = () => {
         ? {
             tipo: "etiqueta",
             mensaje: etiquetaTexto,
-            timestamp: new Date().toISOString()
+            timestamp: ordenados?.[0]?.lastInteraction || new Date().toISOString()
           }
         : null;
 

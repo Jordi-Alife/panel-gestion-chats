@@ -133,10 +133,10 @@ const ConversacionesMovil = () => {
     <div
       key={c.userId}
       onClick={() => {
-        localStorage.setItem("estado-chat", c.estado);
-        localStorage.setItem("intervenida-chat", c.intervenida);
-        navigate(`/conversaciones/${c.userId}`);
-      }}
+  localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
+  localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
+  navigate(`/conversaciones/${c.userId}`);
+}}
       className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
     >
       <div className="flex items-center gap-3">

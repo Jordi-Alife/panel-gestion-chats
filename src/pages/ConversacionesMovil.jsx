@@ -129,34 +129,38 @@ const ConversacionesMovil = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
-        {listaAgrupada.map((c) => (
-          <div
-            key={c.userId}
-            onClick={() => navigate(`/conversaciones/${c.userId}`)}
-            className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
-                {c.iniciales}
-              </div>
-              <div>
-                <div className="font-medium text-base">{c.userId}</div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  {paisAToIso(c.pais) ? (
-                    <img
-                      src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
-                      alt={c.pais}
-                      className="inline-block"
-                    />
-                  ) : (
-                    <span>🌐</span>
-                  )}
-                  {c.lastInteraction && (
-                    <span className="ml-2 text-gray-400">{tiempoRelativo(c.lastInteraction)}</span>
-                  )}
-                </div>
-              </div>
-            </div>
+  {listaAgrupada.map((c) => (
+    <div
+      key={c.userId}
+      onClick={() => {
+        localStorage.setItem("estado-chat", c.estado);
+        localStorage.setItem("intervenida-chat", c.intervenida);
+        navigate(`/conversaciones/${c.userId}`);
+      }}
+      className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
+          {c.iniciales}
+        </div>
+        <div>
+          <div className="font-medium text-base">{c.userId}</div>
+          <div className="text-xs text-gray-500 flex items-center gap-1">
+            {paisAToIso(c.pais) ? (
+              <img
+                src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
+                alt={c.pais}
+                className="inline-block"
+              />
+            ) : (
+              <span>🌐</span>
+            )}
+            {c.lastInteraction && (
+              <span className="ml-2 text-gray-400">{tiempoRelativo(c.lastInteraction)}</span>
+            )}
+          </div>
+        </div>
+      </div>
 
             <div className="flex items-center gap-2">
               {c.nuevos > 0 && (

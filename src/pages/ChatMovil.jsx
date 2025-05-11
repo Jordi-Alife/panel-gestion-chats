@@ -13,10 +13,16 @@ const ChatMovil = () => {
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
+  const [estadoConversacion, setEstadoConversacion] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
+  useEffect(() => {
+    const estado = localStorage.getItem(`estado-${userId}`);
+    if (estado) setEstadoConversacion(estado);
+  }, [userId]);
 
   const cargarMensajes = async () => {
     try {
@@ -61,8 +67,7 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen">
       {/* HEADER */}
       <div className="flex items-center justify-between p-3 border-b">
@@ -77,6 +82,21 @@ const ChatMovil = () => {
           <img src={iconVer} alt="Detalles" className="w-full h-full" />
         </button>
       </div>
+
+      {/* ETIQUETA DE ESTADO */}
+      {(estadoConversacion === "Cerrado" || estadoConversacion === "Activa" || estadoConversacion === "Intervenida" || estadoConversacion === "Traspasado") && (
+        <div className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold text-center mx-auto mt-3 mb-1 w-fit ${
+          estadoConversacion === "Cerrado"
+            ? "bg-red-100 text-red-600"
+            : estadoConversacion === "Activa"
+            ? "bg-green-100 text-green-700"
+            : estadoConversacion === "Intervenida"
+            ? "bg-yellow-100 text-yellow-700"
+            : "bg-gray-300 text-gray-800"
+        }`}>
+          {estadoConversacion}
+        </div>
+      )}
 
       {/* MENSAJES */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>

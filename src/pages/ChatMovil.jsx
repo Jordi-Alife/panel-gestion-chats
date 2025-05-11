@@ -47,6 +47,7 @@ const ChatMovil = () => {
         if (
           mostrarEtiqueta &&
           !insertada &&
+          intervenida &&
           msg.manual &&
           msg.from?.toLowerCase() === "asistente"
         ) {
@@ -81,8 +82,7 @@ const ChatMovil = () => {
       console.error(err);
     }
   };
-
-  useEffect(() => {
+    useEffect(() => {
     cargarMensajes();
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
@@ -105,7 +105,8 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-    return (
+
+  return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>

@@ -20,13 +20,6 @@ const ChatMovil = () => {
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
-  useEffect(() => {
-    const est = localStorage.getItem(`estado-conversacion-${userId}`);
-    const interv = localStorage.getItem(`intervenida-${userId}`);
-    if (est) setEstado(est);
-    if (interv) setIntervenida(interv === "true");
-  }, [userId]);
-
   const cargarMensajes = async () => {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
@@ -36,7 +29,8 @@ const ChatMovil = () => {
       );
 
       const etiquetaTexto = intervenida ? "Intervenida" : estado;
-      const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
+      const mostrarEtiqueta =
+        ["cerrado", "activa", "traspasado a gpt"].includes(estado.toLowerCase()) || intervenida;
 
       let insertada = false;
       const mensajesConEtiqueta = [];
@@ -47,7 +41,6 @@ const ChatMovil = () => {
         if (
           mostrarEtiqueta &&
           !insertada &&
-          intervenida &&
           msg.manual &&
           msg.from?.toLowerCase() === "asistente"
         ) {
@@ -82,10 +75,16 @@ const ChatMovil = () => {
       console.error(err);
     }
   };
-    useEffect(() => {
-    cargarMensajes();
-    const interval = setInterval(cargarMensajes, 2000);
-    return () => clearInterval(interval);
+
+  useEffect(() => {
+    const est = localStorage.getItem(`estado-conversacion-${userId}`);
+    const interv = localStorage.getItem(`intervenida-${userId}`);
+    if (est) setEstado(est);
+    if (interv) setIntervenida(interv === "true");
+
+    setTimeout(() => {
+      cargarMensajes();
+    }, 50);
   }, [userId]);
 
   useEffect(() => {
@@ -97,8 +96,7 @@ const ChatMovil = () => {
     }, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-
-  const handleScroll = () => {
+    const handleScroll = () => {
     if (!chatRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
     const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;

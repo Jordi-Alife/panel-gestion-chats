@@ -28,65 +28,66 @@ const ChatMovil = () => {
   }, [userId]);
 
   const cargarMensajes = async () => {
-  try {
-    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-    const data = await res.json();
-    const ordenados = (data || []).sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
+    try {
+      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+      const data = await res.json();
+      const ordenados = (data || []).sort(
+        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+      );
 
-    const etiquetaTexto = intervenida ? "Intervenida" : estado;
-    const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
+      const mensajesConEtiqueta = [];
+      let etiquetaInsertada = false;
 
-    let insertada = false;
-    const mensajesConEtiqueta = [];
+      for (let i = 0; i < ordenados.length; i++) {
+        const msg = ordenados[i];
 
-    for (let i = 0; i < ordenados.length; i++) {
-      const msg = ordenados[i];
-      mensajesConEtiqueta.push(msg);
+        // Insertar etiqueta "Intervenida" justo antes del primer mensaje manual
+        if (
+          !etiquetaInsertada &&
+          intervenida &&
+          msg.manual &&
+          msg.from?.toLowerCase() === "asistente"
+        ) {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+          etiquetaInsertada = true;
+        }
 
-      if (
-        mostrarEtiqueta &&
-        !insertada &&
-        msg.manual &&
-        msg.from?.toLowerCase() === "asistente"
-      ) {
+        mensajesConEtiqueta.push(msg);
+      }
+
+      // Insertar al final si no es intervenida
+      if (!intervenida && (estado === "Cerrado" || estado === "Traspasado a GPT")) {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
-          mensaje: etiquetaTexto,
-          timestamp: msg.lastInteraction,
+          mensaje: estado,
+          timestamp: ordenados[ordenados.length - 1]?.lastInteraction || new Date().toISOString(),
         });
-        insertada = true;
       }
+
+      setMensajes(mensajesConEtiqueta);
+
+      setTimeout(() => {
+        if (scrollForzado.current && chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+        }
+        setAnimacionesActivas(true);
+      }, 100);
+    } catch (err) {
+      console.error(err);
     }
-
-    if (mostrarEtiqueta && !insertada && ordenados.length > 0) {
-      mensajesConEtiqueta.unshift({
-        tipo: "etiqueta",
-        mensaje: etiquetaTexto,
-        timestamp: ordenados[0].lastInteraction,
-      });
-    }
-
-    setMensajes(mensajesConEtiqueta);
-
-    setTimeout(() => {
-      if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-      }
-      setAnimacionesActivas(true);
-    }, 100);
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
   useEffect(() => {
     cargarMensajes();
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-    useEffect(() => {
+
+  useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
         .then((res) => res.json())
@@ -103,8 +104,7 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
@@ -186,16 +186,12 @@ const ChatMovil = () => {
                   </div>
                 )}
                 <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-                  {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </div>
               </div>
             </div>
           );
         })}
-
         {textoEscribiendo && (
           <div className="flex justify-start">
             <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">

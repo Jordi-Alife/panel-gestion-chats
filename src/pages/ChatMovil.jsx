@@ -87,25 +87,25 @@ const interv = localStorage.getItem(`intervenida-${userId}`);
       </div>
 
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
-        {(estado === "Cerrado" || estado === "Activa" || intervenida || estado === "Traspasado a GPT") && (
-          <div className="flex justify-center mb-4">
-            <span
-              className={`text-xs uppercase tracking-wide px-4 py-2 rounded-2xl font-semibold fade-in ${
-                estado === "Activa"
-                  ? "bg-green-100 text-green-700"
-                  : estado === "Cerrado"
-                  ? "bg-red-100 text-red-600"
-                  : intervenida
-                  ? "bg-blue-100 text-blue-600"
-                  : estado === "Traspasado a GPT"
-                  ? "bg-gray-300 text-gray-700"
-                  : ""
-              }`}
-            >
-              {intervenida ? "Intervenida" : estado === "Traspasado a GPT" ? "Traspasado a GPT" : estado}
-            </span>
-          </div>
-        )}
+  {(estado === "Cerrado" || estado === "Activa" || intervenida || estado === "Traspasado a GPT") && (
+    <div className="flex justify-center">
+      <span
+        className={`text-xs uppercase tracking-wide px-4 py-2 rounded-2xl font-semibold fade-in ${
+          estado === "Activa"
+            ? "bg-green-100 text-green-700"
+            : estado === "Cerrado"
+            ? "bg-red-100 text-red-600"
+            : intervenida
+            ? "bg-blue-100 text-blue-600"
+            : estado === "Traspasado a GPT"
+            ? "bg-gray-300 text-gray-700"
+            : ""
+        }`}
+      >
+        {intervenida ? "Intervenida" : estado === "Traspasado a GPT" ? "Traspasado a GPT" : estado}
+      </span>
+    </div>
+  )}
                 {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";

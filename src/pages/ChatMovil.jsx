@@ -42,7 +42,6 @@ const ChatMovil = () => {
         const msg = ordenados[i];
 
         if (
-          intervenida &&
           !insertadaIntervenida &&
           msg.manual &&
           msg.from?.toLowerCase() === "asistente"
@@ -58,10 +57,10 @@ const ChatMovil = () => {
         mensajesConEtiqueta.push(msg);
       }
 
-      if ((estado === "Cerrado" || estado === "Traspasado a GPT") && ordenados.length > 0) {
+      if (estado === "Traspasado a GPT" && ordenados.length > 0) {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
-          mensaje: estado,
+          mensaje: "Traspasado a GPT",
           timestamp: ordenados[ordenados.length - 1].lastInteraction,
         });
       }
@@ -80,13 +79,12 @@ const ChatMovil = () => {
   };
 
   useEffect(() => {
-  if (!estado && !intervenida) return; // Espera a que estén cargados
-  cargarMensajes();
-  const interval = setInterval(cargarMensajes, 2000);
-  return () => clearInterval(interval);
-}, [userId, estado, intervenida]);
-
-  useEffect(() => {
+    if (!estado) return;
+    cargarMensajes();
+    const interval = setInterval(cargarMensajes, 2000);
+    return () => clearInterval(interval);
+  }, [userId, estado]);
+    useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
         .then((res) => res.json())
@@ -103,7 +101,8 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-    return (
+
+  return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
@@ -119,27 +118,26 @@ const ChatMovil = () => {
       </div>
 
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
-  <pre className="text-[10px] text-gray-400 overflow-x-auto">{JSON.stringify(mensajes, null, 2)}</pre>
-  {mensajes.map((msg, index) => {
-    if (msg.tipo === "etiqueta") {
-      return (
-        <div key={`etiqueta-${index}`} className="flex justify-center">
-          <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-            msg.mensaje === "Activa"
-              ? "bg-green-100 text-green-700"
-              : msg.mensaje === "Cerrado"
-              ? "bg-red-100 text-red-600"
-              : msg.mensaje === "Intervenida"
-              ? "bg-blue-100 text-blue-600"
-              : msg.mensaje === "Traspasado a GPT"
-              ? "bg-gray-300 text-gray-700"
-              : "bg-gray-200 text-gray-800"
-          }`}>
-            {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        </div>
-      );
-    }
+        {mensajes.map((msg, index) => {
+          if (msg.tipo === "etiqueta") {
+            return (
+              <div key={`etiqueta-${index}`} className="flex justify-center">
+                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+                  msg.mensaje === "Activa"
+                    ? "bg-green-100 text-green-700"
+                    : msg.mensaje === "Cerrado"
+                    ? "bg-red-100 text-red-600"
+                    : msg.mensaje === "Intervenida"
+                    ? "bg-blue-100 text-blue-600"
+                    : msg.mensaje === "Traspasado a GPT"
+                    ? "bg-gray-300 text-gray-700"
+                    : "bg-gray-200 text-gray-800"
+                }`}>
+                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            );
+          }
 
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";

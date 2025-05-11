@@ -37,6 +37,7 @@ const ChatMovil = () => {
 
       const mensajesConEtiqueta = [];
       let insertadaIntervenida = false;
+      let insertadaGPT = false;
 
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
@@ -54,15 +55,20 @@ const ChatMovil = () => {
           insertadaIntervenida = true;
         }
 
-        mensajesConEtiqueta.push(msg);
-      }
+        if (
+          !insertadaGPT &&
+          msg.tipo === "estado" &&
+          msg.estado === "Traspasado a GPT"
+        ) {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+          insertadaGPT = true;
+        }
 
-      if (estado === "Traspasado a GPT" && ordenados.length > 0) {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: ordenados[ordenados.length - 1].lastInteraction,
-        });
+        mensajesConEtiqueta.push(msg);
       }
 
       setMensajes(mensajesConEtiqueta);
@@ -84,7 +90,8 @@ const ChatMovil = () => {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId, estado]);
-    useEffect(() => {
+
+  useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
         .then((res) => res.json())
@@ -101,8 +108,7 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>

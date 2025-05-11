@@ -12,6 +12,12 @@ const DetallesMovil = () => {
       .then((all) => {
         const info = all.find((c) => c.userId === userId);
         setUsuario(info || null);
+
+        // ✅ Guardar en localStorage para uso en ChatMovil
+        if (info) {
+          localStorage.setItem("estado-conversacion", info.estado || "abierta");
+          localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
+        }
       });
   }, [userId]);
 

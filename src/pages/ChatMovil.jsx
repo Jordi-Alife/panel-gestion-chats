@@ -1,4 +1,3 @@
-// ChatMovil.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from '/src/assets/ver.svg';
@@ -64,7 +63,7 @@ const ChatMovil = () => {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
             mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
+            timestamp: msg.lastInteraction || msg.timestamp, // Fallback si no existe lastInteraction
           });
           insertadaGPT = true;
         }

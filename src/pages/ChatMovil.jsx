@@ -13,8 +13,8 @@ const ChatMovil = () => {
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
-  const [estado, setEstado] = useState("");
-  const [intervenida, setIntervenida] = useState(false);
+  const [estado, setEstado] = useState(null);
+  const [intervenida, setIntervenida] = useState(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -23,21 +23,28 @@ const ChatMovil = () => {
   useEffect(() => {
     const est = localStorage.getItem(`estado-conversacion-${userId}`);
     const interv = localStorage.getItem(`intervenida-${userId}`);
-    if (est) setEstado(est);
-    if (interv) setIntervenida(interv === "true");
+    setEstado(est);
+    setIntervenida(interv === "true");
   }, [userId]);
+
+  useEffect(() => {
+    if (estado !== null && intervenida !== null) {
+      cargarMensajes();
+      const interval = setInterval(cargarMensajes, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [estado, intervenida]);
 
   const cargarMensajes = async () => {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
       const data = await res.json();
-      const ordenados = (data || []).sort(
-        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-      );
+      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
 
-      const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
       const etiquetaTexto = intervenida ? "Intervenida" : estado;
-      const etiquetaMensaje = mostrarEtiqueta
+      const mostrarEtiqueta = ["Cerrado", "Activa", "Traspasado a GPT"].includes(estado) || intervenida;
+
+      const mensajeEtiqueta = mostrarEtiqueta
         ? {
             tipo: "etiqueta",
             mensaje: etiquetaTexto,
@@ -45,8 +52,8 @@ const ChatMovil = () => {
           }
         : null;
 
-      const combinados = etiquetaMensaje ? [etiquetaMensaje, ...ordenados] : ordenados;
-      setMensajes(combinados);
+      const nuevosMensajes = mensajeEtiqueta ? [mensajeEtiqueta, ...ordenados] : ordenados;
+      setMensajes(nuevosMensajes);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {
@@ -58,12 +65,6 @@ const ChatMovil = () => {
       console.error(err);
     }
   };
-
-  useEffect(() => {
-    cargarMensajes();
-    const interval = setInterval(cargarMensajes, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -103,8 +104,8 @@ const ChatMovil = () => {
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
             return (
-              <div key={`etiqueta-${index}`} className="flex justify-center py-2">
-                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold ${
+              <div key={`etiqueta-${index}`} className="flex justify-center">
+                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
                   msg.mensaje === "Activa"
                     ? "bg-green-100 text-green-700"
                     : msg.mensaje === "Cerrado"
@@ -115,7 +116,7 @@ const ChatMovil = () => {
                     ? "bg-gray-300 text-gray-700"
                     : "bg-gray-200 text-gray-800"
                 }`}>
-                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
             );

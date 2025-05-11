@@ -13,8 +13,8 @@ const ChatMovil = () => {
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
-  const [estado, setEstado] = useState(null);
-  const [intervenida, setIntervenida] = useState(null);
+  const [estado, setEstado] = useState("");
+  const [intervenida, setIntervenida] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -23,37 +23,43 @@ const ChatMovil = () => {
   useEffect(() => {
     const est = localStorage.getItem(`estado-conversacion-${userId}`);
     const interv = localStorage.getItem(`intervenida-${userId}`);
-    setEstado(est);
-    setIntervenida(interv === "true");
+    if (est) setEstado(est);
+    if (interv) setIntervenida(interv === "true");
   }, [userId]);
-
-  useEffect(() => {
-    if (estado !== null && intervenida !== null) {
-      cargarMensajes();
-      const interval = setInterval(cargarMensajes, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [estado, intervenida]);
 
   const cargarMensajes = async () => {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
       const data = await res.json();
-      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+      const ordenados = (data || []).sort(
+        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+      );
 
       const etiquetaTexto = intervenida ? "Intervenida" : estado;
-      const mostrarEtiqueta = ["Cerrado", "Activa", "Traspasado a GPT"].includes(estado) || intervenida;
+      const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
 
-      const mensajeEtiqueta = mostrarEtiqueta
-        ? {
-            tipo: "etiqueta",
-            mensaje: etiquetaTexto,
-            timestamp: ordenados?.[0]?.lastInteraction || new Date().toISOString()
-          }
-        : null;
+      let insertada = false;
+      const mensajesConEtiqueta = ordenados.flatMap((msg, index) => {
+        if (
+          mostrarEtiqueta &&
+          !insertada &&
+          msg.manual &&
+          msg.from?.toLowerCase() === "asistente"
+        ) {
+          insertada = true;
+          return [
+            msg,
+            {
+              tipo: "etiqueta",
+              mensaje: etiquetaTexto,
+              timestamp: msg.lastInteraction,
+            },
+          ];
+        }
+        return [msg];
+      });
 
-      const nuevosMensajes = mensajeEtiqueta ? [mensajeEtiqueta, ...ordenados] : ordenados;
-      setMensajes(nuevosMensajes);
+      setMensajes(mensajesConEtiqueta);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {
@@ -67,6 +73,11 @@ const ChatMovil = () => {
   };
 
   useEffect(() => {
+    cargarMensajes();
+    const interval = setInterval(cargarMensajes, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
+    useEffect(() => {
     const interval = setInterval(() => {
       fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
         .then((res) => res.json())
@@ -83,9 +94,9 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-    return (
+
+  return (
     <div className="flex flex-col h-screen">
-      {/* HEADER */}
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
         <div className="flex items-center gap-2">
@@ -99,7 +110,6 @@ const ChatMovil = () => {
         </button>
       </div>
 
-      {/* MENSAJES */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
@@ -116,7 +126,7 @@ const ChatMovil = () => {
                     ? "bg-gray-300 text-gray-700"
                     : "bg-gray-200 text-gray-800"
                 }`}>
-                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {msg.mensaje} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             );
@@ -142,15 +152,10 @@ const ChatMovil = () => {
                   : "bg-[#f7f7f7] text-gray-800 border"
               }`}>
                 {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                  <img
-                    src={contenidoPrincipal}
-                    alt="Imagen"
-                    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                  />
+                  <img src={contenidoPrincipal} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
                 ) : (
                   <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
                 )}
-
                 {contenidoSecundario && (
                   <div className="mt-2 text-[11px] text-right">
                     <button
@@ -171,7 +176,6 @@ const ChatMovil = () => {
                     )}
                   </div>
                 )}
-
                 <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
                   {new Date(msg.lastInteraction).toLocaleTimeString([], {
                     hour: "2-digit",
@@ -192,7 +196,6 @@ const ChatMovil = () => {
         )}
       </div>
 
-      {/* BOTÓN FLOTANTE */}
       {mostrarScrollBtn && (
         <button
           onClick={() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })}
@@ -202,7 +205,6 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* INPUT */}
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
@@ -255,14 +257,7 @@ const ChatMovil = () => {
             type="submit"
             className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </button>

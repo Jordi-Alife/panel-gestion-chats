@@ -35,10 +35,9 @@ const ChatMovil = () => {
         (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
       );
 
-      const etiquetaTexto = intervenida ? "Intervenida" : estado;
       const mostrarEtiqueta = estado === "Cerrado" || estado === "Activa" || estado === "Traspasado a GPT" || intervenida;
-
-      const mensajeEtiqueta = mostrarEtiqueta
+      const etiquetaTexto = intervenida ? "Intervenida" : estado;
+      const etiquetaMensaje = mostrarEtiqueta
         ? {
             tipo: "etiqueta",
             mensaje: etiquetaTexto,
@@ -46,8 +45,8 @@ const ChatMovil = () => {
           }
         : null;
 
-      const nuevosMensajes = mensajeEtiqueta ? [mensajeEtiqueta, ...ordenados] : ordenados;
-      setMensajes(nuevosMensajes);
+      const combinados = etiquetaMensaje ? [etiquetaMensaje, ...ordenados] : ordenados;
+      setMensajes(combinados);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {
@@ -104,8 +103,8 @@ const ChatMovil = () => {
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
             return (
-              <div key={`etiqueta-${index}`} className="flex justify-center">
-                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+              <div key={`etiqueta-${index}`} className="flex justify-center py-2">
+                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold ${
                   msg.mensaje === "Activa"
                     ? "bg-green-100 text-green-700"
                     : msg.mensaje === "Cerrado"

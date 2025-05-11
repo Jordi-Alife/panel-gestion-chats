@@ -13,15 +13,18 @@ const ChatMovil = () => {
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
-  const [estadoConversacion, setEstadoConversacion] = useState(null);
+  const [estado, setEstado] = useState("");
+  const [intervenida, setIntervenida] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   useEffect(() => {
-    const estado = localStorage.getItem(`estado-${userId}`);
-    if (estado) setEstadoConversacion(estado);
+    const est = localStorage.getItem(`estado-${userId}`);
+    const interv = localStorage.getItem(`intervenida-${userId}`);
+    if (est) setEstado(est);
+    if (interv) setIntervenida(interv === "true");
   }, [userId]);
 
   const cargarMensajes = async () => {
@@ -67,9 +70,9 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-    return (
+
+  return (
     <div className="flex flex-col h-screen">
-      {/* HEADER */}
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
         <div className="flex items-center gap-2">
@@ -83,24 +86,27 @@ const ChatMovil = () => {
         </button>
       </div>
 
-      {/* ETIQUETA DE ESTADO */}
-      {(estadoConversacion === "Cerrado" || estadoConversacion === "Activa" || estadoConversacion === "Intervenida" || estadoConversacion === "Traspasado") && (
-        <div className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold text-center mx-auto mt-3 mb-1 w-fit ${
-          estadoConversacion === "Cerrado"
-            ? "bg-red-100 text-red-600"
-            : estadoConversacion === "Activa"
-            ? "bg-green-100 text-green-700"
-            : estadoConversacion === "Intervenida"
-            ? "bg-yellow-100 text-yellow-700"
-            : "bg-gray-300 text-gray-800"
-        }`}>
-          {estadoConversacion}
-        </div>
-      )}
-
-      {/* MENSAJES */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
-        {mensajes.map((msg, index) => {
+        {(estado === "Cerrado" || estado === "Activa" || intervenida || estado === "Traspasado a GPT") && (
+          <div className="flex justify-center mb-4">
+            <span
+              className={`text-xs uppercase tracking-wide px-4 py-2 rounded-2xl font-semibold fade-in ${
+                estado === "Activa"
+                  ? "bg-green-100 text-green-700"
+                  : estado === "Cerrado"
+                  ? "bg-red-100 text-red-600"
+                  : intervenida
+                  ? "bg-blue-100 text-blue-600"
+                  : estado === "Traspasado a GPT"
+                  ? "bg-gray-300 text-gray-700"
+                  : ""
+              }`}
+            >
+              {intervenida ? "Intervenida" : estado === "Traspasado a GPT" ? "Traspasado a GPT" : estado}
+            </span>
+          </div>
+        )}
+                {mensajes.map((msg, index) => {
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
@@ -171,7 +177,6 @@ const ChatMovil = () => {
         )}
       </div>
 
-      {/* BOTÓN FLOTANTE */}
       {mostrarScrollBtn && (
         <button
           onClick={() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })}
@@ -181,7 +186,6 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* INPUT */}
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {

@@ -41,7 +41,6 @@ const ChatMovil = () => {
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
 
-        // Etiqueta INTERVENIDA
         if (
           intervenida &&
           !insertadaIntervenida &&
@@ -59,15 +58,12 @@ const ChatMovil = () => {
         mensajesConEtiqueta.push(msg);
       }
 
-      // Etiquetas flotantes como CERRADO o TRASPASADO
-      const etiquetaFinal = estado === "Cerrado" || estado === "Traspasado a GPT" ? {
-        tipo: "etiqueta",
-        mensaje: estado,
-        timestamp: ordenados[ordenados.length - 1]?.lastInteraction || new Date().toISOString()
-      } : null;
-
-      if (etiquetaFinal) {
-        mensajesConEtiqueta.push(etiquetaFinal);
+      if ((estado === "Cerrado" || estado === "Traspasado a GPT") && ordenados.length > 0) {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: estado,
+          timestamp: ordenados[ordenados.length - 1].lastInteraction,
+        });
       }
 
       setMensajes(mensajesConEtiqueta);

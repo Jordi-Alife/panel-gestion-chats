@@ -252,7 +252,7 @@ export default function Conversaciones() {
   );
 
   return (
-  <div className="flex flex-row h-[calc(100vh-88px)] bg-[#f0f4f8] overflow-hidden">
+  <div className="flex flex-row h-[calc(100vh-48px)] bg-[#f0f4f8] overflow-hidden">
     {/* Columna izquierda */}
     <div className="w-1/5 h-full overflow-y-auto">
       <ConversacionList

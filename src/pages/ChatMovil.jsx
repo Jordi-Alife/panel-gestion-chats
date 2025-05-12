@@ -36,29 +36,30 @@ const ChatMovil = () => {
       );
 
       const mensajesConEtiqueta = [];
-      for (let i = 0; i < ordenados.length; i++) {
-        const msg = ordenados[i];
+for (let i = 0; i < ordenados.length; i++) {
+  const msg = ordenados[i];
 
-        // Insertar etiqueta "Intervenida"
-        if (msg.manual && msg.from?.toLowerCase() === "asistente") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-        }
+  if (msg.manual && msg.from?.toLowerCase() === "asistente") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "Intervenida",
+      timestamp: msg.lastInteraction,
+    });
+  }
 
-        // Insertar etiqueta "Traspasado a GPT"
-        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-        }
+  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "Traspasado a GPT",
+      timestamp: msg.lastInteraction,
+    });
+  }
 
-        mensajesConEtiqueta.push(msg);
-      }
+  mensajesConEtiqueta.push(msg);
+}
+
+const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
+setMensajes(soloValidos);
 
       setMensajes(mensajesConEtiqueta);
 

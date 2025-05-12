@@ -68,13 +68,12 @@ export default function Conversaciones() {
         }
 
         if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Cerrado",
-            timestamp: msg.lastInteraction,
-          });
-        }
-
+  mensajesConEtiqueta.push({
+    tipo: "etiqueta",
+    mensaje: "El usuario ha cerrado el chat",
+    timestamp: msg.lastInteraction,
+  });
+}
         if (msg.manual === true && estadoActual === "gpt") {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",

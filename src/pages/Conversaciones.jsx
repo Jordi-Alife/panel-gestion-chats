@@ -294,16 +294,15 @@ export default function Conversaciones() {
         />
       </div>
 
-      <div className="w-1/5 h-full overflow-y-auto">
-        <DetallesUsuario
-          usuario={usuarioSeleccionado}
-          agente={agente}
-          paisAToIso={paisAToIso}
-          cargarDatos={cargarDatos}
-          setUsuarioSeleccionado={setUsuarioSeleccionado}
-          todasConversaciones={todasConversaciones}
-        />
-      </div>
-    </div>
-  );
-}
+      {mostrarDetalles && (
+  <div className="w-1/5 h-full overflow-y-auto">
+    <DetallesUsuario
+      usuario={usuarioSeleccionado}
+      agente={agente}
+      paisAToIso={paisAToIso}
+      cargarDatos={cargarDatos}
+      setUsuarioSeleccionado={setUsuarioSeleccionado}
+      todasConversaciones={todasConversaciones}
+    />
+  </div>
+)}

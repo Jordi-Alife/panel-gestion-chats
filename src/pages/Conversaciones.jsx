@@ -9,6 +9,8 @@ export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
 
+  const [mostrarDetalles, setMostrarDetalles] = useState(false); // ✅ nuevo estado
+
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);

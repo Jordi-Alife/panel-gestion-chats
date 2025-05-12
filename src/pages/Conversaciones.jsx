@@ -251,7 +251,7 @@ export default function Conversaciones() {
 
   return (
     <div className="flex flex-row h-screen bg-[#f0f4f8] overflow-hidden">
-      <div className="w-1/5">
+      <div className="w-1/5 h-full overflow-y-auto">
         <ConversacionList
           conversaciones={listaAgrupada}
           userIdActual={userId}

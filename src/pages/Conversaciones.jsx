@@ -250,20 +250,23 @@ export default function Conversaciones() {
   );
 
   return (
-    <div className="flex flex-row h-screen min-h-screen bg-[#f0f4f8] relative">
-      <div className="w-1/5">
-        <ConversacionList
-          conversaciones={listaAgrupada}
-          userIdActual={userId}
-          onSelect={(id) => setSearchParams({ userId: id })}
-          filtro={filtro}
-          setFiltro={setFiltro}
-          paisAToIso={paisAToIso}
-          formatearTiempo={formatearTiempo}
-        />
-      </div>
+  <div className="flex h-screen overflow-hidden bg-[#f0f4f8]">
+    {/* Columna izquierda - Lista de conversaciones */}
+    <div className="w-1/5 h-full overflow-y-auto bg-white border-r">
+      <ConversacionList
+        conversaciones={listaAgrupada}
+        userIdActual={userId}
+        onSelect={(id) => setSearchParams({ userId: id })}
+        filtro={filtro}
+        setFiltro={setFiltro}
+        paisAToIso={paisAToIso}
+        formatearTiempo={formatearTiempo}
+      />
+    </div>
 
-      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 my-6 overflow-hidden">
+    {/* Columna central - Chat */}
+    <div className="flex flex-col flex-1 h-full">
+      <div className="flex-1 overflow-y-auto">
         <ChatPanel
           mensajes={mensajes}
           textoEscribiendo={textoEscribiendo}
@@ -278,6 +281,8 @@ export default function Conversaciones() {
             setMostrarScrollBtn(!alFinal);
           }}
         />
+      </div>
+      <div className="border-t bg-white">
         <FormularioRespuesta
           userId={userId}
           respuesta={respuesta}
@@ -289,17 +294,18 @@ export default function Conversaciones() {
           setUsuarioSeleccionado={setUsuarioSeleccionado}
         />
       </div>
-
-      <div className="w-1/5">
-        <DetallesUsuario
-          usuario={usuarioSeleccionado}
-          agente={agente}
-          paisAToIso={paisAToIso}
-          cargarDatos={cargarDatos}
-          setUsuarioSeleccionado={setUsuarioSeleccionado}
-          todasConversaciones={todasConversaciones}
-        />
-      </div>
     </div>
-  );
-}
+
+    {/* Columna derecha - Detalles */}
+    <div className="w-1/5 h-full overflow-y-auto bg-white border-l">
+      <DetallesUsuario
+        usuario={usuarioSeleccionado}
+        agente={agente}
+        paisAToIso={paisAToIso}
+        cargarDatos={cargarDatos}
+        setUsuarioSeleccionado={setUsuarioSeleccionado}
+        todasConversaciones={todasConversaciones}
+      />
+    </div>
+  </div>
+);

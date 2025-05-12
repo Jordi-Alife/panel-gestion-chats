@@ -4,6 +4,7 @@ import ConversacionList from "../components/ConversacionList";
 import ChatPanel from "../components/ChatPanel";
 import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
+import iconVer from "/src/assets/ver.svg";
 
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,13 +21,12 @@ export default function Conversaciones() {
   const [agente, setAgente] = useState(null);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
-  const [chatCerrado, setChatCerrado] = useState(false);
+  const [mostrarDetalles, setMostrarDetalles] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
-
-  const cargarDatos = async () => {
+    const cargarDatos = async () => {
     try {
       const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
       const data = await res.json();
@@ -42,16 +42,13 @@ export default function Conversaciones() {
       return [];
     }
   };
-    const cargarMensajes = async () => {
+
+  const cargarMensajes = async () => {
     if (!userId) return;
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
       const data = await res.json();
-      console.log("Mensajes recibidos:", data);
-      window.__mensajes = data;
-
       const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-
       const mensajesConEtiqueta = [];
       let estadoActual = "gpt";
 
@@ -68,13 +65,14 @@ export default function Conversaciones() {
         }
 
         if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-  mensajesConEtiqueta.push({
-    tipo: "etiqueta",
-    mensaje: "El usuario ha cerrado el chat",
-    timestamp: msg.lastInteraction,
-  });
-}
-        if (msg.manual === true && estadoActual === "gpt") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+        }
+
+        if (msg.manual && estadoActual === "gpt") {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
             mensaje: "Intervenida",
@@ -91,7 +89,6 @@ export default function Conversaciones() {
       const nuevasConversaciones = await cargarDatos();
       const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
       setUsuarioSeleccionado(nuevaInfo || null);
-      setChatCerrado(nuevaInfo?.chatCerrado || false);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {
@@ -102,7 +99,8 @@ export default function Conversaciones() {
       console.error(err);
     }
   };
-    useEffect(() => {
+
+  useEffect(() => {
     cargarDatos();
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
@@ -113,58 +111,16 @@ export default function Conversaciones() {
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
   }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-    const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
-        .then((res) => res.json())
-        .then((data) => setTextoEscribiendo(data.texto || ""))
-        .catch(console.error);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-    const conversacion = todasConversaciones.find((c) => c.userId === userId);
-    if (conversacion && conversacion.intervenidaPor) {
-      setAgente(conversacion.intervenidaPor);
-    } else {
-      setAgente(null);
-    }
-  }, [userId, todasConversaciones]);
-
-  useEffect(() => {
-    if (userId) {
-      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-    }
-  }, [userId]);
     const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHrs = Math.floor(diffMin / 60);
-    const diffDays = Math.floor(diffHrs / 24);
-    if (diffSec < 60) return `hace ${diffSec}s`;
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return "ahora";
     if (diffMin < 60) return `hace ${diffMin}m`;
-    if (diffHrs < 24) return `hace ${diffHrs}h`;
-    if (diffDays === 1) return "ayer";
-    return `hace ${diffDays}d`;
+    const horas = Math.floor(diffMin / 60);
+    if (horas < 24) return `hace ${horas}h`;
+    return `hace ${Math.floor(horas / 24)}d`;
   };
 
   const paisAToIso = (paisTexto) => {
@@ -183,75 +139,71 @@ export default function Conversaciones() {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-  const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
-  actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
-  actual.pais = item.pais;
-  actual.navegador = item.navegador;
-  actual.historial = item.historial || [];
-  actual.intervenida = item.intervenida || false;
-  actual.chatCerrado = item.chatCerrado || false;
-  actual.estado = item.estado || "abierta"; // ← ✅ AÑADE ESTA LÍNEA
-  acc[item.userId] = actual;
-  return acc;
-}, {});
+    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
+    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
+    actual.pais = item.pais;
+    actual.navegador = item.navegador;
+    actual.historial = item.historial || [];
+    actual.intervenida = item.intervenida || false;
+    actual.chatCerrado = item.chatCerrado || false;
+    acc[item.userId] = actual;
+    return acc;
+  }, {});
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
-  .map(([id, info]) => {
-    const ultimaVista = id === userId ? new Date() : vistas[id];
-    const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
-    const ultimoMensaje = mensajesValidos.sort(
-      (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
-    )[0];
+    .map(([id, info]) => {
+      const ultimaVista = id === userId ? new Date() : vistas[id];
+      const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
+      const ultimoMensaje = mensajesValidos.sort(
+        (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
+      )[0];
+      const minutosDesdeUltimo = ultimoMensaje
+        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+        : Infinity;
 
-    const minutosDesdeUltimo = ultimoMensaje
-      ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-      : Infinity;
+      let estado = "Archivado";
+      const fueCerrada = info.estado?.toLowerCase() === "cerrado";
+      const tieneActividadPostCierre = minutosDesdeUltimo <= 2;
 
-    let estado = "Archivado";
+      if (fueCerrada && !tieneActividadPostCierre) {
+        estado = "Cerrado";
+      } else if (minutosDesdeUltimo <= 2) {
+        estado = "Activa";
+      } else if (minutosDesdeUltimo <= 10) {
+        estado = "Inactiva";
+      }
 
-    // 🟥 Si la conversación está cerrada, mostrar como 'Cerrado' solo si no hay actividad posterior
-    const fueCerrada = info.estado?.toLowerCase() === "cerrado";
-    const tieneActividadPostCierre = minutosDesdeUltimo <= 2;
+      const nuevos = mensajesValidos.filter(
+        (m) =>
+          m.from?.toLowerCase() === "usuario" &&
+          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+      ).length;
 
-    if (fueCerrada && !tieneActividadPostCierre) {
-      estado = "Cerrado";
-    } else if (minutosDesdeUltimo <= 2) {
-      estado = "Activa";
-    } else if (minutosDesdeUltimo <= 10) {
-      estado = "Inactiva";
-    }
-
-    const nuevos = mensajesValidos.filter(
-      (m) =>
-        m.from?.toLowerCase() === "usuario" &&
-        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-    ).length;
-
-    return {
-      userId: id,
-      nuevos,
-      estado,
-      lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
-      iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida || false,
-      intervenidaPor: info.intervenidaPor || null,
-      pais: info.pais || "Desconocido",
-      navegador: info.navegador || "Desconocido",
-      historial: info.historial || [],
-      chatCerrado: info.chatCerrado || false,
-    };
-  })
-  .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-  .filter(
-    (c) =>
-      filtro === "todas" ||
-      (filtro === "gpt" && !c.intervenida) ||
-      (filtro === "humanas" && c.intervenida)
-  );
+      return {
+        userId: id,
+        nuevos,
+        estado,
+        lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
+        iniciales: id.slice(0, 2).toUpperCase(),
+        intervenida: info.intervenida || false,
+        intervenidaPor: info.intervenidaPor || null,
+        pais: info.pais || "Desconocido",
+        navegador: info.navegador || "Desconocido",
+        historial: info.historial || [],
+        chatCerrado: info.chatCerrado || false,
+      };
+    })
+    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+    .filter(
+      (c) =>
+        filtro === "todas" ||
+        (filtro === "gpt" && !c.intervenida) ||
+        (filtro === "humanas" && c.intervenida)
+    );
 
   return (
-    <div className="flex flex-row h-[calc(100vh-32px)] bg-[#f0f4f8] overflow-hidden">
-      <div className="w-1/5 h-full overflow-y-auto">
+    <div className="flex flex-row h-screen min-h-screen bg-[#f0f4f8] relative">
+      <div className="w-1/5 h-full">
         <ConversacionList
           conversaciones={listaAgrupada}
           userIdActual={userId}
@@ -263,7 +215,22 @@ export default function Conversaciones() {
         />
       </div>
 
-      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 my-4 overflow-hidden h-full">
+      <div className="flex flex-col flex-1 h-full bg-white rounded-lg shadow-md mx-4 my-6 overflow-hidden">
+        {/* Cabecera central */}
+        {usuarioSeleccionado && (
+          <div className="flex justify-between items-center px-6 py-3 border-b">
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-white">
+                {userId.slice(0, 2).toUpperCase()}
+              </div>
+              <span className="text-sm font-semibold text-gray-800">ID: {userId}</span>
+            </div>
+            <button onClick={() => setMostrarDetalles((prev) => !prev)} className="w-5 h-5">
+              <img src={iconVer} alt="Detalles" className="w-full h-full" />
+            </button>
+          </div>
+        )}
+
         <ChatPanel
           mensajes={mensajes}
           textoEscribiendo={textoEscribiendo}
@@ -278,6 +245,7 @@ export default function Conversaciones() {
             setMostrarScrollBtn(!alFinal);
           }}
         />
+
         <FormularioRespuesta
           userId={userId}
           respuesta={respuesta}
@@ -290,16 +258,18 @@ export default function Conversaciones() {
         />
       </div>
 
-      <div className="w-1/5 h-full overflow-y-auto">
-        <DetallesUsuario
-          usuario={usuarioSeleccionado}
-          agente={agente}
-          paisAToIso={paisAToIso}
-          cargarDatos={cargarDatos}
-          setUsuarioSeleccionado={setUsuarioSeleccionado}
-          todasConversaciones={todasConversaciones}
-        />
-      </div>
+      {mostrarDetalles && (
+        <div className="w-1/5 h-full">
+          <DetallesUsuario
+            usuario={usuarioSeleccionado}
+            agente={agente}
+            paisAToIso={paisAToIso}
+            cargarDatos={cargarDatos}
+            setUsuarioSeleccionado={setUsuarioSeleccionado}
+            todasConversaciones={todasConversaciones}
+          />
+        </div>
+      )}
     </div>
   );
 }

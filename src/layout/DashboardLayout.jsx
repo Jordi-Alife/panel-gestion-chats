@@ -11,7 +11,7 @@ import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
 
 const DashboardLayout = ({ children }) => {
-  const [colapsado, setColapsado] = useState(false);
+  const [colapsado, setColapsado] = useState(true);
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [nombrePerfil, setNombrePerfil] = useState("");

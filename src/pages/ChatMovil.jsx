@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import iconVer from '/src/assets/ver.svg';
-import iconFile from '/src/assets/file.svg';
+import iconVer from "/src/assets/ver.svg";
+import iconFile from "/src/assets/file.svg";
 
 const ChatMovil = () => {
   const { userId } = useParams();
@@ -14,7 +14,6 @@ const ChatMovil = () => {
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
   const [estado, setEstado] = useState("");
-  const [intervenida, setIntervenida] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
@@ -22,46 +21,41 @@ const ChatMovil = () => {
 
   useEffect(() => {
     const est = localStorage.getItem(`estado-conversacion-${userId}`);
-    const interv = localStorage.getItem(`intervenida-${userId}`);
     if (est) setEstado(est);
-    if (interv) setIntervenida(interv === "true");
   }, [userId]);
 
   const cargarMensajes = async () => {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
       const data = await res.json();
-      const ordenados = (data || []).sort(
-        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-      );
+      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+            const mensajesConEtiqueta = [];
+      for (let i = 0; i < ordenados.length; i++) {
+        const msg = ordenados[i];
 
-      const mensajesConEtiqueta = [];
-for (let i = 0; i < ordenados.length; i++) {
-  const msg = ordenados[i];
+        // Insertar etiqueta Intervenida antes de cada mensaje manual:true
+        if (msg.manual && msg.from?.toLowerCase() === "asistente") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+        }
 
-  if (msg.manual && msg.from?.toLowerCase() === "asistente") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "Intervenida",
-      timestamp: msg.lastInteraction,
-    });
-  }
+        // Insertar etiqueta Traspasado a GPT en su lugar cronológico
+        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+        }
 
-  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "Traspasado a GPT",
-      timestamp: msg.lastInteraction,
-    });
-  }
+        mensajesConEtiqueta.push(msg);
+      }
 
-  mensajesConEtiqueta.push(msg);
-}
-
-const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
-setMensajes(soloValidos);
-
-      setMensajes(mensajesConEtiqueta);
+      const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
+      setMensajes(soloValidos);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {
@@ -73,8 +67,7 @@ setMensajes(soloValidos);
       console.error(err);
     }
   };
-
-  useEffect(() => {
+    useEffect(() => {
     if (!estado) return;
     cargarMensajes();
     const interval = setInterval(cargarMensajes, 2000);
@@ -119,9 +112,11 @@ setMensajes(soloValidos);
             return (
               <div key={`etiqueta-${index}`} className="flex justify-center">
                 <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-                  msg.mensaje === "Intervenida" || msg.mensaje === "Traspasado a GPT"
+                  msg.mensaje === "Intervenida"
                     ? "bg-blue-100 text-blue-600"
-                    : "bg-gray-200 text-gray-800"
+                    : msg.mensaje === "Traspasado a GPT"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-red-100 text-red-600"
                 }`}>
                   {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

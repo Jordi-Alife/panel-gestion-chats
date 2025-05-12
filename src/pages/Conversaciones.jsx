@@ -267,7 +267,7 @@ export default function Conversaciones() {
     </div>
 
     {/* Columna central */}
-    <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 mt-4 overflow-hidden h-full">
+    <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
       <ChatPanel
         mensajes={mensajes}
         textoEscribiendo={textoEscribiendo}

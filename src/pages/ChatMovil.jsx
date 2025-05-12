@@ -1,4 +1,3 @@
-// ChatMovil.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from '/src/assets/ver.svg';
@@ -37,38 +36,25 @@ const ChatMovil = () => {
       );
 
       const mensajesConEtiqueta = [];
-      let insertadaIntervenida = false;
-      let insertadaGPT = false;
-
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
 
-        // Etiqueta Intervenida
-        if (
-          !insertadaIntervenida &&
-          msg.manual &&
-          msg.from?.toLowerCase() === "asistente"
-        ) {
+        // Insertar etiqueta "Intervenida"
+        if (msg.manual && msg.from?.toLowerCase() === "asistente") {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
             mensaje: "Intervenida",
             timestamp: msg.lastInteraction,
           });
-          insertadaIntervenida = true;
         }
 
-        // Etiqueta Traspasado a GPT
-        if (
-          !insertadaGPT &&
-          msg.tipo === "estado" &&
-          msg.estado === "Traspasado a GPT"
-        ) {
+        // Insertar etiqueta "Traspasado a GPT"
+        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
             mensaje: "Traspasado a GPT",
             timestamp: msg.lastInteraction,
           });
-          insertadaGPT = true;
         }
 
         mensajesConEtiqueta.push(msg);
@@ -111,8 +97,7 @@ const ChatMovil = () => {
     setMostrarScrollBtn(!cercaDelFinal);
     scrollForzado.current = cercaDelFinal;
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>

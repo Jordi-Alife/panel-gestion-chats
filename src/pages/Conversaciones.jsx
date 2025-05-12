@@ -252,61 +252,62 @@ export default function Conversaciones() {
   );
 
   return (
-    <div className="flex flex-row h-[calc(100vh-32px)] bg-[#f0f4f8] overflow-hidden">
-      <div className="w-1/5 h-full overflow-y-auto">
-        <ConversacionList
-          conversaciones={listaAgrupada}
-          userIdActual={userId}
-          onSelect={(id) => setSearchParams({ userId: id })}
-          filtro={filtro}
-          setFiltro={setFiltro}
-          paisAToIso={paisAToIso}
-          formatearTiempo={formatearTiempo}
-        />
-      </div>
+  <div className="flex flex-row h-[calc(100vh-88px)] bg-[#f0f4f8] overflow-hidden">
+    {/* Columna izquierda */}
+    <div className="w-1/5 h-full overflow-y-auto">
+      <ConversacionList
+        conversaciones={listaAgrupada}
+        userIdActual={userId}
+        onSelect={(id) => setSearchParams({ userId: id })}
+        filtro={filtro}
+        setFiltro={setFiltro}
+        paisAToIso={paisAToIso}
+        formatearTiempo={formatearTiempo}
+      />
+    </div>
 
-      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 my-4 overflow-hidden h-full">
-        <ChatPanel
-  mensajes={mensajes}
-  textoEscribiendo={textoEscribiendo}
-  originalesVisibles={originalesVisibles}
-  setOriginalesVisibles={setOriginalesVisibles}
-  chatRef={chatRef}
-  onScroll={() => {
-    const el = chatRef.current;
-    if (!el) return;
-    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-    scrollForzado.current = alFinal;
-    setMostrarScrollBtn(!alFinal);
-  }}
-  userId={userId} // ✅ nuevo
-  onToggleDetalles={() => setMostrarDetalles((prev) => !prev)} // ✅ nuevo
-/>
-        <FormularioRespuesta
-          userId={userId}
-          respuesta={respuesta}
-          setRespuesta={setRespuesta}
-          imagen={imagen}
-          setImagen={setImagen}
-          perfil={perfil}
+    {/* Columna central */}
+    <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 mt-4 overflow-hidden h-full">
+      <ChatPanel
+        mensajes={mensajes}
+        textoEscribiendo={textoEscribiendo}
+        originalesVisibles={originalesVisibles}
+        setOriginalesVisibles={setOriginalesVisibles}
+        chatRef={chatRef}
+        onScroll={() => {
+          const el = chatRef.current;
+          if (!el) return;
+          const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+          scrollForzado.current = alFinal;
+          setMostrarScrollBtn(!alFinal);
+        }}
+        userId={userId}
+        onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
+      />
+      <FormularioRespuesta
+        userId={userId}
+        respuesta={respuesta}
+        setRespuesta={setRespuesta}
+        imagen={imagen}
+        setImagen={setImagen}
+        perfil={perfil}
+        cargarDatos={cargarDatos}
+        setUsuarioSeleccionado={setUsuarioSeleccionado}
+      />
+    </div>
+
+    {/* Columna derecha */}
+    {mostrarDetalles && (
+      <div className="w-1/5 h-full overflow-y-auto">
+        <DetallesUsuario
+          usuario={usuarioSeleccionado}
+          agente={agente}
+          paisAToIso={paisAToIso}
           cargarDatos={cargarDatos}
           setUsuarioSeleccionado={setUsuarioSeleccionado}
+          todasConversaciones={todasConversaciones}
         />
       </div>
-
-      {mostrarDetalles && (
-  <div className="w-1/5 h-full overflow-y-auto">
-    <DetallesUsuario
-      usuario={usuarioSeleccionado}
-      agente={agente}
-      paisAToIso={paisAToIso}
-      cargarDatos={cargarDatos}
-      setUsuarioSeleccionado={setUsuarioSeleccionado}
-      todasConversaciones={todasConversaciones}
-    />
+    )}
   </div>
-      )}
-    </div>
-  );
-}
-      
+);

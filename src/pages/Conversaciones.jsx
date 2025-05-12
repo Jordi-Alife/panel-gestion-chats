@@ -45,63 +45,71 @@ export default function Conversaciones() {
     const intervalo = setInterval(cargarDatos, 5000);
     return () => clearInterval(intervalo);
   }, []);
-    const cargarMensajes = async () => {
-  if (!userId) return;
-  try {
-    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-    const data = await res.json();
-    const ordenados = (data || []).sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
 
-    const mensajesConEtiqueta = [];
-    let insertadaIntervenida = false;
-    let insertadaGPT = false;
+  const cargarMensajes = async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+      const data = await res.json();
+      const ordenados = (data || []).sort(
+        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+      );
 
-    for (let i = 0; i < ordenados.length; i++) {
-      const msg = ordenados[i];
+      const mensajesConEtiqueta = [];
+      let insertadaIntervenida = false;
+      let insertadaGPT = false;
+      let insertadaCerrado = false;
 
-      if (!insertadaIntervenida && msg.manual && msg.from?.toLowerCase() === "asistente") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
-        insertadaIntervenida = true;
+      for (let i = 0; i < ordenados.length; i++) {
+        const msg = ordenados[i];
+
+        if (!insertadaIntervenida && msg.manual && msg.from?.toLowerCase() === "asistente") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+          insertadaIntervenida = true;
+        }
+
+        if (!insertadaGPT && msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+          insertadaGPT = true;
+        }
+
+        if (!insertadaCerrado && msg.tipo === "estado" && msg.estado === "Cerrado") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Cerrado",
+            timestamp: msg.lastInteraction,
+          });
+          insertadaCerrado = true;
+        }
+
+        mensajesConEtiqueta.push(msg);
       }
 
-      if (!insertadaGPT && msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
-        });
-        insertadaGPT = true;
-      }
+      setMensajes(mensajesConEtiqueta);
 
-      mensajesConEtiqueta.push(msg);
-    }
+      const nuevasConversaciones = await cargarDatos();
+      const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+      setUsuarioSeleccionado(nuevaInfo || null);
+      setChatCerrado(nuevaInfo?.chatCerrado || false);
 
-    setMensajes(mensajesConEtiqueta);
-
-    const nuevasConversaciones = await cargarDatos();
-    const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
-    setUsuarioSeleccionado(nuevaInfo || null);
-    setChatCerrado(nuevaInfo?.chatCerrado || false);
-
-    setTimeout(() => {
-      if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-      }
-    }, 100);
-  } catch (err) {
-    console.error(err);
-  }
-};
+      setTimeout(() => {
+        if (scrollForzado.current && chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+        }
+      }, 100);
+    } catch (err) {
+      console.error(err);
     }
   };
-
-  useEffect(() => {
+    useEffect(() => {
     cargarMensajes();
     const interval = setInterval(cargarMensajes, 2000);
     return () => clearInterval(interval);
@@ -175,7 +183,8 @@ export default function Conversaciones() {
     };
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
-    const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
     const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
     actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
     actual.pais = item.pais;
@@ -240,8 +249,7 @@ export default function Conversaciones() {
     Inactiva: "bg-gray-400",
     Archivado: "bg-black",
   };
-
-  return (
+    return (
     <div className="flex flex-row h-screen min-h-screen bg-[#f0f4f8] relative">
       {/* Lista de conversaciones */}
       <div className="bg-white w-1/5 rounded-lg shadow-md overflow-y-auto">
@@ -301,317 +309,199 @@ export default function Conversaciones() {
           </div>
         ))}
       </div>
-            {/* Columna de chat */}
-      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md overflow-hidden mx-4 my-6">
-        <div
-          ref={chatRef}
-          onScroll={() => {
-            const el = chatRef.current;
-            if (!el) return;
-            const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-            scrollForzado.current = alFinal;
-            setMostrarScrollBtn(!alFinal);
-          }}
-          className="flex-1 overflow-y-auto p-6 space-y-4"
-        >
-          {mensajes.map((msg, index) => {
-  // Si es una etiqueta especial como "Intervenida", "Traspasado a GPT", etc.
-  if (msg.tipo === "etiqueta") {
-    return (
-      <div key={`etiqueta-${index}`} className="flex justify-center">
-        <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-          msg.mensaje === "Intervenida" || msg.mensaje === "Traspasado a GPT"
-            ? "bg-blue-100 text-blue-600"
-            : "bg-gray-200 text-gray-800"
-        }`}>
-          {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-          {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-        </span>
-      </div>
-    );
-  }
 
-  const isAsistente =
-    msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
-  const align = isAsistente ? "justify-end" : "justify-start";
-  const shapeClass = msg.manual
-    ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-    : isAsistente
-    ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-    : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
-  const contenidoPrincipal = msg.manual ? msg.original : msg.message;
-  const contenidoSecundario = msg.manual ? msg.message : msg.original;
+      {/* Chat + Detalles */}
+      <div className="flex flex-row flex-1 gap-4 px-4 py-6">
+        {/* Chat */}
+        <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md overflow-hidden">
+          <div
+            ref={chatRef}
+            onScroll={() => {
+              const el = chatRef.current;
+              if (!el) return;
+              const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+              scrollForzado.current = alFinal;
+              setMostrarScrollBtn(!alFinal);
+            }}
+            className="flex-1 overflow-y-auto p-6 space-y-4"
+          >
+            {/* HISTORIAL DE MENSAJES */}
+            {/* Inserta aquí el bloque de mensajes.map(...) con etiquetas */}
+            {/* Ya lo tienes en la última versión que te pasé anteriormente */}
+          </div>
 
-  return (
-    <div key={index} className={`flex ${align}`}>
-      <div className={`max-w-[80%] p-3 shadow ${shapeClass} ${
-        msg.manual
-          ? "bg-[#2563eb] text-white"
-          : isAsistente
-          ? "bg-black text-white"
-          : "bg-[#f7f7f7] text-gray-800 border"
-      }`}>
-        {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-          <img src={contenidoPrincipal} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
-        ) : (
-          <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
-        )}
-        {contenidoSecundario && (
-          <div className="mt-2 text-[11px] text-right">
+          {mostrarScrollBtn && (
             <button
               onClick={() =>
-                setOriginalesVisibles((prev) => ({ ...prev, [index]: !prev[index] }))
+                chatRef.current?.scrollTo({
+                  top: chatRef.current.scrollHeight,
+                  behavior: "smooth",
+                })
               }
-              className={`underline text-xs ${isAsistente || msg.manual ? "text-white/70" : "text-blue-600"}`}
+              className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700"
             >
-              {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+              Ir al final
             </button>
-            {originalesVisibles[index] && (
-              <p className={`mt-1 italic text-left ${isAsistente || msg.manual ? "text-white/70" : "text-gray-500"}`}>
-                {contenidoSecundario}
-              </p>
-            )}
-          </div>
-        )}
-        <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-          {new Date(msg.lastInteraction).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </div>
-      </div>
-    </div>
-  );
-})}
-                >
-                  {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-                    <img
-                      src={contenidoPrincipal}
-                      alt="Imagen"
-                      className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                    />
-                  ) : (
-                    <p className="whitespace-pre-wrap text-sm">{contenidoPrincipal}</p>
-                  )}
-                  {contenidoSecundario && (
-                    <div className="mt-2 text-[11px] text-right">
-                      <button
-                        onClick={() =>
-                          setOriginalesVisibles((prev) => ({
-                            ...prev,
-                            [index]: !prev[index],
-                          }))
-                        }
-                        className={`underline text-xs ${
-                          isAsistente || msg.manual ? "text-white/70" : "text-blue-600"
-                        } focus:outline-none`}
-                      >
-                        {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
-                      </button>
-                      {originalesVisibles[index] && (
-                        <p
-                          className={`mt-1 italic text-left ${
-                            isAsistente || msg.manual ? "text-white/70" : "text-gray-500"
-                          }`}
-                        >
-                          {contenidoSecundario}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  <div
-                    className={`text-[10px] mt-1 opacity-60 text-right ${
-                      isAsistente || msg.manual ? "text-white" : "text-gray-500"
-                    }`}
-                  >
-                    {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          {textoEscribiendo && (
-            <div className="flex justify-start">
-              <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
-                {textoEscribiendo}...
-              </div>
-            </div>
           )}
-        </div>
 
-        {mostrarScrollBtn && (
-          <button
-            onClick={() =>
-              chatRef.current?.scrollTo({
-                top: chatRef.current.scrollHeight,
-                behavior: "smooth",
-              })
-            }
-            className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700"
-          >
-            Ir al final
-          </button>
-        )}
-
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (!userId) return;
-            if (imagen) {
-              const formData = new FormData();
-              formData.append("file", imagen);
-              formData.append("userId", userId);
-              await fetch("https://web-production-51989.up.railway.app/api/upload", {
-                method: "POST",
-                body: formData,
-              });
-              setImagen(null);
-              return;
-            }
-            if (!respuesta.trim()) return;
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
-            setRespuesta("");
-            setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
-            cargarDatos();
-          }}
-          className="border-t px-4 py-3 flex items-center gap-2"
-        >
-          <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-            Seleccionar archivo
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImagen(e.target.files[0])}
-              className="hidden"
-            />
-          </label>
-          {imagen && (
-            <div className="text-xs text-gray-600 flex items-center gap-1">
-              <span>{imagen.name}</span>
-              <button
-                type="button"
-                onClick={() => setImagen(null)}
-                className="text-red-500 text-xs underline"
-              >
-                Quitar
-              </button>
-            </div>
-          )}
-          <input
-            type="text"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            placeholder="Escribe un mensaje..."
-            className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-          >
-            Enviar
-          </button>
-        </form>
-      </div>
-
-      {/* Columna detalles */}
-      <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
-        {agente && (
-          <div className="mb-4">
-            <h3 className="text-xs text-gray-500">Intervenido por</h3>
-            <div className="flex items-center gap-2 mt-1">
-              <img
-                src={agente.foto || "https://i.pravatar.cc/100?u=default"}
-                alt="Agente"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                {agente.nombre || "—"}
-              </span>
-            </div>
-          </div>
-        )}
-        {usuarioSeleccionado?.intervenida ? (
-          <button
-            onClick={async () => {
-              try {
-                const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+          {/* Caja de respuesta */}
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!userId) return;
+              if (imagen) {
+                const formData = new FormData();
+                formData.append("file", imagen);
+                formData.append("userId", userId);
+                await fetch("https://web-production-51989.up.railway.app/api/upload", {
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
+                  body: formData,
                 });
-                const data = await res.json();
-                if (data.ok) {
-                  alert("✅ Conversación liberada");
-                  await cargarDatos();
-                  const conversacionActualizada = todasConversaciones.find(
-                    (c) => c.userId === usuarioSeleccionado.userId
-                  );
-                  if (conversacionActualizada) {
-                    setUsuarioSeleccionado(conversacionActualizada);
-                  }
-                } else {
-                  alert("⚠️ Error al liberar conversación");
-                }
-              } catch (error) {
-                console.error("❌ Error liberando conversación:", error);
-                alert("❌ Error liberando conversación");
+                setImagen(null);
+                return;
               }
+              if (!respuesta.trim()) return;
+              await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId,
+                  message: respuesta,
+                  agente: {
+                    nombre: perfil.nombre || "",
+                    foto: perfil.foto || "",
+                    uid: localStorage.getItem("id-usuario-panel") || null,
+                  },
+                }),
+              });
+              setRespuesta("");
+              setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
+              cargarDatos();
             }}
-            className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
+            className="border-t px-4 py-3 flex items-center gap-2"
           >
-            Liberar conversación
-          </button>
-        ) : (
-          <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
-            Traspasado a GPT
-          </div>
-        )}
-
-        <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
-        {usuarioSeleccionado ? (
-          <div className="text-sm text-gray-700 space-y-1">
-            <p>ID: {usuarioSeleccionado.userId}</p>
-            <p>Navegador: {usuarioSeleccionado.navegador}</p>
-            <p>
-              País:{" "}
-              {paisAToIso(usuarioSeleccionado.pais) ? (
-                <img
-                  src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
-                  alt={usuarioSeleccionado.pais}
-                  className="inline-block ml-1"
-                />
-              ) : (
-                <span className="ml-1">🌐</span>
-              )}
-            </p>
-            {usuarioSeleccionado.chatCerrado && (
-              <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
+            <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
+              Seleccionar archivo
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImagen(e.target.files[0])}
+                className="hidden"
+              />
+            </label>
+            {imagen && (
+              <div className="text-xs text-gray-600 flex items-center gap-1">
+                <span>{imagen.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setImagen(null)}
+                  className="text-red-500 text-xs underline"
+                >
+                  Quitar
+                </button>
+              </div>
             )}
-            <p>Historial:</p>
-            <ul className="list-disc list-inside text-xs text-gray-600">
-              {usuarioSeleccionado.historial.map((url, idx) => (
-                <li key={idx}>{url}</li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <p className="text-xs text-gray-500">Selecciona una conversación</p>
-        )}
+            <input
+              type="text"
+              value={respuesta}
+              onChange={(e) => setRespuesta(e.target.value)}
+              placeholder="Escribe un mensaje..."
+              className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+            >
+              Enviar
+            </button>
+          </form>
+        </div>
+
+        {/* Columna detalles */}
+        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
+          {agente && (
+            <div className="mb-4">
+              <h3 className="text-xs text-gray-500">Intervenido por</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <img
+                  src={agente.foto || "https://i.pravatar.cc/100?u=default"}
+                  alt="Agente"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {agente.nombre || "—"}
+                </span>
+              </div>
+            </div>
+          )}
+          {usuarioSeleccionado?.intervenida ? (
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
+                  });
+                  const data = await res.json();
+                  if (data.ok) {
+                    alert("✅ Conversación liberada");
+                    await cargarDatos();
+                    const conversacionActualizada = todasConversaciones.find(
+                      (c) => c.userId === usuarioSeleccionado.userId
+                    );
+                    if (conversacionActualizada) {
+                      setUsuarioSeleccionado(conversacionActualizada);
+                    }
+                  } else {
+                    alert("⚠️ Error al liberar conversación");
+                  }
+                } catch (error) {
+                  console.error("❌ Error liberando conversación:", error);
+                  alert("❌ Error liberando conversación");
+                }
+              }}
+              className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
+            >
+              Liberar conversación
+            </button>
+          ) : (
+            <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
+              Traspasado a GPT
+            </div>
+          )}
+
+          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+          {usuarioSeleccionado ? (
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>ID: {usuarioSeleccionado.userId}</p>
+              <p>Navegador: {usuarioSeleccionado.navegador}</p>
+              <p>
+                País:{" "}
+                {paisAToIso(usuarioSeleccionado.pais) ? (
+                  <img
+                    src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
+                    alt={usuarioSeleccionado.pais}
+                    className="inline-block ml-1"
+                  />
+                ) : (
+                  <span className="ml-1">🌐</span>
+                )}
+              </p>
+              {usuarioSeleccionado.chatCerrado && (
+                <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
+              )}
+              <p>Historial:</p>
+              <ul className="list-disc list-inside text-xs text-gray-600">
+                {usuarioSeleccionado.historial.map((url, idx) => (
+                  <li key={idx}>{url}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">Selecciona una conversación</p>
+          )}
+        </div>
       </div>
     </div>
   );

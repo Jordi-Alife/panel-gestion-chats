@@ -315,22 +315,74 @@ export default function Conversaciones() {
           className="flex-1 overflow-y-auto p-6 space-y-4"
         >
           {mensajes.map((msg, index) => {
-            const isAsistente =
-              msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
-            const align = isAsistente ? "justify-end" : "justify-start";
-            const contenidoPrincipal = msg.manual ? msg.original : msg.message;
-            const contenidoSecundario = msg.manual ? msg.message : msg.original;
+  // Si es una etiqueta especial como "Intervenida", "Traspasado a GPT", etc.
+  if (msg.tipo === "etiqueta") {
+    return (
+      <div key={`etiqueta-${index}`} className="flex justify-center">
+        <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+          msg.mensaje === "Intervenida" || msg.mensaje === "Traspasado a GPT"
+            ? "bg-blue-100 text-blue-600"
+            : "bg-gray-200 text-gray-800"
+        }`}>
+          {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
+          {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </span>
+      </div>
+    );
+  }
 
-            return (
-              <div key={index} className={`flex ${align}`}>
-                <div
-                  className={`message rounded-[18px] max-w-[85%] p-4 shadow ${
-                    msg.manual
-                      ? "bg-[#2563eb] text-white"
-                      : isAsistente
-                      ? "bg-black text-white"
-                      : "bg-white text-gray-800 border"
-                  }`}
+  const isAsistente =
+    msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+  const align = isAsistente ? "justify-end" : "justify-start";
+  const shapeClass = msg.manual
+    ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+    : isAsistente
+    ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+    : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
+  const contenidoPrincipal = msg.manual ? msg.original : msg.message;
+  const contenidoSecundario = msg.manual ? msg.message : msg.original;
+
+  return (
+    <div key={index} className={`flex ${align}`}>
+      <div className={`max-w-[80%] p-3 shadow ${shapeClass} ${
+        msg.manual
+          ? "bg-[#2563eb] text-white"
+          : isAsistente
+          ? "bg-black text-white"
+          : "bg-[#f7f7f7] text-gray-800 border"
+      }`}>
+        {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+          <img src={contenidoPrincipal} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
+        ) : (
+          <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
+        )}
+        {contenidoSecundario && (
+          <div className="mt-2 text-[11px] text-right">
+            <button
+              onClick={() =>
+                setOriginalesVisibles((prev) => ({ ...prev, [index]: !prev[index] }))
+              }
+              className={`underline text-xs ${isAsistente || msg.manual ? "text-white/70" : "text-blue-600"}`}
+            >
+              {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+            </button>
+            {originalesVisibles[index] && (
+              <p className={`mt-1 italic text-left ${isAsistente || msg.manual ? "text-white/70" : "text-gray-500"}`}>
+                {contenidoSecundario}
+              </p>
+            )}
+          </div>
+        )}
+        <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
+          {new Date(msg.lastInteraction).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
+      </div>
+    </div>
+  );
+})}
                 >
                   {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                     <img

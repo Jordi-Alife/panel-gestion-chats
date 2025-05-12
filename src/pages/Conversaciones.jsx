@@ -46,25 +46,58 @@ export default function Conversaciones() {
     return () => clearInterval(intervalo);
   }, []);
     const cargarMensajes = async () => {
-    if (!userId) return;
-    try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-      const data = await res.json();
-      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-      setMensajes(ordenados);
+  if (!userId) return;
+  try {
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const data = await res.json();
+    const ordenados = (data || []).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
 
-      const nuevasConversaciones = await cargarDatos();
-      const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
-      setUsuarioSeleccionado(nuevaInfo || null);
-      setChatCerrado(nuevaInfo?.chatCerrado || false);
+    const mensajesConEtiqueta = [];
+    let insertadaIntervenida = false;
+    let insertadaGPT = false;
 
-      setTimeout(() => {
-        if (scrollForzado.current && chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-        }
-      }, 100);
-    } catch (err) {
-      console.error(err);
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
+
+      if (!insertadaIntervenida && msg.manual && msg.from?.toLowerCase() === "asistente") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+        insertadaIntervenida = true;
+      }
+
+      if (!insertadaGPT && msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+        insertadaGPT = true;
+      }
+
+      mensajesConEtiqueta.push(msg);
+    }
+
+    setMensajes(mensajesConEtiqueta);
+
+    const nuevasConversaciones = await cargarDatos();
+    const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+    setUsuarioSeleccionado(nuevaInfo || null);
+    setChatCerrado(nuevaInfo?.chatCerrado || false);
+
+    setTimeout(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  }
+};
     }
   };
 

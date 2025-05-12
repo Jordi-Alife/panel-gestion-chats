@@ -250,7 +250,7 @@ export default function Conversaciones() {
   );
 
   return (
-    <div className="flex flex-row h-screen min-h-screen bg-[#f0f4f8] relative">
+    <div className="flex flex-row h-screen bg-[#f0f4f8] overflow-hidden">
       <div className="w-1/5">
         <ConversacionList
           conversaciones={listaAgrupada}

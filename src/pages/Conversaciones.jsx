@@ -47,6 +47,7 @@ export default function Conversaciones() {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
       const data = await res.json();
+      console.log("Mensajes recibidos:", data);
       const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
 
       const mensajesConEtiqueta = [];

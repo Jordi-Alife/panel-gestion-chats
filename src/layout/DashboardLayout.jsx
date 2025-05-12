@@ -58,30 +58,32 @@ const DashboardLayout = ({ children }) => {
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
-        <div className="flex items-center gap-3">
-          <button
-            className="md:hidden"
-            onClick={() => setMenuMovilAbierto(true)}
-            aria-label="Abrir menú"
-          >
-            <img src={IconToggle} alt="Abrir menú" className="w-8 h-8" />
-          </button>
-          <img
-            src={colapsado ? LogoPequeno : LogoCompleto}
-            alt="NextLives"
-            className={`object-contain ${colapsado ? "h-10" : "h-12"}`}
-          />
-        </div>
-        <div className="flex-1" />
-        {esPaginaAgentes && rolUsuario === "Administrador" && (
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
-            className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
-          >
-            Crear agente
-          </button>
-        )}
-      </header>
+  <div className="flex items-center gap-3">
+    <button
+      className="md:hidden"
+      onClick={() => setMenuMovilAbierto(true)}
+      aria-label="Abrir menú"
+    >
+      <img src={IconToggle} alt="Abrir menú" className="w-8 h-8" />
+    </button>
+    <img
+      src={colapsado ? LogoPequeno : LogoCompleto}
+      alt="NextLives"
+      className={`object-contain ${colapsado ? "h-10" : "h-12"}`}
+    />
+  </div>
+  <div className="flex-1" />
+  {esPaginaAgentes && rolUsuario === "Administrador" && (
+    <button
+      onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
+      className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35] mr-4"
+    >
+      Crear agente
+    </button>
+  )}
+
+  <ModoOscuroToggle /> {/* ← Botón de modo oscuro insertado aquí */}
+</header>
 
       {/* Menú móvil */}
       {menuMovilAbierto && (

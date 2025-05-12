@@ -90,12 +90,6 @@ const DashboardLayout = ({ children }) => {
     )}
   </div>
 </header>
-      Crear agente
-    </button>
-  )}
-
-  <ModoOscuroToggle /> {/* ← Botón de modo oscuro insertado aquí */}
-</header>
 
       {/* Menú móvil */}
       {menuMovilAbierto && (

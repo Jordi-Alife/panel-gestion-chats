@@ -309,266 +309,180 @@ export default function Conversaciones() {
           </div>
         ))}
       </div>
-
-      <div
-  ref={chatRef}
-  onScroll={() => {
-    const el = chatRef.current;
-    if (!el) return;
-    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-    scrollForzado.current = alFinal;
-    setMostrarScrollBtn(!alFinal);
-  }}
-  className="flex-1 overflow-y-auto p-6 space-y-4"
->
-  {mensajes.length === 0 && (
-    <p className="text-sm text-gray-500 text-center">No hay mensajes para mostrar.</p>
-  )}
-
-  {mensajes.map((msg, index) => {
-    if (msg.tipo === "etiqueta") {
-      return (
-        <div key={`etiqueta-${index}`} className="flex justify-center">
-          <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-            msg.mensaje === "Intervenida"
-              ? "bg-blue-100 text-blue-600"
-              : msg.mensaje === "Traspasado a GPT"
-              ? "bg-blue-100 text-blue-600"
-              : msg.mensaje === "Cerrado"
-              ? "bg-red-100 text-red-600"
-              : "bg-gray-200 text-gray-800"
-          }`}>
-            {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-            {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-      );
-    }
-
-    const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
-    const align = isAsistente ? "justify-end" : "justify-start";
-    const shapeClass = msg.manual
-      ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-      : isAsistente
-      ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-      : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
-    const contenidoPrincipal = msg.manual ? msg.original : msg.message;
-    const contenidoSecundario = msg.manual ? msg.message : msg.original;
-
-    return (
-      <div key={index} className={`flex ${align}`}>
-        <div className={`max-w-[80%] p-3 shadow ${shapeClass} ${
-          msg.manual
-            ? "bg-[#2563eb] text-white"
-            : isAsistente
-            ? "bg-black text-white"
-            : "bg-[#f7f7f7] text-gray-800 border"
-        }`}>
-          {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
-            <img
-              src={contenidoPrincipal}
-              alt="Imagen"
-              className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-            />
-          ) : (
-            <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
-          )}
-          {contenidoSecundario && (
-            <div className="mt-2 text-[11px] text-right">
+                  {mostrarScrollBtn && (
               <button
                 onClick={() =>
-                  setOriginalesVisibles((prev) => ({ ...prev, [index]: !prev[index] }))
+                  chatRef.current?.scrollTo({
+                    top: chatRef.current.scrollHeight,
+                    behavior: "smooth",
+                  })
                 }
-                className={`underline text-xs ${isAsistente || msg.manual ? "text-white/70" : "text-blue-600"}`}
+                className="absolute bottom-20 right-6 bg-blue-600 text-white px-3 py-1 text-xs rounded-full shadow hover:bg-blue-700"
               >
-                {originalesVisibles[index] ? "Ocultar original" : "Ver original"}
+                Ir al final
               </button>
-              {originalesVisibles[index] && (
-                <p className={`mt-1 italic text-left ${isAsistente || msg.manual ? "text-white/70" : "text-gray-500"}`}>
-                  {contenidoSecundario}
-                </p>
+            )}
+
+            {/* Caja de respuesta */}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!userId) return;
+                if (imagen) {
+                  const formData = new FormData();
+                  formData.append("file", imagen);
+                  formData.append("userId", userId);
+                  await fetch("https://web-production-51989.up.railway.app/api/upload", {
+                    method: "POST",
+                    body: formData,
+                  });
+                  setImagen(null);
+                  return;
+                }
+                if (!respuesta.trim()) return;
+                await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    userId,
+                    message: respuesta,
+                    agente: {
+                      nombre: perfil.nombre || "",
+                      foto: perfil.foto || "",
+                      uid: localStorage.getItem("id-usuario-panel") || null,
+                    },
+                  }),
+                });
+                setRespuesta("");
+                setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
+                cargarDatos();
+              }}
+              className="border-t px-4 py-3 flex items-center gap-2"
+            >
+              <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
+                Seleccionar archivo
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImagen(e.target.files[0])}
+                  className="hidden"
+                />
+              </label>
+              {imagen && (
+                <div className="text-xs text-gray-600 flex items-center gap-1">
+                  <span>{imagen.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setImagen(null)}
+                    className="text-red-500 text-xs underline"
+                  >
+                    Quitar
+                  </button>
+                </div>
               )}
-            </div>
-          )}
-          <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-            {new Date(msg.lastInteraction).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+              <input
+                type="text"
+                value={respuesta}
+                onChange={(e) => setRespuesta(e.target.value)}
+                placeholder="Escribe un mensaje..."
+                className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+              >
+                Enviar
+              </button>
+            </form>
+          </div>
+
+          {/* Columna derecha: Detalles del usuario */}
+          <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
+            {agente && (
+              <div className="mb-4">
+                <h3 className="text-xs text-gray-500">Intervenido por</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <img
+                    src={agente.foto || "https://i.pravatar.cc/100?u=default"}
+                    alt="Agente"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {agente.nombre || "—"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {usuarioSeleccionado?.intervenida ? (
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
+                    });
+                    const data = await res.json();
+                    if (data.ok) {
+                      alert("✅ Conversación liberada");
+                      await cargarDatos();
+                      const conversacionActualizada = todasConversaciones.find(
+                        (c) => c.userId === usuarioSeleccionado.userId
+                      );
+                      if (conversacionActualizada) {
+                        setUsuarioSeleccionado(conversacionActualizada);
+                      }
+                    } else {
+                      alert("⚠️ Error al liberar conversación");
+                    }
+                  } catch (error) {
+                    console.error("❌ Error liberando conversación:", error);
+                    alert("❌ Error liberando conversación");
+                  }
+                }}
+                className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
+              >
+                Liberar conversación
+              </button>
+            ) : (
+              <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
+                Traspasado a GPT
+              </div>
+            )}
+
+            <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
+            {usuarioSeleccionado ? (
+              <div className="text-sm text-gray-700 space-y-1">
+                <p>ID: {usuarioSeleccionado.userId}</p>
+                <p>Navegador: {usuarioSeleccionado.navegador}</p>
+                <p>
+                  País:{" "}
+                  {paisAToIso(usuarioSeleccionado.pais) ? (
+                    <img
+                      src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
+                      alt={usuarioSeleccionado.pais}
+                      className="inline-block ml-1"
+                    />
+                  ) : (
+                    <span className="ml-1">🌐</span>
+                  )}
+                </p>
+                {usuarioSeleccionado.chatCerrado && (
+                  <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
+                )}
+                <p>Historial:</p>
+                <ul className="list-disc list-inside text-xs text-gray-600">
+                  {usuarioSeleccionado.historial.map((url, idx) => (
+                    <li key={idx}>{url}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500">Selecciona una conversación</p>
+            )}
           </div>
         </div>
       </div>
-    );
-  })}
-
-  {textoEscribiendo && (
-    <div className="flex justify-start">
-      <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
-        {textoEscribiendo}...
-      </div>
-    </div>
-  )}
-</div>
-
-          {/* Caja de respuesta */}
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!userId) return;
-              if (imagen) {
-                const formData = new FormData();
-                formData.append("file", imagen);
-                formData.append("userId", userId);
-                await fetch("https://web-production-51989.up.railway.app/api/upload", {
-                  method: "POST",
-                  body: formData,
-                });
-                setImagen(null);
-                return;
-              }
-              if (!respuesta.trim()) return;
-              await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  userId,
-                  message: respuesta,
-                  agente: {
-                    nombre: perfil.nombre || "",
-                    foto: perfil.foto || "",
-                    uid: localStorage.getItem("id-usuario-panel") || null,
-                  },
-                }),
-              });
-              setRespuesta("");
-              setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
-              cargarDatos();
-            }}
-            className="border-t px-4 py-3 flex items-center gap-2"
-          >
-            <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-              Seleccionar archivo
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImagen(e.target.files[0])}
-                className="hidden"
-              />
-            </label>
-            {imagen && (
-              <div className="text-xs text-gray-600 flex items-center gap-1">
-                <span>{imagen.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setImagen(null)}
-                  className="text-red-500 text-xs underline"
-                >
-                  Quitar
-                </button>
-              </div>
-            )}
-            <input
-              type="text"
-              value={respuesta}
-              onChange={(e) => setRespuesta(e.target.value)}
-              placeholder="Escribe un mensaje..."
-              className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
-            >
-              Enviar
-            </button>
-          </form>
-        </div>
-
-        {/* Columna detalles */}
-        <div className="w-1/5 bg-white rounded-lg shadow-md p-4 overflow-y-auto">
-          {agente && (
-            <div className="mb-4">
-              <h3 className="text-xs text-gray-500">Intervenido por</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <img
-                  src={agente.foto || "https://i.pravatar.cc/100?u=default"}
-                  alt="Agente"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {agente.nombre || "—"}
-                </span>
-              </div>
-            </div>
-          )}
-          {usuarioSeleccionado?.intervenida ? (
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: usuarioSeleccionado.userId }),
-                  });
-                  const data = await res.json();
-                  if (data.ok) {
-                    alert("✅ Conversación liberada");
-                    await cargarDatos();
-                    const conversacionActualizada = todasConversaciones.find(
-                      (c) => c.userId === usuarioSeleccionado.userId
-                    );
-                    if (conversacionActualizada) {
-                      setUsuarioSeleccionado(conversacionActualizada);
-                    }
-                  } else {
-                    alert("⚠️ Error al liberar conversación");
-                  }
-                } catch (error) {
-                  console.error("❌ Error liberando conversación:", error);
-                  alert("❌ Error liberando conversación");
-                }
-              }}
-              className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
-            >
-              Liberar conversación
-            </button>
-          ) : (
-            <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
-              Traspasado a GPT
-            </div>
-          )}
-
-          <h2 className="text-sm text-gray-400 font-semibold mb-2">Datos del usuario</h2>
-          {usuarioSeleccionado ? (
-            <div className="text-sm text-gray-700 space-y-1">
-              <p>ID: {usuarioSeleccionado.userId}</p>
-              <p>Navegador: {usuarioSeleccionado.navegador}</p>
-              <p>
-                País:{" "}
-                {paisAToIso(usuarioSeleccionado.pais) ? (
-                  <img
-                    src={`https://flagcdn.com/24x18/${paisAToIso(usuarioSeleccionado.pais)}.png`}
-                    alt={usuarioSeleccionado.pais}
-                    className="inline-block ml-1"
-                  />
-                ) : (
-                  <span className="ml-1">🌐</span>
-                )}
-              </p>
-              {usuarioSeleccionado.chatCerrado && (
-                <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
-              )}
-              <p>Historial:</p>
-              <ul className="list-disc list-inside text-xs text-gray-600">
-                {usuarioSeleccionado.historial.map((url, idx) => (
-                  <li key={idx}>{url}</li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p className="text-xs text-gray-500">Selecciona una conversación</p>
-          )}
-        </div>
-      </div>
-    </div>
   );
 }

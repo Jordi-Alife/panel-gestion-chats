@@ -184,16 +184,17 @@ export default function Conversaciones() {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
-    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
-    actual.pais = item.pais;
-    actual.navegador = item.navegador;
-    actual.historial = item.historial || [];
-    actual.intervenida = item.intervenida || false;
-    actual.chatCerrado = item.chatCerrado || false;
-    acc[item.userId] = actual;
-    return acc;
-  }, {});
+  const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
+  actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
+  actual.pais = item.pais;
+  actual.navegador = item.navegador;
+  actual.historial = item.historial || [];
+  actual.intervenida = item.intervenida || false;
+  actual.chatCerrado = item.chatCerrado || false;
+  actual.estado = item.estado || "abierta"; // ← ✅ AÑADE ESTA LÍNEA
+  acc[item.userId] = actual;
+  return acc;
+}, {});
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
   .map(([id, info]) => {

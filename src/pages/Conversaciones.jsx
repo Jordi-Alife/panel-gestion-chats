@@ -267,19 +267,21 @@ export default function Conversaciones() {
 
       <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 my-4 overflow-hidden h-full">
         <ChatPanel
-          mensajes={mensajes}
-          textoEscribiendo={textoEscribiendo}
-          originalesVisibles={originalesVisibles}
-          setOriginalesVisibles={setOriginalesVisibles}
-          chatRef={chatRef}
-          onScroll={() => {
-            const el = chatRef.current;
-            if (!el) return;
-            const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-            scrollForzado.current = alFinal;
-            setMostrarScrollBtn(!alFinal);
-          }}
-        />
+  mensajes={mensajes}
+  textoEscribiendo={textoEscribiendo}
+  originalesVisibles={originalesVisibles}
+  setOriginalesVisibles={setOriginalesVisibles}
+  chatRef={chatRef}
+  onScroll={() => {
+    const el = chatRef.current;
+    if (!el) return;
+    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+    scrollForzado.current = alFinal;
+    setMostrarScrollBtn(!alFinal);
+  }}
+  userId={userId} // ✅ nuevo
+  onToggleDetalles={() => setMostrarDetalles((prev) => !prev)} // ✅ nuevo
+/>
         <FormularioRespuesta
           userId={userId}
           respuesta={respuesta}

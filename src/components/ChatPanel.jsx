@@ -19,6 +19,8 @@ const ChatPanel = ({
       )}
 
       {mensajes.map((msg, index) => {
+        if (!msg) return null;
+
         if (msg.tipo === "etiqueta") {
           return (
             <div key={`etiqueta-${index}`} className="flex justify-center">
@@ -30,13 +32,16 @@ const ChatPanel = ({
                   : "bg-gray-200 text-gray-800"
               }`}>
                 {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-                {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {msg.timestamp
+                  ? new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                  : ""}
               </span>
             </div>
           );
         }
 
-        const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+        const isAsistente =
+          msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
         const align = isAsistente ? "justify-end" : "justify-start";
         const shapeClass = msg.manual
           ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
@@ -45,6 +50,8 @@ const ChatPanel = ({
           : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
         const contenidoPrincipal = msg.manual ? msg.original : msg.message;
         const contenidoSecundario = msg.manual ? msg.message : msg.original;
+
+        if (!contenidoPrincipal) return null;
 
         return (
           <div key={index} className={`flex ${align}`}>
@@ -55,7 +62,7 @@ const ChatPanel = ({
                 ? "bg-black text-white"
                 : "bg-[#f7f7f7] text-gray-800 border"
             }`}>
-              {contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+              {typeof contenidoPrincipal === "string" && contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
                 <img
                   src={contenidoPrincipal}
                   alt="Imagen"
@@ -64,6 +71,7 @@ const ChatPanel = ({
               ) : (
                 <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
               )}
+
               {contenidoSecundario && (
                 <div className="mt-2 text-[11px] text-right">
                   <button
@@ -84,11 +92,14 @@ const ChatPanel = ({
                   )}
                 </div>
               )}
+
               <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-                {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {msg.lastInteraction
+                  ? new Date(msg.lastInteraction).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""}
               </div>
             </div>
           </div>

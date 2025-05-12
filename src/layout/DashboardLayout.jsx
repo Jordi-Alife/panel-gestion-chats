@@ -58,7 +58,11 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
-      <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
+      import ModoOscuroToggle from "../components/ModoOscuroToggle"; // Asegúrate de que esté al inicio del archivo
+
+// ...
+
+<header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
   <div className="flex items-center gap-3">
     <button
       className="md:hidden"
@@ -73,12 +77,19 @@ const DashboardLayout = ({ children }) => {
       className={`object-contain ${colapsado ? "h-10" : "h-12"}`}
     />
   </div>
-  <div className="flex-1" />
-  {esPaginaAgentes && rolUsuario === "Administrador" && (
-    <button
-      onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
-      className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35] mr-4"
-    >
+
+  <div className="flex items-center gap-3">
+    <ModoOscuroToggle /> {/* ✅ Botón de modo oscuro */}
+    {esPaginaAgentes && rolUsuario === "Administrador" && (
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
+        className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
+      >
+        Crear agente
+      </button>
+    )}
+  </div>
+</header>
       Crear agente
     </button>
   )}

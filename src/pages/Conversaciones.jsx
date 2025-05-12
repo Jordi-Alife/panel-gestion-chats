@@ -1,4 +1,159 @@
-  const formatearTiempo = (fecha) => {
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import ConversacionList from "../components/ConversacionList";
+import ChatPanel from "../components/ChatPanel";
+import FormularioRespuesta from "../components/FormularioRespuesta";
+import DetallesUsuario from "../components/DetallesUsuario";
+
+export default function Conversaciones() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userId = searchParams.get("userId") || null;
+
+  const [mensajes, setMensajes] = useState([]);
+  const [respuesta, setRespuesta] = useState("");
+  const [imagen, setImagen] = useState(null);
+  const [originalesVisibles, setOriginalesVisibles] = useState({});
+  const [todasConversaciones, setTodasConversaciones] = useState([]);
+  const [vistas, setVistas] = useState({});
+  const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
+  const [filtro, setFiltro] = useState("todas");
+  const [agente, setAgente] = useState(null);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [textoEscribiendo, setTextoEscribiendo] = useState("");
+  const [chatCerrado, setChatCerrado] = useState(false);
+  const chatRef = useRef(null);
+  const scrollForzado = useRef(true);
+
+  const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
+  const cargarDatos = async () => {
+    try {
+      const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
+      const data = await res.json();
+      setTodasConversaciones(data);
+
+      const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
+      const vistasData = await vistasRes.json();
+      setVistas(vistasData);
+
+      return data;
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  };
+    const cargarMensajes = async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+      const data = await res.json();
+      console.log("Mensajes recibidos:", data);
+      window.__mensajes = data;
+
+      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+
+      const mensajesConEtiqueta = [];
+      let estadoActual = "gpt";
+
+      for (let i = 0; i < ordenados.length; i++) {
+        const msg = ordenados[i];
+
+        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+          estadoActual = "gpt";
+        }
+
+        if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Cerrado",
+            timestamp: msg.lastInteraction,
+          });
+        }
+
+        if (msg.manual === true && estadoActual === "gpt") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+          estadoActual = "humano";
+        }
+
+        mensajesConEtiqueta.push(msg);
+      }
+
+      setMensajes(mensajesConEtiqueta);
+
+      const nuevasConversaciones = await cargarDatos();
+      const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+      setUsuarioSeleccionado(nuevaInfo || null);
+      setChatCerrado(nuevaInfo?.chatCerrado || false);
+
+      setTimeout(() => {
+        if (scrollForzado.current && chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+        }
+      }, 100);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+    useEffect(() => {
+    cargarDatos();
+    const intervalo = setInterval(cargarDatos, 5000);
+    return () => clearInterval(intervalo);
+  }, []);
+
+  useEffect(() => {
+    cargarMensajes();
+    const interval = setInterval(cargarMensajes, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const interval = setInterval(() => {
+      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
+        .then((res) => res.json())
+        .then((data) => setTextoEscribiendo(data.texto || ""))
+        .catch(console.error);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      }
+    }, 100);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const conversacion = todasConversaciones.find((c) => c.userId === userId);
+    if (conversacion && conversacion.intervenidaPor) {
+      setAgente(conversacion.intervenidaPor);
+    } else {
+      setAgente(null);
+    }
+  }, [userId, todasConversaciones]);
+
+  useEffect(() => {
+    if (userId) {
+      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+    }
+  }, [userId]);
+    const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
     const diffMs = ahora - pasada;

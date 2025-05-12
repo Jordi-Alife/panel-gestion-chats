@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
-import ConversacionesMovil from "./pages/ConversacionesMovil"; // ✅ nueva importación
+import ConversacionesMovil from "./pages/ConversacionesMovil";
 import ChatMovil from "./pages/ChatMovil";
 import DetallesMovil from "./pages/DetallesMovil";
 import Agentes from "./pages/agentes";
@@ -19,6 +19,7 @@ import Monitor from "./pages/Monitor";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
+import InicioRedirect from "./components/InicioRedirect"; // ✅ añadido
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -99,19 +100,19 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* ✅ ChatMovil fuera del DashboardLayout */}
+        {/* ✅ Redirección condicional desde raíz */}
+        <Route path="/" element={<InicioRedirect />} />
+
         <Route
           path="/conversaciones/:userId"
           element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
         />
 
-        {/* ✅ Nueva ruta para DetallesMovil */}
         <Route
           path="/detalles/:userId"
           element={usuarioActual ? <DetallesMovil /> : <Navigate to="/login" />}
         />
 
-        {/* ✅ Nueva ruta para ConversacionesMovil */}
         <Route
           path="/conversaciones-movil"
           element={usuarioActual ? <ConversacionesMovil /> : <Navigate to="/login" />}
@@ -123,12 +124,12 @@ const App = () => {
             usuarioActual ? (
               <DashboardLayout>
                 <Routes>
-                  <Route path="/" element={<Inicio />} />
                   <Route path="/conversaciones" element={<Conversaciones />} />
                   <Route path="/agentes" element={<Agentes />} />
                   <Route path="/agente/:uid" element={<AgenteDetalle />} />
                   <Route path="/perfil" element={<Perfil />} />
                   <Route path="/monitor" element={<Monitor />} />
+                  <Route path="/inicio" element={<Inicio />} />
                 </Routes>
               </DashboardLayout>
             ) : (

@@ -31,28 +31,37 @@ const ChatMovil = () => {
       const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
             const mensajesConEtiqueta = [];
       for (let i = 0; i < ordenados.length; i++) {
-        const msg = ordenados[i];
+  const msg = ordenados[i];
 
-        // Insertar etiqueta Intervenida antes de cada mensaje manual:true
-        if (msg.manual && msg.from?.toLowerCase() === "asistente") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-        }
+  // Insertar etiqueta Intervenida
+  if (msg.manual && msg.from?.toLowerCase() === "asistente") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "Intervenida",
+      timestamp: msg.lastInteraction,
+    });
+  }
 
-        // Insertar etiqueta Traspasado a GPT en su lugar cronológico
-        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-        }
+  // Insertar etiqueta Traspasado a GPT
+  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "Traspasado a GPT",
+      timestamp: msg.lastInteraction,
+    });
+  }
 
-        mensajesConEtiqueta.push(msg);
-      }
+  // Insertar etiqueta Cerrado
+  if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "El usuario ha cerrado el chat",
+      timestamp: msg.lastInteraction,
+    });
+  }
+
+  mensajesConEtiqueta.push(msg);
+}
 
       const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
       setMensajes(soloValidos);

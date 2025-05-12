@@ -9,6 +9,7 @@ import IconSkyscraper from "../assets/skyscraper.svg";
 import IconMonitor from "../assets/icon-monitor-estado.svg";
 import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
+import ModoOscuroToggle from "../components/ModoOscuroToggle"; // ✅ Línea añadida
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(true);

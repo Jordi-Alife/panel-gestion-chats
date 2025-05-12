@@ -196,44 +196,58 @@ export default function Conversaciones() {
   }, {});
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
-    .map(([id, info]) => {
-      const ultimaVista = id === userId ? new Date() : vistas[id];
-      const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
-      const ultimoMensaje = mensajesValidos.sort(
-        (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
-      )[0];
-      const minutosDesdeUltimo = ultimoMensaje
-        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-        : Infinity;
-      let estado = "Archivado";
-      if (minutosDesdeUltimo <= 2) estado = "Activa";
-      else if (minutosDesdeUltimo <= 10) estado = "Inactiva";
-      const nuevos = mensajesValidos.filter(
-        (m) =>
-          m.from?.toLowerCase() === "usuario" &&
-          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-      ).length;
-      return {
-        userId: id,
-        nuevos,
-        estado,
-        lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
-        iniciales: id.slice(0, 2).toUpperCase(),
-        intervenida: info.intervenida || false,
-        intervenidaPor: info.intervenidaPor || null,
-        pais: info.pais || "Desconocido",
-        navegador: info.navegador || "Desconocido",
-        historial: info.historial || [],
-        chatCerrado: info.chatCerrado || false,
-      };
-    })
-    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-    .filter(
-      (c) =>
-        filtro === "todas" ||
-        (filtro === "gpt" && !c.intervenida) ||
-        (filtro === "humanas" && c.intervenida)
-    );
+  .map(([id, info]) => {
+    const ultimaVista = id === userId ? new Date() : vistas[id];
+    const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
+    const ultimoMensaje = mensajesValidos.sort(
+      (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
+    )[0];
+
+    const minutosDesdeUltimo = ultimoMensaje
+      ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+      : Infinity;
+
+    let estado = "Archivado";
+
+    // 🟥 Si la conversación está cerrada, mostrar como 'Cerrado' solo si no hay actividad posterior
+    const fueCerrada = info.estado?.toLowerCase() === "cerrado";
+    const tieneActividadPostCierre = minutosDesdeUltimo <= 2;
+
+    if (fueCerrada && !tieneActividadPostCierre) {
+      estado = "Cerrado";
+    } else if (minutosDesdeUltimo <= 2) {
+      estado = "Activa";
+    } else if (minutosDesdeUltimo <= 10) {
+      estado = "Inactiva";
+    }
+
+    const nuevos = mensajesValidos.filter(
+      (m) =>
+        m.from?.toLowerCase() === "usuario" &&
+        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
+    ).length;
+
+    return {
+      userId: id,
+      nuevos,
+      estado,
+      lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
+      iniciales: id.slice(0, 2).toUpperCase(),
+      intervenida: info.intervenida || false,
+      intervenidaPor: info.intervenidaPor || null,
+      pais: info.pais || "Desconocido",
+      navegador: info.navegador || "Desconocido",
+      historial: info.historial || [],
+      chatCerrado: info.chatCerrado || false,
+    };
+  })
+  .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+  .filter(
+    (c) =>
+      filtro === "todas" ||
+      (filtro === "gpt" && !c.intervenida) ||
+      (filtro === "humanas" && c.intervenida)
+  );
 
   return (
     <div className="flex flex-row h-screen min-h-screen bg-[#f0f4f8] relative">

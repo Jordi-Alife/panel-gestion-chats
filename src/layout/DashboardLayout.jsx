@@ -138,12 +138,12 @@ const DashboardLayout = ({ children }) => {
       colapsado ? "w-20" : "w-64"
     } bg-[#1E2431] transition-all duration-200`}
   >
-          <div>
-            <button
-              onClick={() => setColapsado(!colapsado)}
-              className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
-              aria-label="Toggle menú"
-            >
+    <div>
+      <button
+        onClick={() => setColapsado(!colapsado)}
+        className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
+        aria-label="Toggle menú"
+      >
               <img
                 src={IconToggle}
                 alt="Toggle menú"

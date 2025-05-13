@@ -78,7 +78,9 @@ const ChatMovil = () => {
         mensajesConEtiqueta.push(msg);
       }
 
-      setMensajes((prev) => [...prev, ...mensajesConEtiqueta]);
+      setMensajes((prev) =>
+  desdeTimestamp ? [...mensajesConEtiqueta, ...prev] : [...prev, ...mensajesConEtiqueta]
+);
 
       if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;

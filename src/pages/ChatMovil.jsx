@@ -69,53 +69,7 @@ const ChatMovil = () => {
           mensaje: "Intervenida",
           timestamp: msg.lastInteraction,
         });
-        estadoActual = "humano";
-      }
-
-      mensajesConEtiqueta.push(msg);
-    }
-
-    setMensajes((prev) => [...mensajesConEtiqueta, ...prev]);
-
-    if (!desdeTimestamp) {
-      setTimeout(() => {
-        if (scrollForzado.current && chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-        }
-        setAnimacionesActivas(true);
-      }, 100);
-    }
-  } catch (err) {
-    console.error("❌ Error cargando mensajes:", err);
-  }
-};
-        estadoActual = "humano"; // pasamos a humano
-      }
-
-      mensajesConEtiqueta.push(msg);
-    }
-
-    const soloValidos = mensajesConEtiqueta.filter(
-  (m) =>
-    m &&
-    (
-      m.tipo === "etiqueta" ||
-      m.tipo === "imagen" ||
-      typeof m.message === "string" && m.message.trim() !== ""
-    )
-);
-    setMensajes(soloValidos);
-
-    setTimeout(() => {
-      if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-      }
-      setAnimacionesActivas(true);
-    }, 100);
-  } catch (err) {
-    console.error(err);
-  }
-};
+        
     useEffect(() => {
     if (!estado) return;
     cargarMensajes();

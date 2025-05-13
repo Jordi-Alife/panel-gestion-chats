@@ -95,13 +95,13 @@ if (!desdeTimestamp) {
 } else {
   // Scroll arriba → mantener posición en el primer mensaje nuevo cargado
   setTimeout(() => {
-    if (chatRef.current && nuevosMensajes.length > 0) {
-      const primerMensaje = document.querySelector("[data-id='" + nuevosMensajes[0].id + "']");
-      if (primerMensaje) {
-        primerMensaje.scrollIntoView({ behavior: "auto", block: "start" });
-      }
+  if (chatRef.current) {
+    const primerVisible = chatRef.current.querySelector("[data-id]");
+    if (primerVisible) {
+      primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
     }
-  }, 100);
+  }
+}, 100);
 }
     } catch (err) {
       console.error("❌ Error cargando mensajes:", err);

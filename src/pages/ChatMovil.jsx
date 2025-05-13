@@ -81,17 +81,28 @@ const ChatMovil = () => {
       setMensajes((prev) => [...mensajesConEtiqueta, ...prev]);
 
       if (ordenados[0]) {
-        oldestTimestampRef.current = ordenados[0].lastInteraction;
-      }
+  oldestTimestampRef.current = ordenados[0].lastInteraction;
+}
 
-      if (!desdeTimestamp) {
-        setTimeout(() => {
-          if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-          }
-          setAnimacionesActivas(true);
-        }, 100);
+if (!desdeTimestamp) {
+  // Primera carga → scroll hasta el final
+  setTimeout(() => {
+    if (scrollForzado.current && chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+    }
+    setAnimacionesActivas(true);
+  }, 100);
+} else {
+  // Scroll arriba → mantener posición en el primer mensaje nuevo cargado
+  setTimeout(() => {
+    if (chatRef.current && nuevosMensajes.length > 0) {
+      const primerMensaje = document.querySelector("[data-id='" + nuevosMensajes[0].id + "']");
+      if (primerMensaje) {
+        primerMensaje.scrollIntoView({ behavior: "auto", block: "start" });
       }
+    }
+  }, 100);
+}
     } catch (err) {
       console.error("❌ Error cargando mensajes:", err);
     }

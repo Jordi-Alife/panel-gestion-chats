@@ -131,9 +131,9 @@ const DashboardLayout = ({ children }) => {
       )}
 
       {/* Layout principal */}
-      <div className="flex flex-1 h-[calc(100dvh-72px)] mt-[72px]">
+     <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
   <aside
-  className={`relative hidden md:flex flex-col justify-between pt-[72px] ${
+  className={`relative hidden md:flex flex-col justify-between ${
     colapsado ? "w-20" : "w-64"
   } bg-[#1E2431] transition-all duration-200`}
 >

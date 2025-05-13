@@ -211,8 +211,6 @@ export default function Conversaciones() {
 
     let estado = "Archivado";
 
-    // 🟥 Si la conversación está cerrada, mostrar como 'Cerrado' solo si no hay actividad posterior
-    let estado = "Archivado";
 if (info.estado?.toLowerCase() === "cerrado") {
   estado = "Cerrado";
 } else if (minutosDesdeUltimo <= 2) {

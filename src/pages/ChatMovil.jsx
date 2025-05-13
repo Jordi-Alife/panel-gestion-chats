@@ -208,71 +208,89 @@ const ChatMovil = () => {
       )}
 
       <div className="p-4 bg-white border-t">
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (imagen) {
-              const formData = new FormData();
-              formData.append("file", imagen);
-              formData.append("userId", userId);
-              await fetch("https://web-production-51989.up.railway.app/api/upload", {
-                method: "POST",
-                body: formData,
-              });
-              setImagen(null);
-              return;
-            }
-            if (!respuesta.trim()) return;
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
-            setRespuesta("");
-            cargarMensajes();
-          }}
-          className="flex items-center gap-2"
-        >
-          <label className="w-6 h-6 cursor-pointer">
-  <img src={iconFile} alt="Archivo" className="w-full h-full opacity-60 hover:opacity-100" />
-  <input
-    type="file"
-    accept="image/*"
-    onChange={(e) => setImagen(e.target.files[0])}
-    className="hidden"
-  />
-</label>
-          <button type="button" onClick={() => alert("Hashtags")} className="text-xl">#</button>
-          <input
-            type="text"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            placeholder="Escribe un mensaje..."
-            className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all duration-200 ease-in-out ${
-              respuesta.trim() ? "ring-2 ring-blue-400" : ""
-            }`}
-            style={{ fontSize: "16px" }}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-          </button>
-        </form>
-      </div>
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+      if (imagen) {
+        const formData = new FormData();
+        formData.append("file", imagen);
+        formData.append("userId", userId);
+        await fetch("https://web-production-51989.up.railway.app/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        setImagen(null);
+        return;
+      }
+      if (!respuesta.trim()) return;
+      await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          message: respuesta,
+          agente: {
+            nombre: perfil.nombre || "",
+            foto: perfil.foto || "",
+            uid: localStorage.getItem("id-usuario-panel") || null,
+          },
+        }),
+      });
+      setRespuesta("");
+      cargarMensajes();
+    }}
+    className="flex items-center gap-2"
+  >
+    <label className="w-6 h-6 cursor-pointer">
+      <img src={iconFile} alt="Archivo" className="w-full h-full opacity-60 hover:opacity-100" />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImagen(e.target.files[0])}
+        className="hidden"
+      />
+    </label>
+    <button type="button" onClick={() => alert("Hashtags")} className="text-xl">#</button>
+    <input
+      type="text"
+      value={respuesta}
+      onChange={(e) => setRespuesta(e.target.value)}
+      placeholder="Escribe un mensaje..."
+      className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all duration-200 ease-in-out ${
+        respuesta.trim() ? "ring-2 ring-blue-400" : ""
+      }`}
+      style={{ fontSize: "16px" }}
+    />
+    <button
+      type="submit"
+      className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+      </svg>
+    </button>
+  </form>
+
+  {/* Previsualización de imagen */}
+  {imagen && (
+    <div className="mt-3 flex items-center gap-3">
+      <img
+        src={URL.createObjectURL(imagen)}
+        alt="Previsualización"
+        className="max-h-[100px] rounded-lg border"
+      />
+      <button
+        type="button"
+        onClick={() => setImagen(null)}
+        className="text-red-500 text-sm underline"
+      >
+        Quitar imagen
+      </button>
     </div>
-  );
+  )}
+</div>
+</div>
+);
 };
 
 export default ChatMovil;

@@ -146,8 +146,19 @@ const ChatMovil = () => {
             : isAsistente
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
-          const contenidoPrincipal = msg.manual ? msg.original : msg.message;
-          const contenidoSecundario = msg.manual ? msg.message : msg.original;
+          const contenidoPrincipal =
+  msg.tipo === "imagen"
+    ? msg.message
+    : msg.manual
+    ? msg.original
+    : msg.message;
+
+const contenidoSecundario =
+  msg.tipo === "imagen"
+    ? null
+    : msg.manual
+    ? msg.message
+    : msg.original;
 
           return (
             <div key={index} className={`flex ${align} ${animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"}`}>

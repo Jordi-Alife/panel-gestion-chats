@@ -212,16 +212,14 @@ export default function Conversaciones() {
     let estado = "Archivado";
 
     // 🟥 Si la conversación está cerrada, mostrar como 'Cerrado' solo si no hay actividad posterior
-    const fueCerrada = info.estado?.toLowerCase() === "cerrado";
-    const tieneActividadPostCierre = minutosDesdeUltimo <= 2;
-
-    if (fueCerrada && !tieneActividadPostCierre) {
-      estado = "Cerrado";
-    } else if (minutosDesdeUltimo <= 2) {
-      estado = "Activa";
-    } else if (minutosDesdeUltimo <= 10) {
-      estado = "Inactiva";
-    }
+    let estado = "Archivado";
+if (info.estado?.toLowerCase() === "cerrado") {
+  estado = "Cerrado";
+} else if (minutosDesdeUltimo <= 2) {
+  estado = "Activa";
+} else if (minutosDesdeUltimo <= 10) {
+  estado = "Inactiva";
+}
 
     const nuevos = mensajesValidos.filter(
       (m) =>

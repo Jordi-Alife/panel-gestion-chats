@@ -25,57 +25,62 @@ const ChatMovil = () => {
   }, [userId]);
 
   const cargarMensajes = async () => {
-    try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-      const data = await res.json();
-      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-            const mensajesConEtiqueta = [];
-      for (let i = 0; i < ordenados.length; i++) {
-  const msg = ordenados[i];
+  try {
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const data = await res.json();
+    const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
 
-  // Insertar etiqueta Intervenida
-  if (msg.manual && msg.from?.toLowerCase() === "asistente") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "Intervenida",
-      timestamp: msg.lastInteraction,
-    });
-  }
+    const mensajesConEtiqueta = [];
+    let estadoActual = "gpt"; // ← comenzamos en estado GPT
 
-  // Insertar etiqueta Traspasado a GPT
-  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "Traspasado a GPT",
-      timestamp: msg.lastInteraction,
-    });
-  }
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
 
-  // Insertar etiqueta Cerrado
-  if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "El usuario ha cerrado el chat",
-      timestamp: msg.lastInteraction,
-    });
-  }
+      // ✅ Insertar etiqueta Traspasado a GPT
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+        estadoActual = "gpt"; // volvemos a estado GPT
+      }
 
-  mensajesConEtiqueta.push(msg);
-}
+      // ✅ Insertar etiqueta Cerrado
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: msg.lastInteraction,
+        });
+      }
 
-      const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
-      setMensajes(soloValidos);
+      // ✅ Insertar etiqueta Intervenida solo si venimos de un estado GPT
+      if (msg.manual === true && estadoActual === "gpt") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+        estadoActual = "humano"; // pasamos a humano
+      }
 
-      setTimeout(() => {
-        if (scrollForzado.current && chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-        }
-        setAnimacionesActivas(true);
-      }, 100);
-    } catch (err) {
-      console.error(err);
+      mensajesConEtiqueta.push(msg);
     }
-  };
+
+    const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
+    setMensajes(soloValidos);
+
+    setTimeout(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+      setAnimacionesActivas(true);
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  }
+};
     useEffect(() => {
     if (!estado) return;
     cargarMensajes();

@@ -243,12 +243,27 @@ const contenidoSecundario =
   const formData = new FormData();
   formData.append("file", imagen);
   formData.append("userId", userId);
-  await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
-  });
+
+  try {
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.imageUrl) {
+      console.error("❌ Error subiendo imagen:", result);
+      alert("Hubo un problema al subir la imagen.");
+    } else {
+      await cargarMensajes();
+    }
+  } catch (err) {
+    console.error("❌ Error en envío de imagen:", err);
+    alert("Error al subir imagen.");
+  }
+
   setImagen(null);
-  await cargarMensajes(); // ← 🔁 muestra la imagen justo después de enviarla
   return;
 }
       if (!respuesta.trim()) return;

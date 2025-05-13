@@ -245,15 +245,16 @@ const contenidoSecundario =
   const formData = new FormData();
   formData.append("file", imagen);
   formData.append("userId", userId);
+  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
   try {
-    const res = await fetch("/api/upload", {
+    const res = await fetch("/api/upload-agente", {
       method: "POST",
       body: formData,
     });
 
     const result = await res.json();
-    console.log("📤 Respuesta de /api/upload:", result);
+    console.log("📤 Respuesta de /api/upload-agente:", result);
 
     if (!res.ok || !result.imageUrl) {
       console.error("❌ Error subiendo imagen:", result);

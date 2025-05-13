@@ -29,29 +29,32 @@ const ChatMovil = () => {
     if (est) setEstado(est);
   }, [userId]);
 
-  const cargarMensajes = async () => {
+  const cargarMensajes = async (desdeTimestamp = null) => {
   try {
-    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-    const data = await res.json();
-    const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    const url = desdeTimestamp
+      ? `https://web-production-51989.up.railway.app/api/conversaciones/${userId}?desde=${encodeURIComponent(desdeTimestamp)}`
+      : `https://web-production-51989.up.railway.app/api/conversaciones/${userId}`;
 
+    const res = await fetch(url);
+    const nuevosMensajes = await res.json();
+
+    const ordenados = (nuevosMensajes || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
     const mensajesConEtiqueta = [];
-    let estadoActual = "gpt"; // ← comenzamos en estado GPT
+
+    let estadoActual = "gpt";
 
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
 
-      // ✅ Insertar etiqueta Traspasado a GPT
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
           mensaje: "Traspasado a GPT",
           timestamp: msg.lastInteraction,
         });
-        estadoActual = "gpt"; // volvemos a estado GPT
+        estadoActual = "gpt";
       }
 
-      // ✅ Insertar etiqueta Cerrado
       if (msg.tipo === "estado" && msg.estado === "Cerrado") {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
@@ -60,13 +63,32 @@ const ChatMovil = () => {
         });
       }
 
-      // ✅ Insertar etiqueta Intervenida solo si venimos de un estado GPT
       if (msg.manual === true && estadoActual === "gpt") {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
           mensaje: "Intervenida",
           timestamp: msg.lastInteraction,
         });
+        estadoActual = "humano";
+      }
+
+      mensajesConEtiqueta.push(msg);
+    }
+
+    setMensajes((prev) => [...mensajesConEtiqueta, ...prev]);
+
+    if (!desdeTimestamp) {
+      setTimeout(() => {
+        if (scrollForzado.current && chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+        }
+        setAnimacionesActivas(true);
+      }, 100);
+    }
+  } catch (err) {
+    console.error("❌ Error cargando mensajes:", err);
+  }
+};
         estadoActual = "humano"; // pasamos a humano
       }
 

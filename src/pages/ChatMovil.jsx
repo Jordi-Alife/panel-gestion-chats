@@ -217,16 +217,17 @@ const ChatMovil = () => {
     onSubmit={async (e) => {
       e.preventDefault();
       if (imagen) {
-        const formData = new FormData();
-        formData.append("file", imagen);
-        formData.append("userId", userId);
-        await fetch("https://web-production-51989.up.railway.app/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        setImagen(null);
-        return;
-      }
+  const formData = new FormData();
+  formData.append("file", imagen);
+  formData.append("userId", userId);
+  await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+  setImagen(null);
+  await cargarMensajes(); // ← 🔁 muestra la imagen justo después de enviarla
+  return;
+}
       if (!respuesta.trim()) return;
       await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
         method: "POST",

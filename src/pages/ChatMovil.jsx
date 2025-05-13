@@ -79,9 +79,15 @@ const ChatMovil = () => {
       }
 
       if (!desdeTimestamp) {
-  setMensajes(mensajesConEtiqueta); // ✅ Carga inicial o tras enviar: sobrescribe
+  // Añadir mensajes nuevos sin duplicados
+  setMensajes((prev) => {
+    const existentes = new Set(prev.map((m) => m.id));
+    const nuevos = mensajesConEtiqueta.filter((m) => !existentes.has(m.id));
+    return [...prev, ...nuevos];
+  });
 } else {
-  setMensajes((prev) => [...mensajesConEtiqueta, ...prev]); // ✅ Scroll arriba: añade encima
+  // Scroll arriba: insertar al principio
+  setMensajes((prev) => [...mensajesConEtiqueta, ...prev]);
 }
 
 if (ordenados[0]) {

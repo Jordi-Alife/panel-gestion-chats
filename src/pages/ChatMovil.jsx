@@ -14,6 +14,11 @@ const ChatMovil = () => {
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
   const [estado, setEstado] = useState("");
+
+  const [hasMore, setHasMore] = useState(true);            // ✅ Nuevo
+  const [loadingMore, setLoadingMore] = useState(false);   // ✅ Nuevo
+  const oldestTimestampRef = useRef(null);                 // ✅ Nuevo
+
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 

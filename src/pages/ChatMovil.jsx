@@ -79,7 +79,7 @@ const ChatMovil = () => {
       }
 
       setMensajes((prev) =>
-  desdeTimestamp ? [...mensajesConEtiqueta, ...prev] : [...prev, ...mensajesConEtiqueta]
+  desdeTimestamp ? [...mensajesConEtiqueta, ...prev] : [...mensajesConEtiqueta]
 );
 
       if (ordenados[0]) {

@@ -22,17 +22,18 @@ const FormularioRespuesta = ({
       formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
       try {
-        const res = await fetch("/api/upload-agente", {
+        const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
           method: "POST",
           body: formData,
         });
 
         const result = await res.json();
+
         if (!res.ok || !result.imageUrl) {
           console.error("❌ Error subiendo imagen:", result);
           alert("Hubo un problema al subir la imagen.");
         } else {
-          await cargarDatos();
+          cargarDatos();
         }
       } catch (err) {
         console.error("❌ Error en envío de imagen:", err);
@@ -113,7 +114,7 @@ const FormularioRespuesta = ({
         </button>
       </form>
 
-      {/* Previsualización de imagen */}
+      {/* Previsualización */}
       {imagen && (
         <div className="mt-3 flex items-center gap-3">
           <img

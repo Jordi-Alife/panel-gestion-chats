@@ -68,7 +68,15 @@ const ChatMovil = () => {
       mensajesConEtiqueta.push(msg);
     }
 
-    const soloValidos = mensajesConEtiqueta.filter(m => m && (m.message || m.tipo === "etiqueta"));
+    const soloValidos = mensajesConEtiqueta.filter(
+  (m) =>
+    m &&
+    (
+      m.tipo === "etiqueta" ||
+      m.tipo === "imagen" ||
+      typeof m.message === "string" && m.message.trim() !== ""
+    )
+);
     setMensajes(soloValidos);
 
     setTimeout(() => {

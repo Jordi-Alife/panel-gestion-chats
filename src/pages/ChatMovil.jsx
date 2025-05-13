@@ -169,11 +169,15 @@ const contenidoSecundario =
                   ? "bg-black text-white"
                   : "bg-[#f7f7f7] text-gray-800 border"
               }`}>
-                {msg.tipo === "imagen" || (typeof contenidoPrincipal === "string" && contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i)) ? (
-                  <img src={contenidoPrincipal} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
-                ) : (
-                  <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
-                )}
+                {msg.tipo === "imagen" ? (
+  <img
+    src={contenidoPrincipal}
+    alt="Imagen enviada"
+    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+  />
+) : (
+  <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
+)}
                 {contenidoSecundario && (
                   <div className="mt-2 text-[11px] text-right">
                     <button

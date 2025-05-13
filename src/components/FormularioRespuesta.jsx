@@ -1,4 +1,5 @@
 import React from "react";
+import iconFile from "/src/assets/file.svg";
 
 const FormularioRespuesta = ({
   userId,
@@ -48,9 +49,16 @@ const FormularioRespuesta = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="border-t px-4 py-3 flex items-center gap-2">
-      <label className="bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition">
-        Seleccionar archivo
+    <form
+      onSubmit={handleSubmit}
+      className="border-t px-4 py-3 flex items-center gap-2 bg-white"
+    >
+      <label className="w-6 h-6 cursor-pointer">
+        <img
+          src={iconFile}
+          alt="Archivo"
+          className="w-full h-full opacity-60 hover:opacity-100 transition"
+        />
         <input
           type="file"
           accept="image/*"
@@ -59,25 +67,12 @@ const FormularioRespuesta = ({
         />
       </label>
 
-      {imagen && (
-        <div className="text-xs text-gray-600 flex items-center gap-1">
-          <span>{imagen.name}</span>
-          <button
-            type="button"
-            onClick={() => setImagen(null)}
-            className="text-red-500 text-xs underline"
-          >
-            Quitar
-          </button>
-        </div>
-      )}
-
       <input
         type="text"
         value={respuesta}
         onChange={(e) => setRespuesta(e.target.value)}
         placeholder="Escribe un mensaje..."
-        className={`flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
+        className={`flex-1 border rounded-full px-4 py-3 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
           respuesta.trim() ? "ring-2 ring-blue-400" : ""
         }`}
         style={{ fontSize: "16px" }}
@@ -85,9 +80,22 @@ const FormularioRespuesta = ({
 
       <button
         type="submit"
-        className="bg-[#ff5733] text-white rounded-full px-4 py-2 text-sm hover:bg-orange-600"
+        className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
       >
-        Enviar
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 10l7-7m0 0l7 7m-7-7v18"
+          />
+        </svg>
       </button>
     </form>
   );

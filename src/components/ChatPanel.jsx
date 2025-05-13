@@ -51,7 +51,7 @@ const ChatPanel = ({
                     msg.mensaje === "Intervenida"
                       ? "bg-blue-100 text-blue-600"
                       : msg.mensaje === "Traspasado a GPT"
-                      ? "bg-blue-100 text-blue-600"
+                      ? "bg-gray-200 text-gray-800"
                       : msg.mensaje === "El usuario ha cerrado el chat"
                       ? "bg-red-100 text-red-600"
                       : "bg-gray-200 text-gray-800"

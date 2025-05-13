@@ -241,9 +241,15 @@ const ChatMovil = () => {
           }}
           className="flex items-center gap-2"
         >
-          <button type="button" onClick={() => alert("Adjuntar archivo")} className="w-6 h-6">
-            <img src={iconFile} alt="Archivo" className="w-full h-full" />
-          </button>
+          <label className="w-6 h-6 cursor-pointer">
+  <img src={iconFile} alt="Archivo" className="w-full h-full opacity-60 hover:opacity-100" />
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setImagen(e.target.files[0])}
+    className="hidden"
+  />
+</label>
           <button type="button" onClick={() => alert("Hashtags")} className="text-xl">#</button>
           <input
             type="text"

@@ -78,11 +78,13 @@ const ChatMovil = () => {
         mensajesConEtiqueta.push(msg);
       }
 
-      setMensajes((prev) =>
-  desdeTimestamp ? [...mensajesConEtiqueta, ...prev] : [...mensajesConEtiqueta]
-);
+      if (!desdeTimestamp) {
+  setMensajes(mensajesConEtiqueta); // ✅ Carga inicial o tras enviar: sobrescribe
+} else {
+  setMensajes((prev) => [...mensajesConEtiqueta, ...prev]); // ✅ Scroll arriba: añade encima
+}
 
-      if (ordenados[0]) {
+if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
 }
 
@@ -97,13 +99,13 @@ if (!desdeTimestamp) {
 } else {
   // Scroll arriba → mantener posición en el primer mensaje nuevo cargado
   setTimeout(() => {
-  if (chatRef.current) {
-    const primerVisible = chatRef.current.querySelector("[data-id]");
-    if (primerVisible) {
-      primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+    if (chatRef.current) {
+      const primerVisible = chatRef.current.querySelector("[data-id]");
+      if (primerVisible) {
+        primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+      }
     }
-  }
-}, 100);
+  }, 100);
 }
     } catch (err) {
       console.error("❌ Error cargando mensajes:", err);

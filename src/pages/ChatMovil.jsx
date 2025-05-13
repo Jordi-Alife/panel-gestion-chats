@@ -169,7 +169,7 @@ const contenidoSecundario =
                   ? "bg-black text-white"
                   : "bg-[#f7f7f7] text-gray-800 border"
               }`}>
-                {typeof contenidoPrincipal === "string" && contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i) ? (
+                {msg.tipo === "imagen" || (typeof contenidoPrincipal === "string" && contenidoPrincipal.match(/\.(jpeg|jpg|png|gif|webp)$/i)) ? (
                   <img src={contenidoPrincipal} alt="Imagen" className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain" />
                 ) : (
                   <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>

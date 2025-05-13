@@ -135,29 +135,14 @@ const ChatMovil = () => {
           }
 
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
-const esManual = msg.manual === true;
-
-const align = isAsistente ? "justify-end" : "justify-start";
-const shapeClass =
-  esManual
-    ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-    : isAsistente
-    ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-    : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
-
-const contenidoPrincipal =
-  msg.tipo === "imagen"
-    ? msg.message // para imágenes se guarda en `message` siempre
-    : esManual
-    ? msg.original
-    : msg.message;
-
-const contenidoSecundario =
-  msg.tipo === "imagen"
-    ? null
-    : esManual
-    ? msg.message
-    : msg.original;
+          const align = isAsistente ? "justify-end" : "justify-start";
+          const shapeClass = msg.manual
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+            : isAsistente
+            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
+            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
+          const contenidoPrincipal = msg.manual ? msg.original : msg.message;
+          const contenidoSecundario = msg.manual ? msg.message : msg.original;
 
           return (
             <div key={index} className={`flex ${align} ${animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"}`}>

@@ -240,6 +240,8 @@ const contenidoSecundario =
     onSubmit={async (e) => {
       e.preventDefault();
       if (imagen) {
+  console.log("✅ Imagen seleccionada:", imagen);
+
   const formData = new FormData();
   formData.append("file", imagen);
   formData.append("userId", userId);
@@ -251,6 +253,7 @@ const contenidoSecundario =
     });
 
     const result = await res.json();
+    console.log("📤 Respuesta de /api/upload:", result);
 
     if (!res.ok || !result.imageUrl) {
       console.error("❌ Error subiendo imagen:", result);

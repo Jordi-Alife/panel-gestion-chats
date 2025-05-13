@@ -77,7 +77,10 @@ const FormularioRespuesta = ({
         value={respuesta}
         onChange={(e) => setRespuesta(e.target.value)}
         placeholder="Escribe un mensaje..."
-        className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none"
+        className={`flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
+          respuesta.trim() ? "ring-2 ring-blue-400" : ""
+        }`}
+        style={{ fontSize: "16px" }}
       />
 
       <button

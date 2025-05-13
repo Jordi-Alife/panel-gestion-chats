@@ -124,7 +124,7 @@ const ChatMovil = () => {
                   msg.mensaje === "Intervenida"
                     ? "bg-blue-100 text-blue-600"
                     : msg.mensaje === "Traspasado a GPT"
-                    ? "bg-blue-100 text-blue-600"
+                    ? "bg-gray-200 text-gray-800"
                     : "bg-red-100 text-red-600"
                 }`}>
                   {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}

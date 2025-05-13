@@ -132,12 +132,12 @@ const DashboardLayout = ({ children }) => {
 
       {/* Layout principal */}
       <div className="flex flex-1 h-[calc(100dvh-72px)] pt-[72px]">
-  <div className="flex flex-1 h-[calc(100dvh-72px)] pt-[72px]">
   <aside
-    className={`relative hidden md:flex flex-col justify-between ${
-      colapsado ? "w-20" : "w-64"
-    } bg-[#1E2431] transition-all duration-200`}
-  >
+  className={`absolute top-[72px] bottom-0 hidden md:flex flex-col justify-between ${
+    colapsado ? "w-20" : "w-64"
+  } bg-[#1E2431] transition-all duration-200`}
+  style={{ height: "calc(100dvh - 72px)" }}
+>
     <div>
       <button
         onClick={() => setColapsado(!colapsado)}

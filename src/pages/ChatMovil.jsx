@@ -257,9 +257,9 @@ const contenidoSecundario =
     console.log("📤 Respuesta de /api/upload-agente:", result);
 
     if (!res.ok || !result.imageUrl) {
-      console.error("❌ Error subiendo imagen:", result);
-      alert("Hubo un problema al subir la imagen.");
-    } else {
+  console.error("❌ Error subiendo imagen:", result);
+  alert(result.error || "Hubo un problema al subir la imagen.");
+} else {
       await cargarMensajes();
     }
   } catch (err) {

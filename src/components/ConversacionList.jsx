@@ -57,7 +57,7 @@ const ConversacionList = ({
                 )}
               </div>
               <div>
-                <div className="font-medium text-base">{c.userId}</div>
+                <div className="font-medium text-sm">{c.userId}</div>
                 <div className="text-xs text-gray-500 flex items-center gap-1">
                   {formatearTiempo(c.lastInteraction)}
                 </div>
@@ -68,7 +68,7 @@ const ConversacionList = ({
             </div>
 
             <span
-              className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+  className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-xl font-medium fade-in ${
                 c.estado === "Activa"
                   ? "bg-green-100 text-green-700"
                   : c.estado === "Inactiva"

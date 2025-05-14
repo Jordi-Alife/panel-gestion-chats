@@ -10,24 +10,24 @@ const ConversacionList = ({
   formatearTiempo,
 }) => {
   return (
-    <div className="bg-white w-full h-full rounded-lg shadow-md overflow-y-auto">
-      <h2 className="text-sm text-gray-400 font-semibold mb-2 px-4 pt-4">Conversaciones</h2>
-
-      <div className="flex gap-2 mb-3 px-4">
-        {["todas", "gpt", "humanas"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFiltro(f)}
-            className={`text-xs px-2 py-1 rounded-full border ${
-              filtro === f ? "bg-blue-600 text-white" : "bg-white text-gray-700"
-            }`}
-          >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
+    <div className="bg-white w-full h-full rounded-lg shadow-md flex flex-col overflow-hidden">
+      {/* Buscador arriba */}
+      <div className="px-4 py-3 border-b">
+        <input
+          type="text"
+          placeholder="Buscar conversaciones..."
+          className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out"
+          style={{ fontSize: "14px" }}
+          onChange={(e) => {
+            // Si ya tienes lógica de búsqueda, usa el estado correspondiente
+            // Este es un placeholder visual por ahora
+            console.log("Buscar:", e.target.value);
+          }}
+        />
       </div>
 
-      <div className="divide-y divide-gray-200">
+      {/* Lista de conversaciones scrollable */}
+      <div className="flex-1 overflow-y-auto divide-y divide-gray-200">
         {conversaciones.map((c) => (
           <div
             key={c.userId}
@@ -85,6 +85,21 @@ const ConversacionList = ({
               </span>
             )}
           </div>
+        ))}
+      </div>
+
+      {/* Botones abajo */}
+      <div className="flex justify-around items-center border-t bg-white py-4">
+        {["todas", "gpt", "humanas"].map((f) => (
+          <button
+            key={f}
+            onClick={() => setFiltro(f)}
+            className={`text-sm ${
+              filtro === f ? "text-blue-600 font-semibold" : "text-gray-600"
+            }`}
+          >
+            {f === "gpt" ? "GPT" : f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
         ))}
       </div>
     </div>

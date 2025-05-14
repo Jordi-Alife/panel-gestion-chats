@@ -284,53 +284,62 @@ if (!desdeTimestamp) {
           onSubmit={async (e) => {
             e.preventDefault();
             if (imagen) {
-              const formData = new FormData();
-              formData.append("file", imagen);
-              formData.append("userId", userId);
-              formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+  const formData = new FormData();
+  formData.append("file", imagen);
+  formData.append("userId", userId);
+  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-              try {
-                const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-                  method: "POST",
-                  body: formData,
-                });
+  try {
+    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+      method: "POST",
+      body: formData,
+    });
 
-                const result = await res.json();
-                if (!res.ok || !result.imageUrl) {
-                  alert("Hubo un problema al subir la imagen.");
-                } else {
-                  await cargarMensajes();
-                }
-              } catch (err) {
-                alert("Error al subir imagen.");
-              }
+    const result = await res.json();
+    if (!res.ok || !result.imageUrl) {
+      alert("Hubo un problema al subir la imagen.");
+    } else {
+      await cargarMensajes();
 
-              setImagen(null);
-              return;
-            }
+      setTimeout(() => {
+        if (chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+        }
+      }, 100);
+    }
+  } catch (err) {
+    alert("Error al subir imagen.");
+  }
 
-            if (!respuesta.trim()) return;
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
+  setImagen(null);
+  return;
+}
 
-            setRespuesta("");
+if (!respuesta.trim()) return;
+
+await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userId,
+    message: respuesta,
+    agente: {
+      nombre: perfil.nombre || "",
+      foto: perfil.foto || "",
+      uid: localStorage.getItem("id-usuario-panel") || null,
+    },
+  }),
+});
+
 await cargarMensajes();
+
 setTimeout(() => {
   if (chatRef.current) {
     chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }
 }, 100);
+
+setRespuesta("");
           }}
           className="flex items-center gap-2"
         >

@@ -9,7 +9,7 @@ import IconSkyscraper from "../assets/skyscraper.svg";
 import IconMonitor from "../assets/icon-monitor-estado.svg";
 import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
-import ModoOscuroToggle from "../components/ModoOscuroToggle"; // ✅ Línea añadida
+import ModoOscuroToggle from "../components/ModoOscuroToggle";
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(true);
@@ -58,77 +58,81 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
+      <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
+        <div className="flex items-center gap-3">
+          <button className="md:hidden" onClick={() => setMenuMovilAbierto(true)} aria-label="Abrir menú">
+            <img src={IconToggle} alt="Abrir menú" className="w-8 h-8" />
+          </button>
+          <img
+            src={colapsado ? LogoPequeno : LogoCompleto}
+            alt="NextLives"
+            className={`object-contain ${colapsado ? "h-10" : "h-12"}`}
+          />
+        </div>
 
-// ...
-
-<header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
-  <div className="flex items-center gap-3">
-    <button
-      className="md:hidden"
-      onClick={() => setMenuMovilAbierto(true)}
-      aria-label="Abrir menú"
-    >
-      <img src={IconToggle} alt="Abrir menú" className="w-8 h-8" />
-    </button>
-    <img
-      src={colapsado ? LogoPequeno : LogoCompleto}
-      alt="NextLives"
-      className={`object-contain ${colapsado ? "h-10" : "h-12"}`}
-    />
-  </div>
-
-  <div className="flex items-center gap-3">
-    <ModoOscuroToggle /> {/* ✅ Botón de modo oscuro */}
-    {esPaginaAgentes && rolUsuario === "Administrador" && (
-      <button
-        onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
-        className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
-      >
-        Crear agente
-      </button>
-    )}
-  </div>
-</header>
+        <div className="flex items-center gap-3">
+          <ModoOscuroToggle />
+          {esPaginaAgentes && rolUsuario === "Administrador" && (
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("crear-agente"))}
+              className="bg-[#FF5C42] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[#e04c35]"
+            >
+              Crear agente
+            </button>
+          )}
+        </div>
+      </header>
 
       {/* Menú móvil */}
       {menuMovilAbierto && (
-        <div className="fixed inset-0 bg-[#1E2431] text-white flex flex-col p-6 z-30 md:hidden">
-          <button
-            className="self-end mb-6"
-            onClick={() => setMenuMovilAbierto(false)}
-            aria-label="Cerrar menú"
-          >
-            <img src={IconToggle} alt="Cerrar menú" className="w-8 h-8 rotate-180" />
-          </button>
-
-          <nav className="space-y-4">
-            <Link to="/" onClick={() => setMenuMovilAbierto(false)} className="block py-2">
-              Inicio
-            </Link>
+        <div className="fixed inset-0 bg-[#1E2431] text-white flex flex-col justify-between p-6 z-30 md:hidden">
+          <div>
             <button
-              onClick={() => {
-                const destino = window.innerWidth < 768 ? "/conversaciones-movil" : "/conversaciones";
-                navigate(destino);
-                setMenuMovilAbierto(false);
-              }}
-              className="block py-2 w-full text-left"
+              className="self-end mb-6"
+              onClick={() => setMenuMovilAbierto(false)}
+              aria-label="Cerrar menú"
             >
-              Conversaciones
+              <img src={IconToggle} alt="Cerrar menú" className="w-8 h-8 rotate-180" />
             </button>
-            <Link to="/monitor" onClick={() => setMenuMovilAbierto(false)} className="block py-2">
-              Monitor
-            </Link>
-            {rolUsuario !== "Soporte" && (
-              <Link to="/agentes" onClick={() => setMenuMovilAbierto(false)} className="block py-2">
-                Agentes
+
+            <nav className="space-y-4 text-sm">
+              <Link to="/inicio" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
+                <img src={IconInicio} alt="Inicio" className="w-5 h-5" /> Inicio
               </Link>
-            )}
-            <button onClick={() => navigate("/perfil")} className="block py-2">
-              Mi perfil
-            </button>
-          </nav>
+              <Link to="/conversaciones-movil" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
+                <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" /> Conversaciones
+              </Link>
+              <Link to="/monitor" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
+                <img src={IconMonitor} alt="Monitor" className="w-5 h-5" /> Monitor
+              </Link>
+              {rolUsuario !== "Soporte" && (
+                <Link to="/agentes" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
+                  <img src={IconAgentes} alt="Agentes" className="w-5 h-5" /> Agentes
+                </Link>
+              )}
+              <Link to="/perfil-movil" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
+                <img
+                  src={fotoPerfil || "https://i.pravatar.cc/100"}
+                  alt="Perfil"
+                  className="w-6 h-6 rounded-full object-cover"
+                /> Mi perfil
+              </Link>
+            </nav>
+          </div>
         </div>
       )}
+
+      {/* Layout principal */}
+      <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
+        {/* Sidebar de escritorio y main layout vienen aquí (no modificados) */}
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default DashboardLayout;
+
 
       {/* Layout principal */}
      <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">

@@ -31,17 +31,17 @@ const DetallesUsuario = ({
   };
 
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md p-4 overflow-y-auto">
+    <div className="w-full h-full bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 overflow-y-auto">
       {agente && (
         <div className="mb-4">
-          <h3 className="text-xs text-gray-500">Intervenido por</h3>
+          <h3 className="text-xs text-gray-500 dark:text-gray-400">Intervenido por</h3>
           <div className="flex items-center gap-2 mt-1">
             <img
               src={agente.foto || "https://i.pravatar.cc/100?u=default"}
               alt="Agente"
               className="w-8 h-8 rounded-full object-cover"
             />
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-white">
               {agente.nombre || "—"}
             </span>
           </div>
@@ -61,9 +61,9 @@ const DetallesUsuario = ({
         </div>
       )}
 
-      <h2 className="text-sm text-gray-400 font-semibold mb-2 mt-4">Datos del usuario</h2>
+      <h2 className="text-sm text-gray-400 dark:text-gray-300 font-semibold mb-2 mt-4">Datos del usuario</h2>
       {usuario ? (
-        <div className="text-sm text-gray-700 space-y-1">
+        <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
           <p>ID: {usuario.userId}</p>
           <p>Navegador: {usuario.navegador}</p>
           <p>
@@ -82,14 +82,14 @@ const DetallesUsuario = ({
             <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
           )}
           <p>Historial:</p>
-          <ul className="list-disc list-inside text-xs text-gray-600">
+          <ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
             {usuario.historial.map((url, idx) => (
               <li key={idx}>{url}</li>
             ))}
           </ul>
         </div>
       ) : (
-        <p className="text-xs text-gray-500">Selecciona una conversación</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Selecciona una conversación</p>
       )}
     </div>
   );

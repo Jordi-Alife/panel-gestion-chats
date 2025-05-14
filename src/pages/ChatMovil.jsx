@@ -82,20 +82,25 @@ mensajesConEtiqueta.push(msg);
 if (!mensajesConEtiqueta.length) return;
 
 setMensajes((prev) => {
-  const existentes = new Set(prev.map((m) => `${m.id || m.timestamp}-${m.rol}-${m.tipo}`));
-  const combinados = [...prev];
+  const mapa = new Map();
 
-  mensajesConEtiqueta.forEach((nuevo) => {
-    const clave = `${nuevo.id || nuevo.timestamp}-${nuevo.rol}-${nuevo.tipo}`;
-    if (!existentes.has(clave)) {
-      combinados.push(nuevo);
-    }
+  // Primero los mensajes anteriores
+  prev.forEach((m) => {
+    const clave = `${m.id || m.timestamp}-${m.rol}-${m.tipo}`;
+    mapa.set(clave, m);
   });
 
-  // ✅ Ordenar por fecha antes de recortar
-  const ordenados = combinados.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+  // Luego los nuevos (sobrescriben duplicados)
+  mensajesConEtiqueta.forEach((m) => {
+    const clave = `${m.id || m.timestamp}-${m.rol}-${m.tipo}`;
+    mapa.set(clave, m);
+  });
 
-  // ✅ Mantener los últimos 50 más recientes
+  // Ordenar por fecha
+  const ordenados = Array.from(mapa.values()).sort(
+    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+  );
+
   return ordenados.slice(-50);
 });
       

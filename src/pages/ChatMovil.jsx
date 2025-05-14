@@ -80,60 +80,45 @@ const ChatMovil = () => {
 
       if (!mensajesConEtiqueta.length) return;
 
-      const nuevosFinal = [...mensajes, ...mensajesConEtiqueta];
-      const mapa = new Map();
+      setMensajes(() => {
+        const mapa = new Map();
+        mensajesConEtiqueta.forEach((m) => {
+          const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+          mapa.set(clave, m);
+        });
 
-      nuevosFinal.forEach((m) => {
-        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-        mapa.set(clave, m);
+        const ordenados = Array.from(mapa.values()).sort(
+          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+        );
+
+        if (ordenados.length > 50) {
+          ordenados.splice(0, ordenados.length - 50);
+        }
+
+        return ordenados;
       });
 
-      const ordenados = Array.from(mapa.values()).sort(
-  (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-);
-
-if (ordenados.length > 50) {
-  ordenados.splice(0, ordenados.length - 50); // quita los más antiguos
-}
-
-// ✅ Evitar setState innecesario si los mensajes no han cambiado
-const igual =
-  mensajes.length === ordenados.length &&
-  mensajes.map((m) => m.id || m.timestamp).join(",") ===
-    ordenados.map((m) => m.id || m.timestamp).join(",");
-
-if (!igual) {
-  setMensajes(ordenados);
-} else {
-  // Aunque no cambien, fuerza el scroll y activa animaciones
-  requestAnimationFrame(() => {
-    if (scrollForzado.current && chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-    }
-    setAnimacionesActivas(true);
-  });
-}
-if (ordenados[0]) {
-  oldestTimestampRef.current = ordenados[0].lastInteraction;
-}
-
-if (!desdeTimestamp) {
-  requestAnimationFrame(() => {
-    if (scrollForzado.current && chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-    }
-    setAnimacionesActivas(true);
-  });
-} else {
-  requestAnimationFrame(() => {
-    if (chatRef.current) {
-      const primerVisible = chatRef.current.querySelector("[data-id]");
-      if (primerVisible) {
-        primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+      if (mensajesConEtiqueta[0]) {
+        oldestTimestampRef.current = mensajesConEtiqueta[0].lastInteraction;
       }
-    }
-  });
-}
+
+      if (!desdeTimestamp) {
+        requestAnimationFrame(() => {
+          if (scrollForzado.current && chatRef.current) {
+            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+          }
+          setAnimacionesActivas(true);
+        });
+      } else {
+        requestAnimationFrame(() => {
+          if (chatRef.current) {
+            const primerVisible = chatRef.current.querySelector("[data-id]");
+            if (primerVisible) {
+              primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+            }
+          }
+        });
+      }
     } catch (err) {
       console.error("❌ Error cargando mensajes:", err);
     }

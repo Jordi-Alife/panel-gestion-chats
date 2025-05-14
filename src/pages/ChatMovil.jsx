@@ -42,12 +42,13 @@ const ChatMovil = () => {
         return;
       }
 
-      const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-      const mensajesConEtiqueta = [];
-      let estadoActual = "gpt";
+      // Después:
+const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+const mensajesConEtiqueta = [];
+let estadoActual = "gpt";
 
       for (let i = 0; i < nuevosOrdenados.length; i++) {
-        const msg = nuevosOrdenados[i];
+  const msg = nuevosOrdenados[i];
 
         if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
           mensajesConEtiqueta.push({
@@ -67,103 +68,108 @@ const ChatMovil = () => {
         }
 
         if (msg.manual === true && estadoActual === "gpt") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-          estadoActual = "humano";
-        }
+  mensajesConEtiqueta.push({
+    tipo: "etiqueta",
+    mensaje: "Intervenida",
+    timestamp: msg.lastInteraction,
+  });
+  estadoActual = "humano";
+}
 
-        mensajesConEtiqueta.push(msg);
-      }
+mensajesConEtiqueta.push(msg);
+}
 
-      if (!mensajesConEtiqueta.length) return;
+// ✅ Evita setState si no hay nada nuevo
+if (!mensajesConEtiqueta.length) return;
 
-      const mapa = new Map();
-      mensajes.forEach((m) => {
-        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-        mapa.set(clave, m);
-      });
-      mensajesConEtiqueta.forEach((m) => {
-        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-        mapa.set(clave, m);
-      });
+const mapa = new Map();
 
-      const todosOrdenados = Array.from(mapa.values()).sort(
-        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-      );
-      const ultimos50 = todosOrdenados.slice(-50);
-      setMensajes(ultimos50);
+// Primero los mensajes anteriores
+mensajes.forEach((m) => {
+  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+  mapa.set(clave, m);
+});
 
-      if (ultimos50[0]) {
-        oldestTimestampRef.current = ultimos50[0].lastInteraction;
-      }
+// Luego los nuevos (sobrescriben duplicados)
+mensajesConEtiqueta.forEach((m) => {
+  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+  mapa.set(clave, m);
+});
 
-      if (!desdeTimestamp) {
-        requestAnimationFrame(() => {
-          if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-          }
-          setAnimacionesActivas(true);
-        });
-      } else {
-        requestAnimationFrame(() => {
-          if (chatRef.current) {
-            const primerVisible = chatRef.current.querySelector("[data-id]");
-            if (primerVisible) {
-              primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
-            }
-          }
-        });
-      }
-    } catch (err) {
-      console.error("❌ Error cargando mensajes:", err);
-    }
-  };
+// Ordenar y limitar ANTES de hacer set
+const todosOrdenados = Array.from(mapa.values()).sort(
+  (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+);
 
-  useEffect(() => {
-    if (!estado) return;
-    cargarMensajes();
-    const interval = setInterval(() => cargarMensajes(), 2000);
-    return () => clearInterval(interval);
-  }, [userId, estado]);
+const ultimos50 = todosOrdenados.slice(-50);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
-        .then((res) => res.json())
-        .then((data) => setTextoEscribiendo(data.texto || ""))
-        .catch(console.error);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
+// ✅ Actualizar estado inmediatamente
+setMensajes(ultimos50);
 
-  useEffect(() => {
+if (ultimos50[0]) {
+  oldestTimestampRef.current = ultimos50[0].lastInteraction;
+  console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
+}
+
+if (!desdeTimestamp) {
+  // Primera carga → scroll hasta el final
+  setTimeout(() => {
     if (scrollForzado.current && chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
     }
-  }, [mensajes]);
-
-  const handleScroll = async () => {
-    if (!chatRef.current) return;
-    const el = chatRef.current;
-    const { scrollTop, scrollHeight, clientHeight } = el;
-
-    const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
-    setMostrarScrollBtn(!cercaDelFinal);
-    scrollForzado.current = cercaDelFinal;
-
-    if (scrollTop === 0 && hasMore && !loadingMore) {
-      setLoadingMore(true);
-      await cargarMensajes(oldestTimestampRef.current);
-      setLoadingMore(false);
+    setAnimacionesActivas(true);
+  }, 100);
+} else {
+  // Scroll arriba → mantener posición en el primer mensaje nuevo cargado
+  setTimeout(() => {
+    if (chatRef.current) {
+      const primerVisible = chatRef.current.querySelector("[data-id]");
+      if (primerVisible) {
+        primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+      }
     }
-  };
+  }, 100);
+}
+} catch (err) {
+  console.error("❌ Error cargando mensajes:", err);
+}
+};
+
+useEffect(() => {
+  if (!estado) return;
+  cargarMensajes();
+  const interval = setInterval(() => cargarMensajes(), 2000);
+  return () => clearInterval(interval);
+}, [userId, estado]);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setTextoEscribiendo(data.texto || ""))
+      .catch(console.error);
+  }, 2000);
+  return () => clearInterval(interval);
+}, [userId]);
+
+const handleScroll = async () => {
+  if (!chatRef.current) return;
+  const el = chatRef.current;
+  const { scrollTop, scrollHeight, clientHeight } = el;
+
+  const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
+  setMostrarScrollBtn(!cercaDelFinal);
+  scrollForzado.current = cercaDelFinal;
+
+  if (scrollTop === 0 && hasMore && !loadingMore) {
+    setLoadingMore(true);
+    await cargarMensajes(oldestTimestampRef.current);
+    setLoadingMore(false);
+  }
+};
 
   return (
     <div className="flex flex-col h-screen">
-      {/* ... cabecera ... */}
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
         <div className="flex items-center gap-2">
@@ -177,7 +183,6 @@ const ChatMovil = () => {
         </button>
       </div>
 
-      {/* ... chat ... */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
@@ -196,15 +201,13 @@ const ChatMovil = () => {
               </div>
             );
           }
-
-          const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+                const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : isAsistente
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
-
           const contenidoPrincipal =
             msg.tipo === "imagen"
               ? msg.message
@@ -286,57 +289,67 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* ... formulario ... */}
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
             e.preventDefault();
             if (imagen) {
-              const formData = new FormData();
-              formData.append("file", imagen);
-              formData.append("userId", userId);
-              formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+  const formData = new FormData();
+  formData.append("file", imagen);
+  formData.append("userId", userId);
+  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-              try {
-                const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-                  method: "POST",
-                  body: formData,
-                });
+  try {
+    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+      method: "POST",
+      body: formData,
+    });
 
-                const result = await res.json();
-                if (!res.ok || !result.imageUrl) {
-                  alert("Hubo un problema al subir la imagen.");
-                } else {
-                  await cargarMensajes();
-                  scrollForzado.current = true;
-                }
-              } catch (err) {
-                alert("Error al subir imagen.");
-              }
+    const result = await res.json();
+    if (!res.ok || !result.imageUrl) {
+      alert("Hubo un problema al subir la imagen.");
+    } else {
+      await cargarMensajes();
 
-              setImagen(null);
-              return;
-            }
+      setTimeout(() => {
+        if (chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+        }
+      }, 100);
+    }
+  } catch (err) {
+    alert("Error al subir imagen.");
+  }
 
-            if (!respuesta.trim()) return;
+  setImagen(null);
+  return;
+}
 
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
+if (!respuesta.trim()) return;
 
-            await cargarMensajes();
-            scrollForzado.current = true;
-            setRespuesta("");
+await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userId,
+    message: respuesta,
+    agente: {
+      nombre: perfil.nombre || "",
+      foto: perfil.foto || "",
+      uid: localStorage.getItem("id-usuario-panel") || null,
+    },
+  }),
+});
+
+await cargarMensajes();
+
+setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+  }
+}, 100);
+
+setRespuesta("");
           }}
           className="flex items-center gap-2"
         >

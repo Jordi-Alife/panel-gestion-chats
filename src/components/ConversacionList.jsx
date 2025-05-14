@@ -67,19 +67,24 @@ const ConversacionList = ({
               </div>
             </div>
 
-            <span
-  className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-xl font-medium fade-in ${
-                c.estado === "Activa"
-                  ? "bg-green-100 text-green-700"
-                  : c.estado === "Inactiva"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : c.estado === "Cerrado"
-                  ? "bg-red-100 text-red-600"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {c.estado}
-            </span>
+            {c.estado === "Activa" ? (
+              <span className="relative inline-flex items-center px-2 py-0.5 text-[10px] uppercase tracking-wide font-medium text-green-700 bg-green-100 rounded-xl overflow-hidden">
+                <span className="absolute inline-flex h-full w-full rounded-xl bg-green-300 opacity-40 animate-ping"></span>
+                <span className="relative z-10">Activa</span>
+              </span>
+            ) : (
+              <span
+                className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-xl font-medium fade-in ${
+                  c.estado === "Inactiva"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : c.estado === "Cerrado"
+                    ? "bg-red-100 text-red-600"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                {c.estado}
+              </span>
+            )}
           </div>
         ))}
       </div>

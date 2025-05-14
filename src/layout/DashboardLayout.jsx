@@ -56,7 +56,7 @@ const DashboardLayout = ({ children }) => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
       {/* Header */}
       <header className="bg-[#1E2431] text-white flex items-center justify-between px-6 py-4 shadow fixed top-0 left-0 right-0 z-20">
         <div className="flex items-center gap-3">

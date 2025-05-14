@@ -270,7 +270,17 @@ if (info.estado?.toLowerCase() === "cerrado") {
     </div>
 
     {/* Columna central */}
-    <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
+<div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
+  {mensajes.length === 0 ? (
+    <div className="flex-1 flex items-center justify-center">
+      <img
+        src="/src/assets/logo-fondo.svg"
+        alt="Logo NextLives"
+        className="w-48 opacity-30"
+      />
+    </div>
+  ) : (
+    <>
       <ChatPanel
         mensajes={mensajes}
         textoEscribiendo={textoEscribiendo}
@@ -297,7 +307,9 @@ if (info.estado?.toLowerCase() === "cerrado") {
         cargarDatos={cargarDatos}
         setUsuarioSeleccionado={setUsuarioSeleccionado}
       />
-    </div>
+    </>
+  )}
+</div>
 
     {/* Columna derecha */}
     {mostrarDetalles && (

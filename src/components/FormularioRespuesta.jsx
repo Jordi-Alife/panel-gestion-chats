@@ -71,7 +71,7 @@ const FormularioRespuesta = ({
   };
 
   return (
-    <div className="border-t px-4 py-3 bg-white">
+    <div className="border-t px-4 py-3 bg-white dark:bg-gray-900 dark:border-gray-700">
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         <label className="w-6 h-6 cursor-pointer">
           <img
@@ -92,7 +92,7 @@ const FormularioRespuesta = ({
           value={respuesta}
           onChange={(e) => setRespuesta(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className={`flex-1 border rounded-full px-4 py-3 text-sm focus:outline-none transition-all duration-200 ease-in-out ${
+          className={`flex-1 border rounded-full px-4 py-3 text-sm focus:outline-none transition-all duration-200 ease-in-out dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 ${
             respuesta.trim() ? "ring-2 ring-blue-400" : ""
           }`}
           style={{ fontSize: "16px" }}

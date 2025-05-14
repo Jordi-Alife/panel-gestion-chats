@@ -152,14 +152,14 @@ const DashboardLayout = ({ children }) => {
 
             <div className="mt-4 space-y-1 text-sm relative z-20">
               <Link
-                to="/"
-                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-                  colapsado ? "justify-center" : "gap-3"
-                }`}
-              >
-                <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
-                {!colapsado && <span>Inicio</span>}
-              </Link>
+  to="/inicio"
+  className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
+    colapsado ? "justify-center" : "gap-3"
+  }`}
+>
+  <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
+  {!colapsado && <span>Inicio</span>}
+</Link>
 
               <Link
                 to="/conversaciones"

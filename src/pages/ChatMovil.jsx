@@ -113,28 +113,27 @@ if (ultimos50[0]) {
 
 if (!desdeTimestamp) {
   // Primera carga → scroll hasta el final
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     if (scrollForzado.current && chatRef.current) {
       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
     }
     setAnimacionesActivas(true);
-  }, 100);
+  });
 } else {
   // Scroll arriba → mantener posición en el primer mensaje nuevo cargado
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     if (chatRef.current) {
       const primerVisible = chatRef.current.querySelector("[data-id]");
       if (primerVisible) {
         primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
       }
     }
-  }, 100);
+  });
 }
 } catch (err) {
   console.error("❌ Error cargando mensajes:", err);
 }
 };
-
 useEffect(() => {
   if (!estado) return;
   cargarMensajes();

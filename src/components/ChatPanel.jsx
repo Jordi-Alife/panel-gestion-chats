@@ -13,7 +13,7 @@ const ChatPanel = ({
 }) => {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-2" ref={chatRef} onScroll={onScroll}>
-      <div className="flex items-center justify-between mb-2 px-2">
+      <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-2 py-3 border-b">
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
           <div className="bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm">
             {userId?.slice(0, 2).toUpperCase()}
@@ -21,8 +21,8 @@ const ChatPanel = ({
           <span>ID: {userId}</span>
         </div>
         <button onClick={onToggleDetalles} className="text-gray-500 hover:text-black w-6 h-6">
-  <img src={iconVer} alt="Ver detalles" className="w-full h-full" />
-</button>
+          <img src={iconVer} alt="Ver detalles" className="w-full h-full" />
+        </button>
       </div>
 
       {mensajes.map((msg, index) => {

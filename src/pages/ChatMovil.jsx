@@ -83,7 +83,7 @@ if (!mensajesConEtiqueta.length) return;
 
 setMensajes((prev) => {
   const existentes = new Set(prev.map((m) => `${m.id || m.timestamp}-${m.rol}-${m.tipo}`));
-  let combinados = [...prev];
+  const combinados = [...prev];
 
   mensajesConEtiqueta.forEach((nuevo) => {
     const clave = `${nuevo.id || nuevo.timestamp}-${nuevo.rol}-${nuevo.tipo}`;
@@ -92,9 +92,13 @@ setMensajes((prev) => {
     }
   });
 
-  // 💡 Mantener los 50 más recientes
-  return combinados.slice(-50);
+  // ✅ Ordenar por fecha antes de recortar
+  const ordenados = combinados.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+
+  // ✅ Mantener los últimos 50 más recientes
+  return ordenados.slice(-50);
 });
+      
 if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
   console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);

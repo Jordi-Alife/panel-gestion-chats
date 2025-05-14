@@ -28,8 +28,6 @@ const ChatMovil = () => {
     if (est) setEstado(est);
   }, [userId]);
 
-  (...todo el código anterior...)
-
   const cargarMensajes = async (desdeTimestamp = null) => {
     try {
       const url = desdeTimestamp

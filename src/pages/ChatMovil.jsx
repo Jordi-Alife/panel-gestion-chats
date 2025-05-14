@@ -96,16 +96,16 @@ mensajesConEtiqueta.forEach((m) => {
   mapa.set(clave, m);
 });
 
-// Ordenar por fecha
-const ordenados = Array.from(mapa.values()).sort(
+// Ordenar y limitar ANTES de hacer set
+const todosOrdenados = Array.from(mapa.values()).sort(
   (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
 );
 
-// Actualizar estado
-setMensajes(ordenados.slice(-50));
+const ultimos50 = todosOrdenados.slice(-50);
+setMensajes(ultimos50);
 
-if (ordenados[0]) {
-  oldestTimestampRef.current = ordenados[0].lastInteraction;
+if (ultimos50[0]) {
+  oldestTimestampRef.current = ultimos50[0].lastInteraction;
   console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
 }
 

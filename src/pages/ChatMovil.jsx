@@ -89,36 +89,43 @@ const ChatMovil = () => {
       });
 
       const ordenados = Array.from(mapa.values()).sort(
-        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-      );
+  (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+);
 
-      if (ordenados.length > 50) {
-        ordenados.splice(0, ordenados.length - 50); // quita los más antiguos
+if (ordenados.length > 50) {
+  ordenados.splice(0, ordenados.length - 50); // quita los más antiguos
+}
+
+// ✅ Evitar setState innecesario si los mensajes no han cambiado
+const igual =
+  mensajes.length === ordenados.length &&
+  mensajes[mensajes.length - 1]?.id === ordenados[ordenados.length - 1]?.id;
+
+if (!igual) {
+  setMensajes(ordenados);
+}
+
+if (ordenados[0]) {
+  oldestTimestampRef.current = ordenados[0].lastInteraction;
+}
+
+if (!desdeTimestamp) {
+  requestAnimationFrame(() => {
+    if (scrollForzado.current && chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+    }
+    setAnimacionesActivas(true);
+  });
+} else {
+  requestAnimationFrame(() => {
+    if (chatRef.current) {
+      const primerVisible = chatRef.current.querySelector("[data-id]");
+      if (primerVisible) {
+        primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
       }
-
-      setMensajes(ordenados);
-
-      if (ordenados[0]) {
-        oldestTimestampRef.current = ordenados[0].lastInteraction;
-      }
-
-      if (!desdeTimestamp) {
-        requestAnimationFrame(() => {
-          if (scrollForzado.current && chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-          }
-          setAnimacionesActivas(true);
-        });
-      } else {
-        requestAnimationFrame(() => {
-          if (chatRef.current) {
-            const primerVisible = chatRef.current.querySelector("[data-id]");
-            if (primerVisible) {
-              primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
-            }
-          }
-        });
-      }
+    }
+  });
+}
     } catch (err) {
       console.error("❌ Error cargando mensajes:", err);
     }

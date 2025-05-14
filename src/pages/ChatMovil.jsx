@@ -28,6 +28,8 @@ const ChatMovil = () => {
     if (est) setEstado(est);
   }, [userId]);
 
+  (...todo el código anterior...)
+
   const cargarMensajes = async (desdeTimestamp = null) => {
     try {
       const url = desdeTimestamp
@@ -80,24 +82,26 @@ const ChatMovil = () => {
 
       if (!mensajesConEtiqueta.length) return;
 
+      const nuevosFinal = [...mensajes, ...mensajesConEtiqueta];
       const mapa = new Map();
-      mensajes.forEach((m) => {
-        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-        mapa.set(clave, m);
-      });
-      mensajesConEtiqueta.forEach((m) => {
+
+      nuevosFinal.forEach((m) => {
         const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
         mapa.set(clave, m);
       });
 
-      const todosOrdenados = Array.from(mapa.values()).sort(
+      const ordenados = Array.from(mapa.values()).sort(
         (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
       );
-      const ultimos50 = todosOrdenados.slice(-50);
-      setMensajes(ultimos50);
 
-      if (ultimos50[0]) {
-        oldestTimestampRef.current = ultimos50[0].lastInteraction;
+      if (ordenados.length > 50) {
+        ordenados.splice(0, ordenados.length - 50); // quita los más antiguos
+      }
+
+      setMensajes(ordenados);
+
+      if (ordenados[0]) {
+        oldestTimestampRef.current = ordenados[0].lastInteraction;
       }
 
       if (!desdeTimestamp) {

@@ -79,8 +79,8 @@ const ChatMovil = () => {
       }
 
       setMensajes((prev) => {
-  const existentes = new Set(prev.map((m) => m.id));
-  const nuevos = mensajesConEtiqueta.filter((m) => !existentes.has(m.id));
+  const existentes = new Set(prev.map((m) => `${m.lastInteraction}-${m.rol}-${m.tipo}`));
+  const nuevos = mensajesConEtiqueta.filter((m) => !existentes.has(`${m.lastInteraction}-${m.rol}-${m.tipo}`));
   return desdeTimestamp
     ? [...nuevos, ...prev] // Scroll arriba: añade al principio
     : [...prev, ...nuevos]; // Nuevos mensajes: añade al final

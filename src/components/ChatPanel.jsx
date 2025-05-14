@@ -1,4 +1,5 @@
 import React from "react";
+import iconVer from "/src/assets/ver.svg";
 
 const ChatPanel = ({
   mensajes,
@@ -19,9 +20,9 @@ const ChatPanel = ({
           </div>
           <span>ID: {userId}</span>
         </div>
-        <button onClick={onToggleDetalles} className="text-gray-500 hover:text-black text-xl">
-          <span role="img" aria-label="detalles">👁</span>
-        </button>
+        <button onClick={onToggleDetalles} className="text-gray-500 hover:text-black w-6 h-6">
+  <img src={iconVer} alt="Ver detalles" className="w-full h-full" />
+</button>
       </div>
 
       {mensajes.map((msg, index) => {

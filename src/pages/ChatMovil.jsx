@@ -1,3 +1,4 @@
+// ChatMovil.jsx - Versión estable con parpadeo leve
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from "/src/assets/ver.svg";
@@ -42,13 +43,12 @@ const ChatMovil = () => {
         return;
       }
 
-      // Después:
-const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-const mensajesConEtiqueta = [];
-let estadoActual = "gpt";
+      const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+      const mensajesConEtiqueta = [];
+      let estadoActual = "gpt";
 
       for (let i = 0; i < nuevosOrdenados.length; i++) {
-  const msg = nuevosOrdenados[i];
+        const msg = nuevosOrdenados[i];
 
         if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
           mensajesConEtiqueta.push({
@@ -68,108 +68,97 @@ let estadoActual = "gpt";
         }
 
         if (msg.manual === true && estadoActual === "gpt") {
-  mensajesConEtiqueta.push({
-    tipo: "etiqueta",
-    mensaje: "Intervenida",
-    timestamp: msg.lastInteraction,
-  });
-  estadoActual = "humano";
-}
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+          estadoActual = "humano";
+        }
 
-mensajesConEtiqueta.push(msg);
-}
-
-// ✅ Evita setState si no hay nada nuevo
-if (!mensajesConEtiqueta.length) return;
-
-const mapa = new Map();
-
-// Primero los mensajes anteriores
-mensajes.forEach((m) => {
-  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-  mapa.set(clave, m);
-});
-
-// Luego los nuevos (sobrescriben duplicados)
-mensajesConEtiqueta.forEach((m) => {
-  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-  mapa.set(clave, m);
-});
-
-// Ordenar y limitar ANTES de hacer set
-const todosOrdenados = Array.from(mapa.values()).sort(
-  (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-);
-
-const ultimos50 = todosOrdenados.slice(-50);
-
-// ✅ Actualizar estado inmediatamente
-setMensajes(ultimos50);
-
-if (ultimos50[0]) {
-  oldestTimestampRef.current = ultimos50[0].lastInteraction;
-  console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
-}
-
-if (!desdeTimestamp) {
-  // Primera carga → scroll hasta el final
-  setTimeout(() => {
-    if (scrollForzado.current && chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-    }
-    setAnimacionesActivas(true);
-  }, 100);
-} else {
-  // Scroll arriba → mantener posición en el primer mensaje nuevo cargado
-  setTimeout(() => {
-    if (chatRef.current) {
-      const primerVisible = chatRef.current.querySelector("[data-id]");
-      if (primerVisible) {
-        primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+        mensajesConEtiqueta.push(msg);
       }
+
+      if (!mensajesConEtiqueta.length) return;
+
+      const mapa = new Map();
+      mensajes.forEach((m) => {
+        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+        mapa.set(clave, m);
+      });
+      mensajesConEtiqueta.forEach((m) => {
+        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+        mapa.set(clave, m);
+      });
+
+      const todosOrdenados = Array.from(mapa.values()).sort(
+        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+      );
+      const ultimos50 = todosOrdenados.slice(-50);
+      setMensajes(ultimos50);
+
+      if (ultimos50[0]) {
+        oldestTimestampRef.current = ultimos50[0].lastInteraction;
+      }
+
+      if (!desdeTimestamp) {
+        requestAnimationFrame(() => {
+          if (scrollForzado.current && chatRef.current) {
+            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+          }
+          setAnimacionesActivas(true);
+        });
+      } else {
+        requestAnimationFrame(() => {
+          if (chatRef.current) {
+            const primerVisible = chatRef.current.querySelector("[data-id]");
+            if (primerVisible) {
+              primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.error("❌ Error cargando mensajes:", err);
     }
-  }, 100);
-}
-} catch (err) {
-  console.error("❌ Error cargando mensajes:", err);
-}
-};
+  };
 
-useEffect(() => {
-  if (!estado) return;
-  cargarMensajes();
-  const interval = setInterval(() => cargarMensajes(), 2000);
-  return () => clearInterval(interval);
-}, [userId, estado]);
+  useEffect(() => {
+    if (!estado) return;
+    cargarMensajes();
+    const interval = setInterval(() => cargarMensajes(), 2000);
+    return () => clearInterval(interval);
+  }, [userId, estado]);
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
-      .then((res) => res.json())
-      .then((data) => setTextoEscribiendo(data.texto || ""))
-      .catch(console.error);
-  }, 2000);
-  return () => clearInterval(interval);
-}, [userId]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
+        .then((res) => res.json())
+        .then((data) => setTextoEscribiendo(data.texto || ""))
+        .catch(console.error);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
 
-const handleScroll = async () => {
-  if (!chatRef.current) return;
-  const el = chatRef.current;
-  const { scrollTop, scrollHeight, clientHeight } = el;
+  const handleScroll = async () => {
+    if (!chatRef.current) return;
+    const el = chatRef.current;
+    const { scrollTop, scrollHeight, clientHeight } = el;
 
-  const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
-  setMostrarScrollBtn(!cercaDelFinal);
-  scrollForzado.current = cercaDelFinal;
+    const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
+    setMostrarScrollBtn(!cercaDelFinal);
+    scrollForzado.current = cercaDelFinal;
 
-  if (scrollTop === 0 && hasMore && !loadingMore) {
-    setLoadingMore(true);
-    await cargarMensajes(oldestTimestampRef.current);
-    setLoadingMore(false);
-  }
-};
+    if (scrollTop === 0 && hasMore && !loadingMore) {
+      setLoadingMore(true);
+      await cargarMensajes(oldestTimestampRef.current);
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen">
+      {/* Cabecera */}
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
         <div className="flex items-center gap-2">
@@ -183,6 +172,7 @@ const handleScroll = async () => {
         </button>
       </div>
 
+      {/* Conversación */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
@@ -201,13 +191,15 @@ const handleScroll = async () => {
               </div>
             );
           }
-                const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+
+          const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : isAsistente
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
+
           const contenidoPrincipal =
             msg.tipo === "imagen"
               ? msg.message
@@ -289,67 +281,67 @@ const handleScroll = async () => {
         </button>
       )}
 
+      {/* Respuesta */}
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
             e.preventDefault();
+
             if (imagen) {
-  const formData = new FormData();
-  formData.append("file", imagen);
-  formData.append("userId", userId);
-  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+              const formData = new FormData();
+              formData.append("file", imagen);
+              formData.append("userId", userId);
+              formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-  try {
-    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-      method: "POST",
-      body: formData,
-    });
+              try {
+                const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+                  method: "POST",
+                  body: formData,
+                });
 
-    const result = await res.json();
-    if (!res.ok || !result.imageUrl) {
-      alert("Hubo un problema al subir la imagen.");
-    } else {
-      await cargarMensajes();
+                const result = await res.json();
+                if (!res.ok || !result.imageUrl) {
+                  alert("Hubo un problema al subir la imagen.");
+                } else {
+                  await cargarMensajes();
+                  setTimeout(() => {
+                    if (chatRef.current) {
+                      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+                    }
+                  }, 100);
+                }
+              } catch (err) {
+                alert("Error al subir imagen.");
+              }
 
-      setTimeout(() => {
-        if (chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-        }
-      }, 100);
-    }
-  } catch (err) {
-    alert("Error al subir imagen.");
-  }
+              setImagen(null);
+              return;
+            }
 
-  setImagen(null);
-  return;
-}
+            if (!respuesta.trim()) return;
 
-if (!respuesta.trim()) return;
+            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                message: respuesta,
+                agente: {
+                  nombre: perfil.nombre || "",
+                  foto: perfil.foto || "",
+                  uid: localStorage.getItem("id-usuario-panel") || null,
+                },
+              }),
+            });
 
-await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    userId,
-    message: respuesta,
-    agente: {
-      nombre: perfil.nombre || "",
-      foto: perfil.foto || "",
-      uid: localStorage.getItem("id-usuario-panel") || null,
-    },
-  }),
-});
+            await cargarMensajes();
+            setTimeout(() => {
+              if (chatRef.current) {
+                chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+              }
+            }, 100);
 
-await cargarMensajes();
-
-setTimeout(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-  }
-}, 100);
-
-setRespuesta("");
+            setRespuesta("");
           }}
           className="flex items-center gap-2"
         >

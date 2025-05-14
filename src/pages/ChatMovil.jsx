@@ -151,6 +151,14 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [userId]);
 
+  useEffect(() => {
+  if (scrollForzado.current && chatRef.current) {
+    requestAnimationFrame(() => {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+    });
+  }
+}, [mensajes]);
+
 const handleScroll = async () => {
   if (!chatRef.current) return;
   const el = chatRef.current;

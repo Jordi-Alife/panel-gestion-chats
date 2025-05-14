@@ -68,9 +68,8 @@ const ConversacionList = ({
             </div>
 
             {c.estado === "Activa" ? (
-              <span className="relative inline-flex items-center px-2 py-0.5 text-[10px] uppercase tracking-wide font-medium text-green-700 bg-green-100 rounded-xl overflow-hidden">
-                <span className="absolute inline-flex h-full w-full rounded-xl bg-green-300 opacity-40 animate-ping"></span>
-                <span className="relative z-10">Activa</span>
+              <span className="estado-activa text-[10px] uppercase tracking-wide font-medium px-2 py-0.5">
+                {c.estado}
               </span>
             ) : (
               <span

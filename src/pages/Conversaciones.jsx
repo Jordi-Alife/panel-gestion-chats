@@ -4,6 +4,7 @@ import ConversacionList from "../components/ConversacionList";
 import ChatPanel from "../components/ChatPanel";
 import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
+import logoFondo from "../assets/logo-fondo.svg";
 
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();

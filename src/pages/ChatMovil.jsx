@@ -79,11 +79,11 @@ const ChatMovil = () => {
       }
 
       setMensajes((prev) => {
-  const nuevosIds = new Set(mensajesConEtiqueta.map((m) => m.id));
-  const prevFiltrados = prev.filter((m) => !nuevosIds.has(m.id));
+  const existentes = new Set(prev.map((m) => m.id));
+  const nuevos = mensajesConEtiqueta.filter((m) => !existentes.has(m.id));
   return desdeTimestamp
-    ? [...mensajesConEtiqueta, ...prevFiltrados] // Scroll arriba
-    : [...prevFiltrados, ...mensajesConEtiqueta]; // Nuevos mensajes abajo
+    ? [...nuevos, ...prev] // Scroll arriba: añade al principio
+    : [...prev, ...nuevos]; // Nuevos mensajes: añade al final
 });
 
 if (ordenados[0]) {

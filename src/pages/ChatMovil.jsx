@@ -42,9 +42,10 @@ const ChatMovil = () => {
         return;
       }
 
-      const ordenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-      const mensajesConEtiqueta = [];
-      let estadoActual = "gpt";
+      // Después:
+const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+const mensajesConEtiqueta = [];
+let estadoActual = "gpt";
 
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];

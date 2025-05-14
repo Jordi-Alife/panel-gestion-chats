@@ -77,19 +77,24 @@ export default function Conversaciones() {
         nuevosMensajes.push(msg);
       }
 
-      setMensajes((prev) => {
-        const combinados = [...prev, ...nuevosMensajes];
-        const mapa = new Map();
+      setMensajes(() => {
+  const mapa = new Map();
 
-        combinados.forEach((m) => {
-          const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-          mapa.set(clave, m);
-        });
+  nuevosMensajes.forEach((m) => {
+    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+    mapa.set(clave, m);
+  });
 
-        const ordenados = Array.from(mapa.values()).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-        if (ordenados.length > 50) ordenados.splice(0, ordenados.length - 50);
-        return ordenados;
-      });
+  const ordenados = Array.from(mapa.values()).sort(
+    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+  );
+
+  if (ordenados.length > 50) {
+    ordenados.splice(0, ordenados.length - 50);
+  }
+
+  return ordenados;
+});
 
       const nuevasConversaciones = await cargarDatos();
       const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);

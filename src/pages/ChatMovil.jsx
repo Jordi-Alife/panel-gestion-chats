@@ -151,14 +151,6 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [userId]);
 
-  useEffect(() => {
-  if (scrollForzado.current && chatRef.current) {
-    requestAnimationFrame(() => {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-    });
-  }
-}, [mensajes]);
-
 const handleScroll = async () => {
   if (!chatRef.current) return;
   const el = chatRef.current;
@@ -299,49 +291,37 @@ const handleScroll = async () => {
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
-  e.preventDefault();
+            e.preventDefault();
+            if (imagen) {
+  const formData = new FormData();
+  formData.append("file", imagen);
+  formData.append("userId", userId);
+  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-  if (imagen) {
-    const formData = new FormData();
-    formData.append("file", imagen);
-    formData.append("userId", userId);
-    formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
-
-    try {
-      const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+      method: "POST",
+      body: formData,
+    });
 
     const result = await res.json();
-if (!res.ok || !result.imageUrl) {
-  alert("Hubo un problema al subir la imagen.");
-} else {
-  setTimeout(() => cargarMensajes(), 300);
+    if (!res.ok || !result.imageUrl) {
+      alert("Hubo un problema al subir la imagen.");
+    } else {
+      await cargarMensajes();
 
-  // Scroll automático suave hasta el final
-  function scrollAlFinalSuave() {
-    requestAnimationFrame(() => {
-      if (!chatRef.current) return;
-
-      const el = chatRef.current;
-      const estaAbajo = el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
-
-      if (!estaAbajo) {
-        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-        requestAnimationFrame(scrollAlFinalSuave);
-      }
-    });
+      setTimeout(() => {
+        if (chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+        }
+      }, 100);
+    }
+  } catch (err) {
+    alert("Error al subir imagen.");
   }
 
-  scrollAlFinalSuave();
-}
-} catch (err) {
-  alert("Error al subir imagen.");
-}
-
-setImagen(null);
-return;
+  setImagen(null);
+  return;
 }
 
 if (!respuesta.trim()) return;
@@ -360,14 +340,15 @@ await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
   }),
 });
 
-  setRespuesta("");
+await cargarMensajes();
 
-  setTimeout(() => cargarMensajes(), 300);
-  setTimeout(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-    }
-  }, 350);
+setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+  }
+}, 100);
+
+setRespuesta("");
           }}
           className="flex items-center gap-2"
         >

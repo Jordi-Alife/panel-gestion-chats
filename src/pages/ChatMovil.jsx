@@ -1,4 +1,3 @@
-// ChatMovil.jsx - Versión estable con parpadeo leve
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import iconVer from "/src/assets/ver.svg";
@@ -158,7 +157,6 @@ const ChatMovil = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Cabecera */}
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
         <div className="flex items-center gap-2">
@@ -172,7 +170,6 @@ const ChatMovil = () => {
         </button>
       </div>
 
-      {/* Conversación */}
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
         {mensajes.map((msg, index) => {
           if (msg.tipo === "etiqueta") {
@@ -281,7 +278,6 @@ const ChatMovil = () => {
         </button>
       )}
 
-      {/* Respuesta */}
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
@@ -303,12 +299,12 @@ const ChatMovil = () => {
                 if (!res.ok || !result.imageUrl) {
                   alert("Hubo un problema al subir la imagen.");
                 } else {
-                  await cargarMensajes();
+                  setTimeout(() => cargarMensajes(), 300);
                   setTimeout(() => {
                     if (chatRef.current) {
                       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
                     }
-                  }, 100);
+                  }, 350);
                 }
               } catch (err) {
                 alert("Error al subir imagen.");
@@ -334,14 +330,14 @@ const ChatMovil = () => {
               }),
             });
 
-            await cargarMensajes();
+            setRespuesta("");
+
+            setTimeout(() => cargarMensajes(), 300);
             setTimeout(() => {
               if (chatRef.current) {
                 chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
               }
-            }, 100);
-
-            setRespuesta("");
+            }, 350);
           }}
           className="flex items-center gap-2"
         >

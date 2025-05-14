@@ -99,12 +99,20 @@ if (ordenados.length > 50) {
 // ✅ Evitar setState innecesario si los mensajes no han cambiado
 const igual =
   mensajes.length === ordenados.length &&
-  mensajes[mensajes.length - 1]?.id === ordenados[ordenados.length - 1]?.id;
+  mensajes.map((m) => m.id || m.timestamp).join(",") ===
+    ordenados.map((m) => m.id || m.timestamp).join(",");
 
 if (!igual) {
   setMensajes(ordenados);
+} else {
+  // Aunque no cambien, fuerza el scroll y activa animaciones
+  requestAnimationFrame(() => {
+    if (scrollForzado.current && chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+    }
+    setAnimacionesActivas(true);
+  });
 }
-
 if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
 }

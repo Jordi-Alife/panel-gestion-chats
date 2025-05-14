@@ -90,6 +90,11 @@ if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
 }
 
+if (ordenados[0]) {
+  oldestTimestampRef.current = ordenados[0].lastInteraction;
+  console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
+}
+
 if (!desdeTimestamp) {
   // Primera carga → scroll hasta el final
   setTimeout(() => {

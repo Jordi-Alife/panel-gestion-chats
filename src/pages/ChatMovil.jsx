@@ -87,17 +87,18 @@ setMensajes((prev) => {
 
   mensajesConEtiqueta.forEach((nuevo) => {
     if (!existentes.has(nuevo.id)) {
-      if (desdeTimestamp) {
-        combinados.unshift(nuevo); // Scroll arriba
-      } else {
-        combinados.push(nuevo); // Nuevos abajo
-      }
+      combinados.push(nuevo); // Añade siempre al final
     }
   });
 
+  // 💡 Limita el tamaño manteniendo los más recientes
+  const limite = 50;
+  if (combinados.length > limite) {
+    return combinados.slice(combinados.length - limite); // Solo los últimos N
+  }
+
   return combinados;
 });
-
 if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
   console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);

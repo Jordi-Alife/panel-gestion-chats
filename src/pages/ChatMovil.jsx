@@ -291,55 +291,64 @@ const handleScroll = async () => {
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
-            e.preventDefault();
-            if (imagen) {
-  const formData = new FormData();
-  formData.append("file", imagen);
-  formData.append("userId", userId);
-  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+  e.preventDefault();
 
-  try {
-    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-      method: "POST",
-      body: formData,
-    });
+  if (imagen) {
+    const formData = new FormData();
+    formData.append("file", imagen);
+    formData.append("userId", userId);
+    formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-    const result = await res.json();
-    if (!res.ok || !result.imageUrl) {
-      alert("Hubo un problema al subir la imagen.");
-    } else {
-      await cargarMensajes();
+    try {
+      const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+        method: "POST",
+        body: formData,
+      });
 
-      setTimeout(() => {
-        if (chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-        }
-      }, 100);
+      const result = await res.json();
+      if (!res.ok || !result.imageUrl) {
+        alert("Hubo un problema al subir la imagen.");
+      } else {
+        setTimeout(() => cargarMensajes(), 300);
+        setTimeout(() => {
+          if (chatRef.current) {
+            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+          }
+        }, 350);
+      }
+    } catch (err) {
+      alert("Error al subir imagen.");
     }
-  } catch (err) {
-    alert("Error al subir imagen.");
+
+    setImagen(null);
+    return;
   }
 
-  setImagen(null);
-  return;
-}
+  if (!respuesta.trim()) return;
 
-if (!respuesta.trim()) return;
+  await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId,
+      message: respuesta,
+      agente: {
+        nombre: perfil.nombre || "",
+        foto: perfil.foto || "",
+        uid: localStorage.getItem("id-usuario-panel") || null,
+      },
+    }),
+  });
 
-await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    userId,
-    message: respuesta,
-    agente: {
-      nombre: perfil.nombre || "",
-      foto: perfil.foto || "",
-      uid: localStorage.getItem("id-usuario-panel") || null,
-    },
-  }),
-});
+  setRespuesta("");
 
+  setTimeout(() => cargarMensajes(), 300);
+  setTimeout(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    }
+  }, 350);
+}}
 await cargarMensajes();
 
 setTimeout(() => {

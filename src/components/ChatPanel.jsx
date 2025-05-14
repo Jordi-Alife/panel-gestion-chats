@@ -13,14 +13,14 @@ const ChatPanel = ({
 }) => {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-white dark:bg-gray-900" ref={chatRef} onScroll={onScroll}>
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 w-full px-4 py-2 flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-100">
           <div className="bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center text-sm">
             {userId?.slice(0, 2).toUpperCase()}
           </div>
           <span>ID: {userId}</span>
         </div>
-        <button onClick={onToggleDetalles} className="text-gray-500 hover:text-black dark:hover:text-white w-6 h-6">
+        <button onClick={onToggleDetalles} className="text-gray-500 hover:text-black dark:text-gray-300 dark:hover:text-white w-6 h-6">
           <img src={iconVer} alt="Ver detalles" className="w-full h-full" />
         </button>
       </div>

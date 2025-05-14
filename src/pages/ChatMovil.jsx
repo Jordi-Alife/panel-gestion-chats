@@ -325,7 +325,12 @@ if (!desdeTimestamp) {
             });
 
             setRespuesta("");
-            cargarMensajes();
+await cargarMensajes();
+setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+  }
+}, 100);
           }}
           className="flex items-center gap-2"
         >

@@ -103,6 +103,9 @@ const todosOrdenados = Array.from(mapa.values()).sort(
 
 const ultimos50 = todosOrdenados.slice(-50);
 
+// ✅ Actualizar estado inmediatamente
+setMensajes(ultimos50);
+
 if (ultimos50[0]) {
   oldestTimestampRef.current = ultimos50[0].lastInteraction;
   console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
@@ -114,7 +117,6 @@ if (!desdeTimestamp) {
     if (scrollForzado.current && chatRef.current) {
       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
     }
-    setMensajes(ultimos50); // ✅ Ahora aquí
     setAnimacionesActivas(true);
   }, 100);
 } else {
@@ -126,7 +128,6 @@ if (!desdeTimestamp) {
         primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
       }
     }
-    setMensajes(ultimos50); // ✅ Y aquí también
   }, 100);
 }
 } catch (err) {

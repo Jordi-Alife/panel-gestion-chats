@@ -13,6 +13,7 @@ import DetallesMovil from "./pages/DetallesMovil";
 import Agentes from "./pages/agentes";
 import AgenteDetalle from "./pages/AgenteDetalle";
 import Perfil from "./pages/Perfil";
+import PerfilMovil from "./pages/PerfilMovil";
 import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import Monitor from "./pages/Monitor";
@@ -113,6 +114,11 @@ const App = () => {
         <Route
           path="/conversaciones-movil"
           element={usuarioActual ? <ConversacionesMovil /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/perfil-movil"
+          element={usuarioActual ? <PerfilMovil /> : <Navigate to="/login" />}
         />
 
         <Route

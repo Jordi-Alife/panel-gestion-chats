@@ -67,34 +67,41 @@ const ChatMovil = () => {
         }
 
         if (msg.manual === true && estadoActual === "gpt") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-          estadoActual = "humano";
-        }
-
-        mensajesConEtiqueta.push(msg);
-      }
-
-      setMensajes((prev) => {
-  const existentes = new Set(prev.map((m) => `${m.lastInteraction}-${m.rol}-${m.tipo}`));
-  const nuevos = mensajesConEtiqueta.filter((m) => !existentes.has(`${m.lastInteraction}-${m.rol}-${m.tipo}`));
-  return desdeTimestamp
-    ? [...nuevos, ...prev] // Scroll arriba: añade al principio
-    : [...prev, ...nuevos]; // Nuevos mensajes: añade al final
-});
-
-if (ordenados[0]) {
-  oldestTimestampRef.current = ordenados[0].lastInteraction;
+  mensajesConEtiqueta.push({
+    tipo: "etiqueta",
+    mensaje: "Intervenida",
+    timestamp: msg.lastInteraction,
+  });
+  estadoActual = "humano";
 }
+
+mensajesConEtiqueta.push(msg);
+}
+
+// ✅ Evita setState si no hay nada nuevo
+if (!mensajesConEtiqueta.length) return;
+
+setMensajes((prev) => {
+  const existentes = new Map(prev.map((m) => [m.id, m]));
+  const combinados = [...prev];
+
+  mensajesConEtiqueta.forEach((nuevo) => {
+    if (!existentes.has(nuevo.id)) {
+      if (desdeTimestamp) {
+        combinados.unshift(nuevo); // Scroll arriba
+      } else {
+        combinados.push(nuevo); // Nuevos abajo
+      }
+    }
+  });
+
+  return combinados;
+});
 
 if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
   console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
 }
-
 if (!desdeTimestamp) {
   // Primera carga → scroll hasta el final
   setTimeout(() => {

@@ -85,13 +85,13 @@ const mapa = new Map();
 
 // Primero los mensajes anteriores
 mensajes.forEach((m) => {
-  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}`;
+  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
   mapa.set(clave, m);
 });
 
 // Luego los nuevos (sobrescriben duplicados)
 mensajesConEtiqueta.forEach((m) => {
-  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}`;
+  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
   mapa.set(clave, m);
 });
 
@@ -127,42 +127,43 @@ if (!desdeTimestamp) {
     }
   }, 100);
 }
-    } catch (err) {
-      console.error("❌ Error cargando mensajes:", err);
-    }
-  };
-    useEffect(() => {
-    if (!estado) return;
-    cargarMensajes();
-    const interval = setInterval(() => cargarMensajes(), 2000);
-    return () => clearInterval(interval);
-  }, [userId, estado]);
+} catch (err) {
+  console.error("❌ Error cargando mensajes:", err);
+}
+};
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
-        .then((res) => res.json())
-        .then((data) => setTextoEscribiendo(data.texto || ""))
-        .catch(console.error);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
+useEffect(() => {
+  if (!estado) return;
+  cargarMensajes();
+  const interval = setInterval(() => cargarMensajes(), 2000);
+  return () => clearInterval(interval);
+}, [userId, estado]);
 
-  const handleScroll = async () => {
-    if (!chatRef.current) return;
-    const el = chatRef.current;
-    const { scrollTop, scrollHeight, clientHeight } = el;
+useEffect(() => {
+  const interval = setInterval(() => {
+    fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setTextoEscribiendo(data.texto || ""))
+      .catch(console.error);
+  }, 2000);
+  return () => clearInterval(interval);
+}, [userId]);
 
-    const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
-    setMostrarScrollBtn(!cercaDelFinal);
-    scrollForzado.current = cercaDelFinal;
+const handleScroll = async () => {
+  if (!chatRef.current) return;
+  const el = chatRef.current;
+  const { scrollTop, scrollHeight, clientHeight } = el;
 
-    if (scrollTop === 0 && hasMore && !loadingMore) {
-      setLoadingMore(true);
-      await cargarMensajes(oldestTimestampRef.current);
-      setLoadingMore(false);
-    }
-  };
+  const cercaDelFinal = scrollTop + clientHeight >= scrollHeight - 100;
+  setMostrarScrollBtn(!cercaDelFinal);
+  scrollForzado.current = cercaDelFinal;
+
+  if (scrollTop === 0 && hasMore && !loadingMore) {
+    setLoadingMore(true);
+    await cargarMensajes(oldestTimestampRef.current);
+    setLoadingMore(false);
+  }
+};
 
   return (
     <div className="flex flex-col h-screen">

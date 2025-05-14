@@ -100,9 +100,6 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* ✅ Redirección condicional desde raíz */}
-        <Route path="/" element={<InicioRedirect />} />
-
         <Route
           path="/conversaciones/:userId"
           element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}

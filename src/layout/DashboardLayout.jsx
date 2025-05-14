@@ -124,29 +124,14 @@ const DashboardLayout = ({ children }) => {
 
       {/* Layout principal */}
       <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
-        {/* Sidebar de escritorio y main layout vienen aquí (no modificados) */}
-        {children}
-      </div>
-    </div>
-  );
-};
-
-export default DashboardLayout;
-
-
-      {/* Layout principal */}
-     <div className="flex flex-1 pt-[72px] h-[calc(100dvh-72px)]">
-  <aside
-  className={`relative hidden md:flex flex-col justify-between ${
-    colapsado ? "w-20" : "w-64"
-  } bg-[#1E2431] transition-all duration-200`}
->
-    <div>
-      <button
-        onClick={() => setColapsado(!colapsado)}
-        className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
-        aria-label="Toggle menú"
-      >
+        {/* Sidebar de escritorio */}
+        <aside className={`relative hidden md:flex flex-col justify-between ${colapsado ? "w-20" : "w-64"} bg-[#1E2431] transition-all duration-200`}>
+          <div>
+            <button
+              onClick={() => setColapsado(!colapsado)}
+              className="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-[#2d3444] p-4 rounded-r-full shadow-md flex items-center justify-center hover:opacity-90 transition-all z-20"
+              aria-label="Toggle menú"
+            >
               <img
                 src={IconToggle}
                 alt="Toggle menú"
@@ -155,22 +140,12 @@ export default DashboardLayout;
             </button>
 
             <div className="mt-4 space-y-1 text-sm relative z-20">
-              <Link
-  to="/inicio"
-  className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-    colapsado ? "justify-center" : "gap-3"
-  }`}
->
-  <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
-  {!colapsado && <span>Inicio</span>}
-</Link>
+              <Link to="/inicio" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${colapsado ? "justify-center" : "gap-3"}`}>
+                <img src={IconInicio} alt="Inicio" className="w-5 h-5" />
+                {!colapsado && <span>Inicio</span>}
+              </Link>
 
-              <Link
-                to="/conversaciones"
-                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${
-                  colapsado ? "justify-center" : "gap-3"
-                }`}
-              >
+              <Link to="/conversaciones" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${colapsado ? "justify-center" : "gap-3"}`}>
                 <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
                 {!colapsado && <span>Conversaciones</span>}
                 {notificaciones > 0 && (
@@ -180,23 +155,13 @@ export default DashboardLayout;
                 )}
               </Link>
 
-              <Link
-                to="/monitor"
-                className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-                  colapsado ? "justify-center" : "gap-3"
-                }`}
-              >
+              <Link to="/monitor" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${colapsado ? "justify-center" : "gap-3"}`}>
                 <img src={IconMonitor} alt="Monitor" className="w-5 h-5" />
                 {!colapsado && <span>Monitor</span>}
               </Link>
 
               {rolUsuario !== "Soporte" && (
-                <Link
-                  to="/agentes"
-                  className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${
-                    colapsado ? "justify-center" : "gap-3"
-                  }`}
-                >
+                <Link to="/agentes" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${colapsado ? "justify-center" : "gap-3"}`}>
                   <img src={IconAgentes} alt="Agentes" className="w-5 h-5" />
                   {!colapsado && <span>Agentes</span>}
                 </Link>
@@ -206,77 +171,45 @@ export default DashboardLayout;
 
           <div className="px-4 pb-6 z-20 space-y-2">
             {colapsado ? (
-              <>
-                <button className="w-full bg-[#FC6655] rounded-xl flex items-center justify-center h-12">
-                  <img src={IconUserFamily} alt="Soporte Familias" className="w-6 h-6" />
-                </button>
-                <button className="w-full bg-[#4560FE] rounded-xl flex items-center justify-center h-12 opacity-60 cursor-not-allowed">
-                  <img src={IconSkyscraper} alt="Soporte Empresas" className="w-6 h-6" />
-                </button>
-                <div className="flex justify-center mt-2">
-                  <button onClick={() => navigate("/perfil")}>
-                    <img
-                      src={fotoPerfil || "https://i.pravatar.cc/100"}
-                      alt="Perfil"
-                      className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                        cargandoFoto ? "opacity-0" : "opacity-100"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button
-                  className="w-full bg-[#FC6655] text-white font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition flex items-center gap-2 justify-center"
-                >
-                  <img src={IconUserFamily} alt="Icono Familias" className="w-4 h-4" />
-                  Soporte Familias
-                </button>
-                <button
-                  className="w-full bg-[#4560FE] text-white font-semibold py-2 rounded-xl text-sm opacity-60 cursor-not-allowed flex items-center gap-2 justify-center"
-                >
-                  <img src={IconSkyscraper} alt="Icono Empresas" className="w-4 h-4" />
-                  Soporte Empresas
-                </button>
-
-                <div
-                  onClick={() => navigate("/perfil")}
-                  className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-2"
-                >
+              <div className="flex justify-center mt-2">
+                <button onClick={() => navigate("/perfil")}> {/* Perfil escritorio */}
                   <img
                     src={fotoPerfil || "https://i.pravatar.cc/100"}
                     alt="Perfil"
-                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${
-                      cargandoFoto ? "opacity-0" : "opacity-100"
-                    }`}
+                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
                   />
-                  <div>
-                    <div className="font-semibold text-sm leading-tight">
-                      {nombrePerfil || "Mi perfil"}
-                    </div>
-                    <div className="text-xs text-gray-400">Editar</div>
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => navigate("/perfil")}
+                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-2"
+              >
+                <img
+                  src={fotoPerfil || "https://i.pravatar.cc/100"}
+                  alt="Perfil"
+                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
+                />
+                <div>
+                  <div className="font-semibold text-sm leading-tight">
+                    {nombrePerfil || "Mi perfil"}
                   </div>
+                  <div className="text-xs text-gray-400">Editar</div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </aside>
 
+        {/* Contenido principal */}
         <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
           {children}
           <footer className="hidden md:flex mt-12 border-t pt-4 text-xs text-gray-500 flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>
             <div className="flex gap-4">
-              <a href="#" className="hover:underline">
-                Condiciones generales
-              </a>
-              <a href="#" className="hover:underline">
-                Política de privacidad
-              </a>
-              <a href="#" className="hover:underline">
-                Política de cookies
-              </a>
+              <a href="#" className="hover:underline">Condiciones generales</a>
+              <a href="#" className="hover:underline">Política de privacidad</a>
+              <a href="#" className="hover:underline">Política de cookies</a>
             </div>
           </footer>
         </main>

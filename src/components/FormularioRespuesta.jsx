@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import iconFile from "/src/assets/file.svg";
 
 const FormularioRespuesta = ({
@@ -11,17 +11,21 @@ const FormularioRespuesta = ({
   cargarDatos,
   setUsuarioSeleccionado,
 }) => {
+  const [enviando, setEnviando] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!userId || enviando || (!respuesta.trim() && !imagen)) return;
 
-    if (imagen) {
-      const formData = new FormData();
-      formData.append("file", imagen);
-      formData.append("userId", userId);
-      formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+    setEnviando(true);
 
-      try {
+    try {
+      if (imagen) {
+        const formData = new FormData();
+        formData.append("file", imagen);
+        formData.append("userId", userId);
+        formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+
         const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
           method: "POST",
           body: formData,
@@ -35,34 +39,35 @@ const FormularioRespuesta = ({
         } else {
           cargarDatos();
         }
-      } catch (err) {
-        console.error("❌ Error en envío de imagen:", err);
-        alert("Error al subir imagen.");
+
+        setImagen(null);
+        return;
       }
 
-      setImagen(null);
-      return;
+      if (!respuesta.trim()) return;
+
+      await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          message: respuesta,
+          agente: {
+            nombre: perfil.nombre || "",
+            foto: perfil.foto || "",
+            uid: localStorage.getItem("id-usuario-panel") || null,
+          },
+        }),
+      });
+
+      setRespuesta("");
+      setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
+      cargarDatos();
+    } catch (err) {
+      console.error("❌ Error en envío:", err);
+    } finally {
+      setEnviando(false);
     }
-
-    if (!respuesta.trim()) return;
-
-    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        message: respuesta,
-        agente: {
-          nombre: perfil.nombre || "",
-          foto: perfil.foto || "",
-          uid: localStorage.getItem("id-usuario-panel") || null,
-        },
-      }),
-    });
-
-    setRespuesta("");
-    setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
-    cargarDatos();
   };
 
   return (
@@ -95,7 +100,10 @@ const FormularioRespuesta = ({
 
         <button
           type="submit"
-          className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
+          disabled={enviando}
+          className={`bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center ${
+            enviando ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

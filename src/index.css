@@ -11,6 +11,10 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+body {
+  @apply bg-gray-100 dark:bg-[#0f172a];
+}
+
 #root {
   height: 100%;
   display: flex;

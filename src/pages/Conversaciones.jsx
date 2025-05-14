@@ -256,7 +256,7 @@ if (info.estado?.toLowerCase() === "cerrado") {
   );
 
   return (
-  <div className="flex flex-row h-screen bg-[#f0f4f8] overflow-hidden">
+  <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
     {/* Columna izquierda */}
     <div className="w-[22%] h-full overflow-y-auto">
       <ConversacionList

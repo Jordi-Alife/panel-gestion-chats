@@ -116,7 +116,7 @@ html, body {
 /* ✅ Solución 3: mover mensajes detrás del header en móvil */
 @media (max-width: 767px) {
   .chat-messages {
-    margin-top: -64px; /* ajusta este valor a la altura real del header */
+    margin-top: -64px;
     padding-top: 64px;
   }
 }
@@ -162,6 +162,11 @@ input, textarea, select {
   50% { transform: scale(1.05); }
 }
 
+@keyframes latido {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 .estado-tag {
   animation: fadeIn 0.5s ease forwards;
   padding: 2px 8px;
@@ -172,18 +177,18 @@ input, textarea, select {
 }
 
 .estado-activa {
-  animation: fadeIn 0.5s ease forwards, pulse 2s infinite ease-in-out;
-  background-color: #22c55e; /* verde */
+  animation: fadeIn 0.5s ease forwards, latido 1.6s infinite ease-in-out;
+  background-color: #22c55e;
   color: white;
 }
 
 .estado-inactiva {
-  background-color: #facc15; /* amarillo */
+  background-color: #facc15;
   color: black;
 }
 
 .estado-archivado {
-  background-color: #9ca3af; /* gris */
+  background-color: #9ca3af;
   color: white;
 }
 

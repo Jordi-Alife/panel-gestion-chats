@@ -81,33 +81,33 @@ mensajesConEtiqueta.push(msg);
 // ✅ Evita setState si no hay nada nuevo
 if (!mensajesConEtiqueta.length) return;
 
-setMensajes((prev) => {
-  const mapa = new Map();
+const mapa = new Map();
 
-  // Primero los mensajes anteriores
-  prev.forEach((m) => {
-    const clave = `${m.id || m.timestamp}-${m.rol}-${m.tipo}`;
-    mapa.set(clave, m);
-  });
-
-  // Luego los nuevos (sobrescriben duplicados)
-  mensajesConEtiqueta.forEach((m) => {
-    const clave = `${m.id || m.timestamp}-${m.rol}-${m.tipo}`;
-    mapa.set(clave, m);
-  });
-
-  // Ordenar por fecha
-  const ordenados = Array.from(mapa.values()).sort(
-    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-  );
-
-  return ordenados.slice(-50);
+// Primero los mensajes anteriores
+mensajes.forEach((m) => {
+  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}`;
+  mapa.set(clave, m);
 });
-      
+
+// Luego los nuevos (sobrescriben duplicados)
+mensajesConEtiqueta.forEach((m) => {
+  const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}`;
+  mapa.set(clave, m);
+});
+
+// Ordenar por fecha
+const ordenados = Array.from(mapa.values()).sort(
+  (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+);
+
+// Actualizar estado
+setMensajes(ordenados.slice(-50));
+
 if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;
   console.log("✅ Oldest timestamp actualizado:", oldestTimestampRef.current);
 }
+
 if (!desdeTimestamp) {
   // Primera carga → scroll hasta el final
   setTimeout(() => {

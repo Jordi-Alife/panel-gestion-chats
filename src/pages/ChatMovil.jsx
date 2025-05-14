@@ -47,8 +47,8 @@ const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction
 const mensajesConEtiqueta = [];
 let estadoActual = "gpt";
 
-      for (let i = 0; i < ordenados.length; i++) {
-        const msg = ordenados[i];
+      for (let i = 0; i < nuevosOrdenados.length; i++) {
+  const msg = nuevosOrdenados[i];
 
         if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
           mensajesConEtiqueta.push({

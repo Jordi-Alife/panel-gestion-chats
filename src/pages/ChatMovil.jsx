@@ -82,22 +82,18 @@ mensajesConEtiqueta.push(msg);
 if (!mensajesConEtiqueta.length) return;
 
 setMensajes((prev) => {
-  const existentes = new Map(prev.map((m) => [m.id, m]));
-  const combinados = [...prev];
+  const existentes = new Set(prev.map((m) => `${m.id || m.timestamp}-${m.rol}-${m.tipo}`));
+  let combinados = [...prev];
 
   mensajesConEtiqueta.forEach((nuevo) => {
-    if (!existentes.has(nuevo.id)) {
-      combinados.push(nuevo); // Añade siempre al final
+    const clave = `${nuevo.id || nuevo.timestamp}-${nuevo.rol}-${nuevo.tipo}`;
+    if (!existentes.has(clave)) {
+      combinados.push(nuevo);
     }
   });
 
-  // 💡 Limita el tamaño manteniendo los más recientes
-  const limite = 50;
-  if (combinados.length > limite) {
-    return combinados.slice(combinados.length - limite); // Solo los últimos N
-  }
-
-  return combinados;
+  // 💡 Mantener los 50 más recientes
+  return combinados.slice(-50);
 });
 if (ordenados[0]) {
   oldestTimestampRef.current = ordenados[0].lastInteraction;

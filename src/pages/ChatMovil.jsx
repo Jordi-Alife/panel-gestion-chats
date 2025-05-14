@@ -313,40 +313,52 @@ const handleScroll = async () => {
         body: formData,
       });
 
-      const result = await res.json();
-      if (!res.ok || !result.imageUrl) {
-        alert("Hubo un problema al subir la imagen.");
-      } else {
-        setTimeout(() => cargarMensajes(), 300);
-        setTimeout(() => {
-          if (chatRef.current) {
-            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-          }
-        }, 350);
-      }
-    } catch (err) {
-      alert("Error al subir imagen.");
-    }
+    const result = await res.json();
+if (!res.ok || !result.imageUrl) {
+  alert("Hubo un problema al subir la imagen.");
+} else {
+  setTimeout(() => cargarMensajes(), 300);
 
-    setImagen(null);
-    return;
+  // Scroll automático suave hasta el final
+  function scrollAlFinalSuave() {
+    requestAnimationFrame(() => {
+      if (!chatRef.current) return;
+
+      const el = chatRef.current;
+      const estaAbajo = el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
+
+      if (!estaAbajo) {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+        requestAnimationFrame(scrollAlFinalSuave);
+      }
+    });
   }
 
-  if (!respuesta.trim()) return;
+  scrollAlFinalSuave();
+}
+} catch (err) {
+  alert("Error al subir imagen.");
+}
 
-  await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId,
-      message: respuesta,
-      agente: {
-        nombre: perfil.nombre || "",
-        foto: perfil.foto || "",
-        uid: localStorage.getItem("id-usuario-panel") || null,
-      },
-    }),
-  });
+setImagen(null);
+return;
+}
+
+if (!respuesta.trim()) return;
+
+await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userId,
+    message: respuesta,
+    agente: {
+      nombre: perfil.nombre || "",
+      foto: perfil.foto || "",
+      uid: localStorage.getItem("id-usuario-panel") || null,
+    },
+  }),
+});
 
   setRespuesta("");
 

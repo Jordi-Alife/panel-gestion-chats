@@ -9,8 +9,7 @@ export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
 
-  const [mostrarDetalles, setMostrarDetalles] = useState(false); // ✅ nuevo estado
-
+  const [mostrarDetalles, setMostrarDetalles] = useState(false);
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
   const [imagen, setImagen] = useState(null);
@@ -44,7 +43,8 @@ export default function Conversaciones() {
       return [];
     }
   };
-    const cargarMensajes = async () => {
+
+  const cargarMensajes = async () => {
     if (!userId) return;
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
@@ -54,41 +54,42 @@ export default function Conversaciones() {
 
       const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
 
-      const mensajesConEtiqueta = [];
+      const nuevosMensajes = [];
       let estadoActual = "gpt";
 
       for (let i = 0; i < ordenados.length; i++) {
         const msg = ordenados[i];
 
         if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
+          nuevosMensajes.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction });
           estadoActual = "gpt";
         }
 
         if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-  mensajesConEtiqueta.push({
-    tipo: "etiqueta",
-    mensaje: "El usuario ha cerrado el chat",
-    timestamp: msg.lastInteraction,
-  });
-}
+          nuevosMensajes.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction });
+        }
+
         if (msg.manual === true && estadoActual === "gpt") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
+          nuevosMensajes.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.lastInteraction });
           estadoActual = "humano";
         }
 
-        mensajesConEtiqueta.push(msg);
+        nuevosMensajes.push(msg);
       }
 
-      setMensajes(mensajesConEtiqueta);
+      setMensajes((prev) => {
+        const combinados = [...prev, ...nuevosMensajes];
+        const mapa = new Map();
+
+        combinados.forEach((m) => {
+          const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+          mapa.set(clave, m);
+        });
+
+        const ordenados = Array.from(mapa.values()).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+        if (ordenados.length > 50) ordenados.splice(0, ordenados.length - 50);
+        return ordenados;
+      });
 
       const nuevasConversaciones = await cargarDatos();
       const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
@@ -104,6 +105,7 @@ export default function Conversaciones() {
       console.error(err);
     }
   };
+
     useEffect(() => {
     cargarDatos();
     const intervalo = setInterval(cargarDatos, 5000);

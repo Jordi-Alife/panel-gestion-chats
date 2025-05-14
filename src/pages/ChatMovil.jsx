@@ -348,16 +348,6 @@ const handleScroll = async () => {
       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
     }
   }, 350);
-}}
-await cargarMensajes();
-
-setTimeout(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-  }
-}, 100);
-
-setRespuesta("");
           }}
           className="flex items-center gap-2"
         >

@@ -274,7 +274,7 @@ if (info.estado?.toLowerCase() === "cerrado") {
   {mensajes.length === 0 ? (
     <div className="flex-1 flex items-center justify-center">
       <img
-        src="/src/assets/logo-fondo.svg"
+        src={logoFondo}
         alt="Logo NextLives"
         className="w-48 opacity-30"
       />

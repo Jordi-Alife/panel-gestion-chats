@@ -295,21 +295,23 @@ if (info.estado?.toLowerCase() === "cerrado") {
   ) : (
     <>
       <ChatPanel
-        mensajes={mensajes}
-        textoEscribiendo={textoEscribiendo}
-        originalesVisibles={originalesVisibles}
-        setOriginalesVisibles={setOriginalesVisibles}
-        chatRef={chatRef}
-        onScroll={() => {
-          const el = chatRef.current;
-          if (!el) return;
-          const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-          scrollForzado.current = alFinal;
-          setMostrarScrollBtn(!alFinal);
-        }}
-        userId={userId}
-        onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
-      />
+  mensajes={mensajes}
+  textoEscribiendo={textoEscribiendo}
+  originalesVisibles={originalesVisibles}
+  setOriginalesVisibles={setOriginalesVisibles}
+  chatRef={chatRef}
+  onScroll={() => {
+    const el = chatRef.current;
+    if (!el) return;
+    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+    scrollForzado.current = alFinal;
+    setMostrarScrollBtn(!alFinal);
+  }}
+  userId={userId}
+  onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
+  onCargarMas={() => cargarMensajes(true)}   // ✅ añade esto
+  hayMas={hayMas}                            // ✅ y esto
+/>
       <FormularioRespuesta
         userId={userId}
         respuesta={respuesta}

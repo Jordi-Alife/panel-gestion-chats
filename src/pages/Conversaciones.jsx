@@ -23,10 +23,11 @@ export default function Conversaciones() {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [chatCerrado, setChatCerrado] = useState(false);
+  const [limiteMensajes, setLimiteMensajes] = useState(25);
+  const [hayMasMensajes, setHayMasMensajes] = useState(true);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
-  const [hayMas, setHayMas] = useState(false);
-  const [ultimoTimestamp, setUltimoTimestamp] = useState(null);
+  
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 

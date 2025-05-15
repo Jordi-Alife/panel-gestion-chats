@@ -53,7 +53,7 @@ const ChatPanel = ({
             <div key={`etiqueta-${index}`} className="flex justify-center">
               <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
                 msg.mensaje === "Intervenida"
-  ? "bg-blue-100 text-blue-600 border border-transparent dark:border-white/80"
+  ? "bg-blue-100 text-blue-600 border border-transparent dark:border-white"
                   : msg.mensaje === "Traspasado a GPT"
                   ? "bg-gray-200 text-gray-800"
                   : "bg-red-100 text-red-600"

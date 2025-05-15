@@ -105,7 +105,6 @@ export default function Conversaciones() {
     if (verMas) {
       console.log("📜 Ver más activado. Aumentando límite de mensajes.");
       setLimiteMensajes((prev) => prev + 25);
-      return;
     }
 
     // 👉 Lógica de paginación visual: limitar según el estado `limiteMensajes`

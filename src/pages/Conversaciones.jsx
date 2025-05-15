@@ -101,6 +101,13 @@ export default function Conversaciones() {
       (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
     );
 
+    // 👇 Añadido: aumentar el límite si es "ver más"
+    if (verMas) {
+      console.log("📜 Ver más activado. Aumentando límite de mensajes.");
+      setLimiteMensajes((prev) => prev + 25);
+      return;
+    }
+
     // 👉 Lógica de paginación visual: limitar según el estado `limiteMensajes`
     const visibles = ordenadosFinal.slice(-limiteMensajes);
     setMensajes(visibles);
@@ -123,7 +130,6 @@ export default function Conversaciones() {
     console.error(err);
   }
 };
-
     useEffect(() => {
     cargarDatos();
     const intervalo = setInterval(cargarDatos, 5000);

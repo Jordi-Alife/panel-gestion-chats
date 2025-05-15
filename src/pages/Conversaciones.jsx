@@ -300,7 +300,7 @@ if (info.estado?.toLowerCase() === "cerrado") {
     {/* Columna central */}
 <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
   {mensajes.length === 0 ? (
-    <div className="flex-1 flex items-center justify-center">
+    <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors">
       <img
         src={logoFondo}
         alt="Logo NextLives"

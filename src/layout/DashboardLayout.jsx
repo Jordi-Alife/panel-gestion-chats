@@ -202,7 +202,7 @@ const DashboardLayout = ({ children }) => {
         </aside>
 
         {/* Contenido principal */}
-        <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100">
+        <main className="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-gray-100 dark:bg-gray-950">
           {children}
           <footer className="hidden md:flex mt-12 border-t pt-4 text-xs text-gray-500 flex-col sm:flex-row justify-between items-center gap-2">
             <span>© NextLives 2025</span>

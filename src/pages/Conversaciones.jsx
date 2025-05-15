@@ -309,8 +309,8 @@ if (info.estado?.toLowerCase() === "cerrado") {
   }}
   userId={userId}
   onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
-  onCargarMas={() => cargarMensajes(true)}   // ✅ añade esto
-  hayMas={hayMas}                            // ✅ y esto
+  onCargarMas={() => cargarMensajes(true)}
+  hayMas={hayMasMensajes}       // ✅ corregido aquí
 />
       <FormularioRespuesta
         userId={userId}

@@ -135,10 +135,11 @@ setTimeout(() => {
   }, []);
 
   useEffect(() => {
-    cargarMensajes();
-    const interval = setInterval(cargarMensajes, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
+  const refrescar = () => cargarMensajes(false);
+  refrescar();
+  const interval = setInterval(refrescar, 2000);
+  return () => clearInterval(interval);
+}, [userId, limiteMensajes]);
 
   useEffect(() => {
     if (!userId) return;

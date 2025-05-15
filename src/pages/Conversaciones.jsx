@@ -47,72 +47,78 @@ export default function Conversaciones() {
     }
   };
 
-  const cargarMensajes = async () => {
-    if (!userId) return;
-    try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-      const data = await res.json();
-      console.log("Mensajes recibidos:", data);
-      window.__mensajes = data;
+  const cargarMensajes = async (verMas = false) => {
+  if (!userId) return;
+  try {
+    const url = new URL(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`, window.location.origin);
 
-      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    if (verMas && ultimoTimestamp) {
+      url.searchParams.set("hasta", ultimoTimestamp); // traer mensajes más antiguos
+    }
 
-      const nuevosMensajes = [];
-      let estadoActual = "gpt";
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    console.log("Mensajes recibidos:", data);
 
-      for (let i = 0; i < ordenados.length; i++) {
-        const msg = ordenados[i];
+    const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
 
-        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          nuevosMensajes.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction });
-          estadoActual = "gpt";
-        }
+    const nuevosMensajes = [];
+    let estadoActual = "gpt";
 
-        if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-          nuevosMensajes.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction });
-        }
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
 
-        if (msg.manual === true && estadoActual === "gpt") {
-          nuevosMensajes.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.lastInteraction });
-          estadoActual = "humano";
-        }
-
-        nuevosMensajes.push(msg);
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        nuevosMensajes.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction });
+        estadoActual = "gpt";
       }
 
-      setMensajes(() => {
-  const mapa = new Map();
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        nuevosMensajes.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction });
+      }
 
-  nuevosMensajes.forEach((m) => {
-    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-    mapa.set(clave, m);
-  });
+      if (msg.manual === true && estadoActual === "gpt") {
+        nuevosMensajes.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.lastInteraction });
+        estadoActual = "humano";
+      }
 
-  const ordenados = Array.from(mapa.values()).sort(
-    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-  );
-
-  if (ordenados.length > 50) {
-    ordenados.splice(0, ordenados.length - 50);
-  }
-
-  return ordenados;
-});
-
-      const nuevasConversaciones = await cargarDatos();
-      const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
-      setUsuarioSeleccionado(nuevaInfo || null);
-      setChatCerrado(nuevaInfo?.chatCerrado || false);
-
-      setTimeout(() => {
-        if (scrollForzado.current && chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-        }
-      }, 100);
-    } catch (err) {
-      console.error(err);
+      nuevosMensajes.push(msg);
     }
-  };
+
+    // Map sin duplicados
+    const mapa = new Map();
+    [...(verMas ? [...nuevosMensajes, ...mensajes] : nuevosMensajes)].forEach((m) => {
+      const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+      mapa.set(clave, m);
+    });
+
+    const nuevosOrdenados = Array.from(mapa.values()).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+
+    setMensajes(nuevosOrdenados);
+
+    // Guardar timestamp del más antiguo y si hay más
+    if (nuevosOrdenados.length > 0) {
+      const primero = nuevosOrdenados[0];
+      setUltimoTimestamp(primero.lastInteraction);
+      setHayMas(data.length >= 25); // Si se devolvieron 25, puede que haya más
+    }
+
+    const nuevasConversaciones = await cargarDatos();
+    const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+    setUsuarioSeleccionado(nuevaInfo || null);
+    setChatCerrado(nuevaInfo?.chatCerrado || false);
+
+    setTimeout(() => {
+      if (!verMas && scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
     useEffect(() => {
     cargarDatos();

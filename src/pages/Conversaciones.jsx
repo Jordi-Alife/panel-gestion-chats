@@ -98,36 +98,34 @@ export default function Conversaciones() {
     });
 
     const ordenadosFinal = Array.from(mapa.values()).sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
+  (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+);
 
-    // 👇 Añadido: aumentar el límite si es "ver más"
-    if (verMas) {
-      console.log("📜 Ver más activado. Aumentando límite de mensajes.");
-      setLimiteMensajes((prev) => prev + 25);
-    }
+// 👉 Aplica el nuevo límite aunque React aún no haya actualizado el estado
+const nuevoLimite = verMas ? limiteMensajes + 25 : limiteMensajes;
+const visibles = ordenadosFinal.slice(-nuevoLimite);
+setMensajes(visibles);
 
-    // 👉 Lógica de paginación visual: limitar según el estado `limiteMensajes`
-    const visibles = ordenadosFinal.slice(-limiteMensajes);
-    setMensajes(visibles);
+// Si se hizo ver más, actualiza el estado
+if (verMas) setLimiteMensajes(nuevoLimite);
 
-    // Si hay más mensajes por encima, activa el botón
-    setHayMasMensajes(ordenadosFinal.length > visibles.length);
+// Si hay más mensajes por encima, activa el botón
+setHayMasMensajes(ordenadosFinal.length > visibles.length);
 
-    // Info de usuario
-    const nuevasConversaciones = await cargarDatos();
-    const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
-    setUsuarioSeleccionado(nuevaInfo || null);
-    setChatCerrado(nuevaInfo?.chatCerrado || false);
+// Info de usuario
+const nuevasConversaciones = await cargarDatos();
+const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+setUsuarioSeleccionado(nuevaInfo || null);
+setChatCerrado(nuevaInfo?.chatCerrado || false);
 
-    setTimeout(() => {
-      if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-      }
-    }, 100);
-  } catch (err) {
-    console.error(err);
+setTimeout(() => {
+  if (scrollForzado.current && chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
   }
+}, 100);
+} catch (err) {
+  console.error(err);
+}
 };
     useEffect(() => {
     cargarDatos();

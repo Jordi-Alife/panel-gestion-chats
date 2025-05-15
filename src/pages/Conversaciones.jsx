@@ -48,7 +48,7 @@ export default function Conversaciones() {
     }
   };
 
-  const cargarMensajes = async () => {
+  const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
   try {
     const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);

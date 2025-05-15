@@ -103,16 +103,26 @@ export default function Conversaciones() {
 
 // 👉 Aplica el nuevo límite aunque React aún no haya actualizado el estado
 let nuevoLimite = verMas ? limiteMensajes + 25 : limiteMensajes;
-const visibles = ordenadosFinal.slice(-nuevoLimite);
-setMensajes(visibles);
+const nuevosVisibles = ordenadosFinal.slice(-nuevoLimite);
 
 if (verMas) {
+  // Fusiona con los ya existentes sin duplicados
+  const fusionados = [...nuevosVisibles, ...mensajes];
+  const mapaUnico = new Map();
+  fusionados.forEach((m) => {
+    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+    mapaUnico.set(clave, m);
+  });
+  const final = Array.from(mapaUnico.values()).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+  setMensajes(final);
   setLimiteMensajes(nuevoLimite);
+} else {
+  setMensajes(nuevosVisibles);
 }
 
 // Si hay más mensajes por encima, activa el botón
-setHayMasMensajes(ordenadosFinal.length > visibles.length);
-    
+setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
+
 // Info de usuario
 const nuevasConversaciones = await cargarDatos();
 const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);

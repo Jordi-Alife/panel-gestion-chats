@@ -102,12 +102,14 @@ export default function Conversaciones() {
 );
 
 // 👉 Aplica el nuevo límite aunque React aún no haya actualizado el estado
-const nuevoLimite = verMas ? limiteMensajes + 25 : limiteMensajes;
+let nuevoLimite = limiteMensajes;
+if (verMas) {
+  nuevoLimite = limiteMensajes + 25;
+  setLimiteMensajes(nuevoLimite);
+}
+
 const visibles = ordenadosFinal.slice(-nuevoLimite);
 setMensajes(visibles);
-
-// Si se hizo ver más, actualiza el estado
-if (verMas) setLimiteMensajes(nuevoLimite);
 
 // Si hay más mensajes por encima, activa el botón
 setHayMasMensajes(ordenadosFinal.length > visibles.length);

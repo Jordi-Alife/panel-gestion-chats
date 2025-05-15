@@ -11,6 +11,10 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+html {
+  @apply bg-gray-100 dark:bg-[#0f172a];
+}
+
 body {
   @apply bg-gray-100 dark:bg-[#0f172a];
 }

@@ -25,6 +25,8 @@ export default function Conversaciones() {
   const [chatCerrado, setChatCerrado] = useState(false);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
+  const [hayMas, setHayMas] = useState(false);
+  const [ultimoTimestamp, setUltimoTimestamp] = useState(null);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 

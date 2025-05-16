@@ -106,16 +106,8 @@ let nuevoLimite = verMas ? limiteMensajes + 25 : limiteMensajes;
 const nuevosVisibles = ordenadosFinal.slice(-nuevoLimite);
 
 if (verMas) {
-  // Fusiona con los ya existentes sin duplicados
-  const fusionados = [...nuevosVisibles, ...mensajes];
-  const mapaUnico = new Map();
-  fusionados.forEach((m) => {
-    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-    mapaUnico.set(clave, m);
-  });
-  const final = Array.from(mapaUnico.values()).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-  setMensajes(final);
   setLimiteMensajes(nuevoLimite);
+  setMensajes(ordenadosFinal.slice(-nuevoLimite));
 } else {
   setMensajes(nuevosVisibles);
 }

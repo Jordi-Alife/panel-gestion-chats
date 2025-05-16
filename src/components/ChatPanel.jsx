@@ -70,11 +70,11 @@ const ChatPanel = ({
             msg.from?.toLowerCase() === "asistente" ||
             msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
-          const shapeClass = msg.manual
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-            : isAsistente
-            ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
-            : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
+          msg.manual
+  ? "bg-[#2563eb] text-white"
+  : isAsistente
+  ? "bg-[#2f2f2f] text-white border border-transparent dark:bg-[#3a3a3a] dark:text-white"
+  : "bg-[#eaeaea] text-gray-900 border dark:bg-gray-800 dark:text-white"
 
           const contenidoPrincipal =
             msg.tipo === "imagen"

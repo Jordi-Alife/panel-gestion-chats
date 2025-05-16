@@ -1,4 +1,4 @@
-import React from "react";
+ import React, { useState } from "react";
 
 const ConversacionList = ({
   conversaciones,
@@ -9,6 +9,16 @@ const ConversacionList = ({
   paisAToIso,
   formatearTiempo,
 }) => {
+  const [busqueda, setBusqueda] = useState("");
+
+  const filtradas = conversaciones.filter((c) => {
+    const texto = busqueda.toLowerCase();
+    return (
+      c.userId.toLowerCase().includes(texto) ||
+      (c.estado || "").toLowerCase().includes(texto)
+    );
+  });
+
   return (
     <div className="bg-white dark:bg-gray-900 w-full h-full rounded-lg shadow-md flex flex-col overflow-hidden">
       {/* Buscador arriba */}
@@ -16,17 +26,16 @@ const ConversacionList = ({
         <input
           type="text"
           placeholder="Buscar conversaciones..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
           className="w-full border rounded-full px-4 py-2 text-sm focus:outline-none transition-all duration-200 ease-in-out dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           style={{ fontSize: "14px" }}
-          onChange={(e) => {
-            console.log("Buscar:", e.target.value);
-          }}
         />
       </div>
 
       {/* Lista de conversaciones scrollable */}
       <div className="flex-1 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-700">
-        {conversaciones.map((c) => (
+        {filtradas.map((c) => (
           <div
             key={c.userId}
             onClick={() => onSelect(c.userId)}

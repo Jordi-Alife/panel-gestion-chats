@@ -96,7 +96,7 @@ const ChatPanel = ({
                 msg.manual
                   ? "bg-[#2563eb] text-white"
                   : isAsistente
-                  ? "bg-black text-white border border-transparent dark:border-white/80"
+                  ? "bg-[#2f2f2f] text-white border border-transparent dark:bg-[#3a3a3a] dark:text-white"
                   : "bg-[#f7f7f7] text-gray-800 border dark:bg-gray-700 dark:text-white"
               }`}>
                 {msg.tipo === "imagen" ? (

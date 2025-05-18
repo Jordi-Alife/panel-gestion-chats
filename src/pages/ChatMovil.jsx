@@ -224,14 +224,13 @@ const ChatMovil = () => {
               : msg.original;
 
           return (
-            <div key={index} data-id={msg.id} className={`flex ${align} ${animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"}`}>
-              <div className={`max-w-[80%] p-3 shadow ${shapeClass} ${
-                msg.manual
-                  ? "bg-[#2563eb] text-white"
-                  : isAsistente
-                  ? "bg-black text-white"
-                  : "bg-[#f7f7f7] text-gray-800 border"
-              }`}>
+            <div className={`max-w-[80%] p-3 ${shapeClass} ${
+  msg.manual
+    ? "bg-[#2563eb] text-white"
+    : isAsistente
+    ? "bg-[#f0f0f0] text-gray-900 dark:bg-gray-700 dark:text-white"
+    : "bg-[#2f2f2f] text-white dark:bg-[#3a3a3a] border border-transparent"
+}`}> 
                 {msg.tipo === "imagen" ? (
                   <img
                     src={contenidoPrincipal}

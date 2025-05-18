@@ -225,7 +225,7 @@ const ChatMovil = () => {
 
           return (
             <div key={index} data-id={msg.id} className={`flex ${align} ${animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"}`}>
-              <div className={`max-w-[80%] p-3 shadow ${shapeClass} ${
+              <div className={`max-w-[80%] p-3 ${shapeClass} ${
                 msg.manual
                   ? "bg-[#2563eb] text-white"
                   : isAsistente

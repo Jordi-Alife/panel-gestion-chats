@@ -219,7 +219,8 @@ setTimeout(() => {
   actual.historial = item.historial || [];
   actual.intervenida = item.intervenida || false;
   actual.chatCerrado = item.chatCerrado || false;
-  actual.estado = item.estado || "abierta"; // ← ✅ AÑADE ESTA LÍNEA
+  actual.estado = item.estado || "abierta";
+  actual.lastInteraction = item.lastInteraction || item.ultimaRespuesta || item.fechaInicio || new Date().toISOString(); // ✅ NUEVO
   acc[item.userId] = actual;
   return acc;
 }, {});

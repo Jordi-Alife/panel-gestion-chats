@@ -227,36 +227,25 @@ setTimeout(() => {
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
   .map(([id, info]) => {
     const ultimaVista = id === userId ? new Date() : vistas[id];
-    const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
-    const ultimoMensaje = mensajesValidos.sort(
-      (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
-    )[0];
 
-    const minutosDesdeUltimo = ultimoMensaje
-      ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
+    const minutosDesdeUltimo = info.ultimaRespuesta
+      ? (Date.now() - new Date(info.ultimaRespuesta)) / 60000
       : Infinity;
 
     let estado = "Archivado";
-
-if (info.estado?.toLowerCase() === "cerrado") {
-  estado = "Cerrado";
-} else if (minutosDesdeUltimo <= 2) {
-  estado = "Activa";
-} else if (minutosDesdeUltimo <= 10) {
-  estado = "Inactiva";
-}
-
-    const nuevos = mensajesValidos.filter(
-      (m) =>
-        m.from?.toLowerCase() === "usuario" &&
-        (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-    ).length;
+    if ((info.estado || "").toLowerCase() === "cerrado") {
+      estado = "Cerrado";
+    } else if (minutosDesdeUltimo <= 2) {
+      estado = "Activa";
+    } else if (minutosDesdeUltimo <= 10) {
+      estado = "Inactiva";
+    }
 
     return {
       userId: id,
-      nuevos,
+      nuevos: info.nuevos || 0,
       estado,
-      lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : info.lastInteraction,
+      lastInteraction: info.ultimaRespuesta || info.fechaInicio || new Date().toISOString(),
       iniciales: id.slice(0, 2).toUpperCase(),
       intervenida: info.intervenida || false,
       intervenidaPor: info.intervenidaPor || null,

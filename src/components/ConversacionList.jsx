@@ -48,7 +48,6 @@ const ConversacionList = ({
                 <div className="bg-gray-300 dark:bg-gray-600 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-gray-700 dark:text-white">
                   {c.iniciales}
                 </div>
-                {paisAToIso(c.pais) ? (
                   {paisAToIso(c.pais) ? (
   <img
     src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}

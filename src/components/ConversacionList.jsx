@@ -49,19 +49,20 @@ const ConversacionList = ({
                   {c.iniciales}
                 </div>
                 {paisAToIso(c.pais) ? (
-                  <img
-                    src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
-                    alt={c.pais}
-                    className="absolute -bottom-1 -right-2 w-4 h-3 rounded-sm border"
-                  />
-                ) : (
-                  <span className="absolute -bottom-1 -right-2 text-xs">🌐</span>
-                )}
-                {c.nuevos > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-                    {c.nuevos}
-                  </span>
-                )}
+                  {paisAToIso(c.pais) ? (
+  <img
+    src={`https://flagcdn.com/16x12/${paisAToIso(c.pais)}.png`}
+    alt={c.pais}
+    className="absolute -bottom-1 -right-2 w-4 h-3 rounded-sm border"
+  />
+) : (
+  <span className="absolute -bottom-1 -right-2 text-xs">🌐</span>
+)}
+{c.noVistos > 0 && (
+  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+    {c.noVistos}
+  </span>
+)}
               </div>
               <div>
                 <div className="font-medium text-sm text-gray-800 dark:text-white">{c.userId}</div>

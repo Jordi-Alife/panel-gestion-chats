@@ -228,8 +228,8 @@ setTimeout(() => {
   .map(([id, info]) => {
     const ultimaVista = id === userId ? new Date() : vistas[id];
 
-    const minutosDesdeUltimo = info.ultimaRespuesta
-      ? (Date.now() - new Date(info.ultimaRespuesta)) / 60000
+    const minutosDesdeUltimo = info.lastInteraction
+      ? (Date.now() - new Date(info.lastInteraction)) / 60000
       : Infinity;
 
     let estado = "Archivado";
@@ -245,7 +245,7 @@ setTimeout(() => {
       userId: id,
       nuevos: info.nuevos || 0,
       estado,
-      lastInteraction: info.ultimaRespuesta || info.fechaInicio || new Date().toISOString(),
+      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
       iniciales: id.slice(0, 2).toUpperCase(),
       intervenida: info.intervenida || false,
       intervenidaPor: info.intervenidaPor || null,

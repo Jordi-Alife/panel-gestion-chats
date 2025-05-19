@@ -56,59 +56,49 @@ const ConversacionesMovil = () => {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [], estado: "Archivado" };
-    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
-    actual.pais = item.pais;
-    actual.intervenida = item.intervenida || false;
-    actual.estadoConversacion = item.estado || "abierta";
-    acc[item.userId] = actual;
-    return acc;
-  }, {});
+  acc[item.userId] = {
+    pais: item.pais,
+    intervenida: item.intervenida || false,
+    estadoConversacion: item.estado || "abierta",
+    lastInteraction: item.ultimaRespuesta || item.fechaInicio || new Date().toISOString(),
+  };
+  return acc;
+}, {});
 
-  const listaAgrupada = Object.entries(conversacionesPorUsuario)
-    .map(([id, info]) => {
-      const ultimaVista = vistas[id];
-      const mensajesValidos = Array.isArray(info.mensajes) ? info.mensajes : [];
-      const ultimoMensaje = mensajesValidos.sort(
-        (a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction)
-      )[0];
-      const minutosDesdeUltimo = ultimoMensaje
-        ? (Date.now() - new Date(ultimoMensaje.lastInteraction)) / 60000
-        : Infinity;
+const listaAgrupada = Object.entries(conversacionesPorUsuario)
+  .map(([id, info]) => {
+    const ultimaVista = vistas[id];
+    const minutosDesdeUltimo = info.lastInteraction
+      ? (Date.now() - new Date(info.lastInteraction)) / 60000
+      : Infinity;
 
-      let estado = "Archivado";
-      if (info.estadoConversacion === "cerrado") {
-        estado = "Cerrado";
-      } else if (minutosDesdeUltimo <= 2) {
-        estado = "Activa";
-      } else if (minutosDesdeUltimo <= 10) {
-        estado = "Inactiva";
-      }
+    let estado = "Archivado";
+    if ((info.estadoConversacion || "").toLowerCase() === "cerrado") {
+      estado = "Cerrado";
+    } else if (minutosDesdeUltimo <= 2) {
+      estado = "Activa";
+    } else if (minutosDesdeUltimo <= 10) {
+      estado = "Inactiva";
+    }
 
-      const nuevos = mensajesValidos.filter(
-        (m) =>
-          m.from?.toLowerCase() === "usuario" &&
-          (!ultimaVista || new Date(m.lastInteraction) > new Date(ultimaVista))
-      ).length;
-
-      return {
-        userId: id,
-        nuevos,
-        estado,
-        lastInteraction: ultimoMensaje ? ultimoMensaje.lastInteraction : null,
-        iniciales: id.slice(0, 2).toUpperCase(),
-        intervenida: info.intervenida || false,
-        pais: info.pais || "Desconocido",
-      };
-    })
-    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-    .filter(
-      (c) =>
-        (filtro === "todas" ||
-          (filtro === "gpt" && !c.intervenida) ||
-          (filtro === "humanas" && c.intervenida)) &&
-        c.userId.toLowerCase().includes(busqueda.toLowerCase())
-    );
+    return {
+      userId: id,
+      nuevos: 0, // Puedes reemplazar con lógica real si usas `vistas`
+      estado,
+      lastInteraction: info.lastInteraction,
+      iniciales: id.slice(0, 2).toUpperCase(),
+      intervenida: info.intervenida || false,
+      pais: info.pais || "Desconocido",
+    };
+  })
+  .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+  .filter(
+    (c) =>
+      (filtro === "todas" ||
+        (filtro === "gpt" && !c.intervenida) ||
+        (filtro === "humanas" && c.intervenida)) &&
+      c.userId.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col h-screen">

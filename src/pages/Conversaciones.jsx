@@ -245,7 +245,7 @@ setTimeout(() => {
 
     return {
       userId: id,
-      nuevos: info.nuevos || 0,
+      nuevos: info.noVistos || 0, // ✅ ahora viene directo de Firestore
       estado,
       lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
       iniciales: id.slice(0, 2).toUpperCase(),

@@ -69,7 +69,7 @@ const ConversacionesMovil = () => {
 const listaAgrupada = Object.entries(conversacionesPorUsuario)
   .map(([id, info]) => {
     
-    const estado = (info.estadoConversacion || "abierta")
+    const estado = (info.estado || "abierta")
   .replace("abierta", "Archivado")
   .replace("activa", "Activa")
   .replace("inactiva", "Inactiva")

@@ -57,24 +57,23 @@ const ConversacionesMovil = () => {
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
   acc[item.userId] = {
-    pais: item.pais || "🌐",
+    pais: item.pais,
     intervenida: item.intervenida || false,
-    estadoConversacion: item.estado || "abierta",
+    estado: item.estado || "abierta", // nombre consistente
     lastInteraction: item.ultimaRespuesta || item.fechaInicio || new Date().toISOString(),
-    noVistos: item.noVistos || 0, // ✅ ahora sí recoge los globos
+    noVistos: item.noVistos || 0,
   };
   return acc;
 }, {});
 
 const listaAgrupada = Object.entries(conversacionesPorUsuario)
   .map(([id, info]) => {
-    const ultimaVista = vistas[id];
     const minutosDesdeUltimo = info.lastInteraction
       ? (Date.now() - new Date(info.lastInteraction)) / 60000
       : Infinity;
 
     let estado = "Archivado";
-    if ((info.estadoConversacion || "").toLowerCase() === "cerrado") {
+    if ((info.estado || "").toLowerCase() === "cerrado") {
       estado = "Cerrado";
     } else if (minutosDesdeUltimo <= 2) {
       estado = "Activa";
@@ -83,12 +82,12 @@ const listaAgrupada = Object.entries(conversacionesPorUsuario)
     }
 
     return {
-  userId: id,
-  nuevos: info.noVistos || 0, // ✅ ahora lo recoge desde Firestore
+      userId: id,
+      nuevos: info.noVistos || 0,
       estado,
       lastInteraction: info.lastInteraction,
       iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida || false,
+      intervenida: info.intervenida,
       pais: info.pais || "Desconocido",
     };
   })
@@ -100,7 +99,6 @@ const listaAgrupada = Object.entries(conversacionesPorUsuario)
         (filtro === "humanas" && c.intervenida)) &&
       c.userId.toLowerCase().includes(busqueda.toLowerCase())
   );
-
   return (
     <div className="flex flex-col h-screen">
       <div className="p-4 border-b flex items-center gap-2">

@@ -59,7 +59,7 @@ const ConversacionesMovil = () => {
   acc[item.userId] = {
     pais: item.pais,
     intervenida: item.intervenida || false,
-    estado: item.estado || "abierta", // nombre consistente
+    estadoConversacion: item.estado || "abierta", // ✅ nombre correcto
     lastInteraction: item.ultimaRespuesta || item.fechaInicio || new Date().toISOString(),
     noVistos: item.noVistos || 0,
   };

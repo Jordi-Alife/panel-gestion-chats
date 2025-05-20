@@ -77,10 +77,10 @@ let estado = "Archivado";
 
 if ((info.estado || "").toLowerCase() === "cerrado") {
   estado = "Cerrado";
-} else if (minutosDesdeUltimo <= 2) {
-  estado = "Activa";
-} else if (minutosDesdeUltimo <= 10) {
-  estado = "Inactiva";
+} else if (info.lastInteraction) {
+  const minutos = (Date.now() - new Date(info.lastInteraction)) / 60000;
+  if (minutos <= 2) estado = "Activa";
+  else if (minutos <= 10) estado = "Inactiva";
 }
 
     return {

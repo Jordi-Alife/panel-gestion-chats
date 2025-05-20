@@ -83,8 +83,8 @@ const listaAgrupada = Object.entries(conversacionesPorUsuario)
     }
 
     return {
-      userId: id,
-      nuevos: 0, // Puedes reemplazar con lógica real si usas `vistas`
+  userId: id,
+  nuevos: info.noVistos || 0, // ✅ ahora lo recoge desde Firestore
       estado,
       lastInteraction: info.lastInteraction,
       iniciales: id.slice(0, 2).toUpperCase(),

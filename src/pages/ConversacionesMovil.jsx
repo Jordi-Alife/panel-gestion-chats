@@ -57,10 +57,11 @@ const ConversacionesMovil = () => {
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
   acc[item.userId] = {
-    pais: item.pais,
+    pais: item.pais || "🌐",
     intervenida: item.intervenida || false,
     estadoConversacion: item.estado || "abierta",
     lastInteraction: item.ultimaRespuesta || item.fechaInicio || new Date().toISOString(),
+    noVistos: item.noVistos || 0, // ✅ ahora sí recoge los globos
   };
   return acc;
 }, {});

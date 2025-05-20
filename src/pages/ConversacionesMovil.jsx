@@ -69,11 +69,19 @@ const ConversacionesMovil = () => {
 const listaAgrupada = Object.entries(conversacionesPorUsuario)
   .map(([id, info]) => {
     
-    const estado = (info.estado || "abierta")
-  .replace("abierta", "Archivado")
-  .replace("activa", "Activa")
-  .replace("inactiva", "Inactiva")
-  .replace("cerrado", "Cerrado");
+    const minutosDesdeUltimo = info.lastInteraction
+  ? (Date.now() - new Date(info.lastInteraction)) / 60000
+  : Infinity;
+
+let estado = "Archivado";
+
+if ((info.estado || "").toLowerCase() === "cerrado") {
+  estado = "Cerrado";
+} else if (minutosDesdeUltimo <= 2) {
+  estado = "Activa";
+} else if (minutosDesdeUltimo <= 10) {
+  estado = "Inactiva";
+}
 
     return {
       userId: id,

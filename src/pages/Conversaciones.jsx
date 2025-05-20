@@ -244,18 +244,18 @@ setTimeout(() => {
     }
 
     return {
-      userId: id,
-      nuevos: info.noVistos || 0, // ✅ ahora viene directo de Firestore
-      estado,
-      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
-      iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida || false,
-      intervenidaPor: info.intervenidaPor || null,
-      pais: info.pais || "Desconocido",
-      navegador: info.navegador || "Desconocido",
-      historial: info.historial || [],
-      chatCerrado: info.chatCerrado || false,
-    };
+  userId: id,
+  noVistos: info.noVistos || 0, // ✅ nombre correcto que usa el componente ConversacionList
+  estado,
+  lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
+  iniciales: id.slice(0, 2).toUpperCase(),
+  intervenida: info.intervenida || false,
+  intervenidaPor: info.intervenidaPor || null,
+  pais: info.pais || "Desconocido",
+  navegador: info.navegador || "Desconocido",
+  historial: info.historial || [],
+  chatCerrado: info.chatCerrado || false,
+};
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(

@@ -173,7 +173,7 @@ setTimeout(() => {
     }
   }, [userId, todasConversaciones]);
 
-  uuseEffect(() => {
+    useEffect(() => {
   if (userId) {
     const now = new Date().toISOString();
     console.log("🔵 Marcando visto:", userId);

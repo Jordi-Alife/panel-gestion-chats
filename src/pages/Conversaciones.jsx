@@ -176,19 +176,19 @@ setTimeout(() => {
   useEffect(() => {
   if (userId) {
     const now = new Date().toISOString();
+    console.log("🔵 Marcando visto:", userId); // 👈 Añade esto
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
     })
-      .then(() => {
-        // ✅ Actualiza localmente la marca de vista sin esperar a cargarDatos()
-        setVistas((prev) => ({
-          ...prev,
-          [userId]: now,
-        }));
-      })
-      .catch(console.error);
+    .then(() => {
+      setVistas((prev) => ({
+        ...prev,
+        [userId]: now,
+      }));
+    })
+    .catch(console.error);
   }
 }, [userId]);
     const formatearTiempo = (fecha) => {

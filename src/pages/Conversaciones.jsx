@@ -172,16 +172,6 @@ setTimeout(() => {
     }
   }, [userId, todasConversaciones]);
 
-  useEffect(() => {
-  if (userId) {
-    fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-  }
-}, [userId]);
-
 useEffect(() => {
   if (userId && mensajes.length > 0) {
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {

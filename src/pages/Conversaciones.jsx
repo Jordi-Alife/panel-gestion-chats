@@ -249,9 +249,13 @@ setTimeout(() => {
       estado = "Inactiva";
     }
 
-    return {
+    const vista = vistas[id] ? new Date(vistas[id]) : null;
+const ultima = new Date(info.lastInteraction || info.fechaInicio || new Date());
+const noVistos = vista ? (ultima > vista ? 1 : 0) : info.noVistos || 0;
+
+return {
   userId: id,
-  noVistos: info.noVistos || 0, // ✅ nombre correcto que usa el componente ConversacionList
+  noVistos,
   estado,
   lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
   iniciales: id.slice(0, 2).toUpperCase(),

@@ -35,7 +35,8 @@ export default function Conversaciones() {
     try {
       const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
       const data = await res.json();
-      setTodasConversaciones(data);
+console.log("🟡 Conversaciones cargadas:", data);
+setTodasConversaciones(data);
 
       const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
       const vistasData = await vistasRes.json();

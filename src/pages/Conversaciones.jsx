@@ -172,45 +172,45 @@ setTimeout(() => {
     }
   }, [userId, todasConversaciones]);
 
-useEffect(() => {
-  if (userId && mensajes.length > 0) {
-    fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-  }
-}, [mensajes, userId]); // ✅ nuevo efecto: refresca el "visto" también si llegan mensajes nuevos
-
-const formatearTiempo = (fecha) => {
-  const ahora = new Date();
-  const pasada = new Date(fecha);
-  const diffMs = ahora - pasada;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHrs = Math.floor(diffMin / 60);
-  const diffDays = Math.floor(diffHrs / 24);
-  if (diffSec < 60) return `hace ${diffSec}s`;
-  if (diffMin < 60) return `hace ${diffMin}m`;
-  if (diffHrs < 24) return `hace ${diffHrs}h`;
-  if (diffDays === 1) return "ayer";
-  return `hace ${diffDays}d`;
-};
-
-const paisAToIso = (paisTexto) => {
-  const mapa = {
-    Spain: "es",
-    France: "fr",
-    Italy: "it",
-    Mexico: "mx",
-    Argentina: "ar",
-    Colombia: "co",
-    Chile: "cl",
-    Peru: "pe",
-    "United States": "us",
+  useEffect(() => {
+    if (userId) {
+      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+    }
+  }, [userId]);
+    const formatearTiempo = (fecha) => {
+    const ahora = new Date();
+    const pasada = new Date(fecha);
+    const diffMs = ahora - pasada;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHrs = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHrs / 24);
+    if (diffSec < 60) return `hace ${diffSec}s`;
+    if (diffMin < 60) return `hace ${diffMin}m`;
+    if (diffHrs < 24) return `hace ${diffHrs}h`;
+    if (diffDays === 1) return "ayer";
+    return `hace ${diffDays}d`;
   };
-  return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
-};
+
+  const paisAToIso = (paisTexto) => {
+    const mapa = {
+      Spain: "es",
+      France: "fr",
+      Italy: "it",
+      Mexico: "mx",
+      Argentina: "ar",
+      Colombia: "co",
+      Chile: "cl",
+      Peru: "pe",
+      "United States": "us",
+    };
+    return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
+  };
+
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
   const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
   actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
@@ -340,4 +340,3 @@ const paisAToIso = (paisTexto) => {
   </div>
 );
 }
-

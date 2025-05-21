@@ -40,31 +40,42 @@ const ChatPanel = ({
         )}
 
         {mensajes.map((msg, index) => {
-          if (
-            !msg.message &&
-            !msg.original &&
-            msg.tipo !== "imagen" &&
-            msg.tipo !== "etiqueta"
-          ) {
-            return null;
-          }
+  if (
+    !msg.message &&
+    !msg.original &&
+    msg.tipo !== "imagen" &&
+    msg.tipo !== "etiqueta"
+  ) {
+    return null;
+  }
 
-          if (msg.tipo === "etiqueta") {
-            return (
-              <div key={`etiqueta-${index}`} className="flex justify-center">
-                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-                  msg.mensaje === "Intervenida"
-                    ? "bg-blue-100 text-blue-600 border border-transparent dark:border-white"
-                    : msg.mensaje === "Traspasado a GPT"
-                    ? "bg-gray-200 text-gray-800"
-                    : "bg-red-100 text-red-600"
-                }`}>
-                  {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              </div>
-            );
-          }
+  // ✅ Mostrar etiqueta si es un mensaje de tipo estado con estado Intervenida
+  if (msg.tipo === "estado" && msg.estado === "Intervenida") {
+    return (
+      <div key={`estado-intervenida-${index}`} className="flex justify-center">
+        <span className="text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold bg-blue-100 text-blue-600 border dark:border-white">
+          INTERVENIDA • {new Date(msg.lastInteraction).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </span>
+      </div>
+    );
+  }
+
+  if (msg.tipo === "etiqueta") {
+    return (
+      <div key={`etiqueta-${index}`} className="flex justify-center">
+        <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+          msg.mensaje === "Intervenida"
+            ? "bg-blue-100 text-blue-600 border border-transparent dark:border-white"
+            : msg.mensaje === "Traspasado a GPT"
+            ? "bg-gray-200 text-gray-800"
+            : "bg-red-100 text-red-600"
+        }`}>
+          {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
+          {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </span>
+      </div>
+    );
+  }
 
           const isAsistente =
             msg.from?.toLowerCase() === "asistente" ||

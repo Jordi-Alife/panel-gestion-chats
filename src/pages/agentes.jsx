@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModalCrearAgente from "../components/ModalCrearAgente";
 import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB";
-import { useNavigate } from "react-router-dom"; // ✅ añadido
+import { useNavigate } from "react-router-dom";
 
 const Agentes = () => {
   const [agentes, setAgentes] = useState([]);
@@ -9,7 +9,7 @@ const Agentes = () => {
   const [agenteEditar, setAgenteEditar] = useState(null);
   const [mensajeExito, setMensajeExito] = useState("");
   const [rolUsuario, setRolUsuario] = useState("Soporte");
-  const navigate = useNavigate(); // ✅ añadido
+  const navigate = useNavigate();
 
   useEffect(() => {
     const desuscribir = escucharAgentes((nuevosAgentes) => {
@@ -80,13 +80,14 @@ const Agentes = () => {
       {/* Contenedor tabla */}
       <div className="bg-white rounded-lg shadow p-6">
         {/* Cabecera */}
-        <div className="grid grid-cols-[1.8fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
+        <div className="grid grid-cols-[1.6fr,2fr,1.5fr,1.2fr,1.5fr,auto,auto] gap-6 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
           <div className="pl-6">Foto/Nombre</div>
           <div className="pl-8">Email</div>
           <div className="pl-7">Última conexión</div>
           <div className="pl-6">Rol</div>
-          <div className="pl-5 text-center">Editar</div>
-          <div className="pl-5 text-center">Eliminar</div>
+          <div className="pl-6">Notificaciones SMS</div>
+          <div className="text-center">Editar</div>
+          <div className="text-center">Eliminar</div>
         </div>
 
         {/* Lista de agentes */}
@@ -94,12 +95,12 @@ const Agentes = () => {
           {agentes.map((agente) => (
             <div
               key={agente.id}
-              className="grid grid-cols-[1.8fr,2fr,1.5fr,1fr,auto,auto] gap-10 items-center text-sm text-gray-700 py-3"
+              className="grid grid-cols-[1.6fr,2fr,1.5fr,1.2fr,1.5fr,auto,auto] gap-6 items-center text-sm text-gray-700 py-3"
             >
               {/* Foto y Nombre */}
               <div
                 className="flex items-center gap-4 pl-6 cursor-pointer hover:underline"
-                onClick={() => navigate(`/agente/${agente.id}`)} // ✅ añadido para navegar
+                onClick={() => navigate(`/agente/${agente.id}`)}
                 title="Ver detalle del agente"
               >
                 {agente.foto ? (
@@ -127,8 +128,13 @@ const Agentes = () => {
               {/* Rol */}
               <div className="pl-6 text-gray-500">{agente.rol || "—"}</div>
 
+              {/* Notificaciones SMS */}
+              <div className="pl-6 text-gray-500">
+                {agente.notificarSMS ? "Sí" : "No"}
+              </div>
+
               {/* Editar */}
-              <div className="pl-5 flex justify-center">
+              <div className="flex justify-center">
                 {(rolUsuario === "Administrador" || rolUsuario === "Editor") && (
                   <button
                     onClick={() => abrirEditar(agente)}
@@ -154,7 +160,7 @@ const Agentes = () => {
               </div>
 
               {/* Eliminar */}
-              <div className="pl-5 flex justify-center">
+              <div className="flex justify-center">
                 {rolUsuario === "Administrador" && (
                   <button
                     onClick={() => eliminarAgenteClick(agente.id)}

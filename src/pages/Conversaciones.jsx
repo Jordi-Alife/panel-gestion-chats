@@ -256,23 +256,29 @@ setTimeout(() => {
       estado = "Inactiva";
     }
 
-    const vista = vistas[id] ? new Date(vistas[id]) : null;
-const ultima = new Date(info.lastInteraction || info.fechaInicio || new Date());
-const noVistos = vista ? (ultima > vista ? 1 : 0) : info.noVistos || 0;
+    // ✅ CORREGIDO: cálculo de noVistos más preciso
+    let noVistos = info.noVistos || 0;
+    if (id === userId && vistas[id]) {
+      const vista = new Date(vistas[id]);
+      const ultima = new Date(info.lastInteraction || info.fechaInicio || new Date());
+      if (vista >= ultima) {
+        noVistos = 0;
+      }
+    }
 
-return {
-  userId: id,
-  noVistos,
-  estado,
-  lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
-  iniciales: id.slice(0, 2).toUpperCase(),
-  intervenida: info.intervenida || false,
-  intervenidaPor: info.intervenidaPor || null,
-  pais: info.pais || "Desconocido",
-  navegador: info.navegador || "Desconocido",
-  historial: info.historial || [],
-  chatCerrado: info.chatCerrado || false,
-};
+    return {
+      userId: id,
+      noVistos,
+      estado,
+      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
+      iniciales: id.slice(0, 2).toUpperCase(),
+      intervenida: info.intervenida || false,
+      intervenidaPor: info.intervenidaPor || null,
+      pais: info.pais || "Desconocido",
+      navegador: info.navegador || "Desconocido",
+      historial: info.historial || [],
+      chatCerrado: info.chatCerrado || false,
+    };
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(
@@ -281,21 +287,6 @@ return {
       (filtro === "gpt" && !c.intervenida) ||
       (filtro === "humanas" && c.intervenida)
   );
-
-  return (
-  <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
-    {/* Columna izquierda */}
-    <div className="w-[22%] h-full overflow-y-auto">
-      <ConversacionList
-        conversaciones={listaAgrupada}
-        userIdActual={userId}
-        onSelect={(id) => setSearchParams({ userId: id })}
-        filtro={filtro}
-        setFiltro={setFiltro}
-        paisAToIso={paisAToIso}
-        formatearTiempo={formatearTiempo}
-      />
-    </div>
 
     {/* Columna central */}
 <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">

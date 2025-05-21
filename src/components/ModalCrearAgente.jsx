@@ -7,6 +7,7 @@ const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("Administrador");
   const [activo, setActivo] = useState(false);
+  const [notificarSMS, setNotificarSMS] = useState(false); // ✅ nuevo campo
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
@@ -15,11 +16,13 @@ const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
       setEmail(agente.email || "");
       setRol(agente.rol || "Administrador");
       setActivo(agente.activo ?? false);
+      setNotificarSMS(agente.notificarSMS ?? false); // ✅ cargar valor
     } else {
       setNombre("");
       setEmail("");
       setRol("Administrador");
       setActivo(false);
+      setNotificarSMS(false);
     }
   }, [agente]);
 
@@ -33,6 +36,7 @@ const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
       ultimaConexion: new Date().toISOString(),
       rol,
       activo,
+      notificarSMS, // ✅ guardar valor
     };
 
     try {
@@ -104,6 +108,17 @@ const ModalCrearAgente = ({ visible, onClose, onCrear, agente }) => {
               className="h-4 w-4"
             />
             <label htmlFor="activo" className="text-sm">Activar agente</label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="notificarSMS"
+              checked={notificarSMS}
+              onChange={(e) => setNotificarSMS(e.target.checked)}
+              className="h-4 w-4"
+            />
+            <label htmlFor="notificarSMS" className="text-sm">Activar notificaciones SMS</label>
           </div>
 
           <div className="flex justify-end gap-2 mt-4">

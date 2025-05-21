@@ -173,14 +173,19 @@ setTimeout(() => {
   }, [userId, todasConversaciones]);
 
   useEffect(() => {
-    if (userId) {
-      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-    }
-  }, [userId]);
+  if (userId) {
+    fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    })
+    .then(() => {
+      // ✅ Una vez marcados como vistos, recarga las conversaciones
+      cargarDatos();
+    })
+    .catch(console.error);
+  }
+}, [userId]);
     const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);

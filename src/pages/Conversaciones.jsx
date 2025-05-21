@@ -35,8 +35,7 @@ export default function Conversaciones() {
     try {
       const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
       const data = await res.json();
-console.log("🟡 Conversaciones cargadas:", data);
-setTodasConversaciones(data);
+      setTodasConversaciones(data);
 
       const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
       const vistasData = await vistasRes.json();
@@ -173,27 +172,15 @@ setTimeout(() => {
     }
   }, [userId, todasConversaciones]);
 
-    useEffect(() => {
-  if (userId) {
-    const now = new Date().toISOString();
-    console.log("🔵 Marcando visto:", userId);
-    fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    })
-      .then(() => {
-        // 1. Actualiza localmente la vista
-        setVistas((prev) => ({
-          ...prev,
-          [userId]: now,
-        }));
-        // 2. Fuerza recarga del listado de conversaciones
-        return cargarDatos();
-      })
-      .catch(console.error);
-  }
-}, [userId]);
+  useEffect(() => {
+    if (userId) {
+      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+    }
+  }, [userId]);
     const formatearTiempo = (fecha) => {
     const ahora = new Date();
     const pasada = new Date(fecha);
@@ -256,29 +243,19 @@ setTimeout(() => {
       estado = "Inactiva";
     }
 
-    // ✅ CORREGIDO: cálculo de noVistos más preciso
-    let noVistos = info.noVistos || 0;
-    if (id === userId && vistas[id]) {
-      const vista = new Date(vistas[id]);
-      const ultima = new Date(info.lastInteraction || info.fechaInicio || new Date());
-      if (vista >= ultima) {
-        noVistos = 0;
-      }
-    }
-
     return {
-      userId: id,
-      noVistos,
-      estado,
-      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
-      iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida || false,
-      intervenidaPor: info.intervenidaPor || null,
-      pais: info.pais || "Desconocido",
-      navegador: info.navegador || "Desconocido",
-      historial: info.historial || [],
-      chatCerrado: info.chatCerrado || false,
-    };
+  userId: id,
+  noVistos: info.noVistos || 0, // ✅ nombre correcto que usa el componente ConversacionList
+  estado,
+  lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
+  iniciales: id.slice(0, 2).toUpperCase(),
+  intervenida: info.intervenida || false,
+  intervenidaPor: info.intervenidaPor || null,
+  pais: info.pais || "Desconocido",
+  navegador: info.navegador || "Desconocido",
+  historial: info.historial || [],
+  chatCerrado: info.chatCerrado || false,
+};
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(
@@ -287,6 +264,21 @@ setTimeout(() => {
       (filtro === "gpt" && !c.intervenida) ||
       (filtro === "humanas" && c.intervenida)
   );
+
+  return (
+  <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
+    {/* Columna izquierda */}
+    <div className="w-[22%] h-full overflow-y-auto">
+      <ConversacionList
+        conversaciones={listaAgrupada}
+        userIdActual={userId}
+        onSelect={(id) => setSearchParams({ userId: id })}
+        filtro={filtro}
+        setFiltro={setFiltro}
+        paisAToIso={paisAToIso}
+        formatearTiempo={formatearTiempo}
+      />
+    </div>
 
     {/* Columna central */}
 <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">

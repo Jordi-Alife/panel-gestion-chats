@@ -64,7 +64,7 @@ if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
         }`}
       >
         {textoEtiqueta === "Traspasado a GPT" ? "Traspasada a GPT" : textoEtiqueta} •{" "}
-        {new Date(msg.timestamp || msg.lastInteraction).toLocaleTimeString([], {
+        {new Date(msg.timestamp?.toDate?.() || msg.timestamp || msg.lastInteraction).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         })}

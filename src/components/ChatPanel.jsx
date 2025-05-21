@@ -41,13 +41,14 @@ const ChatPanel = ({
 
         {mensajes.map((msg, index) => {
   if (
-    !msg.message &&
-    !msg.original &&
-    msg.tipo !== "imagen" &&
-    msg.tipo !== "etiqueta"
-  ) {
-    return null;
-  }
+  !msg.message &&
+  !msg.original &&
+  msg.tipo !== "imagen" &&
+  msg.tipo !== "etiqueta" &&
+  msg.tipo !== "estado" // ✅ permitir estado
+) {
+  return null;
+}
 
 if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
   const textoEtiqueta = msg.mensaje || msg.estado;

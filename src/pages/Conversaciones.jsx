@@ -173,22 +173,25 @@ setTimeout(() => {
     }
   }, [userId, todasConversaciones]);
 
-  useEffect(() => {
+  uuseEffect(() => {
   if (userId) {
     const now = new Date().toISOString();
-    console.log("🔵 Marcando visto:", userId); // 👈 Añade esto
+    console.log("🔵 Marcando visto:", userId);
     fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
     })
-    .then(() => {
-      setVistas((prev) => ({
-        ...prev,
-        [userId]: now,
-      }));
-    })
-    .catch(console.error);
+      .then(() => {
+        // 1. Actualiza localmente la vista
+        setVistas((prev) => ({
+          ...prev,
+          [userId]: now,
+        }));
+        // 2. Fuerza recarga del listado de conversaciones
+        return cargarDatos();
+      })
+      .catch(console.error);
   }
 }, [userId]);
     const formatearTiempo = (fecha) => {

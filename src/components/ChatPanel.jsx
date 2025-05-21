@@ -53,6 +53,11 @@ const ChatPanel = ({
 if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
   const textoEtiqueta = msg.mensaje || msg.estado;
 
+  // ❌ Ocultar etiqueta "Cerrado" en el historial
+  if (msg.tipo === "estado" && textoEtiqueta === "Cerrado") {
+    return null;
+  }
+
   return (
     <div key={`etiqueta-${index}`} className="flex justify-center">
       <span

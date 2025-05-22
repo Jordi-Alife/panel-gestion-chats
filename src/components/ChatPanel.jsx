@@ -53,11 +53,22 @@ const ChatPanel = ({
 if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
   const textoEtiqueta = msg.mensaje || msg.estado;
 
-    // ❌ Ocultar etiquetas "Cerrado" y "Traspasado a GPT" en el historial
+  // ❌ Ocultar etiquetas "Cerrado" y "Traspasado a GPT" en el historial
   if (
     msg.tipo === "estado" &&
     (textoEtiqueta === "Cerrado" || textoEtiqueta === "Traspasado a GPT")
   ) {
+    return null;
+  }
+
+  // ✅ Evitar duplicadas consecutivas
+  const etiquetaAnterior = mensajes[index - 1];
+  const etiquetaRepetida =
+    etiquetaAnterior &&
+    (etiquetaAnterior.tipo === "etiqueta" || etiquetaAnterior.tipo === "estado") &&
+    (etiquetaAnterior.mensaje || etiquetaAnterior.estado) === textoEtiqueta;
+
+  if (etiquetaRepetida) {
     return null;
   }
 

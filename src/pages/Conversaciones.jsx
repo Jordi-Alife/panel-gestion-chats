@@ -235,6 +235,22 @@ setTimeout(() => {
       : Infinity;
 
     let estado = "Archivado";
+
+    // ✅ Nueva lógica: liberar si está intervenida y pasa a Archivado
+    if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
+      fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: id }),
+      })
+      .then(() => {
+        console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+      })
+      .catch((err) => {
+        console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+      });
+    }
+
     if ((info.estado || "").toLowerCase() === "cerrado") {
       estado = "Cerrado";
     } else if (minutosDesdeUltimo <= 2) {
@@ -244,18 +260,18 @@ setTimeout(() => {
     }
 
     return {
-  userId: id,
-  noVistos: info.noVistos || 0, // ✅ nombre correcto que usa el componente ConversacionList
-  estado,
-  lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
-  iniciales: id.slice(0, 2).toUpperCase(),
-  intervenida: info.intervenida || false,
-  intervenidaPor: info.intervenidaPor || null,
-  pais: info.pais || "Desconocido",
-  navegador: info.navegador || "Desconocido",
-  historial: info.historial || [],
-  chatCerrado: info.chatCerrado || false,
-};
+      userId: id,
+      noVistos: info.noVistos || 0,
+      estado,
+      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
+      iniciales: id.slice(0, 2).toUpperCase(),
+      intervenida: info.intervenida || false,
+      intervenidaPor: info.intervenidaPor || null,
+      pais: info.pais || "Desconocido",
+      navegador: info.navegador || "Desconocido",
+      historial: info.historial || [],
+      chatCerrado: info.chatCerrado || false,
+    };
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(

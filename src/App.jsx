@@ -101,6 +101,8 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
+        <Route path="/" element={<Navigate to="/conversaciones" />} />
+
         <Route
           path="/conversaciones/:userId"
           element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}

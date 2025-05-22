@@ -14,13 +14,13 @@ const ChatMovil = () => {
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
   const [animacionesActivas, setAnimacionesActivas] = useState(false);
   const [estado, setEstado] = useState("");
-
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const oldestTimestampRef = useRef(null);
 
+  const oldestTimestampRef = useRef(null);
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   useEffect(() => {
@@ -43,14 +43,13 @@ const ChatMovil = () => {
       }
 
       const nuevosOrdenados = nuevosMensajes.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-      const mensajesConEtiqueta = [];
+      const nuevosConEtiquetas = [];
       let estadoActual = "gpt";
-
-      for (let i = 0; i < nuevosOrdenados.length; i++) {
+            for (let i = 0; i < nuevosOrdenados.length; i++) {
         const msg = nuevosOrdenados[i];
 
         if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
+          nuevosConEtiquetas.push({
             tipo: "etiqueta",
             mensaje: "Traspasado a GPT",
             timestamp: msg.lastInteraction,
@@ -59,7 +58,7 @@ const ChatMovil = () => {
         }
 
         if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-          mensajesConEtiqueta.push({
+          nuevosConEtiquetas.push({
             tipo: "etiqueta",
             mensaje: "El usuario ha cerrado el chat",
             timestamp: msg.lastInteraction,
@@ -67,7 +66,7 @@ const ChatMovil = () => {
         }
 
         if (msg.manual === true && estadoActual === "gpt") {
-          mensajesConEtiqueta.push({
+          nuevosConEtiquetas.push({
             tipo: "etiqueta",
             mensaje: "Intervenida",
             timestamp: msg.lastInteraction,
@@ -75,31 +74,29 @@ const ChatMovil = () => {
           estadoActual = "humano";
         }
 
-        mensajesConEtiqueta.push(msg);
+        nuevosConEtiquetas.push(msg);
       }
-
-      if (!mensajesConEtiqueta.length) return;
 
       setMensajes(() => {
         const mapa = new Map();
-        mensajesConEtiqueta.forEach((m) => {
+        nuevosConEtiquetas.forEach((m) => {
           const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
           mapa.set(clave, m);
         });
 
-        const ordenados = Array.from(mapa.values()).sort(
+        const ordenadosFinal = Array.from(mapa.values()).sort(
           (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
         );
 
-        if (ordenados.length > 50) {
-          ordenados.splice(0, ordenados.length - 50);
+        if (ordenadosFinal.length > 50) {
+          ordenadosFinal.splice(0, ordenadosFinal.length - 50);
         }
 
-        return ordenados;
+        return ordenadosFinal;
       });
 
-      if (mensajesConEtiqueta[0]) {
-        oldestTimestampRef.current = mensajesConEtiqueta[0].lastInteraction;
+      if (nuevosConEtiquetas[0]) {
+        oldestTimestampRef.current = nuevosConEtiquetas[0].lastInteraction;
       }
 
       if (!desdeTimestamp) {
@@ -113,7 +110,7 @@ const ChatMovil = () => {
         requestAnimationFrame(() => {
           if (chatRef.current) {
             const primerVisible = chatRef.current.querySelector("[data-id]");
-            if (primerVisible) {
+                        if (primerVisible) {
               primerVisible.scrollIntoView({ behavior: "auto", block: "start" });
             }
           }
@@ -156,8 +153,7 @@ const ChatMovil = () => {
       setLoadingMore(false);
     }
   };
-
-  return (
+    return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
         <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
@@ -173,35 +169,33 @@ const ChatMovil = () => {
       </div>
 
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
-  {mensajes.map((msg, index) => {
-    // 🔒 Evitar renderizar mensajes vacíos que no sean imagen ni etiqueta
-    if (
-      !msg.message &&
-      !msg.original &&
-      msg.tipo !== "imagen" &&
-      msg.tipo !== "etiqueta"
-    ) {
-      return null;
-    }
+        {mensajes.map((msg, index) => {
+          if (
+            !msg.message &&
+            !msg.original &&
+            msg.tipo !== "imagen" &&
+            msg.tipo !== "etiqueta"
+          ) {
+            return null;
+          }
 
-    if (msg.tipo === "etiqueta") {
-      return (
-        <div key={`etiqueta-${index}`} className="flex justify-center">
-          <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-            msg.mensaje === "Intervenida"
-              ? "bg-blue-100 text-blue-600"
-              : msg.mensaje === "Traspasado a GPT"
-              ? "bg-gray-200 text-gray-800"
-              : "bg-red-100 text-red-600"
-          }`}>
-            {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-            {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-      );
-    }
-
-          const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
+          if (msg.tipo === "etiqueta") {
+            return (
+              <div key={`etiqueta-${index}`} className="flex justify-center">
+                <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+                  msg.mensaje === "Intervenida"
+                    ? "bg-blue-100 text-blue-600"
+                    : msg.mensaje === "Traspasado a GPT"
+                    ? "bg-gray-200 text-gray-800"
+                    : "bg-red-100 text-red-600"
+                }`}>
+                  {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            );
+          }
+                const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
@@ -241,7 +235,7 @@ const ChatMovil = () => {
                 ) : (
                   <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
                 )}
-                {contenidoSecundario && (
+                                {contenidoSecundario && (
                   <div className="mt-2 text-[11px] text-right">
                     <button
                       onClick={() =>
@@ -277,126 +271,6 @@ const ChatMovil = () => {
             <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%]">
               {textoEscribiendo}...
             </div>
-          </div>
-        )}
-      </div>
-
-      {mostrarScrollBtn && (
-        <button
-          onClick={() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" })}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg scroll-button-animate"
-        >
-          ↓
-        </button>
-      )}
-
-      <div className="p-4 bg-white border-t">
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-
-            if (imagen) {
-              const formData = new FormData();
-              formData.append("file", imagen);
-              formData.append("userId", userId);
-              formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
-
-              try {
-                const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-                  method: "POST",
-                  body: formData,
-                });
-
-                const result = await res.json();
-                if (!res.ok || !result.imageUrl) {
-                  alert("Hubo un problema al subir la imagen.");
-                } else {
-                  setTimeout(() => cargarMensajes(), 300);
-                  setTimeout(() => {
-                    if (chatRef.current) {
-                      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-                    }
-                  }, 350);
-                }
-              } catch (err) {
-                alert("Error al subir imagen.");
-              }
-
-              setImagen(null);
-              return;
-            }
-
-            if (!respuesta.trim()) return;
-
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
-
-            setRespuesta("");
-
-            setTimeout(() => cargarMensajes(), 300);
-            setTimeout(() => {
-              if (chatRef.current) {
-                chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-              }
-            }, 350);
-          }}
-          className="flex items-center gap-2"
-        >
-          <label className="w-6 h-6 cursor-pointer">
-            <img src={iconFile} alt="Archivo" className="w-full h-full opacity-60 hover:opacity-100" />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImagen(e.target.files[0])}
-              className="hidden"
-            />
-          </label>
-          <button type="button" onClick={() => alert("Hashtags")} className="text-xl">#</button>
-          <input
-            type="text"
-            value={respuesta}
-            onChange={(e) => setRespuesta(e.target.value)}
-            placeholder="Escribe un mensaje..."
-            className={`flex-1 border rounded-full px-4 py-3 text-base focus:outline-none transition-all duration-200 ease-in-out ${
-              respuesta.trim() ? "ring-2 ring-blue-400" : ""
-            }`}
-            style={{ fontSize: "16px" }}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-          </button>
-        </form>
-
-        {imagen && (
-          <div className="mt-3 flex items-center gap-3">
-            <img
-              src={URL.createObjectURL(imagen)}
-              alt="Previsualización"
-              className="max-h-[100px] rounded-lg border"
-            />
-            <button
-              type="button"
-              onClick={() => setImagen(null)}
-              className="text-red-500 text-sm underline"
-            >
-              Quitar imagen
-            </button>
           </div>
         )}
       </div>

@@ -56,51 +56,71 @@ const ConversacionesMovil = () => {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-  acc[item.userId] = {
-    pais: item.pais,
-    intervenida: item.intervenida || false,
-    estado: item.estado || "abierta", // ✅ nombre consistente con escritorio
-    lastInteraction: item.ultimaRespuesta || item.fechaInicio || new Date().toISOString(),
-    noVistos: item.noVistos || 0,
-  };
-  return acc;
-}, {});
+    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
+    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
+    actual.pais = item.pais;
+    actual.navegador = item.navegador;
+    actual.historial = item.historial || [];
+    actual.intervenida = item.intervenida || false;
+    actual.chatCerrado = item.chatCerrado || false;
+    actual.estado = item.estado || "abierta";
+    actual.lastInteraction = item.lastInteraction || item.ultimaRespuesta || item.fechaInicio || new Date().toISOString();
+    actual.noVistos = item.noVistos || 0;
+    acc[item.userId] = actual;
+    return acc;
+  }, {});
 
-const listaAgrupada = Object.entries(conversacionesPorUsuario)
-  .map(([id, info]) => {
-    
-    const minutosDesdeUltimo = info.lastInteraction
-  ? (Date.now() - new Date(info.lastInteraction)) / 60000
-  : Infinity;
+  const listaAgrupada = Object.entries(conversacionesPorUsuario)
+    .map(([id, info]) => {
+      const ultimaVista = vistas[id];
 
-let estado = "Archivado";
+      const minutosDesdeUltimo = info.lastInteraction
+        ? (Date.now() - new Date(info.lastInteraction)) / 60000
+        : Infinity;
 
-if ((info.estado || "").toLowerCase() === "cerrado") {
-  estado = "Cerrado";
-} else if (info.lastInteraction) {
-  const minutos = (Date.now() - new Date(info.lastInteraction)) / 60000;
-  if (minutos <= 2) estado = "Activa";
-  else if (minutos <= 10) estado = "Inactiva";
-}
+      let estado = "Archivado";
 
-    return {
-      userId: id,
-      nuevos: info.noVistos || 0,
-      estado,
-      lastInteraction: info.lastInteraction,
-      iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida,
-      pais: info.pais || "Desconocido",
-    };
-  })
-  .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-  .filter(
-    (c) =>
-      (filtro === "todas" ||
-        (filtro === "gpt" && !c.intervenida) ||
-        (filtro === "humanas" && c.intervenida)) &&
-      c.userId.toLowerCase().includes(busqueda.toLowerCase())
-  );
+      if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
+        fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: id }),
+        })
+        .then(() => {
+          console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+        })
+        .catch((err) => {
+          console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+        });
+      }
+
+      if ((info.estado || "").toLowerCase() === "cerrado") {
+        estado = "Cerrado";
+      } else if (minutosDesdeUltimo <= 2) {
+        estado = "Activa";
+      } else if (minutosDesdeUltimo <= 10) {
+        estado = "Inactiva";
+      }
+
+      return {
+        userId: id,
+        nuevos: info.noVistos || 0,
+        estado,
+        lastInteraction: info.lastInteraction,
+        iniciales: id.slice(0, 2).toUpperCase(),
+        intervenida: info.intervenida,
+        pais: info.pais || "Desconocido",
+      };
+    })
+    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+    .filter(
+      (c) =>
+        (filtro === "todas" ||
+          (filtro === "gpt" && !c.intervenida) ||
+          (filtro === "humanas" && c.intervenida)) &&
+        c.userId.toLowerCase().includes(busqueda.toLowerCase())
+    );
+
   return (
     <div className="flex flex-col h-screen">
       <div className="p-4 border-b flex items-center gap-2">
@@ -124,22 +144,21 @@ if ((info.estado || "").toLowerCase() === "cerrado") {
           <div
             key={c.userId}
             onClick={async () => {
-  localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
-  localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
+              localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
+              localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
 
-  // 🔴 Llamada al endpoint para marcar como visto
-  try {
-    await fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: c.userId }),
-    });
-  } catch (err) {
-    console.warn("❌ Error al marcar visto", err);
-  }
+              try {
+                await fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId: c.userId }),
+                });
+              } catch (err) {
+                console.warn("❌ Error al marcar visto", err);
+              }
 
-  navigate(`/conversaciones/${c.userId}`);
-}}
+              navigate(`/conversaciones/${c.userId}`);
+            }}
             className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
           >
             <div className="flex items-center gap-3">

@@ -53,8 +53,11 @@ const ChatPanel = ({
 if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
   const textoEtiqueta = msg.mensaje || msg.estado;
 
-  // ❌ Ocultar etiqueta "Cerrado" en el historial
-  if (msg.tipo === "estado" && textoEtiqueta === "Cerrado") {
+    // ❌ Ocultar etiquetas "Cerrado" y "Traspasado a GPT" en el historial
+  if (
+    msg.tipo === "estado" &&
+    (textoEtiqueta === "Cerrado" || textoEtiqueta === "Traspasado a GPT")
+  ) {
     return null;
   }
 

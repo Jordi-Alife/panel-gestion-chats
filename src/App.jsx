@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
@@ -20,7 +21,18 @@ import Monitor from "./pages/Monitor";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
-import InicioRedirect from "./components/InicioRedirect"; // ✅ añadido
+
+// ✅ Nueva lógica de redirección condicional
+function HomeRedirect() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
+    navigate(isMobile ? "/conversaciones-movil" : "/conversaciones");
+  }, [navigate]);
+
+  return null;
+}
 
 const App = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -101,7 +113,8 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        <Route path="/" element={<Navigate to="/conversaciones" />} />
+        {/* ✅ Redirección condicional móvil/escritorio */}
+        <Route path="/" element={<HomeRedirect />} />
 
         <Route
           path="/conversaciones/:userId"

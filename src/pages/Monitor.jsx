@@ -32,14 +32,14 @@ export default function Monitor() {
 
   const Tarjeta = ({ titulo, detalle }) => {
     const renderDetalle = () => {
-      if (detalle === "✅") {
+      if (typeof detalle === "string" && detalle.includes("✅")) {
         return (
           <span className="text-[11px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-xl bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 etiqueta-animada">
             ON
           </span>
         );
       }
-      if (detalle === "❌") {
+      if (typeof detalle === "string" && detalle.includes("❌")) {
         return (
           <span className="text-[11px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-xl bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200">
             OFF
@@ -63,7 +63,7 @@ export default function Monitor() {
     <div className="p-6 space-y-4">
       <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Estado del Sistema</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <Tarjeta titulo="Backend" detalle={`${estado.backend.status} (Puerto: ${estado.backend.port})`} />
+        <Tarjeta titulo="Backend" detalle={estado.backend.status} />
         <Tarjeta titulo="Firestore" detalle={estado.firestore} />
         <Tarjeta titulo="OpenAI" detalle={estado.openai} />
         <Tarjeta titulo="Última imagen subida" detalle={estado.lastImageUpload} />

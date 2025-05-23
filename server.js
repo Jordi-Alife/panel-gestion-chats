@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 // ✅ Tomamos y corregimos la clave privada de la variable de entorno
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT, (key, value) => {
   if (key === 'private_key') {
-    return value.replace(/\\n/g, '\n');
+    return value.replace(/\n/g, '\n');
   }
   return value;
 });
@@ -77,6 +77,7 @@ app.get('/api/status', async (req, res) => {
     firestore: null,
     openai: null,
     lastImageUpload: null,
+    smsArena: null,
   };
 
   try {
@@ -94,6 +95,27 @@ app.get('/api/status', async (req, res) => {
     status.openai = "✅ Respuesta recibida";
   } catch (e) {
     status.openai = "❌ Error: " + e.message;
+  }
+
+  try {
+    const smsId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const params = new URLSearchParams();
+    params.append("id", smsId);
+    params.append("auth_key", process.env.SMS_ARENA_KEY);
+    params.append("from", "NextLives");
+    params.append("to", "34600000000"); // Número de test
+    params.append("text", "Test SMS Arena");
+
+    const smsResponse = await fetch("http://api.smsarena.es/http/sms.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString()
+    });
+
+    const smsTexto = await smsResponse.text();
+    status.smsArena = smsTexto.includes("OK") ? "✅ Conectado" : "❌ Error: " + smsTexto;
+  } catch (e) {
+    status.smsArena = "❌ Error SMS Arena: " + e.message;
   }
 
   try {
@@ -117,7 +139,6 @@ app.get('/api/openai-usage', async (req, res) => {
       'Content-Type': 'application/json',
     };
 
-    // Pedir límites de suscripción
     const subResponse = await fetch('https://api.openai.com/v1/dashboard/billing/subscription', {
       headers,
     });
@@ -125,18 +146,16 @@ app.get('/api/openai-usage', async (req, res) => {
 
     const totalLimit = subData.hard_limit_usd;
 
-    // Calcular fecha desde inicio de mes hasta hoy
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
     const end = now.toISOString().split('T')[0];
 
-    // Pedir uso mensual
     const usageResponse = await fetch(`https://api.openai.com/v1/dashboard/billing/usage?start_date=${start}&end_date=${end}`, {
       headers,
     });
     const usageData = await usageResponse.json();
 
-    const totalUsage = usageData.total_usage / 100; // centavos a USD
+    const totalUsage = usageData.total_usage / 100;
     const remaining = totalLimit - totalUsage;
 
     res.json({

@@ -38,7 +38,9 @@ const ConversacionList = ({
             key={c.userId}
             onClick={() => onSelect(c.userId)}
             className={`flex items-center justify-between px-4 py-3 cursor-pointer transition ${
-              c.userId === userIdActual ? "bg-blue-50 dark:bg-blue-950" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+              c.userId === userIdActual
+                ? "bg-blue-50 dark:bg-blue-950"
+                : "hover:bg-gray-50 dark:hover:bg-gray-800"
             }`}
           >
             <div className="flex items-center gap-3 relative">
@@ -61,25 +63,28 @@ const ConversacionList = ({
                   </span>
                 )}
               </div>
+
               <div>
-                <div className="font-medium text-sm text-gray-800 dark:text-white">{c.userId}</div>
+                <div className="font-medium text-sm text-gray-800 dark:text-white">
+                  {c.userId}
+                </div>
 
                 <div className="text-xs text-gray-600 dark:text-gray-300 max-w-[160px] truncate">
-  {c.tipoUltimoMensaje === "imagen"
-    ? "📷 Imagen enviada"
-    : typeof c.lastMessage === "string"
-    ? c.lastMessage.slice(0, 30)
-    : typeof c.lastMessage?.contenido === "string"
-    ? c.lastMessage.contenido.slice(0, 30)
-    : "—"}
-</div>
+                  {c.tipoUltimoMensaje === "imagen"
+                    ? "📷 Imagen enviada"
+                    : c.resumenUltimoMensaje || "—"}
+                </div>
 
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  <span className="text-[11px] opacity-70">{formatearTiempo(c.lastInteraction)}</span>
+                  <span className="text-[11px] opacity-70">
+                    {formatearTiempo(c.lastInteraction)}
+                  </span>
                 </div>
 
                 {c.chatCerrado && (
-                  <div className="text-[10px] text-red-500 mt-1">⚠ Usuario ha cerrado el chat</div>
+                  <div className="text-[10px] text-red-500 mt-1">
+                    ⚠ Usuario ha cerrado el chat
+                  </div>
                 )}
               </div>
             </div>

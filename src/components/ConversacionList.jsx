@@ -67,9 +67,9 @@ const ConversacionList = ({
                 <div className="text-xs text-gray-600 dark:text-gray-300 max-w-[160px] truncate">
   {c.tipoUltimoMensaje === "imagen"
     ? "📷 Imagen enviada"
-    : c.lastMessage?.contenido
-    ? c.lastMessage.contenido.slice(0, 30)
-    : "—"}
+    : typeof c.lastMessage === "string"
+    ? c.lastMessage.slice(0, 30)
+    : c.lastMessage?.contenido?.slice(0, 30) || "—"}
 </div>
 
                 <div className="text-xs text-gray-500 dark:text-gray-400">

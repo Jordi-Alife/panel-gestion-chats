@@ -103,7 +103,7 @@ app.get('/api/status', async (req, res) => {
     params.append("id", smsId);
     params.append("auth_key", process.env.SMS_ARENA_KEY);
     params.append("from", "NextLives");
-    params.append("to", "34600000000");
+    params.append("to", "34673976486");
     params.append("text", "Test SMS Arena");
 
     const smsResponse = await fetch("http://api.smsarena.es/http/sms.php", {

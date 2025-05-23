@@ -78,17 +78,17 @@ const Agentes = () => {
       )}
 
       {/* Contenedor tabla */}
-      <div className="bg-white rounded-lg shadow p-6">
-        {/* Cabecera */}
-        <div className="grid grid-cols-[1.6fr,2fr,1.5fr,1.2fr,1.5fr,auto,auto] gap-6 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
-          <div className="pl-6">Foto/Nombre</div>
-          <div className="pl-8">Email</div>
-          <div className="pl-7">Última conexión</div>
-          <div className="pl-6">Rol</div>
-          <div className="pl-6">Notificaciones SMS</div>
-          <div className="text-center">Editar</div>
-          <div className="text-center">Eliminar</div>
-        </div>
+      <div className="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-6">
+  {/* Cabecera */}
+  <div className="grid grid-cols-[1.6fr,2fr,1.5fr,1.2fr,1.5fr,auto,auto] gap-6 items-center text-xs text-gray-500 font-semibold uppercase py-2 border-b">
+    <div className="pl-6">Foto/Nombre</div>
+    <div className="pl-8">Email</div>
+    <div className="pl-7">Última conexión</div>
+    <div className="pl-6">Rol</div>
+    <div className="pl-6">Notificaciones SMS</div>
+    <div className="text-center">Editar</div>
+    <div className="text-center">Eliminar</div>
+  </div>
 
         {/* Lista de agentes */}
         <div className="divide-y">

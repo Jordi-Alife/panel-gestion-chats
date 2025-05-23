@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 // ✅ Tomamos y corregimos la clave privada de la variable de entorno
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT, (key, value) => {
   if (key === 'private_key') {
-    return value.replace(/\n/g, '\n');
+    return value.replace(/\\n/g, '\n'); // FIX aplicado aquí
   }
   return value;
 });
@@ -103,7 +103,7 @@ app.get('/api/status', async (req, res) => {
     params.append("id", smsId);
     params.append("auth_key", process.env.SMS_ARENA_KEY);
     params.append("from", "NextLives");
-    params.append("to", "34600000000"); // Número de test
+    params.append("to", "34600000000");
     params.append("text", "Test SMS Arena");
 
     const smsResponse = await fetch("http://api.smsarena.es/http/sms.php", {

@@ -49,12 +49,12 @@ const DetallesUsuario = ({
       )}
 
       {usuario?.intervenida ? (
-        <button
-          onClick={handleLiberar}
-          className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded"
-        >
-          Liberar conversación
-        </button>
+        <span
+  onClick={handleLiberar}
+  className="cursor-pointer inline-block px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 border border-green-300 rounded-full animate-pulse-soft transition hover:scale-105"
+>
+  Liberar conversación
+</span>
       ) : (
         <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
           Traspasado a GPT

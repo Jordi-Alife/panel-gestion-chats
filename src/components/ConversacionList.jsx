@@ -66,29 +66,21 @@ const ConversacionList = ({
               <div>
   <div className="font-medium text-sm text-gray-800 dark:text-white">{c.userId}</div>
 
-  <div className="text-xs text-gray-600 dark:text-gray-300 max-w-[160px] truncate">
-    {c.tipoUltimoMensaje === "imagen"
-      ? "📷 Imagen"
-      : c.message?.length > 30
-      ? `${c.message.slice(0, 30)}…`
-      : c.message}
-  </div>
+<div className="text-xs text-gray-600 dark:text-gray-300 max-w-[160px] truncate">
+  {c.tipoUltimoMensaje === "imagen"
+    ? "📷 Imagen enviada"
+    : c.lastMessage
+    ? c.lastMessage.slice(0, 30)
+    : "—"}
+</div>
 
-  <div className="text-xs text-gray-500 dark:text-gray-400 flex flex-col gap-0.5">
-  <span className="truncate max-w-[180px] inline-block">
-    {c.lastMessage?.tipo === "imagen"
-      ? "📷 Imagen enviada"
-      : typeof c.lastMessage === "string"
-      ? c.lastMessage.slice(0, 30)
-      : c.lastMessage?.contenido?.slice(0, 30) || "—"}
-  </span>
+<div className="text-xs text-gray-500 dark:text-gray-400">
   <span className="text-[11px] opacity-70">{formatearTiempo(c.lastInteraction)}</span>
 </div>
 
-  {c.chatCerrado && (
-    <div className="text-[10px] text-red-500 mt-1">⚠ Usuario ha cerrado el chat</div>
-  )}
-</div>
+{c.chatCerrado && (
+  <div className="text-[10px] text-red-500 mt-1">⚠ Usuario ha cerrado el chat</div>
+)}
             </div>
 
             {c.estado === "Activa" ? (

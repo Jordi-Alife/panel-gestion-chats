@@ -69,7 +69,9 @@ const ConversacionList = ({
     ? "📷 Imagen enviada"
     : typeof c.lastMessage === "string"
     ? c.lastMessage.slice(0, 30)
-    : c.lastMessage?.contenido?.slice(0, 30) || "—"}
+    : typeof c.lastMessage?.contenido === "string"
+    ? c.lastMessage.contenido.slice(0, 30)
+    : "—"}
 </div>
 
                 <div className="text-xs text-gray-500 dark:text-gray-400">

@@ -49,17 +49,22 @@ const DetallesUsuario = ({
       )}
 
       {usuario?.intervenida ? (
-        <span
-  onClick={handleLiberar}
-  className="cursor-pointer inline-block px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 border border-green-300 rounded-full animate-pulse-soft transition hover:scale-105"
->
-  Liberar conversación
-</span>
-      ) : (
-        <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded text-center cursor-default">
-          Traspasado a GPT
-        </div>
-      )}
+  <div className="flex items-center gap-2 mt-2">
+    <span className="estado-tag estado-activa etiqueta-animada">
+      Intervenida
+    </span>
+    <button
+      onClick={handleLiberar}
+      className="text-xs text-blue-600 underline hover:text-blue-800 transition duration-200"
+    >
+      Liberar conversación
+    </button>
+  </div>
+) : (
+  <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded-full text-center cursor-default">
+    Traspasado a GPT
+  </div>
+)}
 
       <h2 className="text-sm text-gray-400 dark:text-gray-300 font-semibold mb-2 mt-4">Datos del usuario</h2>
       {usuario ? (

@@ -168,7 +168,21 @@ const DashboardLayout = ({ children }) => {
               )}
             </div>
           </div>
-
+{/* Botones de soporte (restaurados) */}
+<div className="px-4 mb-2 space-y-2">
+  <button
+    className="w-full bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
+  >
+    <img src={IconUserFamily} alt="Soporte Familias" className="w-4 h-4" />
+    Soporte Familias
+  </button>
+  <button
+    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
+  >
+    <img src={IconSkyscraper} alt="Soporte Empresas" className="w-4 h-4" />
+    Soporte Empresas
+  </button>
+</div>
           <div className="px-4 pb-6 z-20 space-y-2">
             {colapsado ? (
               <div className="flex justify-center mt-2">

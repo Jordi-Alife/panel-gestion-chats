@@ -116,8 +116,8 @@ export default function Inicio() {
 
   const Tarjeta = ({ titulo, valor, color, datos }) => (
     <div className="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 flex flex-col">
-      <h2 className="text-sm text-gray-500">{titulo}</h2>
-      <p className="text-3xl font-bold text-gray-800">{valor}</p>
+      <h2 className="text-sm text-gray-500 dark:text-gray-300">{titulo}</h2>
+<p className="text-3xl font-bold text-gray-800 dark:text-white">{valor}</p>
       <div className="flex-1 mt-2">
         <ResponsiveContainer width="100%" height={50}>
           <AreaChart data={datos}>

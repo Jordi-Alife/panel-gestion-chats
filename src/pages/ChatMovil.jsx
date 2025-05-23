@@ -47,37 +47,55 @@ const ChatMovil = () => {
       let estadoActual = "gpt";
 
       for (let i = 0; i < nuevosOrdenados.length; i++) {
-        const msg = nuevosOrdenados[i];
+  const msg = nuevosOrdenados[i];
 
-        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-          estadoActual = "gpt";
-        }
+  const ultimaEtiqueta = mensajesConEtiqueta.length
+    ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+    : null;
 
-        if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "El usuario ha cerrado el chat",
-            timestamp: msg.lastInteraction,
-          });
-        }
+  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+    if (
+      !ultimaEtiqueta ||
+      ultimaEtiqueta.mensaje !== "Traspasado a GPT"
+    ) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Traspasado a GPT",
+        timestamp: msg.lastInteraction,
+      });
+    }
+    estadoActual = "gpt";
+  }
 
-        if (msg.manual === true && estadoActual === "gpt") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-          estadoActual = "humano";
-        }
+  if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+    if (
+      !ultimaEtiqueta ||
+      ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat"
+    ) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "El usuario ha cerrado el chat",
+        timestamp: msg.lastInteraction,
+      });
+    }
+  }
 
-        mensajesConEtiqueta.push(msg);
-      }
+  if (msg.manual === true && estadoActual === "gpt") {
+    if (
+      !ultimaEtiqueta ||
+      ultimaEtiqueta.mensaje !== "Intervenida"
+    ) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Intervenida",
+        timestamp: msg.lastInteraction,
+      });
+    }
+    estadoActual = "humano";
+  }
 
+  mensajesConEtiqueta.push(msg);
+}
       if (!mensajesConEtiqueta.length) return;
 
       setMensajes(() => {

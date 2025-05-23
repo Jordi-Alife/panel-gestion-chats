@@ -99,22 +99,42 @@ const ChatMovil = () => {
       if (!mensajesConEtiqueta.length) return;
 
       setMensajes(() => {
-        const mapa = new Map();
-        mensajesConEtiqueta.forEach((m) => {
-          const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-          mapa.set(clave, m);
-        });
+  const mapa = new Map();
+  mensajesConEtiqueta.forEach((m) => {
+    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+    mapa.set(clave, m);
+  });
 
-        const ordenados = Array.from(mapa.values()).sort(
-          (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-        );
+  let ordenados = Array.from(mapa.values()).sort(
+    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+  );
 
-        if (ordenados.length > 50) {
-          ordenados.splice(0, ordenados.length - 50);
-        }
+  // ✅ FILTRO para evitar duplicados inmediatos de etiquetas idénticas
+  const filtradoSinDuplicados = [];
+  let ultimaEtiqueta = null;
 
-        return ordenados;
-      });
+  for (const msg of ordenados) {
+    if (
+      msg.tipo === "etiqueta" &&
+      ultimaEtiqueta &&
+      ultimaEtiqueta.tipo === "etiqueta" &&
+      ultimaEtiqueta.mensaje === msg.mensaje &&
+      Math.abs(new Date(ultimaEtiqueta.timestamp) - new Date(msg.timestamp)) < 3000
+    ) {
+      continue; // Duplicado inmediato
+    }
+
+    filtradoSinDuplicados.push(msg);
+    if (msg.tipo === "etiqueta") ultimaEtiqueta = msg;
+  }
+
+  // ✅ Limitamos a los últimos 50
+  if (filtradoSinDuplicados.length > 50) {
+    filtradoSinDuplicados.splice(0, filtradoSinDuplicados.length - 50);
+  }
+
+  return filtradoSinDuplicados;
+});
 
       if (mensajesConEtiqueta[0]) {
         oldestTimestampRef.current = mensajesConEtiqueta[0].lastInteraction;

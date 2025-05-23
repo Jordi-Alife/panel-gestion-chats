@@ -259,36 +259,19 @@ setTimeout(() => {
       estado = "Inactiva";
     }
 
-    const lastMsg = info.lastMessage;
-
-let tipoUltimoMensaje = "texto";
-let resumenUltimoMensaje = "";
-
-if (typeof lastMsg === "string") {
-  resumenUltimoMensaje = lastMsg.slice(0, 30);
-} else if (typeof lastMsg === "object" && lastMsg !== null) {
-  tipoUltimoMensaje = lastMsg.tipo || "texto";
-  resumenUltimoMensaje = typeof lastMsg.contenido === "string"
-    ? lastMsg.contenido.slice(0, 30)
-    : "";
-}
-
-return {
-  userId: id,
-  noVistos: info.noVistos || 0,
-  estado,
-  lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
-  iniciales: id.slice(0, 2).toUpperCase(),
-  intervenida: info.intervenida || false,
-  intervenidaPor: info.intervenidaPor || null,
-  pais: info.pais || "Desconocido",
-  navegador: info.navegador || "Desconocido",
-  historial: info.historial || [],
-  chatCerrado: info.chatCerrado || false,
-  lastMessage: lastMsg,
-  tipoUltimoMensaje,
-  resumenUltimoMensaje, // ✅ este lo usas en ConversacionList.jsx
-};
+    return {
+      userId: id,
+      noVistos: info.noVistos || 0,
+      estado,
+      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
+      iniciales: id.slice(0, 2).toUpperCase(),
+      intervenida: info.intervenida || false,
+      intervenidaPor: info.intervenidaPor || null,
+      pais: info.pais || "Desconocido",
+      navegador: info.navegador || "Desconocido",
+      historial: info.historial || [],
+      chatCerrado: info.chatCerrado || false,
+    };
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(

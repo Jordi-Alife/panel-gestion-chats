@@ -65,12 +65,12 @@ const ConversacionList = ({
                 <div className="font-medium text-sm text-gray-800 dark:text-white">{c.userId}</div>
 
                 <div className="text-xs text-gray-600 dark:text-gray-300 max-w-[160px] truncate">
-                  {c.lastMessage?.tipo === "imagen"
-                    ? "📷 Imagen enviada"
-                    : typeof c.lastMessage?.contenido === "string"
-                    ? c.lastMessage.contenido.slice(0, 30)
-                    : "—"}
-                </div>
+  {c.lastMessage?.tipo === "imagen"
+    ? "📷 Imagen enviada"
+    : typeof c.lastMessage?.contenido === "string"
+    ? c.lastMessage.contenido.slice(0, 30)
+    : "—"}
+</div>
 
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   <span className="text-[11px] opacity-70">{formatearTiempo(c.lastInteraction)}</span>

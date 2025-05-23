@@ -260,18 +260,24 @@ setTimeout(() => {
     }
 
     return {
-      userId: id,
-      noVistos: info.noVistos || 0,
-      estado,
-      lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
-      iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida || false,
-      intervenidaPor: info.intervenidaPor || null,
-      pais: info.pais || "Desconocido",
-      navegador: info.navegador || "Desconocido",
-      historial: info.historial || [],
-      chatCerrado: info.chatCerrado || false,
-    };
+  userId: id,
+  noVistos: info.noVistos || 0,
+  estado,
+  lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
+  iniciales: id.slice(0, 2).toUpperCase(),
+  intervenida: info.intervenida || false,
+  intervenidaPor: info.intervenidaPor || null,
+  pais: info.pais || "Desconocido",
+  navegador: info.navegador || "Desconocido",
+  historial: info.historial || [],
+  chatCerrado: info.chatCerrado || false,
+  lastMessage:
+    typeof info.lastMessage === "string"
+      ? { tipo: "texto", contenido: info.lastMessage }
+      : info.lastMessage || null,
+  tipoUltimoMensaje:
+    typeof info.lastMessage === "object" ? info.lastMessage.tipo : "texto",
+};
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(

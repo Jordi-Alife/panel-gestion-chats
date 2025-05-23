@@ -167,69 +167,70 @@ const DashboardLayout = ({ children }) => {
                 </Link>
               )}
             </div>
-          </div>
-{/* Botones de soporte (restaurados correctamente) */}
-{colapsado ? (
-  <div className="flex flex-col items-center space-y-3 mb-4 mt-2">
-    <button
-      title="Soporte Familias"
-      className="w-10 h-10 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center"
+          </div><div className="px-4 pb-6 z-20 space-y-2">
+  {/* Botones de soporte justo encima del perfil */}
+  {colapsado ? (
+    <div className="flex flex-col items-center space-y-3 mb-4 mt-2">
+      <button
+        title="Soporte Familias"
+        className="w-10 h-10 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center"
+      >
+        <img src={IconUserFamily} alt="Familias" className="w-4 h-4" />
+      </button>
+      <button
+        title="Soporte Empresas"
+        className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center"
+      >
+        <img src={IconSkyscraper} alt="Empresas" className="w-4 h-4" />
+      </button>
+    </div>
+  ) : (
+    <div className="space-y-2 mb-4">
+      <button
+        className="w-full bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
+      >
+        <img src={IconUserFamily} alt="Soporte Familias" className="w-4 h-4" />
+        Soporte Familias
+      </button>
+      <button
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
+      >
+        <img src={IconSkyscraper} alt="Soporte Empresas" className="w-4 h-4" />
+        Soporte Empresas
+      </button>
+    </div>
+  )}
+
+  {/* Perfil */}
+  {colapsado ? (
+    <div className="flex justify-center mt-2">
+      <button onClick={() => navigate("/perfil")}>
+        <img
+          src={fotoPerfil || "https://i.pravatar.cc/100"}
+          alt="Perfil"
+          className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
+        />
+      </button>
+    </div>
+  ) : (
+    <div
+      onClick={() => navigate("/perfil")}
+      className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-2"
     >
-      <img src={IconUserFamily} alt="Familias" className="w-4 h-4" />
-    </button>
-    <button
-      title="Soporte Empresas"
-      className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center"
-    >
-      <img src={IconSkyscraper} alt="Empresas" className="w-4 h-4" />
-    </button>
-  </div>
-) : (
-  <div className="px-4 mb-3 space-y-2 mt-1">
-    <button
-      className="w-full bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
-    >
-      <img src={IconUserFamily} alt="Soporte Familias" className="w-4 h-4" />
-      Soporte Familias
-    </button>
-    <button
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
-    >
-      <img src={IconSkyscraper} alt="Soporte Empresas" className="w-4 h-4" />
-      Soporte Empresas
-    </button>
-  </div>
-)}
-          <div className="px-4 pb-6 z-20 space-y-2">
-            {colapsado ? (
-              <div className="flex justify-center mt-2">
-                <button onClick={() => navigate("/perfil")}> {/* Perfil escritorio */}
-                  <img
-                    src={fotoPerfil || "https://i.pravatar.cc/100"}
-                    alt="Perfil"
-                    className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
-                  />
-                </button>
-              </div>
-            ) : (
-              <div
-                onClick={() => navigate("/perfil")}
-                className="bg-[#3a3f4b] text-white rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:bg-[#4c5260] mt-2"
-              >
-                <img
-                  src={fotoPerfil || "https://i.pravatar.cc/100"}
-                  alt="Perfil"
-                  className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
-                />
-                <div>
-                  <div className="font-semibold text-sm leading-tight">
-                    {nombrePerfil || "Mi perfil"}
-                  </div>
-                  <div className="text-xs text-gray-400">Editar</div>
-                </div>
-              </div>
-            )}
-          </div>
+      <img
+        src={fotoPerfil || "https://i.pravatar.cc/100"}
+        alt="Perfil"
+        className={`w-10 h-10 rounded-full object-cover transition-opacity duration-500 ${cargandoFoto ? "opacity-0" : "opacity-100"}`}
+      />
+      <div>
+        <div className="font-semibold text-sm leading-tight">
+          {nombrePerfil || "Mi perfil"}
+        </div>
+        <div className="text-xs text-gray-400">Editar</div>
+      </div>
+    </div>
+  )}
+</div>
         </aside>
 
         {/* Contenido principal */}

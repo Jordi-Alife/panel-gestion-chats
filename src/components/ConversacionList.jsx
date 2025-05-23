@@ -65,10 +65,10 @@ const ConversacionList = ({
                 <div className="font-medium text-sm text-gray-800 dark:text-white">{c.userId}</div>
 
                 <div className="text-xs text-gray-600 dark:text-gray-300 max-w-[160px] truncate">
-                  {c.tipoUltimoMensaje === "imagen"
+                  {c.lastMessage?.tipo === "imagen"
                     ? "📷 Imagen enviada"
-                    : c.lastMessage
-                    ? c.lastMessage.slice(0, 30)
+                    : typeof c.lastMessage?.contenido === "string"
+                    ? c.lastMessage.contenido.slice(0, 30)
                     : "—"}
                 </div>
 

@@ -268,7 +268,7 @@ const ChatMovil = () => {
                   ? "bg-[#2563eb] text-white"
                   : isAsistente
                   ? "bg-[#2f2f2f] text-white dark:bg-[#3a3a3a] border border-transparent"
-                  : "bg-[#f0f0f0] text-gray-900 dark:bg-gray-700 dark:text-white"
+                  : "bg-gray-300 text-gray-900 dark:bg-gray-700 dark:text-white"
               }`}>
                 {msg.tipo === "imagen" ? (
                   <img

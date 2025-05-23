@@ -74,9 +74,16 @@ const ConversacionList = ({
       : c.message}
   </div>
 
-  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-    {formatearTiempo(c.lastInteraction)}
-  </div>
+  <div className="text-xs text-gray-500 dark:text-gray-400 flex flex-col gap-0.5">
+  <span className="truncate max-w-[180px] inline-block">
+    {c.lastMessage?.tipo === "imagen"
+      ? "📷 Imagen enviada"
+      : typeof c.lastMessage === "string"
+      ? c.lastMessage.slice(0, 30)
+      : c.lastMessage?.contenido?.slice(0, 30) || "—"}
+  </span>
+  <span className="text-[11px] opacity-70">{formatearTiempo(c.lastInteraction)}</span>
+</div>
 
   {c.chatCerrado && (
     <div className="text-[10px] text-red-500 mt-1">⚠ Usuario ha cerrado el chat</div>

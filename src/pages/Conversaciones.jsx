@@ -259,7 +259,21 @@ setTimeout(() => {
       estado = "Inactiva";
     }
 
-    return {
+    const lastMsg = info.lastMessage;
+
+let tipoUltimoMensaje = "texto";
+let resumenUltimoMensaje = "";
+
+if (typeof lastMsg === "string") {
+  resumenUltimoMensaje = lastMsg.slice(0, 30);
+} else if (typeof lastMsg === "object" && lastMsg !== null) {
+  tipoUltimoMensaje = lastMsg.tipo || "texto";
+  resumenUltimoMensaje = typeof lastMsg.contenido === "string"
+    ? lastMsg.contenido.slice(0, 30)
+    : "";
+}
+
+return {
   userId: id,
   noVistos: info.noVistos || 0,
   estado,
@@ -271,12 +285,9 @@ setTimeout(() => {
   navegador: info.navegador || "Desconocido",
   historial: info.historial || [],
   chatCerrado: info.chatCerrado || false,
-  lastMessage:
-    typeof info.lastMessage === "string"
-      ? { tipo: "texto", contenido: info.lastMessage }
-      : info.lastMessage || null,
-  tipoUltimoMensaje:
-    typeof info.lastMessage === "object" ? info.lastMessage.tipo : "texto",
+  lastMessage: lastMsg,
+  tipoUltimoMensaje,
+  resumenUltimoMensaje, // ✅ este lo usas en ConversacionList.jsx
 };
   })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))

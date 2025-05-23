@@ -21,12 +21,29 @@ export default function Inicio() {
   const saludo =
     hora < 12 ? "Buenos días" : hora < 20 ? "Buenas tardes" : "Buenas noches";
 
-  const cargarDatos = () => {
-    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
-      .then((res) => res.json())
-      .then(setData)
-      .catch(console.error);
-  };
+  const cargarDatos = async () => {
+  try {
+    const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
+    const conversaciones = await res.json();
+
+    const conversacionesConMensajes = await Promise.all(
+      conversaciones.map(async (conv) => {
+        try {
+          const resMensajes = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${conv.userId}`);
+          const mensajes = await resMensajes.json();
+          return { ...conv, mensajes };
+        } catch (e) {
+          console.warn("Error cargando mensajes para", conv.userId, e);
+          return { ...conv, mensajes: [] };
+        }
+      })
+    );
+
+    setData(conversacionesConMensajes);
+  } catch (error) {
+    console.error("❌ Error al cargar datos:", error);
+  }
+};
 
   useEffect(() => {
     cargarDatos();

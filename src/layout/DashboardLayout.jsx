@@ -168,21 +168,38 @@ const DashboardLayout = ({ children }) => {
               )}
             </div>
           </div>
-{/* Botones de soporte (restaurados) */}
-<div className="px-4 mb-2 space-y-2">
-  <button
-    className="w-full bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
-  >
-    <img src={IconUserFamily} alt="Soporte Familias" className="w-4 h-4" />
-    Soporte Familias
-  </button>
-  <button
-    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
-  >
-    <img src={IconSkyscraper} alt="Soporte Empresas" className="w-4 h-4" />
-    Soporte Empresas
-  </button>
-</div>
+{/* Botones de soporte (restaurados correctamente) */}
+{colapsado ? (
+  <div className="flex flex-col items-center space-y-3 mb-4 mt-2">
+    <button
+      title="Soporte Familias"
+      className="w-10 h-10 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center"
+    >
+      <img src={IconUserFamily} alt="Familias" className="w-4 h-4" />
+    </button>
+    <button
+      title="Soporte Empresas"
+      className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center"
+    >
+      <img src={IconSkyscraper} alt="Empresas" className="w-4 h-4" />
+    </button>
+  </div>
+) : (
+  <div className="px-4 mb-3 space-y-2 mt-1">
+    <button
+      className="w-full bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
+    >
+      <img src={IconUserFamily} alt="Soporte Familias" className="w-4 h-4" />
+      Soporte Familias
+    </button>
+    <button
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition"
+    >
+      <img src={IconSkyscraper} alt="Soporte Empresas" className="w-4 h-4" />
+      Soporte Empresas
+    </button>
+  </div>
+)}
           <div className="px-4 pb-6 z-20 space-y-2">
             {colapsado ? (
               <div className="flex justify-center mt-2">

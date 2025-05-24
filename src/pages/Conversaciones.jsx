@@ -139,7 +139,13 @@ setTimeout(() => {
   }
 }, [tipoVisualizacion]);
 
-  useEffect(() => {
+useEffect(() => {
+  if (tipoVisualizacion === "archivo") {
+    cargarDatos("archivo");
+  }
+}, [tipoVisualizacion]);
+
+useEffect(() => {
   const refrescar = () => cargarMensajes(false);
   refrescar();
   const interval = setInterval(refrescar, 2000);

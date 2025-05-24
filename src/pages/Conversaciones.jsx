@@ -295,7 +295,11 @@ useEffect(() => {
     {/* Columna izquierda */}
     <div className="w-[22%] h-full overflow-y-auto">
       <ConversacionList
-  conversaciones={listaAgrupada}
+  conversaciones={
+    tipoVisualizacion === "archivo"
+      ? listaAgrupada.filter((c) => c.estado === "Archivado" || c.estado === "Cerrado")
+      : listaAgrupada.filter((c) => c.estado === "Activa" || c.estado === "Inactiva")
+  }
   userIdActual={userId}
   onSelect={(id) => setSearchParams({ userId: id })}
   filtro={filtro}

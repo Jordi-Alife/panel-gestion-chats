@@ -244,12 +244,12 @@ setTimeout(() => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: id }),
       })
-        .then(() => {
-          console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
-        })
-        .catch((err) => {
-          console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
-        });
+      .then(() => {
+        console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+      })
+      .catch((err) => {
+        console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+      });
     }
 
     if ((info.estado || "").toLowerCase() === "cerrado") {
@@ -282,69 +282,66 @@ setTimeout(() => {
       (filtro === "humanas" && c.intervenida)
   );
 
-const archivadas = listaAgrupada.filter(
-  (c) => c.estado === "Archivado" || c.estado === "Cerrado"
-);
-const recientes = listaAgrupada.filter(
-  (c) => c.estado === "Activa" || c.estado === "Inactiva"
-);
-
-return (
+  return (
   <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
     {/* Columna izquierda */}
     <div className="w-[22%] h-full overflow-y-auto">
       <ConversacionList
-        conversaciones={tipoVisualizacion === "archivo" ? archivadas : recientes}
-        userIdActual={userId}
-        onSelect={(id) => setSearchParams({ userId: id })}
-        filtro={filtro}
-        setFiltro={setFiltro}
-        tipoVisualizacion={tipoVisualizacion}
-        setTipoVisualizacion={setTipoVisualizacion}
-        paisAToIso={paisAToIso}
-        formatearTiempo={formatearTiempo}
-      />
+  conversaciones={listaAgrupada}
+  userIdActual={userId}
+  onSelect={(id) => setSearchParams({ userId: id })}
+  filtro={filtro}
+  setFiltro={setFiltro}
+  tipoVisualizacion={tipoVisualizacion}
+  setTipoVisualizacion={setTipoVisualizacion}
+  paisAToIso={paisAToIso}
+  formatearTiempo={formatearTiempo}
+/>
     </div>
 
     {/* Columna central */}
-    <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
-      {mensajes.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors">
-          <img src={logoFondo} alt="Logo NextLives" className="w-48 opacity-30" />
-        </div>
-      ) : (
-        <>
-          <ChatPanel
-            mensajes={mensajes}
-            textoEscribiendo={textoEscribiendo}
-            originalesVisibles={originalesVisibles}
-            setOriginalesVisibles={setOriginalesVisibles}
-            chatRef={chatRef}
-            onScroll={() => {
-              const el = chatRef.current;
-              if (!el) return;
-              const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-              scrollForzado.current = alFinal;
-              setMostrarScrollBtn(!alFinal);
-            }}
-            userId={userId}
-            onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
-            onCargarMas={() => cargarMensajes(true)}
-            hayMas={hayMasMensajes}
-          />
-          <FormularioRespuesta
-            userId={userId}
-            respuesta={respuesta}
-            setRespuesta={setRespuesta}
-            imagen={imagen}
-            setImagen={setImagen}
-            perfil={perfil}
-            cargarDatos={cargarDatos}
-            setUsuarioSeleccionado={setUsuarioSeleccionado}
-          />
-        </>
-      )}
+<div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
+  {mensajes.length === 0 ? (
+    <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors">
+      <img
+        src={logoFondo}
+        alt="Logo NextLives"
+        className="w-48 opacity-30"
+      />
     </div>
+  ) : (
+    <>
+      <ChatPanel
+  mensajes={mensajes}
+  textoEscribiendo={textoEscribiendo}
+  originalesVisibles={originalesVisibles}
+  setOriginalesVisibles={setOriginalesVisibles}
+  chatRef={chatRef}
+  onScroll={() => {
+    const el = chatRef.current;
+    if (!el) return;
+    const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+    scrollForzado.current = alFinal;
+    setMostrarScrollBtn(!alFinal);
+  }}
+  userId={userId}
+  onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
+  onCargarMas={() => cargarMensajes(true)}
+  hayMas={hayMasMensajes}       // ✅ corregido aquí
+/>
+      <FormularioRespuesta
+        userId={userId}
+        respuesta={respuesta}
+        setRespuesta={setRespuesta}
+        imagen={imagen}
+        setImagen={setImagen}
+        perfil={perfil}
+        cargarDatos={cargarDatos}
+        setUsuarioSeleccionado={setUsuarioSeleccionado}
+      />
+    </>
+  )}
+</div>
 
     {/* Columna derecha */}
     {mostrarDetalles && (
@@ -358,6 +355,7 @@ return (
           todasConversaciones={todasConversaciones}
         />
       </div>
-    )}
-  </div> // <- cierre correcto aquí
+        )}
+  </div>
 );
+}

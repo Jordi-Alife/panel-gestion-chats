@@ -32,22 +32,22 @@ const [tipoVisualizacion, setTipoVisualizacion] = useState("recientes");
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
-  const cargarDatos = async () => {
-    try {
-      const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
-      const data = await res.json();
-      setTodasConversaciones(data);
+  const cargarDatos = async (tipo = "recientes") => {
+  try {
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones?tipo=${tipo}`);
+    const data = await res.json();
+    setTodasConversaciones(data);
 
-      const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
-      const vistasData = await vistasRes.json();
-      setVistas(vistasData);
+    const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
+    const vistasData = await vistasRes.json();
+    setVistas(vistasData);
 
-      return data;
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
-  };
+    return data;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
 
   const cargarMensajes = async (verMas = false) => {
   if (!userId) return;

@@ -297,10 +297,14 @@ export default function Conversaciones() {
       <div className="w-[22%] h-full overflow-y-auto">
         <ConversacionList
           conversaciones={
-            tipoVisualizacion === "archivo"
-              ? listaAgrupada.filter((c) => c.estado === "Archivado" || c.estado === "Cerrado")
-              : listaAgrupada.filter((c) => c.estado === "Activa" || c.estado === "Inactiva")
-          }
+  tipoVisualizacion === "archivo"
+    ? listaAgrupada.filter((c) =>
+        ["archivado", "cerrado"].includes((c.estado || "").toLowerCase())
+      )
+    : listaAgrupada.filter((c) =>
+        ["activa", "inactiva"].includes((c.estado || "").toLowerCase())
+      )
+}
           userIdActual={userId}
           onSelect={(id) => setSearchParams({ userId: id })}
           filtro={filtro}

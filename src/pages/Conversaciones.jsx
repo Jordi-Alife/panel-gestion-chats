@@ -289,19 +289,24 @@ const recientes = listaAgrupada.filter(
   (c) => c.estado === "Activa" || c.estado === "Inactiva"
 );
 
-  return (
+return (
   <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
-    <ConversacionList
-  conversaciones={tipoVisualizacion === "archivo" ? archivadas : recientes}
-  userIdActual={userId}
-  onSelect={(id) => setSearchParams({ userId: id })}
-  filtro={filtro}
-  setFiltro={setFiltro}
-  tipoVisualizacion={tipoVisualizacion}
-  setTipoVisualizacion={setTipoVisualizacion}
-  paisAToIso={paisAToIso}
-  formatearTiempo={formatearTiempo}
-/>
+    {/* Columna izquierda */}
+    <div className="w-[22%] h-full overflow-y-auto">
+      <ConversacionList
+        conversaciones={tipoVisualizacion === "archivo" ? archivadas : recientes}
+        userIdActual={userId}
+        onSelect={(id) => setSearchParams({ userId: id })}
+        filtro={filtro}
+        setFiltro={setFiltro}
+        tipoVisualizacion={tipoVisualizacion}
+        setTipoVisualizacion={setTipoVisualizacion}
+        paisAToIso={paisAToIso}
+        formatearTiempo={formatearTiempo}
+      />
+    </div>
+
+    {/* Columna central y derecha siguen aquí... */}
     </div>
 
     {/* Columna central */}

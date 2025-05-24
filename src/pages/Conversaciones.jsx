@@ -258,17 +258,19 @@ export default function Conversaciones() {
       }
 
       let estadoRaw = (info.estado || "").toLowerCase();
-      let estado = "Archivado";
+let estado;
 
-      if (estadoRaw === "cerrado") {
-        estado = "Cerrado";
-      } else if (estadoRaw === "archivado") {
-        estado = "Archivado";
-      } else if (minutosDesdeUltimo <= 2) {
-        estado = "Activa";
-      } else if (minutosDesdeUltimo <= 10) {
-        estado = "Inactiva";
-      }
+if (estadoRaw === "cerrado") {
+  estado = "Cerrado";
+} else if (estadoRaw === "archivado") {
+  estado = "Archivado";
+} else if (minutosDesdeUltimo <= 2) {
+  estado = "Activa";
+} else if (minutosDesdeUltimo <= 10) {
+  estado = "Inactiva";
+} else {
+  estado = "Archivado";
+}
 
       return {
         userId: id,

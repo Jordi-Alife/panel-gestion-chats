@@ -244,12 +244,12 @@ setTimeout(() => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: id }),
       })
-      .then(() => {
-        console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
-      })
-      .catch((err) => {
-        console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
-      });
+        .then(() => {
+          console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+        })
+        .catch((err) => {
+          console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+        });
     }
 
     if ((info.estado || "").toLowerCase() === "cerrado") {
@@ -281,6 +281,13 @@ setTimeout(() => {
       (filtro === "gpt" && !c.intervenida) ||
       (filtro === "humanas" && c.intervenida)
   );
+
+const archivadas = listaAgrupada.filter(
+  (c) => c.estado === "Archivado" || c.estado === "Cerrado"
+);
+const recientes = listaAgrupada.filter(
+  (c) => c.estado === "Activa" || c.estado === "Inactiva"
+);
 
   return (
   <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">

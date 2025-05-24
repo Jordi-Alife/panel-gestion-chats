@@ -287,14 +287,16 @@ setTimeout(() => {
     {/* Columna izquierda */}
     <div className="w-[22%] h-full overflow-y-auto">
       <ConversacionList
-        conversaciones={listaAgrupada}
-        userIdActual={userId}
-        onSelect={(id) => setSearchParams({ userId: id })}
-        filtro={filtro}
-        setFiltro={setFiltro}
-        paisAToIso={paisAToIso}
-        formatearTiempo={formatearTiempo}
-      />
+  conversaciones={listaAgrupada}
+  userIdActual={userId}
+  onSelect={(id) => setSearchParams({ userId: id })}
+  filtro={filtro}
+  setFiltro={setFiltro}
+  tipoVisualizacion={tipoVisualizacion}
+  setTipoVisualizacion={setTipoVisualizacion}
+  paisAToIso={paisAToIso}
+  formatearTiempo={formatearTiempo}
+/>
     </div>
 
     {/* Columna central */}

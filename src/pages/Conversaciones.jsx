@@ -243,30 +243,32 @@ useEffect(() => {
       ? (Date.now() - new Date(info.lastInteraction)) / 60000
       : Infinity;
 
-    let estado = "Archivado";
-
     // ✅ Nueva lógica: liberar si está intervenida y pasa a Archivado
-    if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
-      fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: id }),
-      })
-      .then(() => {
-        console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
-      })
-      .catch((err) => {
-        console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
-      });
-    }
+if (info.intervenida && minutosDesdeUltimo > 10 && (info.estado || "").toLowerCase() !== "cerrado") {
+  fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: id }),
+  })
+    .then(() => {
+      console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+    })
+    .catch((err) => {
+      console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+    });
+}
 
-    if ((info.estado || "").toLowerCase() === "cerrado") {
-      estado = "Cerrado";
-    } else if (minutosDesdeUltimo <= 2) {
-      estado = "Activa";
-    } else if (minutosDesdeUltimo <= 10) {
-      estado = "Inactiva";
-    }
+let estado = (info.estado || "").charAt(0).toUpperCase() + (info.estado || "").slice(1).toLowerCase();
+
+if (estado !== "Cerrado" && estado !== "Archivado") {
+  if (minutosDesdeUltimo <= 2) {
+    estado = "Activa";
+  } else if (minutosDesdeUltimo <= 10) {
+    estado = "Inactiva";
+  } else {
+    estado = "Archivado";
+  }
+}
 
     return {
       userId: id,

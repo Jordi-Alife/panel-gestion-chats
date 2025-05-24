@@ -132,10 +132,12 @@ setTimeout(() => {
 }
 };
     useEffect(() => {
-    cargarDatos();
-    const intervalo = setInterval(cargarDatos, 5000);
+  if (tipoVisualizacion === "recientes") {
+    cargarDatos("recientes");
+    const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
     return () => clearInterval(intervalo);
-  }, []);
+  }
+}, [tipoVisualizacion]);
 
   useEffect(() => {
   const refrescar = () => cargarMensajes(false);

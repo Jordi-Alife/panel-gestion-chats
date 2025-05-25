@@ -287,7 +287,7 @@ if (estadoRaw === "cerrado") {
       return {
         userId: id,
         noVistos: info.noVistos || 0,
-        estado,
+        estado: estado.toLowerCase(),
         lastInteraction: info.lastInteraction || info.fechaInicio || new Date().toISOString(),
         iniciales: id.slice(0, 2).toUpperCase(),
         intervenida: info.intervenida || false,

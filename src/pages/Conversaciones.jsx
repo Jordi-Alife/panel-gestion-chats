@@ -132,19 +132,16 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
       console.error(err);
     }
   };
-    useEffect(() => {
-    if (tipoVisualizacion === "recientes") {
-      cargarDatos("recientes");
-      const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
-      return () => clearInterval(intervalo);
-    }
-  }, [tipoVisualizacion]);
 
   useEffect(() => {
-    if (tipoVisualizacion === "archivo") {
-      cargarDatos("archivo");
-    }
-  }, [tipoVisualizacion]);
+  cargarDatos(tipoVisualizacion); // "recientes" o "archivo"
+
+  // Solo actualizar periódicamente si estamos en "recientes"
+  if (tipoVisualizacion === "recientes") {
+    const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
+    return () => clearInterval(intervalo);
+  }
+}, [tipoVisualizacion]);
 
   useEffect(() => {
     const refrescar = () => cargarMensajes(false);

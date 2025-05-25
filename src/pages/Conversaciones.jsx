@@ -113,9 +113,15 @@ export default function Conversaciones() {
       setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
 
       const nuevasConversaciones = await cargarDatos(tipoVisualizacion);
-      const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
-      setUsuarioSeleccionado(nuevaInfo || null);
-      setChatCerrado(nuevaInfo?.chatCerrado || false);
+
+// Fallback: si no se encuentra en el tipo actual, busca en todas las cargadas
+let nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
+if (!nuevaInfo && todasConversaciones.length > 0) {
+  nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
+}
+
+setUsuarioSeleccionado(nuevaInfo || null);
+setChatCerrado(nuevaInfo?.chatCerrado || false);
 
       setTimeout(() => {
         if (scrollForzado.current && chatRef.current) {

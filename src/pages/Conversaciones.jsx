@@ -307,16 +307,15 @@ if (estadoRaw === "cerrado") {
           ["activa", "inactiva"].includes((c.estado || "").toLowerCase())
         )
   }
-}
-          userIdActual={userId}
-          onSelect={(id) => setSearchParams({ userId: id })}
-          filtro={filtro}
-          setFiltro={setFiltro}
-          tipoVisualizacion={tipoVisualizacion}
-          setTipoVisualizacion={setTipoVisualizacion}
-          paisAToIso={paisAToIso}
-          formatearTiempo={formatearTiempo}
-        />
+  userIdActual={userId}
+  onSelect={(id) => setSearchParams({ userId: id })}
+  filtro={filtro}
+  setFiltro={setFiltro}
+  tipoVisualizacion={tipoVisualizacion}
+  setTipoVisualizacion={setTipoVisualizacion}
+  paisAToIso={paisAToIso}
+  formatearTiempo={formatearTiempo}
+/>
       </div>
 
       {/* Columna central */}

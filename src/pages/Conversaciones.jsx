@@ -231,7 +231,7 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
     actual.intervenida = item.intervenida || false;
     actual.chatCerrado = item.chatCerrado || false;
     actual.estado = item.estado || "abierta";
-    actual.lastInteraction = item.ultimaRespuesta || item.fechaInicio || new Date().toISOString();
+    actual.lastInteraction = item.lastInteraction || item.ultimaRespuesta || item.fechaInicio || new Date().toISOString();
     actual.noVistos = item.noVistos || 0;
     acc[item.userId] = actual;
     return acc;

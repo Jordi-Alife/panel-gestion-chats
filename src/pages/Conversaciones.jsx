@@ -266,7 +266,7 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
       }
 
       let estadoRaw = (info.estado || "").toLowerCase();
-let estado = "Archivado"; // valor por defecto
+let estado;
 
 if (estadoRaw === "cerrado") {
   estado = "Cerrado";
@@ -277,7 +277,11 @@ if (estadoRaw === "cerrado") {
     estado = "Activa";
   } else if (minutosDesdeUltimo <= 10) {
     estado = "Inactiva";
+  } else {
+    estado = "Archivado";
   }
+} else {
+  estado = "Archivado"; // fallback
 }
 
       return {

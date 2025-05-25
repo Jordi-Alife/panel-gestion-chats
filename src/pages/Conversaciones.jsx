@@ -261,24 +261,17 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
           });
       }
 
-      let estadoRaw = (info.estado || "").toLowerCase();
-let estado;
-
-if (estadoRaw === "cerrado") {
-  estado = "Cerrado";
-} else if (estadoRaw === "archivado") {
-  estado = "Archivado";
-} else if (estadoRaw === "abierta") {
-  if (minutosDesdeUltimo <= 2) {
-    estado = "Activa";
-  } else if (minutosDesdeUltimo <= 10) {
-    estado = "Inactiva";
-  } else {
-    estado = "Archivado";
+      let estado = (() => {
+  const base = (info.estado || "").toLowerCase();
+  if (base === "cerrado") return "Cerrado";
+  if (base === "archivado") return "Archivado";
+  if (base === "abierta") {
+    if (minutosDesdeUltimo <= 2) return "Activa";
+    if (minutosDesdeUltimo <= 10) return "Inactiva";
+    return "Archivado";
   }
-} else {
-  estado = "Archivado"; // fallback
-}
+  return "Archivado";
+})();
 
       return {
         userId: id,

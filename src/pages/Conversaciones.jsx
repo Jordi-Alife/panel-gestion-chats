@@ -143,10 +143,6 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
   }
 }, [tipoVisualizacion]);
 
-  useEffect(() => {
-  // Asegura que el backend detecte inactivas y actualice a archivado
-  cargarDatos("archivo");
-}, []);
 
   useEffect(() => {
     const refrescar = () => cargarMensajes(false);
@@ -311,24 +307,30 @@ if (estadoRaw === "cerrado") {
       <div style={{ fontSize: "10px", color: "#666", padding: "8px" }}>
   {JSON.stringify(todasConversaciones.map(c => ({ id: c.userId, estado: c.estado })))}
 </div>
-      <div className="w-[22%] h-full overflow-y-auto">
-        <ConversacionList
-  conversaciones={listaAgrupada.filter((c) => {
-    const estado = (c.estado || "").toLowerCase();
-    return tipoVisualizacion === "archivo"
-      ? estado === "cerrado" || estado === "archivado"
-      : estado === "activa" || estado === "inactiva";
-  })}
-  userIdActual={userId}
-  onSelect={(id) => setSearchParams({ userId: id })}
-  filtro={filtro}
-  setFiltro={setFiltro}
-  tipoVisualizacion={tipoVisualizacion}
-  setTipoVisualizacion={setTipoVisualizacion}
-  paisAToIso={paisAToIso}
-  formatearTiempo={formatearTiempo}
-/>
-      </div>
+      {/* Columna izquierda */}
+<div className="w-[22%] h-full overflow-y-auto">
+  <ConversacionList
+    conversaciones={(() => {
+      const estadoFiltrado = listaAgrupada.filter((c) => {
+        const estado = (c.estado || "").toLowerCase();
+        if (tipoVisualizacion === "archivo") {
+          return estado === "cerrado" || estado === "archivado";
+        } else {
+          return estado === "activa" || estado === "inactiva";
+        }
+      });
+      return estadoFiltrado;
+    })()}
+    userIdActual={userId}
+    onSelect={(id) => setSearchParams({ userId: id })}
+    filtro={filtro}
+    setFiltro={setFiltro}
+    tipoVisualizacion={tipoVisualizacion}
+    setTipoVisualizacion={setTipoVisualizacion}
+    paisAToIso={paisAToIso}
+    formatearTiempo={formatearTiempo}
+  />
+</div>
 
       {/* Columna central */}
       <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">

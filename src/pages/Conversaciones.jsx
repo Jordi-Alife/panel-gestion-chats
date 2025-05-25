@@ -273,7 +273,6 @@ if (estadoRaw === "cerrado") {
   } else if (minutosDesdeUltimo <= 10) {
     estado = "Inactiva";
   }
-  // Si pasan más de 10 min, se mantiene como "Archivado" por defecto
 }
 
       return {

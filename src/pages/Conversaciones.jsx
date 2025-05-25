@@ -112,7 +112,7 @@ export default function Conversaciones() {
 
       setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
 
-      const nuevasConversaciones = await cargarDatos();
+      const nuevasConversaciones = await cargarDatos(tipoVisualizacion);
       const nuevaInfo = nuevasConversaciones.find((c) => c.userId === userId);
       setUsuarioSeleccionado(nuevaInfo || null);
       setChatCerrado(nuevaInfo?.chatCerrado || false);

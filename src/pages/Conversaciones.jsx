@@ -302,15 +302,12 @@ if (estadoRaw === "cerrado") {
       {/* Columna izquierda */}
       <div className="w-[22%] h-full overflow-y-auto">
         <ConversacionList
-  conversaciones={
-    tipoVisualizacion === "archivo"
-      ? listaAgrupada.filter((c) =>
-          ["archivado", "cerrado"].includes((c.estado || "").toLowerCase())
-        )
-      : listaAgrupada.filter((c) =>
-          ["activa", "inactiva"].includes((c.estado || "").toLowerCase())
-        )
-  }
+  conversaciones={listaAgrupada.filter((c) => {
+    const estado = (c.estado || "").toLowerCase();
+    return tipoVisualizacion === "archivo"
+      ? estado === "cerrado" || estado === "archivado"
+      : estado === "activa" || estado === "inactiva";
+  })}
   userIdActual={userId}
   onSelect={(id) => setSearchParams({ userId: id })}
   filtro={filtro}

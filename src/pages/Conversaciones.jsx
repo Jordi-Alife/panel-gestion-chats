@@ -144,6 +144,11 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
 }, [tipoVisualizacion]);
 
   useEffect(() => {
+  // Asegura que el backend detecte inactivas y actualice a archivado
+  cargarDatos("archivo");
+}, []);
+
+  useEffect(() => {
     const refrescar = () => cargarMensajes(false);
     refrescar();
     const interval = setInterval(refrescar, 2000);

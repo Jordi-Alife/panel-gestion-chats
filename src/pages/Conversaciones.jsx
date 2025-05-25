@@ -314,7 +314,7 @@ if (estadoRaw === "cerrado") {
       <div className="w-[22%] h-full overflow-y-auto">
         <ConversacionList
   conversaciones={listaAgrupada.filter((c) => {
-    const estado = (c.estado || "").toLowerCase();
+    const estado = (c.estado || "").toLowerCase(); // normaliza aquí
     return tipoVisualizacion === "archivo"
       ? estado === "cerrado" || estado === "archivado"
       : estado === "activa" || estado === "inactiva";

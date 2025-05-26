@@ -132,13 +132,13 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
       console.error(err);
     }
   };
-
-  // Carga inicial al montar + refresco si es "recientes"
+  
+// ✅ Solo un useEffect, evita doble carga y conflictos
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
-    console.log("📦 Cargando archivadas (init + cambio)");
+    console.log("📦 Cargando archivadas");
     cargarDatos("archivadas");
-    return;
+    return; // no hay refresco
   }
 
   if (tipoVisualizacion === "recientes") {
@@ -148,17 +148,6 @@ useEffect(() => {
     return () => clearInterval(intervalo);
   }
 }, [tipoVisualizacion]);
-
-// Primera carga al montar el componente
-useEffect(() => {
-  if (tipoVisualizacion === "archivadas") {
-    console.log("📦 (init) Cargando archivadas");
-    cargarDatos("archivadas");
-  } else {
-    console.log("📡 (init) Cargando recientes");
-    cargarDatos("recientes");
-  }
-}, []);
 
   useEffect(() => {
     const refrescar = () => cargarMensajes(false);

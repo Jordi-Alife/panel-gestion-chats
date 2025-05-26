@@ -150,18 +150,13 @@ const ConversacionesMovil = () => {
 <div className="flex justify-center gap-2 px-4 py-2 border-b">
   <button
     onClick={() => setTipoVisualizacion("recientes")}
-    className={`relative text-xs font-medium px-3 py-1 rounded-full ${
+    className={`text-xs font-medium px-3 py-1 rounded-full ${
       tipoVisualizacion === "recientes"
         ? "bg-blue-600 text-white"
         : "bg-gray-200 text-gray-600"
     }`}
   >
     Recientes
-    {totalNoVistos > 0 && (
-      <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-        {totalNoVistos}
-      </span>
-    )}
   </button>
   <button
     onClick={() => setTipoVisualizacion("archivadas")}
@@ -175,10 +170,29 @@ const ConversacionesMovil = () => {
   </button>
 </div>
 
-            navigate(`/conversaciones/${c.userId}`);
-          }}
-          className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
-        >
+      
+      <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
+        {listaAgrupada.map((c) => (
+          <div
+            key={c.userId}
+            onClick={async () => {
+              localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
+              localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
+
+              try {
+                await fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId: c.userId }),
+                });
+              } catch (err) {
+                console.warn("❌ Error al marcar visto", err);
+              }
+
+              navigate(`/conversaciones/${c.userId}`);
+            }}
+            className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
+          >
             <div className="flex items-center gap-3">
               <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
                 {c.iniciales}

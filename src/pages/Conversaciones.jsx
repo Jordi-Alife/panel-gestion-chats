@@ -316,8 +316,8 @@ useEffect(() => {
     const estadoFiltrado = listaAgrupada.filter((c) => {
       const estado = c.estado || "";
       if (tipoVisualizacion === "archivadas") {
-        return estado === "Cerrado" || estado === "Archivado";
-      } else {
+  return estado === "Cerrado" || estado === "Archivado";
+} else {
         return estado === "Activa" || estado === "Inactiva";
       }
     });
@@ -331,7 +331,6 @@ useEffect(() => {
   setTipoVisualizacion={setTipoVisualizacion}
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
-  totalNoVistos={totalNoVistos}
 />
 </div>
 

@@ -10,7 +10,7 @@ const ConversacionList = ({
   formatearTiempo,
   tipoVisualizacion,
   setTipoVisualizacion,
-  totalNoVistos, // ✅ AÑADIR ESTA LÍNEA
+  totalNoVistos,
 }) => {
   const [busqueda, setBusqueda] = useState("");
 
@@ -38,31 +38,31 @@ const ConversacionList = ({
 
       {/* NUEVO filtro Recientes / Archivadas */}
       <div className="px-4 py-2 border-b dark:border-gray-700 flex gap-2">
-  <button
-    onClick={() => setTipoVisualizacion("recientes")}
-    className={`relative text-xs font-medium px-3 py-1 rounded-full ${
-      tipoVisualizacion === "recientes"
-        ? "bg-blue-600 text-white"
-        : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-    }`}
-  >
-    Recientes
-    {totalNoVistos > 0 && (
-      <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-        {totalNoVistos}
-      </span>
-    )}
-  </button>
-       <button
-  onClick={() => setTipoVisualizacion("archivadas")}
-  className={`text-xs font-medium px-3 py-1 rounded-full ${
-    tipoVisualizacion === "archivadas"
-      ? "bg-blue-600 text-white"
-      : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-  }`}
->
-  Archivadas
-</button>
+        <button
+          onClick={() => setTipoVisualizacion("recientes")}
+          className={`relative text-xs font-medium px-3 py-1 rounded-full ${
+            tipoVisualizacion === "recientes"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+          }`}
+        >
+          Recientes
+          {!!totalNoVistos && (
+            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+              {totalNoVistos}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setTipoVisualizacion("archivadas")}
+          className={`text-xs font-medium px-3 py-1 rounded-full ${
+            tipoVisualizacion === "archivadas"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+          }`}
+        >
+          Archivadas
+        </button>
       </div>
 
       {/* Lista de conversaciones scrollable */}

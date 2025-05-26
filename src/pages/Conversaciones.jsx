@@ -295,10 +295,7 @@ useEffect(() => {
     );
     return (
     <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
-      {/* Columna izquierda */}
-      <div style={{ fontSize: "10px", color: "#666", padding: "8px" }}>
-  {JSON.stringify(todasConversaciones.map(c => ({ id: c.userId, estado: c.estado })))}
-</div>
+      
       {/* Columna izquierda */}
 <div className="w-[22%] h-full overflow-y-auto">
   <ConversacionList

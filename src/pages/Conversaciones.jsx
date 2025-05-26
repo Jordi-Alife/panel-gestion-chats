@@ -48,84 +48,92 @@ export default function Conversaciones() {
     }
   };
     const cargarMensajes = async (verMas = false) => {
-    if (!userId) return;
-    try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
-      const data = await res.json();
-      window.__mensajes = data;
+  if (!userId) return;
+  try {
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const data = await res.json();
+    window.__mensajes = data;
 
-      const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-      const nuevosMensajes = [];
-      let estadoActual = "gpt";
+    const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    const nuevosMensajes = [];
+    let estadoActual = "gpt";
 
-      for (let i = 0; i < ordenados.length; i++) {
-        const msg = ordenados[i];
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
 
-        if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-          nuevosMensajes.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-          estadoActual = "gpt";
-        }
-
-        if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-          nuevosMensajes.push({
-            tipo: "etiqueta",
-            mensaje: "El usuario ha cerrado el chat",
-            timestamp: msg.lastInteraction,
-          });
-        }
-
-        if (msg.manual === true && estadoActual === "gpt") {
-          nuevosMensajes.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-          estadoActual = "humano";
-        }
-
-        nuevosMensajes.push(msg);
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        nuevosMensajes.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+        estadoActual = "gpt";
       }
 
-      const mapa = new Map();
-      nuevosMensajes.forEach((m) => {
-        const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-        mapa.set(clave, m);
-      });
-
-      const ordenadosFinal = Array.from(mapa.values()).sort(
-        (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-      );
-
-      let nuevoLimite = verMas ? limiteMensajes + 25 : limiteMensajes;
-      const nuevosVisibles = ordenadosFinal.slice(-nuevoLimite);
-
-      if (verMas) {
-        setLimiteMensajes(nuevoLimite);
-        setMensajes(ordenadosFinal.slice(-nuevoLimite));
-      } else {
-        setMensajes(nuevosVisibles);
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        nuevosMensajes.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: msg.lastInteraction,
+        });
       }
 
-      setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
+      if (msg.manual === true && estadoActual === "gpt") {
+        nuevosMensajes.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+        estadoActual = "humano";
+      }
 
-      // ✅ Ya no recargamos las conversaciones (evita sobrescribir)
-let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
-setUsuarioSeleccionado(nuevaInfo || null);
-setChatCerrado(nuevaInfo?.chatCerrado || false);
-
-      setTimeout(() => {
-        if (scrollForzado.current && chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-        }
-      }, 100);
-    } catch (err) {
-      console.error(err);
+      nuevosMensajes.push(msg);
     }
-  };
+
+    const mapa = new Map();
+    nuevosMensajes.forEach((m) => {
+      const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+      mapa.set(clave, m);
+    });
+
+    const ordenadosFinal = Array.from(mapa.values()).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+
+    const nuevoLimite = verMas ? limiteMensajes + 25 : limiteMensajes;
+    const nuevosVisibles = ordenadosFinal.slice(-nuevoLimite);
+
+    if (verMas) {
+      setLimiteMensajes(nuevoLimite);
+      setMensajes(ordenadosFinal.slice(-nuevoLimite));
+    } else {
+      setMensajes(nuevosVisibles);
+    }
+
+    setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
+
+    // ✅ Usar directamente lo que ya tienes en memoria
+    let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
+
+    // 🛡️ Fallback si aún no está cargado
+    if (!nuevaInfo) {
+      const fallback = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?tipo=recientes");
+      const fallbackData = await fallback.json();
+      nuevaInfo = fallbackData.find((c) => c.userId === userId) || null;
+    }
+
+    setUsuarioSeleccionado(nuevaInfo || null);
+    setChatCerrado(nuevaInfo?.chatCerrado || false);
+
+    setTimeout(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  }
+};
   
 // ✅ Solo un useEffect, evita doble carga y conflictos
 useEffect(() => {

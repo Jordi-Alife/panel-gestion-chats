@@ -136,11 +136,13 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
   // A. Refresca solo si estás en "recientes"
 useEffect(() => {
   if (tipoVisualizacion === "archivo") {
-    console.log("👀 Forzando carga de archivadas...");
+    console.log("📦 Cargando archivadas una sola vez");
     cargarDatos("archivo");
+    return; // No pongas setInterval si es archivo
   }
 
   if (tipoVisualizacion === "recientes") {
+    console.log("📡 Cargando recientes con refresco cada 5s");
     cargarDatos("recientes");
     const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
     return () => clearInterval(intervalo);

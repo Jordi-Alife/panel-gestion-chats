@@ -303,26 +303,26 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
       {/* Columna izquierda */}
 <div className="w-[22%] h-full overflow-y-auto">
   <ConversacionList
-    conversaciones={(() => {
-      const estadoFiltrado = listaAgrupada.filter((c) => {
-        const estado = (c.estado || "").toLowerCase();
-        if (tipoVisualizacion === "archivo") {
-          return estado === "cerrado" || estado === "archivado";
-        } else {
-          return estado === "activa" || estado === "inactiva";
-        }
-      });
-      return estadoFiltrado;
-    })()}
-    userIdActual={userId}
-    onSelect={(id) => setSearchParams({ userId: id })}
-    filtro={filtro}
-    setFiltro={setFiltro}
-    tipoVisualizacion={tipoVisualizacion}
-    setTipoVisualizacion={setTipoVisualizacion}
-    paisAToIso={paisAToIso}
-    formatearTiempo={formatearTiempo}
-  />
+  conversaciones={(() => {
+    const estadoFiltrado = listaAgrupada.filter((c) => {
+      const estado = c.estado || "";
+      if (tipoVisualizacion === "archivo") {
+        return estado === "Cerrado" || estado === "Archivado";
+      } else {
+        return estado === "Activa" || estado === "Inactiva";
+      }
+    });
+    return estadoFiltrado;
+  })()}
+  userIdActual={userId}
+  onSelect={(id) => setSearchParams({ userId: id })}
+  filtro={filtro}
+  setFiltro={setFiltro}
+  tipoVisualizacion={tipoVisualizacion}
+  setTipoVisualizacion={setTipoVisualizacion}
+  paisAToIso={paisAToIso}
+  formatearTiempo={formatearTiempo}
+/>
 </div>
 
       {/* Columna central */}

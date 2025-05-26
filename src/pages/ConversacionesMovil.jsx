@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 const ConversacionesMovil = () => {
   const navigate = useNavigate();
-  const [todasConversaciones, setTodasConversaciones] = useState([]);
+    const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});
   const [filtro, setFiltro] = useState("todas");
   const [busqueda, setBusqueda] = useState("");
-
+  const [tipoVisualizacion, setTipoVisualizacion] = useState("recientes");
+  
   useEffect(() => {
   const tipoVisualizacion = "recientes"; // puedes hacer esto dinámico más adelante si lo deseas
 

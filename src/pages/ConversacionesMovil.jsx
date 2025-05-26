@@ -9,24 +9,28 @@ const ConversacionesMovil = () => {
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
-        const data = await res.json();
-        setTodasConversaciones(data);
+  const tipoVisualizacion = "recientes"; // puedes hacer esto dinámico más adelante si lo deseas
 
-        const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
-        const vistasData = await vistasRes.json();
-        setVistas(vistasData);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const cargarDatos = async () => {
+    try {
+      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones?tipo=${tipoVisualizacion}`);
+      const data = await res.json();
+      setTodasConversaciones(data);
 
-    cargarDatos();
-    const intervalo = setInterval(cargarDatos, 5000);
-    return () => clearInterval(intervalo);
-  }, []);
+      const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
+      const vistasData = await vistasRes.json();
+      setVistas(vistasData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  cargarDatos();
+  const intervalo = tipoVisualizacion === "recientes" ? setInterval(cargarDatos, 5000) : null;
+  return () => {
+    if (intervalo) clearInterval(intervalo);
+  };
+}, []);
 
   const paisAToIso = (paisTexto) => {
     const mapa = {

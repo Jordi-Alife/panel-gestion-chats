@@ -7,7 +7,7 @@ const ConversacionesMovil = () => {
   const [vistas, setVistas] = useState({});
   const [filtro, setFiltro] = useState("todas");
   const [busqueda, setBusqueda] = useState("");
-  const [tipoVisualizacion, setTipoVisualizacion] = useState("recientes");
+  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
   
   useEffect(() => {
   const cargarDatos = async () => {

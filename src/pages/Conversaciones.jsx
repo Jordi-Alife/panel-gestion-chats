@@ -241,11 +241,6 @@ useEffect(() => {
     acc[item.userId] = actual;
     return acc;
   }, {});
-
-  const totalNoVistos = todasConversaciones.reduce(
-  (acc, c) => acc + ((c.noVistos || 0) > 0 && (c.estado || "").toLowerCase() !== "cerrado" ? 1 : 0),
-  0
-);
     const listaAgrupada = Object.entries(conversacionesPorUsuario)
     .map(([id, info]) => {
       const ultimaVista = id === userId ? new Date() : vistas[id];

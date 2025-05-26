@@ -311,9 +311,9 @@ useEffect(() => {
   conversaciones={(() => {
     const estadoFiltrado = listaAgrupada.filter((c) => {
       const estado = c.estado || "";
-      if (tipoVisualizacion === "archivo") {
-        return estado === "Cerrado" || estado === "Archivado";
-      } else {
+      if (tipoVisualizacion === "archivadas") {
+  return estado === "Cerrado" || estado === "Archivado";
+} else {
         return estado === "Activa" || estado === "Inactiva";
       }
     });

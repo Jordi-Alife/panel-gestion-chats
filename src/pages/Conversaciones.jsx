@@ -135,9 +135,9 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
 
   // Carga inicial al montar + refresco si es "recientes"
 useEffect(() => {
-  if (tipoVisualizacion === "archivo") {
+  if (tipoVisualizacion === "archivadas") {
     console.log("📦 Cargando archivadas (init + cambio)");
-    cargarDatos("archivo");
+    cargarDatos("archivadas");
     return;
   }
 
@@ -149,11 +149,11 @@ useEffect(() => {
   }
 }, [tipoVisualizacion]);
 
-  // Primera carga al montar el componente
+// Primera carga al montar el componente
 useEffect(() => {
-  if (tipoVisualizacion === "archivo") {
+  if (tipoVisualizacion === "archivadas") {
     console.log("📦 (init) Cargando archivadas");
-    cargarDatos("archivo");
+    cargarDatos("archivadas");
   } else {
     console.log("📡 (init) Cargando recientes");
     cargarDatos("recientes");

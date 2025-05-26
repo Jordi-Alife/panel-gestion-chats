@@ -79,56 +79,63 @@ const ConversacionesMovil = () => {
 );
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
-    .map(([id, info]) => {
-      const ultimaVista = vistas[id];
+  .map(([id, info]) => {
+    const ultimaVista = vistas[id];
 
-      const minutosDesdeUltimo = info.lastInteraction
-        ? (Date.now() - new Date(info.lastInteraction)) / 60000
-        : Infinity;
+    const minutosDesdeUltimo = info.lastInteraction
+      ? (Date.now() - new Date(info.lastInteraction)) / 60000
+      : Infinity;
 
-      let estado = "Archivado";
+    let estado = "Archivado";
 
-      if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
-        fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: id }),
-        })
+    if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
+      fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: id }),
+      })
         .then(() => {
           console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
         })
         .catch((err) => {
           console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
         });
-      }
+    }
 
-      if ((info.estado || "").toLowerCase() === "cerrado") {
-        estado = "Cerrado";
-      } else if (minutosDesdeUltimo <= 2) {
-        estado = "Activa";
-      } else if (minutosDesdeUltimo <= 10) {
-        estado = "Inactiva";
-      }
+    if ((info.estado || "").toLowerCase() === "cerrado") {
+      estado = "Cerrado";
+    } else if (minutosDesdeUltimo <= 2) {
+      estado = "Activa";
+    } else if (minutosDesdeUltimo <= 10) {
+      estado = "Inactiva";
+    }
 
-      return {
-        userId: id,
-        nuevos: info.noVistos || 0,
-        estado,
-        lastInteraction: info.lastInteraction,
-        iniciales: id.slice(0, 2).toUpperCase(),
-        intervenida: info.intervenida,
-        pais: info.pais || "Desconocido",
-      };
-    })
-    .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-    .filter(
-      (c) =>
-        (filtro === "todas" ||
-          (filtro === "gpt" && !c.intervenida) ||
-          (filtro === "humanas" && c.intervenida)) &&
-        c.userId.toLowerCase().includes(busqueda.toLowerCase())
-    );
-
+    return {
+      userId: id,
+      nuevos: info.noVistos || 0,
+      estado,
+      lastInteraction: info.lastInteraction,
+      iniciales: id.slice(0, 2).toUpperCase(),
+      intervenida: info.intervenida,
+      pais: info.pais || "Desconocido",
+    };
+  })
+  // ✅ Filtro por tipoVisualizacion: archivadas o recientes
+  .filter((c) => {
+    if (tipoVisualizacion === "archivadas") {
+      return c.estado === "Cerrado" || c.estado === "Archivado";
+    } else {
+      return c.estado === "Activa" || c.estado === "Inactiva";
+    }
+  })
+  .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
+  .filter(
+    (c) =>
+      (filtro === "todas" ||
+        (filtro === "gpt" && !c.intervenida) ||
+        (filtro === "humanas" && c.intervenida)) &&
+      c.userId.toLowerCase().includes(busqueda.toLowerCase())
+  );
   return (
     <div className="flex flex-col h-screen">
       <div className="p-4 border-b flex items-center gap-2">

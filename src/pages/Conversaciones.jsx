@@ -133,16 +133,19 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
     }
   };
 
-  useEffect(() => {
-  cargarDatos(tipoVisualizacion);
-
-  if (tipoVisualizacion === "archivo") {
-    console.log("Cargando archivadas");
-  }
-
+  // A. Refresca solo si estás en "recientes"
+useEffect(() => {
   if (tipoVisualizacion === "recientes") {
+    cargarDatos("recientes");
     const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
     return () => clearInterval(intervalo);
+  }
+}, [tipoVisualizacion]);
+
+// B. Carga única al cambiar a "archivadas"
+useEffect(() => {
+  if (tipoVisualizacion === "archivo") {
+    cargarDatos("archivo");
   }
 }, [tipoVisualizacion]);
 

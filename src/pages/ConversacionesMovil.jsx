@@ -142,6 +142,30 @@ const ConversacionesMovil = () => {
         />
       </div>
 
+<div className="flex justify-center gap-2 px-4 py-2 border-b">
+  <button
+    onClick={() => setTipoVisualizacion("recientes")}
+    className={`text-xs font-medium px-3 py-1 rounded-full ${
+      tipoVisualizacion === "recientes"
+        ? "bg-blue-600 text-white"
+        : "bg-gray-200 text-gray-600"
+    }`}
+  >
+    Recientes
+  </button>
+  <button
+    onClick={() => setTipoVisualizacion("archivadas")}
+    className={`text-xs font-medium px-3 py-1 rounded-full ${
+      tipoVisualizacion === "archivadas"
+        ? "bg-blue-600 text-white"
+        : "bg-gray-200 text-gray-600"
+    }`}
+  >
+    Archivadas
+  </button>
+</div>
+
+      
       <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
         {listaAgrupada.map((c) => (
           <div

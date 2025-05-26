@@ -36,7 +36,6 @@ const ConversacionList = ({
         />
       </div>
 
-      {/* NUEVO filtro Recientes / Archivadas */}
       <div className="px-4 py-2 border-b dark:border-gray-700 flex gap-2">
         <button
           onClick={() => setTipoVisualizacion("recientes")}
@@ -65,7 +64,6 @@ const ConversacionList = ({
         </button>
       </div>
 
-      {/* Lista de conversaciones scrollable */}
       <div className="flex-1 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-700">
         {filtradas.map((c) => (
           <div

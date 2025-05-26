@@ -10,6 +10,7 @@ const ConversacionList = ({
   formatearTiempo,
   tipoVisualizacion,
   setTipoVisualizacion,
+  totalNoVistos, // ✅ AÑADIR ESTA LÍNEA
 }) => {
   const [busqueda, setBusqueda] = useState("");
 

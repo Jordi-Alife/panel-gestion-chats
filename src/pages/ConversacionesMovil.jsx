@@ -10,8 +10,6 @@ const ConversacionesMovil = () => {
   const [tipoVisualizacion, setTipoVisualizacion] = useState("recientes");
   
   useEffect(() => {
-  const tipoVisualizacion = "recientes"; // puedes hacer esto dinámico más adelante si lo deseas
-
   const cargarDatos = async () => {
     try {
       const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones?tipo=${tipoVisualizacion}`);
@@ -27,11 +25,11 @@ const ConversacionesMovil = () => {
   };
 
   cargarDatos();
-  const intervalo = tipoVisualizacion === "recientes" ? setInterval(cargarDatos, 5000) : null;
-  return () => {
-    if (intervalo) clearInterval(intervalo);
-  };
-}, []);
+  if (tipoVisualizacion === "recientes") {
+    const intervalo = setInterval(cargarDatos, 5000);
+    return () => clearInterval(intervalo);
+  }
+}, [tipoVisualizacion]);
 
   const paisAToIso = (paisTexto) => {
     const mapa = {

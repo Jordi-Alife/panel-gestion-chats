@@ -170,33 +170,31 @@ const ConversacionesMovil = () => {
         : "bg-gray-200 text-gray-600"
     }`}
   >
-    Archivadas
-  </button>
-</div>
+          </button>
+    </div> {/* <-- cierre del contenedor de botones */}
 
-      
-      <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
-        {listaAgrupada.map((c) => (
-          <div
-            key={c.userId}
-            onClick={async () => {
-              localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
-              localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
+    <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
+      {listaAgrupada.map((c) => (
+        <div
+          key={c.userId}
+          onClick={async () => {
+            localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
+            localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
 
-              try {
-                await fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: c.userId }),
-                });
-              } catch (err) {
-                console.warn("❌ Error al marcar visto", err);
-              }
+            try {
+              await fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: c.userId }),
+              });
+            } catch (err) {
+              console.warn("❌ Error al marcar visto", err);
+            }
 
-              navigate(`/conversaciones/${c.userId}`);
-            }}
-            className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
-          >
+            navigate(`/conversaciones/${c.userId}`);
+          }}
+          className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
+        >
             <div className="flex items-center gap-3">
               <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
                 {c.iniciales}

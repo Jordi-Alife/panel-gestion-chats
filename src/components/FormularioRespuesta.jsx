@@ -14,61 +14,64 @@ const FormularioRespuesta = ({
   const [enviando, setEnviando] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userId || enviando || (!respuesta.trim() && !imagen)) return;
+  e.preventDefault();
+  if (!userId || enviando || (!respuesta.trim() && !imagen)) return;
 
-    setEnviando(true);
+  setEnviando(true);
 
-    try {
-      if (imagen) {
-        const formData = new FormData();
-        formData.append("file", imagen);
-        formData.append("userId", userId);
-        formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+  try {
+    let imageUrl = null;
 
-        const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-          method: "POST",
-          body: formData,
-        });
+    if (imagen) {
+      const formData = new FormData();
+      formData.append("file", imagen);
+      formData.append("userId", userId);
+      formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-        const result = await res.json();
+      const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+        method: "POST",
+        body: formData,
+      });
 
-        if (!res.ok || !result.imageUrl) {
-          console.error("❌ Error subiendo imagen:", result);
-          alert("Hubo un problema al subir la imagen.");
-        } else {
-          cargarDatos();
-        }
+      const result = await res.json();
 
-        setImagen(null);
+      if (!res.ok || !result.imageUrl) {
+        console.error("❌ Error subiendo imagen:", result);
+        alert("Hubo un problema al subir la imagen.");
+        setEnviando(false);
         return;
       }
 
-      if (!respuesta.trim()) return;
-
-      await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          message: respuesta,
-          agente: {
-            nombre: perfil.nombre || "",
-            foto: perfil.foto || "",
-            uid: localStorage.getItem("id-usuario-panel") || null,
-          },
-        }),
-      });
-
-      setRespuesta("");
-      setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
-      cargarDatos();
-    } catch (err) {
-      console.error("❌ Error en envío:", err);
-    } finally {
-      setEnviando(false);
+      imageUrl = result.imageUrl;
     }
-  };
+
+    if (!respuesta.trim() && !imageUrl) return;
+
+    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        message: respuesta.trim(),
+        imageUrl, // ✅ incluir solo si hay imagen
+        agente: {
+          nombre: perfil.nombre || "",
+          foto: perfil.foto || "",
+          uid: localStorage.getItem("id-usuario-panel") || null,
+        },
+      }),
+    });
+
+    setRespuesta("");
+    setImagen(null);
+    setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
+    cargarDatos();
+  } catch (err) {
+    console.error("❌ Error en envío:", err);
+  } finally {
+    setEnviando(false);
+  }
+};
 
   return (
     <div className="border-t px-4 py-3 bg-white dark:bg-gray-900 dark:border-gray-700">

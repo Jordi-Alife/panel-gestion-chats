@@ -331,7 +331,7 @@ useEffect(() => {
   setTipoVisualizacion={setTipoVisualizacion}
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
-  totalNoVistos={totalNoVistos} {/* ✅ Esta es la línea nueva */}
+  totalNoVistos={totalNoVistos}
 />
 </div>
 

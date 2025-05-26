@@ -47,16 +47,16 @@ const ConversacionList = ({
         >
           Recientes
         </button>
-        <button
-  onClick={() => setTipoVisualizacion("archivo")}
-          className={`text-xs font-medium px-3 py-1 rounded-full ${
-            tipoVisualizacion === "archivadas"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-          }`}
-        >
-          Archivadas
-        </button>
+       <button
+  onClick={() => setTipoVisualizacion("archivadas")}
+  className={`text-xs font-medium px-3 py-1 rounded-full ${
+    tipoVisualizacion === "archivadas"
+      ? "bg-blue-600 text-white"
+      : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+  }`}
+>
+  Archivadas
+</button>
       </div>
 
       {/* Lista de conversaciones scrollable */}

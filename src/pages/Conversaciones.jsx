@@ -317,8 +317,8 @@ const totalNoVistos = todasConversaciones.reduce(
     const estadoFiltrado = listaAgrupada.filter((c) => {
       const estado = c.estado || "";
       if (tipoVisualizacion === "archivadas") {
-  return estado === "Cerrado" || estado === "Archivado";
-} else {
+        return estado === "Cerrado" || estado === "Archivado";
+      } else {
         return estado === "Activa" || estado === "Inactiva";
       }
     });
@@ -332,6 +332,7 @@ const totalNoVistos = todasConversaciones.reduce(
   setTipoVisualizacion={setTipoVisualizacion}
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
+  totalNoVistos={totalNoVistos}
 />
 </div>
 

@@ -134,9 +134,12 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
   };
 
   useEffect(() => {
-  cargarDatos(tipoVisualizacion); // "recientes" o "archivo"
+  cargarDatos(tipoVisualizacion);
 
-  // Solo actualizar periódicamente si estamos en "recientes"
+  if (tipoVisualizacion === "archivo") {
+    console.log("Cargando archivadas");
+  }
+
   if (tipoVisualizacion === "recientes") {
     const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
     return () => clearInterval(intervalo);

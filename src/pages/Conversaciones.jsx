@@ -135,20 +135,17 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
 
   // A. Refresca solo si estás en "recientes"
 useEffect(() => {
+  if (tipoVisualizacion === "archivo") {
+    console.log("👀 Forzando carga de archivadas...");
+    cargarDatos("archivo");
+  }
+
   if (tipoVisualizacion === "recientes") {
     cargarDatos("recientes");
     const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
     return () => clearInterval(intervalo);
   }
 }, [tipoVisualizacion]);
-
-// B. Carga única al cambiar a "archivadas"
-useEffect(() => {
-  if (tipoVisualizacion === "archivo") {
-    cargarDatos("archivo");
-  }
-}, [tipoVisualizacion]);
-
 
   useEffect(() => {
     const refrescar = () => cargarMensajes(false);

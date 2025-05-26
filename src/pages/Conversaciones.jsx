@@ -133,12 +133,12 @@ setChatCerrado(nuevaInfo?.chatCerrado || false);
     }
   };
 
-  // A. Refresca solo si estás en "recientes"
+  // Carga inicial al montar + refresco si es "recientes"
 useEffect(() => {
   if (tipoVisualizacion === "archivo") {
-    console.log("📦 Cargando archivadas una sola vez");
+    console.log("📦 Cargando archivadas (init + cambio)");
     cargarDatos("archivo");
-    return; // No pongas setInterval si es archivo
+    return;
   }
 
   if (tipoVisualizacion === "recientes") {
@@ -148,6 +148,17 @@ useEffect(() => {
     return () => clearInterval(intervalo);
   }
 }, [tipoVisualizacion]);
+
+  // Primera carga al montar el componente
+useEffect(() => {
+  if (tipoVisualizacion === "archivo") {
+    console.log("📦 (init) Cargando archivadas");
+    cargarDatos("archivo");
+  } else {
+    console.log("📡 (init) Cargando recientes");
+    cargarDatos("recientes");
+  }
+}, []);
 
   useEffect(() => {
     const refrescar = () => cargarMensajes(false);

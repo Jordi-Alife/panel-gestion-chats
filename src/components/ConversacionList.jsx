@@ -48,7 +48,7 @@ const ConversacionList = ({
           Recientes
         </button>
         <button
-          onClick={() => setTipoVisualizacion("archivadas")}
+  onClick={() => setTipoVisualizacion("archivo")}
           className={`text-xs font-medium px-3 py-1 rounded-full ${
             tipoVisualizacion === "archivadas"
               ? "bg-blue-600 text-white"

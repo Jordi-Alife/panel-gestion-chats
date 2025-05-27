@@ -159,15 +159,20 @@ useEffect(() => {
   }, [userId, limiteMensajes]);
 
   useEffect(() => {
-    if (!userId) return;
-    const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
-        .then((res) => res.json())
-        .then((data) => setTextoEscribiendo(data.texto || ""))
-        .catch(console.error);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
+  if (!userId) return;
+
+  const interval = setInterval(() => {
+    const estadoChat = localStorage.getItem('chatEstado');
+    if (estadoChat !== "abierto") return; // ⛔ Evita fetch si no está abierto
+
+    fetch(`/api/escribiendo/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setTextoEscribiendo(data.texto || ""))
+      .catch(console.error);
+  }, 5000); // ⏱️ reducido a cada 5s
+
+  return () => clearInterval(interval);
+}, [userId]);
 
   useEffect(() => {
     setTimeout(() => {

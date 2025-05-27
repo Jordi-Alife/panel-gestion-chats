@@ -152,11 +152,17 @@ useEffect(() => {
 }, [tipoVisualizacion]);
 
   useEffect(() => {
-    const refrescar = () => cargarMensajes(false);
-    refrescar();
-    const interval = setInterval(refrescar, 2000);
-    return () => clearInterval(interval);
-  }, [userId, limiteMensajes]);
+  const refrescar = () => {
+    const estadoChat = localStorage.getItem('chatEstado');
+    if (estadoChat !== "abierto") return;
+    cargarMensajes(false);
+  };
+
+  refrescar();
+  const interval = setInterval(refrescar, 5000); // ⏱️ subido también a 5s
+
+  return () => clearInterval(interval);
+}, [userId, limiteMensajes]);
 
   useEffect(() => {
   if (!userId) return;

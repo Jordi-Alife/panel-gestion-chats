@@ -53,7 +53,7 @@ export default function Conversaciones() {
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
   try {
-    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
     const data = await res.json();
     window.__mensajes = data;
 

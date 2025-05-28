@@ -275,7 +275,7 @@ const totalNoVistos = todasConversaciones.reduce(
         minutosDesdeUltimo > 10 &&
         (info.estado || "").toLowerCase() !== "cerrado"
       ) {
-        fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+        fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: id }),

@@ -81,7 +81,7 @@ const App = () => {
       fetch(`${BACKEND_URL}/api/conversaciones`)
         .then((res) => res.json())
         .then((convs) => {
-          fetch("https://web-production-51989.up.railway.app/api/vistas")
+          fetch(`${BACKEND_URL}/api/vistas`)
             .then((res) => res.json())
             .then((vistas) => {
               const total = convs.reduce((acc, c) => {

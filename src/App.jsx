@@ -22,6 +22,8 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 // ✅ Nueva lógica de redirección condicional
 function HomeRedirect() {
   const navigate = useNavigate();

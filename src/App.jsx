@@ -78,7 +78,7 @@ const App = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      fetch(`${BACKEND_URL}/api/conversaciones`)
         .then((res) => res.json())
         .then((convs) => {
           fetch("https://web-production-51989.up.railway.app/api/vistas")

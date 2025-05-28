@@ -6,6 +6,9 @@ import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
 import logoFondo from "../assets/logo-fondo.svg";
 
+// ✅ Definir aquí, fuera del componente
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
@@ -33,11 +36,11 @@ export default function Conversaciones() {
 
   const cargarDatos = async (tipo = "recientes") => {
     try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones?tipo=${tipo}`);
+      const res = await fetch(`https://const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       const data = await res.json();
       setTodasConversaciones(data);
 
-      const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
+      const vistasRes = await fetch("https://const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       const vistasData = await vistasRes.json();
       setVistas(vistasData);
 

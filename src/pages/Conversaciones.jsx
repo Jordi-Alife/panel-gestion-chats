@@ -40,7 +40,7 @@ export default function Conversaciones() {
       const data = await res.json();
       setTodasConversaciones(data);
 
-      const vistasRes = await fetch("https://const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
+      const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
       const vistasData = await vistasRes.json();
       setVistas(vistasData);
 

@@ -36,7 +36,7 @@ export default function Conversaciones() {
 
   const cargarDatos = async (tipo = "recientes") => {
     try {
-      const res = await fetch(`https://const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
+      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       const data = await res.json();
       setTodasConversaciones(data);
 

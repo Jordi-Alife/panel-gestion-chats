@@ -29,7 +29,38 @@ const ChatMovil = () => {
   }, [userId]);
 
   const cargarMensajes = async (desdeTimestamp = null) => {
-    try {
+  // ⚡ Optimización: usar historialFormateado si está disponible
+  const convData = localStorage.getItem(`conversacion-${userId}`);
+  let conv = null;
+  try {
+    conv = JSON.parse(convData);
+  } catch {}
+
+  if (
+    conv &&
+    ["archivado", "cerrado"].includes((conv.estado || "").toLowerCase()) &&
+    conv.historialFormateado
+  ) {
+    const lineas = conv.historialFormateado.split("\n");
+    const mensajes = lineas.map((linea, i) => {
+      const esUsuario = linea.startsWith("Usuario:");
+      const esAsistente = linea.startsWith("Asistente:");
+      return {
+        id: `hist-${i}`,
+        from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
+        message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
+        tipo: "texto",
+        lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
+      };
+    });
+
+    setMensajes(mensajes);
+    oldestTimestampRef.current = null;
+    setHasMore(false);
+    return;
+  }
+
+  try {
       const url = desdeTimestamp
         ? `https://web-production-51989.up.railway.app/api/conversaciones/${userId}?desde=${encodeURIComponent(desdeTimestamp)}`
         : `https://web-production-51989.up.railway.app/api/conversaciones/${userId}`;

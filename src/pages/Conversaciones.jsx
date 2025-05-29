@@ -75,8 +75,12 @@ useEffect(() => {
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
 
-  // ⚡ Optimización: usar historialFormateado si es conversación archivada/cerrada
-  const conv = todasConversaciones.find((c) => c.userId === userId);
+  // 🧠 Intenta usar historialFormateado si el chat está archivado o cerrado
+  const convData = localStorage.getItem(`conversacion-${userId}`);
+  let conv = null;
+  try {
+    conv = JSON.parse(convData);
+  } catch {}
 
   if (
     conv &&
@@ -84,7 +88,7 @@ useEffect(() => {
     conv.historialFormateado
   ) {
     const lineas = conv.historialFormateado.split("\n");
-    const mensajes = lineas.map((linea, i) => {
+    const mensajesHist = lineas.map((linea, i) => {
       const esUsuario = linea.startsWith("Usuario:");
       const esAsistente = linea.startsWith("Asistente:");
       return {
@@ -96,72 +100,64 @@ useEffect(() => {
       };
     });
 
-    setMensajes(mensajes);
-    setUsuarioSeleccionado(conv);
-    setChatCerrado(conv.chatCerrado || false);
+    setMensajes(mensajesHist);
     setHayMasMensajes(false);
-    window.__mensajes = mensajes; // ✅ Añadido aquí también
     return;
   }
 
+  // 🔁 Si no hay historial formateado, cargar desde Firestore
   try {
-    const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
+    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
     const data = await res.json();
+    window.__mensajes = data;
 
-    // ✅ Adaptar formato para asegurar compatibilidad con ChatPanel
-    const dataAdaptada = (data || []).map((msg) => ({
-      ...msg,
-      from: msg.from || msg.rol || "sistema",
-      message: msg.message || msg.mensaje || "",
-      original: msg.original || "",
-      tipo: msg.tipo || "texto",
-      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-    }));
-
-    window.__mensajes = dataAdaptada;
-
-    const ordenados = dataAdaptada.sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
-
-    const nuevosMensajes = [];
+    const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    const mensajesConEtiqueta = [];
     let estadoActual = "gpt";
 
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
+      const ultimaEtiqueta = mensajesConEtiqueta.length
+        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+        : null;
 
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        nuevosMensajes.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
-        });
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+        }
         estadoActual = "gpt";
       }
 
       if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        nuevosMensajes.push({
-          tipo: "etiqueta",
-          mensaje: "El usuario ha cerrado el chat",
-          timestamp: msg.lastInteraction,
-        });
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+        }
       }
 
       if (msg.manual === true && estadoActual === "gpt") {
-        nuevosMensajes.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+        }
         estadoActual = "humano";
       }
 
-      nuevosMensajes.push(msg);
+      mensajesConEtiqueta.push(msg);
     }
 
-    // Eliminar duplicados
     const mapa = new Map();
-    nuevosMensajes.forEach((m) => {
+    mensajesConEtiqueta.forEach((m) => {
       const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
       mapa.set(clave, m);
     });
@@ -175,17 +171,18 @@ useEffect(() => {
 
     if (verMas) {
       setLimiteMensajes(nuevoLimite);
-      setMensajes(nuevosVisibles);
+      setMensajes(ordenadosFinal.slice(-nuevoLimite));
     } else {
       setMensajes(nuevosVisibles);
     }
 
     setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
 
+    // Actualizar datos del usuario
     let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
 
     if (!nuevaInfo) {
-      const fallback = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`);
+      const fallback = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?tipo=recientes");
       const fallbackData = await fallback.json();
       nuevaInfo = fallbackData.find((c) => c.userId === userId) || null;
     }
@@ -199,8 +196,8 @@ useEffect(() => {
       }
     }, 100);
   } catch (err) {
-  console.error("❌ Error en cargarMensajes:", err);
-}
+    console.error("❌ Error en cargarMensajes:", err);
+  }
 };
 
 // ✅ Haz visible la función para poder invocarla desde fuera

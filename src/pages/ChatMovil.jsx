@@ -28,6 +28,20 @@ const ChatMovil = () => {
     if (est) setEstado(est);
   }, [userId]);
 
+  useEffect(() => {
+  if (!userId) return;
+
+  fetch("https://web-production-51989.up.railway.app/api/conversaciones?tipo=archivo")
+    .then((res) => res.json())
+    .then((lista) => {
+      const encontrada = lista.find((c) => c.userId === userId);
+      if (encontrada) {
+        localStorage.setItem(`conversacion-${userId}`, JSON.stringify(encontrada));
+      }
+    })
+    .catch(console.error);
+}, [userId]);
+
   const cargarMensajes = async (desdeTimestamp = null) => {
   // ⚡ Optimización: usar historialFormateado si está disponible
   const convData = localStorage.getItem(`conversacion-${userId}`);

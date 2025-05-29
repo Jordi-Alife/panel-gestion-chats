@@ -69,47 +69,55 @@ export default function Conversaciones() {
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
 
-      // 🧠 Usar historialFormateado si es conversación archivada
-const conv = todasConversaciones.find((c) => c.userId === userId);
+  // ⚡ Optimización: usar historialFormateado si es conversación archivada/cerrada
+  const conv = todasConversaciones.find((c) => c.userId === userId);
 
-if (conv && (conv.estado === "archivado" || conv.estado === "cerrado") && conv.historialFormateado) {
-  const lineas = conv.historialFormateado.split("\n");
-  const mensajes = lineas.map((linea, i) => {
-    const esUsuario = linea.startsWith("Usuario:");
-    const esAsistente = linea.startsWith("Asistente:");
-    return {
-      id: `hist-${i}`,
-      from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
-      message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
-      tipo: "texto",
-      lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
-    };
-  });
+  if (
+    conv &&
+    ["archivado", "cerrado"].includes((conv.estado || "").toLowerCase()) &&
+    conv.historialFormateado
+  ) {
+    const lineas = conv.historialFormateado.split("\n");
+    const mensajes = lineas.map((linea, i) => {
+      const esUsuario = linea.startsWith("Usuario:");
+      const esAsistente = linea.startsWith("Asistente:");
+      return {
+        id: `hist-${i}`,
+        from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
+        message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
+        tipo: "texto",
+        lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
+      };
+    });
 
-  setMensajes(mensajes);
-  setUsuarioSeleccionado(conv);
-  setChatCerrado(conv.chatCerrado || false);
-  setHayMasMensajes(false);
-  return; // ⛔ NO continuar al fetch
-}
-      
+    setMensajes(mensajes);
+    setUsuarioSeleccionado(conv);
+    setChatCerrado(conv.chatCerrado || false);
+    setHayMasMensajes(false);
+    window.__mensajes = mensajes; // ✅ Añadido aquí también
+    return;
+  }
+
   try {
     const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-const data = await res.json();
+    const data = await res.json();
 
-// 🧩 Adaptar estructura para ChatPanel
-const dataAdaptada = (data || []).map((msg) => ({
-  ...msg,
-  from: msg.from || msg.rol || "sistema",
-  message: msg.message || msg.mensaje || "",
-  original: msg.original || "",
-  tipo: msg.tipo || "texto",
-  lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-}));
+    // ✅ Adaptar formato para asegurar compatibilidad con ChatPanel
+    const dataAdaptada = (data || []).map((msg) => ({
+      ...msg,
+      from: msg.from || msg.rol || "sistema",
+      message: msg.message || msg.mensaje || "",
+      original: msg.original || "",
+      tipo: msg.tipo || "texto",
+      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+    }));
 
-window.__mensajes = dataAdaptada;
+    window.__mensajes = dataAdaptada;
 
-const ordenados = dataAdaptada.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    const ordenados = dataAdaptada.sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+
     const nuevosMensajes = [];
     let estadoActual = "gpt";
 
@@ -145,6 +153,7 @@ const ordenados = dataAdaptada.sort((a, b) => new Date(a.lastInteraction) - new 
       nuevosMensajes.push(msg);
     }
 
+    // Eliminar duplicados
     const mapa = new Map();
     nuevosMensajes.forEach((m) => {
       const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
@@ -160,17 +169,15 @@ const ordenados = dataAdaptada.sort((a, b) => new Date(a.lastInteraction) - new 
 
     if (verMas) {
       setLimiteMensajes(nuevoLimite);
-      setMensajes(ordenadosFinal.slice(-nuevoLimite));
+      setMensajes(nuevosVisibles);
     } else {
       setMensajes(nuevosVisibles);
     }
 
     setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
 
-    // ✅ Usar directamente lo que ya tienes en memoria
     let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
 
-    // 🛡️ Fallback si aún no está cargado
     if (!nuevaInfo) {
       const fallback = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`);
       const fallbackData = await fallback.json();
@@ -186,7 +193,7 @@ const ordenados = dataAdaptada.sort((a, b) => new Date(a.lastInteraction) - new 
       }
     }, 100);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error en cargarMensajes:", err);
   }
 };
   

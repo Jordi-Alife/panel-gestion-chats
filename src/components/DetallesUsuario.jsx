@@ -1,4 +1,5 @@
 import React from "react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const DetallesUsuario = ({
   usuario,
@@ -10,7 +11,7 @@ const DetallesUsuario = ({
 }) => {
   const handleLiberar = async () => {
     try {
-      const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+      const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: usuario.userId }),

@@ -5,6 +5,8 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "../firebaseAuth";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function AgenteDetalle() {
   const { uid } = useParams();
   const [mensajes, setMensajes] = useState([]);
@@ -12,7 +14,7 @@ export default function AgenteDetalle() {
 
   useEffect(() => {
     // Cargar mensajes
-    fetch(`https://web-production-51989.up.railway.app/api/mensajes-agente/${uid}`)
+    fetch(`${BACKEND_URL}/api/mensajes-agente/${uid}`)
       .then((res) => res.json())
       .then((data) => {
         setMensajes(data || []);

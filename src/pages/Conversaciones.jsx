@@ -107,7 +107,7 @@ useEffect(() => {
 
   // 🔁 Si no hay historial formateado, cargar desde Firestore
   try {
-    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
     const data = await res.json();
     window.__mensajes = data;
 

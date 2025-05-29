@@ -95,10 +95,21 @@ if (conv && (conv.estado === "archivado" || conv.estado === "cerrado") && conv.h
       
   try {
     const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-    const data = await res.json();
-    window.__mensajes = data;
+const data = await res.json();
 
-    const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+// 🧩 Adaptar estructura para ChatPanel
+const dataAdaptada = (data || []).map((msg) => ({
+  ...msg,
+  from: msg.from || msg.rol || "sistema",
+  message: msg.message || msg.mensaje || "",
+  original: msg.original || "",
+  tipo: msg.tipo || "texto",
+  lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+}));
+
+window.__mensajes = dataAdaptada;
+
+const ordenados = dataAdaptada.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
     const nuevosMensajes = [];
     let estadoActual = "gpt";
 

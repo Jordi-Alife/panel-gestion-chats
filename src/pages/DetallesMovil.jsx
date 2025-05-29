@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
 const DetallesMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-  fetch(`${BACKEND_URL}/api/conversaciones`)
-    .then((res) => res.json())
-    .then((all) => {
-      const info = all.find((c) => c.userId === userId);
-      setUsuario(info || null);
+    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+      .then((res) => res.json())
+      .then((all) => {
+        const info = all.find((c) => c.userId === userId);
+        setUsuario(info || null);
 
         // ✅ Guardar en localStorage para uso en ChatMovil
         if (info) {
-          localStorage.setItem(`estado-conversacion-${userId}`, info.estado || "abierta");
-          localStorage.setItem(`intervenida-${userId}`, info.intervenida ? "true" : "false");
+          localStorage.setItem("estado-conversacion", info.estado || "abierta");
+          localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
         }
       });
   }, [userId]);
@@ -50,7 +48,7 @@ const DetallesMovil = () => {
         <button
           onClick={async () => {
             try {
-              const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
+              const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: usuario.userId }),
@@ -58,16 +56,10 @@ const DetallesMovil = () => {
               const data = await res.json();
               if (data.ok) {
                 alert("✅ Conversación liberada");
-                const updatedRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
+                const updatedRes = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
                 const updatedData = await updatedRes.json();
                 const updatedUser = updatedData.find((c) => c.userId === userId);
                 setUsuario(updatedUser || null);
-
-                // ✅ Actualizar localStorage con los nuevos valores
-                if (updatedUser) {
-                  localStorage.setItem(`estado-conversacion-${userId}`, updatedUser.estado || "abierta");
-                  localStorage.setItem(`intervenida-${userId}`, updatedUser.intervenida ? "true" : "false");
-                }
               } else {
                 alert("⚠️ Error al liberar conversación");
               }

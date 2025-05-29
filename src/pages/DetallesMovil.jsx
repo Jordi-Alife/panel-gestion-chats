@@ -9,11 +9,11 @@ const DetallesMovil = () => {
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/conversaciones`)
-      .then((res) => res.json())
-      .then((all) => {
-        const info = all.find((c) => c.userId === userId);
-        setUsuario(info || null);
+  fetch(`${BACKEND_URL}/api/conversaciones`)
+    .then((res) => res.json())
+    .then((all) => {
+      const info = all.find((c) => c.userId === userId);
+      setUsuario(info || null);
 
         // ✅ Guardar en localStorage para uso en ChatMovil
         if (info) {

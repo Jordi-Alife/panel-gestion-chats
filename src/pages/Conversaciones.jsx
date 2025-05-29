@@ -157,7 +157,7 @@ export default function Conversaciones() {
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
     console.log("📦 Cargando archivadas");
-    cargarDatos("archivadas");
+    cargarDatos("archivo");
     return; // no hay refresco
   }
 

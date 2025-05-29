@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import iconVer from "/src/assets/ver.svg";
 import iconFile from "/src/assets/file.svg";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const ChatMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();

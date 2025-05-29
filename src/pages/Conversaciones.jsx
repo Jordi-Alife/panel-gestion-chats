@@ -156,10 +156,10 @@ export default function Conversaciones() {
 // ✅ Solo un useEffect, evita doble carga y conflictos
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
-    console.log("📦 Cargando archivadas");
-    cargarDatos("archivo");
-    return; // no hay refresco
-  }
+  console.log("📦 Cargando archivadas");
+  cargarDatos("archivo"); // 👈 CORRECTO
+  return;
+}
 
   if (tipoVisualizacion === "recientes") {
     console.log("📡 Cargando recientes con refresco cada 5s");

@@ -14,11 +14,11 @@ const ConversacionesMovil = () => {
   useEffect(() => {
   const cargarDatos = async () => {
     try {
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones?tipo=${tipoVisualizacion}`);
       const data = await res.json();
       setTodasConversaciones(data);
 
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+      const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
       const vistasData = await vistasRes.json();
       setVistas(vistasData);
     } catch (err) {
@@ -91,7 +91,7 @@ const ConversacionesMovil = () => {
     let estado = "Archivado";
 
     if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+      fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: id }),
@@ -194,7 +194,7 @@ const ConversacionesMovil = () => {
               localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
 
               try {
-                await fetch(`${BACKEND_URL}/api/marcar-visto`, {
+                await fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ userId: c.userId }),

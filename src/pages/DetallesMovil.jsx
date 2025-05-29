@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // ✅ Añade esta línea
+
 const DetallesMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-    fetch("https://web-production-51989.up.railway.app/api/conversaciones")
+    fetch(`${BACKEND_URL}/api/conversaciones`)
       .then((res) => res.json())
       .then((all) => {
         const info = all.find((c) => c.userId === userId);
@@ -48,7 +50,7 @@ const DetallesMovil = () => {
         <button
           onClick={async () => {
             try {
-              const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+              const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: usuario.userId }),
@@ -56,7 +58,7 @@ const DetallesMovil = () => {
               const data = await res.json();
               if (data.ok) {
                 alert("✅ Conversación liberada");
-                const updatedRes = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
+                const updatedRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
                 const updatedData = await updatedRes.json();
                 const updatedUser = updatedData.find((c) => c.userId === userId);
                 setUsuario(updatedUser || null);

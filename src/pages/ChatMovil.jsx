@@ -33,7 +33,7 @@ const ChatMovil = () => {
   useEffect(() => {
   if (!userId) return;
 
-  fetch("https://web-production-51989.up.railway.app/api/conversaciones?tipo=archivo")
+  fetch(`${BACKEND_URL}/api/conversaciones?tipo=archivo`)
     .then((res) => res.json())
     .then((lista) => {
       const encontrada = lista.find((c) => c.userId === userId);
@@ -78,8 +78,8 @@ const ChatMovil = () => {
 
   try {
       const url = desdeTimestamp
-        ? `https://web-production-51989.up.railway.app/api/conversaciones/${userId}?desde=${encodeURIComponent(desdeTimestamp)}`
-        : `https://web-production-51989.up.railway.app/api/conversaciones/${userId}`;
+  ? `${BACKEND_URL}/api/conversaciones/${userId}?desde=${encodeURIComponent(desdeTimestamp)}`
+  : `${BACKEND_URL}/api/conversaciones/${userId}`;
 
       const res = await fetch(url);
       const nuevosMensajes = await res.json();
@@ -218,7 +218,7 @@ const ChatMovil = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetch(`https://web-production-51989.up.railway.app/api/escribiendo/${userId}`)
+      fetch(`${BACKEND_URL}/api/escribiendo/${userId}`)
         .then((res) => res.json())
         .then((data) => setTextoEscribiendo(data.texto || ""))
         .catch(console.error);
@@ -413,7 +413,7 @@ const ChatMovil = () => {
 
             if (!respuesta.trim()) return;
 
-            await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+            await fetch(`${BACKEND_URL}/api/send-to-user`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

@@ -267,7 +267,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (userId) {
-      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+      fetch(`${BACKEND_URL}/api/marcar-visto`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),

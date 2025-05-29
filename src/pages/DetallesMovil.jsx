@@ -50,11 +50,11 @@ const DetallesMovil = () => {
         <button
           onClick={async () => {
             try {
-              const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, 
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: usuario.userId }),
-              });
+              const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ userId: usuario.userId }),
+});
               const data = await res.json();
               if (data.ok) {
                 alert("✅ Conversación liberada");

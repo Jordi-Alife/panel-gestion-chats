@@ -199,18 +199,20 @@ useEffect(() => {
       }
     }, 100);
   } catch (err) {
-    console.error("❌ Error en cargarMensajes:", err);
-  }
+  console.error("❌ Error en cargarMensajes:", err);
+}
 };
-  
+
+// ✅ Haz visible la función para poder invocarla desde fuera
+window.cargarMensajes = cargarMensajes;
+
 // ✅ Solo un useEffect, evita doble carga y conflictos
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
-  console.log("📦 Cargando archivadas");
-  cargarDatos("archivadas"); // ✅ ESTO FUNCIONA BIEN
-  return;
-}
-
+    console.log("📦 Cargando archivadas");
+    cargarDatos("archivadas"); // ✅ ESTO FUNCIONA BIEN
+    return;
+  }
   if (tipoVisualizacion === "recientes") {
     console.log("📡 Cargando recientes con refresco cada 5s");
     cargarDatos("recientes");

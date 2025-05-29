@@ -33,6 +33,12 @@ export default function Conversaciones() {
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
+  // ✅ Cargar mensajes inmediatamente al seleccionar conversación
+useEffect(() => {
+  if (!userId) return;
+  cargarMensajes(false);
+}, [userId]);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {

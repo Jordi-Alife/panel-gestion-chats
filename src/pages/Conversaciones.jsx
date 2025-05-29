@@ -182,7 +182,7 @@ useEffect(() => {
     let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
 
     if (!nuevaInfo) {
-      const fallback = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?tipo=recientes");
+      const fallback = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`);
       const fallbackData = await fallback.json();
       nuevaInfo = fallbackData.find((c) => c.userId === userId) || null;
     }

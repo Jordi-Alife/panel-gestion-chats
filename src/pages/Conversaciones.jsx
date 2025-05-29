@@ -8,6 +8,7 @@ import logoFondo from "../assets/logo-fondo.svg";
 
 // ✅ Definir aquí, fuera del componente
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();

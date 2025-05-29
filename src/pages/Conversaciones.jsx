@@ -220,13 +220,11 @@ useEffect(() => {
 
   useEffect(() => {
   const refrescar = () => {
-    const estadoChat = localStorage.getItem('chatEstado');
-    if (estadoChat !== "abierto") return;
     cargarMensajes(false);
   };
 
-  refrescar();
-  const interval = setInterval(refrescar, 5000); // ⏱️ subido también a 5s
+  refrescar(); // ⏱️ se ejecuta al entrar
+  const interval = setInterval(refrescar, 5000); // ⏱️ cada 5 segundos
 
   return () => clearInterval(interval);
 }, [userId, limiteMensajes]);

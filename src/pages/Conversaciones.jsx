@@ -35,21 +35,36 @@ export default function Conversaciones() {
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {
+  try {
+    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}`;
+    const res = await fetch(url);
+
+    // 🧪 Leer la respuesta como texto para depurar
+    const text = await res.text();
+
+    // 🔎 Mostrar la respuesta cruda en consola
+    console.log(`🔎 Respuesta cruda desde /api/conversaciones?tipo=${tipo}:`, text);
+
+    let data;
     try {
-      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
-      const data = await res.json();
-      setTodasConversaciones(data);
-
-      const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
-      const vistasData = await vistasRes.json();
-      setVistas(vistasData);
-
-      return data;
-    } catch (err) {
-      console.error(err);
-      return [];
+      data = JSON.parse(text);
+    } catch (jsonErr) {
+      console.error("❌ Error al parsear JSON:", jsonErr);
+      return []; // devolvemos lista vacía si hay error
     }
-  };
+
+    setTodasConversaciones(data);
+
+    const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
+    const vistasData = await vistasRes.json();
+    setVistas(vistasData);
+
+    return data;
+  } catch (err) {
+    console.error("❌ Error en cargarDatos:", err);
+    return [];
+  }
+};
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
   try {

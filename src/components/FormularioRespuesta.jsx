@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import iconFile from "/src/assets/file.svg";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const FormularioRespuesta = ({
   userId,
   respuesta,
@@ -28,7 +30,7 @@ const FormularioRespuesta = ({
       formData.append("userId", userId);
       formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-      const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+      const res = await fetch(`${BACKEND_URL}/api/upload-agente`, {
         method: "POST",
         body: formData,
       });
@@ -47,7 +49,7 @@ const FormularioRespuesta = ({
 
     if (!respuesta.trim() && !imageUrl) return;
 
-    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+    await fetch(`${BACKEND_URL}/api/send-to-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -68,6 +68,31 @@ export default function Conversaciones() {
 };
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
+
+      // 🧠 Usar historialFormateado si es conversación archivada
+const conv = todasConversaciones.find((c) => c.userId === userId);
+
+if (conv && (conv.estado === "archivado" || conv.estado === "cerrado") && conv.historialFormateado) {
+  const lineas = conv.historialFormateado.split("\n");
+  const mensajes = lineas.map((linea, i) => {
+    const esUsuario = linea.startsWith("Usuario:");
+    const esAsistente = linea.startsWith("Asistente:");
+    return {
+      id: `hist-${i}`,
+      from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
+      message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
+      tipo: "texto",
+      lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
+    };
+  });
+
+  setMensajes(mensajes);
+  setUsuarioSeleccionado(conv);
+  setChatCerrado(conv.chatCerrado || false);
+  setHayMasMensajes(false);
+  return; // ⛔ NO continuar al fetch
+}
+      
   try {
     const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
     const data = await res.json();

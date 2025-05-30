@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import iconFile from "/src/assets/file.svg";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const FormularioRespuesta = ({
   userId,
   respuesta,
@@ -10,6 +12,7 @@ const FormularioRespuesta = ({
   perfil,
   cargarDatos,
   setUsuarioSeleccionado,
+  todasConversaciones // ✅ Añadido para refrescar estado visual
 }) => {
   const [enviando, setEnviando] = useState(false);
 
@@ -28,7 +31,7 @@ const FormularioRespuesta = ({
       formData.append("userId", userId);
       formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-      const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+      const res = await fetch(`${BACKEND_URL}/api/upload-agente`, {
         method: "POST",
         body: formData,
       });
@@ -47,7 +50,7 @@ const FormularioRespuesta = ({
 
     if (!respuesta.trim() && !imageUrl) return;
 
-    await fetch("https://web-production-51989.up.railway.app/api/send-to-user", {
+    await fetch(`${BACKEND_URL}/api/send-to-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -65,21 +68,24 @@ const FormularioRespuesta = ({
     setRespuesta("");
 setImagen(null);
 
-// ✅ Refrescar desde backend el estado real de la conversación
+await cargarDatos();
+
+// 🔄 Refrescar estado real desde Firestore para asegurar precisión en el panel derecho
 try {
-  const resEstado = await fetch(`https://web-production-51989.up.railway.app/api/estado-conversacion/${userId}`);
+  const resEstado = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
   const datos = await resEstado.json();
 
-  setUsuarioSeleccionado((prev) => ({
-    ...prev,
-    intervenida: datos.intervenida,
-    estado: datos.estado
-  }));
+  const actualizada = todasConversaciones.find(c => c.userId === userId);
+  if (actualizada) {
+    setUsuarioSeleccionado({
+      ...actualizada,
+      intervenida: datos.intervenida,
+      estado: datos.estado
+    });
+  }
 } catch (e) {
-  console.warn("⚠️ No se pudo actualizar estado de DetallesUsuario:", e);
+  console.warn("⚠️ No se pudo actualizar el estado tras mensaje manual:", e);
 }
-
-cargarDatos(); // 🔁 Para refrescar también la lista de conversaciones
   } catch (err) {
     console.error("❌ Error en envío:", err);
   } finally {

@@ -12,6 +12,7 @@ const DetallesUsuario = ({
   const nombreUsuario = usuario?.datosContexto?.user?.name || "—";
   const nombreDifunto = usuario?.datosContexto?.line?.name || "—";
   const empresaFuneraria = usuario?.datosContexto?.line?.company?.name || "—";
+
   const handleLiberar = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
@@ -54,9 +55,7 @@ const DetallesUsuario = ({
 
       {usuario?.intervenida ? (
         <div className="flex items-center gap-2 mt-2">
-          <span className="estado-tag estado-activa etiqueta-animada">
-            Intervenida
-          </span>
+          <span className="estado-tag estado-activa etiqueta-animada">Intervenida</span>
           <button
             onClick={handleLiberar}
             className="text-xs text-blue-600 underline hover:text-blue-800 transition duration-200"
@@ -75,42 +74,48 @@ const DetallesUsuario = ({
         <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
           <p>ID: {usuario.userId}</p>
 
-{/* ✅ Nuevos datos desde datosContexto */}
-{usuario.datosContexto?.user?.name && (
-  <p>Nombre del usuario: {usuario.datosContexto.user.name}</p>
-)}
-{usuario.datosContexto?.line?.name && (
-  <p>Nombre del difunto: {usuario.datosContexto.line.name}</p>
-)}
-{usuario.datosContexto?.line?.company?.name && (
-  <p>Funeraria: {usuario.datosContexto.line.company.name}</p>
-)}
+          {/* ✅ Datos clave destacados */}
+          {usuario.datosContexto?.user?.name && (
+            <p className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-medium text-gray-800 dark:text-gray-100">
+              Nombre del usuario: <span className="font-semibold">{usuario.datosContexto.user.name}</span>
+            </p>
+          )}
+          {usuario.datosContexto?.line?.name && (
+            <p className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-medium text-gray-800 dark:text-gray-100">
+              Nombre del difunto: <span className="font-semibold">{usuario.datosContexto.line.name}</span>
+            </p>
+          )}
+          {usuario.datosContexto?.line?.company?.name && (
+            <p className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-medium text-gray-800 dark:text-gray-100">
+              Funeraria: <span className="font-semibold">{usuario.datosContexto.line.company.name}</span>
+            </p>
+          )}
 
-{/* ✅ Datos del terminal debajo de lo nuevo */}
-<p>Navegador: {usuario.navegador}</p>
-<p>
-  País:{" "}
-  {paisAToIso(usuario.pais) ? (
-    <img
-      src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
-      alt={usuario.pais}
-      className="inline-block ml-1"
-    />
-  ) : (
-    <span className="ml-1">🌐</span>
-  )}
-</p>
+          {/* ✅ Datos técnicos del dispositivo */}
+          <p>Navegador: {usuario.navegador}</p>
+          <p>
+            País:{" "}
+            {paisAToIso(usuario.pais) ? (
+              <img
+                src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
+                alt={usuario.pais}
+                className="inline-block ml-1"
+              />
+            ) : (
+              <span className="ml-1">🌐</span>
+            )}
+          </p>
 
-{usuario.chatCerrado && (
-  <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
-)}
+          {usuario.chatCerrado && (
+            <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
+          )}
 
-<p>Historial:</p>
-<ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
-  {usuario.historial.map((url, idx) => (
-    <li key={idx}>{url}</li>
-  ))}
-</ul>
+          <p>Historial:</p>
+          <ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
+            {usuario.historial.map((url, idx) => (
+              <li key={idx}>{url}</li>
+            ))}
+          </ul>
         </div>
       ) : (
         <p className="text-xs text-gray-500 dark:text-gray-400">Selecciona una conversación</p>

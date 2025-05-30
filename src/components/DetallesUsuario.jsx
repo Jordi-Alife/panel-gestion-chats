@@ -9,6 +9,9 @@ const DetallesUsuario = ({
   setUsuarioSeleccionado,
   todasConversaciones
 }) => {
+  const nombreUsuario = usuario?.datosContexto?.user?.name || "—";
+  const nombreDifunto = usuario?.datosContexto?.line?.name || "—";
+  const empresaFuneraria = usuario?.datosContexto?.line?.company?.name || "—";
   const handleLiberar = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {

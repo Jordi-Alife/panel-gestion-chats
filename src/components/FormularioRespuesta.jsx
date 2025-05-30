@@ -68,7 +68,20 @@ const FormularioRespuesta = ({
     setRespuesta("");
 setImagen(null);
 
-await cargarDatos();
+// Esperar 600ms para que Firestore refleje el estado correctamente
+setTimeout(async () => {
+  await cargarDatos();
+  const resEstado = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
+  const datos = await resEstado.json();
+  const actualizada = todasConversaciones.find(c => c.userId === userId);
+  if (actualizada) {
+    setUsuarioSeleccionado({
+      ...actualizada,
+      intervenida: datos.intervenida,
+      estado: datos.estado
+    });
+  }
+}, 600);
 
 // 🔄 Refrescar estado real desde Firestore para asegurar precisión en el panel derecho
 try {

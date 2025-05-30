@@ -31,6 +31,8 @@ const DetallesUsuario = ({
     }
   };
 
+  const ecommerce = usuario?.datosContexto?.line?.company?.ecommerce_enabled;
+
   return (
     <div className="w-full h-full bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 overflow-y-auto">
       {agente && (
@@ -71,7 +73,7 @@ const DetallesUsuario = ({
 
           <p>ID: {usuario.userId}</p>
 
-          {/* ✅ Datos clave con estructura de título + etiqueta */}
+          {/* ✅ Datos clave */}
           {usuario.datosContexto?.user?.name && (
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Nombre del usuario</p>
@@ -95,6 +97,20 @@ const DetallesUsuario = ({
               <p className="text-sm text-gray-500 dark:text-gray-400">Funeraria</p>
               <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
                 {usuario.datosContexto.line.company.name}
+              </div>
+            </div>
+          )}
+
+          {/* ✅ Nuevo: Ecommerce ON/OFF */}
+          {typeof ecommerce === "boolean" && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Ecommerce</p>
+              <div className={`inline-block text-xs px-3 py-1 rounded-full font-semibold ${
+                ecommerce
+                  ? "bg-green-600 text-white"
+                  : "bg-red-600 text-white"
+              }`}>
+                {ecommerce ? "ON" : "OFF"}
               </div>
             </div>
           )}

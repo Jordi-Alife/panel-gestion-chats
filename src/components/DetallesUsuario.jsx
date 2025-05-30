@@ -74,6 +74,19 @@ const DetallesUsuario = ({
       {usuario ? (
         <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
           <p>ID: {usuario.userId}</p>
+
+{/* ✅ Nuevos datos desde datosContexto */}
+{usuario.datosContexto?.user?.name && (
+  <p>Nombre del usuario: {usuario.datosContexto.user.name}</p>
+)}
+{usuario.datosContexto?.line?.name && (
+  <p>Nombre del difunto: {usuario.datosContexto.line.name}</p>
+)}
+{usuario.datosContexto?.line?.company?.name && (
+  <p>Funeraria: {usuario.datosContexto.line.company.name}</p>
+)}
+
+{/* ✅ Datos del terminal debajo de lo nuevo */}
 <p>Navegador: {usuario.navegador}</p>
 <p>
   País:{" "}
@@ -88,25 +101,16 @@ const DetallesUsuario = ({
   )}
 </p>
 
-{/* ✅ Nuevos datos desde datosContexto */}
-{usuario.datosContexto?.user?.name && (
-  <p>Nombre del usuario: {usuario.datosContexto.user.name}</p>
+{usuario.chatCerrado && (
+  <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
 )}
-{usuario.datosContexto?.line?.name && (
-  <p>Nombre del difunto: {usuario.datosContexto.line.name}</p>
-)}
-{usuario.datosContexto?.line?.company?.name && (
-  <p>Funeraria: {usuario.datosContexto.line.company.name}</p>
-)}
-          {usuario.chatCerrado && (
-            <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
-          )}
-          <p>Historial:</p>
-          <ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
-            {usuario.historial.map((url, idx) => (
-              <li key={idx}>{url}</li>
-            ))}
-          </ul>
+
+<p>Historial:</p>
+<ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
+  {usuario.historial.map((url, idx) => (
+    <li key={idx}>{url}</li>
+  ))}
+</ul>
         </div>
       ) : (
         <p className="text-xs text-gray-500 dark:text-gray-400">Selecciona una conversación</p>

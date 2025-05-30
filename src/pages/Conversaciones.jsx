@@ -443,15 +443,16 @@ const totalNoVistos = todasConversaciones.reduce(
               hayMas={hayMasMensajes}
             />
             <FormularioRespuesta
-              userId={userId}
-              respuesta={respuesta}
-              setRespuesta={setRespuesta}
-              imagen={imagen}
-              setImagen={setImagen}
-              perfil={perfil}
-              cargarDatos={cargarDatos}
-              setUsuarioSeleccionado={setUsuarioSeleccionado}
-            />
+  userId={userId}
+  respuesta={respuesta}
+  setRespuesta={setRespuesta}
+  imagen={imagen}
+  setImagen={setImagen}
+  perfil={perfil}
+  cargarDatos={cargarDatos}
+  setUsuarioSeleccionado={setUsuarioSeleccionado}
+  todasConversaciones={todasConversaciones} // ✅ Añadido para actualizar correctamente el estado
+/>
           </>
         )}
       </div>

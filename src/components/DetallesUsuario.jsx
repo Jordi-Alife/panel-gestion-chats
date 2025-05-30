@@ -74,19 +74,30 @@ const DetallesUsuario = ({
       {usuario ? (
         <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
           <p>ID: {usuario.userId}</p>
-          <p>Navegador: {usuario.navegador}</p>
-          <p>
-            País:{" "}
-            {paisAToIso(usuario.pais) ? (
-              <img
-                src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
-                alt={usuario.pais}
-                className="inline-block ml-1"
-              />
-            ) : (
-              <span className="ml-1">🌐</span>
-            )}
-          </p>
+<p>Navegador: {usuario.navegador}</p>
+<p>
+  País:{" "}
+  {paisAToIso(usuario.pais) ? (
+    <img
+      src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
+      alt={usuario.pais}
+      className="inline-block ml-1"
+    />
+  ) : (
+    <span className="ml-1">🌐</span>
+  )}
+</p>
+
+{/* ✅ Nuevos datos desde datosContexto */}
+{usuario.datosContexto?.user?.name && (
+  <p>Nombre del usuario: {usuario.datosContexto.user.name}</p>
+)}
+{usuario.datosContexto?.line?.name && (
+  <p>Nombre del difunto: {usuario.datosContexto.line.name}</p>
+)}
+{usuario.datosContexto?.line?.company?.name && (
+  <p>Funeraria: {usuario.datosContexto.line.company.name}</p>
+)}
           {usuario.chatCerrado && (
             <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
           )}

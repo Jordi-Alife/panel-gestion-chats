@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const DetallesUsuario = ({
@@ -9,32 +9,6 @@ const DetallesUsuario = ({
   setUsuarioSeleccionado,
   todasConversaciones
 }) => {
-  // 🔁 Polling para refrescar el estado "intervenida"
-  useEffect(() => {
-    if (!usuario || !usuario.userId) return;
-
-    const intervalo = setInterval(async () => {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/estado-conversacion/${usuario.userId}`);
-        const data = await res.json();
-        if (data && data.intervenida !== usuario.intervenida) {
-          const actualizada = todasConversaciones.find(c => c.userId === usuario.userId);
-          if (actualizada) {
-            setUsuarioSeleccionado({
-              ...actualizada,
-              intervenida: data.intervenida,
-              estado: data.estado
-            });
-          }
-        }
-      } catch (err) {
-        console.warn("❌ Error verificando estado de conversación:", err);
-      }
-    }, 5000); // cada 5 segundos
-
-    return () => clearInterval(intervalo);
-  }, [usuario]);
-
   const handleLiberar = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {

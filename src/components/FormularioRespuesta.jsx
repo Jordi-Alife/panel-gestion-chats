@@ -66,9 +66,13 @@ const FormularioRespuesta = ({
     });
 
     setRespuesta("");
-    setImagen(null);
-    setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
-    cargarDatos();
+setImagen(null);
+
+await cargarDatos();
+const actualizada = todasConversaciones.find(c => c.userId === userId);
+if (actualizada) {
+  setUsuarioSeleccionado(actualizada);
+}
   } catch (err) {
     console.error("❌ Error en envío:", err);
   } finally {

@@ -76,13 +76,23 @@ try {
   const datos = await resEstado.json();
 
   const actualizada = todasConversaciones.find(c => c.userId === userId);
-  if (actualizada) {
-    setUsuarioSeleccionado({
-      ...actualizada,
-      intervenida: datos.intervenida,
-      estado: datos.estado
-    });
+if (actualizada) {
+  const nueva = {
+    ...actualizada,
+    intervenida: datos.intervenida,
+    estado: datos.estado
+  };
+  setUsuarioSeleccionado(nueva);
+
+  // 🔄 Refrescar también el array completo para evitar sobrescrituras posteriores
+  const nuevasConversaciones = todasConversaciones.map(c =>
+    c.userId === userId ? nueva : c
+  );
+  // Este cambio depende de que setTodasConversaciones esté accesible
+  if (typeof window !== "undefined") {
+    window.__setTodasConversaciones?.(nuevasConversaciones);
   }
+}
 } catch (e) {
   console.warn("⚠️ No se pudo actualizar el estado tras mensaje manual:", e);
 }

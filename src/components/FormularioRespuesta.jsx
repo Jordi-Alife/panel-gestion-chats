@@ -12,6 +12,7 @@ const FormularioRespuesta = ({
   perfil,
   cargarDatos,
   setUsuarioSeleccionado,
+  todasConversaciones // ✅ Añadido para refrescar estado visual
 }) => {
   const [enviando, setEnviando] = useState(false);
 

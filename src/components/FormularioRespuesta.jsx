@@ -63,9 +63,23 @@ const FormularioRespuesta = ({
     });
 
     setRespuesta("");
-    setImagen(null);
-    setUsuarioSeleccionado((prev) => ({ ...prev, intervenida: true }));
-    cargarDatos();
+setImagen(null);
+
+// ✅ Refrescar desde backend el estado real de la conversación
+try {
+  const resEstado = await fetch(`https://web-production-51989.up.railway.app/api/estado-conversacion/${userId}`);
+  const datos = await resEstado.json();
+
+  setUsuarioSeleccionado((prev) => ({
+    ...prev,
+    intervenida: datos.intervenida,
+    estado: datos.estado
+  }));
+} catch (e) {
+  console.warn("⚠️ No se pudo actualizar estado de DetallesUsuario:", e);
+}
+
+cargarDatos(); // 🔁 Para refrescar también la lista de conversaciones
   } catch (err) {
     console.error("❌ Error en envío:", err);
   } finally {

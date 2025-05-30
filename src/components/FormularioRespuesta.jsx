@@ -75,28 +75,22 @@ try {
   const resEstado = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
   const datos = await resEstado.json();
 
-  setUsuarioSeleccionado(prev => ({
-    ...prev,
-    intervenida: datos.intervenida,
-    estado: datos.estado
-  }));
+  const actualizada = todasConversaciones.find(c => c.userId === userId);
+  if (actualizada) {
+    setUsuarioSeleccionado({
+      ...actualizada,
+      intervenida: datos.intervenida,
+      estado: datos.estado
+    });
+  }
 } catch (e) {
   console.warn("⚠️ No se pudo actualizar el estado tras mensaje manual:", e);
 }
-
-  setUsuarioSeleccionado(prev => ({
-    ...prev,
-    intervenida: datos.intervenida,
-    estado: datos.estado
-  }));
-} catch (e) {
-  console.warn("⚠️ No se pudo actualizar el estado tras mensaje manual:", e);
-}
-} catch (err) {
-  console.error("❌ Error en envío:", err);
-} finally {
-  setEnviando(false);
-}
+  } catch (err) {
+    console.error("❌ Error en envío:", err);
+  } finally {
+    setEnviando(false);
+  }
 };
 
   return (

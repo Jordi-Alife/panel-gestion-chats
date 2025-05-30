@@ -70,9 +70,19 @@ setImagen(null);
 
 await cargarDatos();
 
-// 🔄 Refrescar estado real desde Firestore para asegurar precisión en el panel derechotry {
+// 🔄 Refrescar estado real desde Firestore para asegurar precisión en el panel derecho
+try {
   const resEstado = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
   const datos = await resEstado.json();
+
+  setUsuarioSeleccionado(prev => ({
+    ...prev,
+    intervenida: datos.intervenida,
+    estado: datos.estado
+  }));
+} catch (e) {
+  console.warn("⚠️ No se pudo actualizar el estado tras mensaje manual:", e);
+}
 
   setUsuarioSeleccionado(prev => ({
     ...prev,

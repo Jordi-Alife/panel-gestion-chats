@@ -187,7 +187,15 @@ useEffect(() => {
       nuevaInfo = fallbackData.find((c) => c.userId === userId) || null;
     }
 
-    setUsuarioSeleccionado(nuevaInfo || null);
+        // ✅ Solo actualizar si ya hay agente o la conversación no estaba intervenida
+    setUsuarioSeleccionado((prev) => {
+      if (!prev || !prev.intervenida) {
+        return nuevaInfo || null;
+      }
+      return prev; // no sobreescribas si ya está intervenida
+    });
+
+    // ⚠️ Este sí lo puedes actualizar sin problema
     setChatCerrado(nuevaInfo?.chatCerrado || false);
 
     setTimeout(() => {

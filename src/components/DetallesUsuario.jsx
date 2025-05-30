@@ -9,10 +9,6 @@ const DetallesUsuario = ({
   setUsuarioSeleccionado,
   todasConversaciones
 }) => {
-  const nombreUsuario = usuario?.datosContexto?.user?.name || "—";
-  const nombreDifunto = usuario?.datosContexto?.line?.name || "—";
-  const empresaFuneraria = usuario?.datosContexto?.line?.company?.name || "—";
-
   const handleLiberar = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
@@ -24,7 +20,7 @@ const DetallesUsuario = ({
       if (data.ok) {
         alert("✅ Conversación liberada");
         const nuevas = await cargarDatos();
-const actualizada = nuevas.find(c => c.userId === usuario.userId);
+        const actualizada = nuevas.find(c => c.userId === usuario.userId);
         if (actualizada) setUsuarioSeleccionado(actualizada);
       } else {
         alert("⚠️ Error al liberar conversación");
@@ -71,27 +67,39 @@ const actualizada = nuevas.find(c => c.userId === usuario.userId);
 
       <h2 className="text-sm text-gray-400 dark:text-gray-300 font-semibold mb-2 mt-4">Datos del usuario</h2>
       {usuario ? (
-        <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
+        <div className="text-sm text-gray-700 dark:text-gray-200 space-y-3">
+
           <p>ID: {usuario.userId}</p>
 
-          {/* ✅ Datos clave destacados */}
+          {/* ✅ Datos clave con estructura de título + etiqueta */}
           {usuario.datosContexto?.user?.name && (
-            <p className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-medium text-gray-800 dark:text-gray-100">
-              Nombre del usuario: <span className="font-semibold">{usuario.datosContexto.user.name}</span>
-            </p>
-          )}
-          {usuario.datosContexto?.line?.name && (
-            <p className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-medium text-gray-800 dark:text-gray-100">
-              Nombre del difunto: <span className="font-semibold">{usuario.datosContexto.line.name}</span>
-            </p>
-          )}
-          {usuario.datosContexto?.line?.company?.name && (
-            <p className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-medium text-gray-800 dark:text-gray-100">
-              Funeraria: <span className="font-semibold">{usuario.datosContexto.line.company.name}</span>
-            </p>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Nombre del usuario</p>
+              <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
+                {usuario.datosContexto.user.name}
+              </div>
+            </div>
           )}
 
-          {/* ✅ Datos técnicos del dispositivo */}
+          {usuario.datosContexto?.line?.name && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Nombre del difunto</p>
+              <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
+                {usuario.datosContexto.line.name}
+              </div>
+            </div>
+          )}
+
+          {usuario.datosContexto?.line?.company?.name && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Funeraria</p>
+              <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
+                {usuario.datosContexto.line.company.name}
+              </div>
+            </div>
+          )}
+
+          {/* ✅ Info técnica */}
           <p>Navegador: {usuario.navegador}</p>
           <p>
             País:{" "}

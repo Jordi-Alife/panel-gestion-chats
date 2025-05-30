@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const DetallesUsuario = ({
@@ -34,6 +34,7 @@ const DetallesUsuario = ({
 
     return () => clearInterval(intervalo);
   }, [usuario]);
+
   const handleLiberar = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
@@ -75,22 +76,22 @@ const DetallesUsuario = ({
       )}
 
       {usuario?.intervenida ? (
-  <div className="flex items-center gap-2 mt-2">
-    <span className="estado-tag estado-activa etiqueta-animada">
-      Intervenida
-    </span>
-    <button
-      onClick={handleLiberar}
-      className="text-xs text-blue-600 underline hover:text-blue-800 transition duration-200"
-    >
-      Liberar conversación
-    </button>
-  </div>
-) : (
-  <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded-full text-center cursor-default">
-    Traspasado a GPT
-  </div>
-)}
+        <div className="flex items-center gap-2 mt-2">
+          <span className="estado-tag estado-activa etiqueta-animada">
+            Intervenida
+          </span>
+          <button
+            onClick={handleLiberar}
+            className="text-xs text-blue-600 underline hover:text-blue-800 transition duration-200"
+          >
+            Liberar conversación
+          </button>
+        </div>
+      ) : (
+        <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded-full text-center cursor-default">
+          Traspasado a GPT
+        </div>
+      )}
 
       <h2 className="text-sm text-gray-400 dark:text-gray-300 font-semibold mb-2 mt-4">Datos del usuario</h2>
       {usuario ? (

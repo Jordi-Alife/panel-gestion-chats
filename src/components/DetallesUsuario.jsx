@@ -23,8 +23,8 @@ const DetallesUsuario = ({
       const data = await res.json();
       if (data.ok) {
         alert("✅ Conversación liberada");
-        await cargarDatos();
-        const actualizada = todasConversaciones.find(c => c.userId === usuario.userId);
+        const nuevas = await cargarDatos();
+const actualizada = nuevas.find(c => c.userId === usuario.userId);
         if (actualizada) setUsuarioSeleccionado(actualizada);
       } else {
         alert("⚠️ Error al liberar conversación");

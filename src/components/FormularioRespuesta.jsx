@@ -70,27 +70,23 @@ setImagen(null);
 
 await cargarDatos();
 
-// 🔄 Refrescar estado real desde Firestore para asegurar precisión en el panel derecho
-try {
+// 🔄 Refrescar estado real desde Firestore para asegurar precisión en el panel derechotry {
   const resEstado = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
   const datos = await resEstado.json();
 
-  const actualizada = todasConversaciones.find(c => c.userId === userId);
-  if (actualizada) {
-    setUsuarioSeleccionado({
-      ...actualizada,
-      intervenida: datos.intervenida,
-      estado: datos.estado
-    });
-  }
+  setUsuarioSeleccionado(prev => ({
+    ...prev,
+    intervenida: datos.intervenida,
+    estado: datos.estado
+  }));
 } catch (e) {
   console.warn("⚠️ No se pudo actualizar el estado tras mensaje manual:", e);
 }
-  } catch (err) {
-    console.error("❌ Error en envío:", err);
-  } finally {
-    setEnviando(false);
-  }
+} catch (err) {
+  console.error("❌ Error en envío:", err);
+} finally {
+  setEnviando(false);
+}
 };
 
   return (

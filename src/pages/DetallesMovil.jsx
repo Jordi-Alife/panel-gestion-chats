@@ -12,12 +12,12 @@ const DetallesMovil = () => {
   const cargarUsuarioCompleto = async () => {
     try {
       const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
-const allData = await allRes.json();
-
-      const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
       const allData = await allRes.json();
+
       const conversacionesPorUsuario = allData.reduce((acc, item) => {
-        const actual = acc[item.userId] || {};
+        const clave = (item.userId || "").trim().toLowerCase(); // ✅ clave bien definida
+        const actual = acc[clave] || {};
+
         actual.datosContexto = item.datosContexto || null;
         actual.intervenidaPor = item.intervenidaPor || null;
         actual.historial = item.historial || [];
@@ -26,8 +26,8 @@ const allData = await allRes.json();
         actual.estado = item.estado || "abierta";
         actual.intervenida = item.intervenida || false;
         actual.chatCerrado = item.chatCerrado || false;
-        const clave = (item.userId || "").trim().toLowerCase();
-acc[clave] = actual;
+
+        acc[clave] = actual;
         return acc;
       }, {});
 

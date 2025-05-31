@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // ✅ Añade esta línea
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const DetallesMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
 
-  // ✅ Mover la función fuera del useEffect
   const cargarUsuarioCompleto = async () => {
     try {
       const detalleRes = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
@@ -21,17 +20,25 @@ const DetallesMovil = () => {
       const allData = await allRes.json();
       const info = allData.find((c) => c.userId === userId);
 
-      setUsuario({
-  ...info,
-  ...detalle,
-  datosContexto: detalle.datosContexto || info?.datosContexto || null, // ✅ asegurado
-  intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
-  pais: info?.pais || detalle?.pais || "Desconocido",
-  navegador: info?.navegador || detalle?.navegador || "Desconocido",
-  historial: info?.historial || detalle?.historial || [],
-});
+      // ✅ Añadir campos manualmente como hace el .reduce() en escritorio
+      if (info) {
+        info.datosContexto = info.datosContexto || null;
+        info.intervenidaPor = info.intervenidaPor || null;
+        info.historial = info.historial || [];
+        info.pais = info.pais || "Desconocido";
+        info.navegador = info.navegador || "Desconocido";
+      }
 
-      // ✅ Guardar en localStorage
+      setUsuario({
+        ...info,
+        ...detalle,
+        datosContexto: detalle.datosContexto || info?.datosContexto || null,
+        intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
+        pais: info?.pais || detalle?.pais || "Desconocido",
+        navegador: info?.navegador || detalle?.navegador || "Desconocido",
+        historial: info?.historial || detalle?.historial || [],
+      });
+
       if (info) {
         localStorage.setItem("estado-conversacion", info.estado || "abierta");
         localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
@@ -67,7 +74,6 @@ const DetallesMovil = () => {
       </button>
       <h1 className="text-xl font-semibold mb-4">Detalles del usuario</h1>
 
-      {/* ✅ ETIQUETA DE ESTADO */}
       {usuario?.intervenida ? (
         <button
           onClick={async () => {
@@ -80,7 +86,7 @@ const DetallesMovil = () => {
               const data = await res.json();
               if (data.ok) {
                 alert("✅ Conversación liberada");
-                await cargarUsuarioCompleto(); // ✅ Reutiliza la función
+                await cargarUsuarioCompleto();
               } else {
                 alert("⚠️ Error al liberar conversación");
               }
@@ -112,7 +118,9 @@ const DetallesMovil = () => {
                 e.target.src = "https://i.pravatar.cc/100?u=fallback";
               }}
             />
-            <span className="text-base font-medium">{usuario.intervenidaPor.nombre || "—"}</span>
+            <span className="text-base font-medium">
+              {usuario.intervenidaPor.nombre || "—"}
+            </span>
           </div>
         </div>
       )}

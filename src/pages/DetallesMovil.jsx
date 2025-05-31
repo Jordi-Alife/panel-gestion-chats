@@ -10,48 +10,47 @@ const DetallesMovil = () => {
   const [usuario, setUsuario] = useState(null);
 
   const cargarUsuarioCompleto = async () => {
-    try {
-      const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
-      const allData = await allRes.json();
+  try {
+    // 1. Forzar carga de mensajes (como en escritorio)
+    await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
 
-      const conversacionesPorUsuario = allData.reduce((acc, item) => {
-        const clave = (item.userId || "").trim().toLowerCase(); // ✅ clave bien definida
-        const actual = acc[clave] || {};
+    // 2. Traer datos detallados de estado (datosContexto, intervenidaPor…)
+    const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
+    const detalle = await convDetalle.json();
 
-        actual.datosContexto = item.datosContexto || null;
-        actual.intervenidaPor = item.intervenidaPor || null;
-        actual.historial = item.historial || [];
-        actual.pais = item.pais || "Desconocido";
-        actual.navegador = item.navegador || "Desconocido";
-        actual.estado = item.estado || "abierta";
-        actual.intervenida = item.intervenida || false;
-        actual.chatCerrado = item.chatCerrado || false;
+    // 3. Traer listado completo de conversaciones
+    const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
+    const allData = await allRes.json();
 
-        acc[clave] = actual;
-        return acc;
-      }, {});
+    // 4. Buscar la conversación por ID exactamente igual que en escritorio
+    const info = allData.find(
+      (c) => (c.userId || "").trim().toLowerCase() === userId
+    );
 
-      const info = conversacionesPorUsuario[userId] || null;
+    // 5. Unir datos como en escritorio (💡 orden: primero info, luego detalle)
+    setUsuario({
+      userId,
+      ...info,
+      ...detalle,
+      datosContexto: detalle?.datosContexto || info?.datosContexto || null,
+      intervenidaPor: detalle?.intervenidaPor || info?.intervenidaPor || null,
+      historial: info?.historial || detalle?.historial || [],
+      pais: info?.pais || detalle?.pais || "Desconocido",
+      navegador: info?.navegador || detalle?.navegador || "Desconocido",
+      estado: info?.estado || detalle?.estado || "abierta",
+      intervenida: info?.intervenida || detalle?.intervenida || false,
+      chatCerrado: info?.chatCerrado || detalle?.chatCerrado || false,
+    });
 
-      setUsuario({
-  userId, // ✅ aseguramos que siempre esté presente
-  ...info,
-  ...detalle,
-  datosContexto: info?.datosContexto || detalle?.datosContexto || null,
-  intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
-  pais: info?.pais || detalle?.pais || "Desconocido",
-  navegador: info?.navegador || detalle?.navegador || "Desconocido",
-  historial: info?.historial || detalle?.historial || [],
-});
-
-      if (info) {
-        localStorage.setItem("estado-conversacion", info.estado || "abierta");
-        localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
-      }
-    } catch (error) {
-      console.error("❌ Error cargando usuario:", error);
+    // 6. Guardar estado e intervención localmente (como en escritorio)
+    if (info) {
+      localStorage.setItem("estado-conversacion", info.estado || "abierta");
+      localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
     }
-  };
+  } catch (error) {
+    console.error("❌ Error cargando usuario:", error);
+  }
+};
 
   useEffect(() => {
     cargarUsuarioCompleto();

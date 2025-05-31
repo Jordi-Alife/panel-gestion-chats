@@ -76,6 +76,7 @@ const ConversacionesMovil = () => {
   actual.message = item.message || null;
   actual.lastMessage = item.lastMessage || null;
   actual.tipoUltimoMensaje = item.tipoUltimoMensaje || null;
+  actual.datosContexto = item.datosContexto || null; // ✅ Añadido
 
   acc[item.userId] = actual;
   return acc;

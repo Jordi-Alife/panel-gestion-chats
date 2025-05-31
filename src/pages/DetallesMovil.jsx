@@ -11,36 +11,22 @@ const DetallesMovil = () => {
   useEffect(() => {
   const cargarUsuarioCompleto = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-      const mensajes = await res.json();
+      const detalleRes = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
+      const mensajes = await detalleRes.json(); // forzar carga
 
-      const convRes = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
-      const convEstado = await convRes.json();
+      const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
+      const detalle = await convDetalle.json();
 
-      // Recuperar info básica desde otro endpoint
       const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
       const allData = await allRes.json();
       const info = allData.find((c) => c.userId === userId);
 
-      const convDoc = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
-const convEstado = await convDoc.json();
+      setUsuario({
+        ...info,
+        ...detalle,
+      });
 
-const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
-const allData = await allRes.json();
-const info = allData.find((c) => c.userId === userId);
-
-// NUEVO: llamar a /api/conversaciones/:userId para obtener datosContexto reales
-const detalleRes = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-const mensajes = await detalleRes.json(); // solo para forzar la carga
-const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
-const detalle = await convDetalle.json();
-
-setUsuario({
-  ...info,
-  ...detalle,
-});
-
-      // Guardar también en localStorage
+      // ✅ Guardar en localStorage
       if (info) {
         localStorage.setItem("estado-conversacion", info.estado || "abierta");
         localStorage.setItem("intervenida", info.intervenida ? "true" : "false");

@@ -11,38 +11,27 @@ const DetallesMovil = () => {
 
   const cargarUsuarioCompleto = async () => {
   try {
-    // 1. Forzar carga de mensajes (como en escritorio)
-    await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-
-    // 2. Traer datos detallados de estado (datosContexto, intervenidaPor…)
-    const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
-    const detalle = await convDetalle.json();
-
-    // 3. Traer listado completo de conversaciones
+    // 1. Obtener TODAS las conversaciones
     const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
     const allData = await allRes.json();
 
-    // 4. Buscar la conversación por ID exactamente igual que en escritorio
+    // 2. Buscar esta conversación concreta por userId
     const info = allData.find(
       (c) => (c.userId || "").trim().toLowerCase() === userId
     );
 
-    // 5. Unir datos como en escritorio (💡 orden: primero info, luego detalle)
+    // 3. Obtener los detalles adicionales desde /api/estado-conversacion/:userId
+    const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
+    const detalle = await convDetalle.json();
+
+    // 4. Combinar la información, como hace escritorio
     setUsuario({
-      userId,
       ...info,
       ...detalle,
-      datosContexto: detalle?.datosContexto || info?.datosContexto || null,
-      intervenidaPor: detalle?.intervenidaPor || info?.intervenidaPor || null,
-      historial: info?.historial || detalle?.historial || [],
-      pais: info?.pais || detalle?.pais || "Desconocido",
-      navegador: info?.navegador || detalle?.navegador || "Desconocido",
-      estado: info?.estado || detalle?.estado || "abierta",
-      intervenida: info?.intervenida || detalle?.intervenida || false,
-      chatCerrado: info?.chatCerrado || detalle?.chatCerrado || false,
+      userId, // para asegurarlo siempre
     });
 
-    // 6. Guardar estado e intervención localmente (como en escritorio)
+    // 5. Guardar estado local si existe
     if (info) {
       localStorage.setItem("estado-conversacion", info.estado || "abierta");
       localStorage.setItem("intervenida", info.intervenida ? "true" : "false");

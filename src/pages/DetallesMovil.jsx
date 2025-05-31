@@ -18,16 +18,21 @@ const DetallesMovil = () => {
 
       const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
       const allData = await allRes.json();
-      const info = allData.find((c) => c.userId === userId);
+      const conversacionesPorUsuario = allData.reduce((acc, item) => {
+        const actual = acc[item.userId] || {};
+        actual.datosContexto = item.datosContexto || null;
+        actual.intervenidaPor = item.intervenidaPor || null;
+        actual.historial = item.historial || [];
+        actual.pais = item.pais || "Desconocido";
+        actual.navegador = item.navegador || "Desconocido";
+        actual.estado = item.estado || "abierta";
+        actual.intervenida = item.intervenida || false;
+        actual.chatCerrado = item.chatCerrado || false;
+        acc[item.userId] = actual;
+        return acc;
+      }, {});
 
-      // ✅ Añadir campos manualmente como hace el .reduce() en escritorio
-      if (info) {
-        info.datosContexto = info.datosContexto || null;
-        info.intervenidaPor = info.intervenidaPor || null;
-        info.historial = info.historial || [];
-        info.pais = info.pais || "Desconocido";
-        info.navegador = info.navegador || "Desconocido";
-      }
+      const info = conversacionesPorUsuario[userId] || null;
 
       setUsuario({
         ...info,

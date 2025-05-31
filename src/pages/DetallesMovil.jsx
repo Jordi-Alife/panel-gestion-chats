@@ -32,7 +32,7 @@ const DetallesMovil = () => {
       setUsuario({
         ...info,
         ...detalle,
-        datosContexto: detalle.datosContexto || info?.datosContexto || null,
+        datosContexto: info?.datosContexto || detalle?.datosContexto || null,
         intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
         pais: info?.pais || detalle?.pais || "Desconocido",
         navegador: info?.navegador || detalle?.navegador || "Desconocido",

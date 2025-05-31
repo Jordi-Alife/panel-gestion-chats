@@ -11,11 +11,8 @@ const DetallesMovil = () => {
 
   const cargarUsuarioCompleto = async () => {
     try {
-      const detalleRes = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-      const mensajes = await detalleRes.json(); // forzar carga
-
-      const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
-      const detalle = await convDetalle.json();
+      const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
+const allData = await allRes.json();
 
       const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
       const allData = await allRes.json();

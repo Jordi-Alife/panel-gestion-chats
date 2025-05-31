@@ -29,7 +29,8 @@ const DetallesMovil = () => {
         actual.estado = item.estado || "abierta";
         actual.intervenida = item.intervenida || false;
         actual.chatCerrado = item.chatCerrado || false;
-        acc[item.userId] = actual;
+        const clave = (item.userId || "").trim().toLowerCase();
+acc[clave] = actual;
         return acc;
       }, {});
 

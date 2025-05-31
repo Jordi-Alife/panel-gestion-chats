@@ -166,7 +166,10 @@ const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
 
 <div className="flex justify-center gap-2 px-4 py-2 border-b">
   <button
-  onClick={() => setTipoVisualizacion("recientes")}
+  onClick={() => {
+    setTipoVisualizacion("recientes");
+    localStorage.setItem("tipoVisualizacion", "recientes");
+  }}
   className={`relative text-xs font-medium px-3 py-1 rounded-full ${
     tipoVisualizacion === "recientes"
       ? "bg-blue-600 text-white"
@@ -180,16 +183,20 @@ const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
     </span>
   )}
 </button>
-  <button
-    onClick={() => setTipoVisualizacion("archivadas")}
-    className={`text-xs font-medium px-3 py-1 rounded-full ${
-      tipoVisualizacion === "archivadas"
-        ? "bg-blue-600 text-white"
-        : "bg-gray-200 text-gray-600"
-    }`}
-  >
-    Archivadas
-  </button>
+
+<button
+  onClick={() => {
+    setTipoVisualizacion("archivadas");
+    localStorage.setItem("tipoVisualizacion", "archivadas");
+  }}
+  className={`text-xs font-medium px-3 py-1 rounded-full ${
+    tipoVisualizacion === "archivadas"
+      ? "bg-blue-600 text-white"
+      : "bg-gray-200 text-gray-600"
+  }`}
+>
+  Archivadas
+</button>
 </div>
 
       

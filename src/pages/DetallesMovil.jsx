@@ -22,10 +22,14 @@ const DetallesMovil = () => {
       const info = allData.find((c) => c.userId === userId);
 
       setUsuario({
-        ...info,
-        ...detalle,
-        datosContexto: detalle.datosContexto || info?.datosContexto || null, // ✅ asegurado
-      });
+  ...info,
+  ...detalle,
+  datosContexto: detalle.datosContexto || info?.datosContexto || null, // ✅ asegurado
+  intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
+  pais: info?.pais || detalle?.pais || "Desconocido",
+  navegador: info?.navegador || detalle?.navegador || "Desconocido",
+  historial: info?.historial || detalle?.historial || [],
+});
 
       // ✅ Guardar en localStorage
       if (info) {

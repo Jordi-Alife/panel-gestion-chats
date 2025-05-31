@@ -9,11 +9,37 @@ const DetallesMovil = () => {
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/conversaciones`)
-      .then((res) => res.json())
-      .then((all) => {
-        const info = all.find((c) => c.userId === userId);
-        setUsuario(info || null);
+  const cargarUsuarioCompleto = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
+      const mensajes = await res.json();
+
+      const convRes = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
+      const convEstado = await convRes.json();
+
+      // Recuperar info básica desde otro endpoint
+      const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
+      const allData = await allRes.json();
+      const info = allData.find((c) => c.userId === userId);
+
+      setUsuario({
+        ...info,
+        ...convEstado,
+        datosContexto: info?.datosContexto || null,
+      });
+
+      // Guardar también en localStorage
+      if (info) {
+        localStorage.setItem("estado-conversacion", info.estado || "abierta");
+        localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
+      }
+    } catch (error) {
+      console.error("❌ Error cargando usuario:", error);
+    }
+  };
+
+  cargarUsuarioCompleto();
+}, [userId]);
 
         // ✅ Guardar en localStorage para uso en ChatMovil
         if (info) {

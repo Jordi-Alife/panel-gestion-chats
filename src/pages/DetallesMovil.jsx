@@ -34,7 +34,7 @@ const DetallesMovil = () => {
       const info = conversacionesPorUsuario[userId] || null;
 
       setUsuario({
-  userId, // ✅ aseguramos que no se pierde el identificador
+  userId, // ✅ aseguramos que siempre esté presente
   ...info,
   ...detalle,
   datosContexto: info?.datosContexto || detalle?.datosContexto || null,

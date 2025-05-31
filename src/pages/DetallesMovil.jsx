@@ -99,30 +99,75 @@ const DetallesMovil = () => {
       )}
 
       <div className="bg-white rounded-lg shadow p-4 text-base">
-        <h2 className="text-sm text-gray-500 mb-2">Datos del usuario</h2>
-        <div className="text-gray-700 space-y-2">
-          <p><strong>ID:</strong> {usuario?.userId || "—"}</p>
-          <p><strong>Navegador:</strong> {usuario?.navegador || "—"}</p>
-          <p className="flex items-center gap-1">
-            <strong>País:</strong>
-            {paisAToIso(usuario?.pais) ? (
-              <img
-                src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
-                alt={usuario.pais}
-                className="inline-block ml-1"
-              />
-            ) : (
-              <span className="ml-1">🌐</span>
-            )}
-          </p>
-          <p><strong>Historial:</strong></p>
-          <ul className="list-disc list-inside text-sm text-gray-600">
-            {(usuario?.historial || []).map((url, idx) => (
-              <li key={idx}>{url}</li>
-            ))}
-          </ul>
+  <h2 className="text-sm text-gray-500 mb-3">Datos del usuario</h2>
+  <div className="text-gray-700 space-y-3">
+
+    <p className="text-sm text-gray-500">ID del usuario</p>
+    <div className="bg-gray-100 text-sm px-3 py-1 rounded-md font-semibold text-gray-800">{usuario?.userId || "—"}</div>
+
+    {usuario?.datosContexto?.user?.name && (
+      <>
+        <p className="text-sm text-gray-500">Nombre del usuario</p>
+        <div className="bg-gray-100 text-sm px-3 py-1 rounded-md font-semibold text-gray-800">
+          {usuario.datosContexto.user.name}
         </div>
-      </div>
+      </>
+    )}
+
+    {usuario?.datosContexto?.line?.name && (
+      <>
+        <p className="text-sm text-gray-500">Nombre del difunto</p>
+        <div className="bg-gray-100 text-sm px-3 py-1 rounded-md font-semibold text-gray-800">
+          {usuario.datosContexto.line.name}
+        </div>
+      </>
+    )}
+
+    {usuario?.datosContexto?.line?.company?.name && (
+      <>
+        <p className="text-sm text-gray-500">Funeraria</p>
+        <div className="bg-gray-100 text-sm px-3 py-1 rounded-md font-semibold text-gray-800">
+          {usuario.datosContexto.line.company.name}
+        </div>
+      </>
+    )}
+
+    {typeof usuario?.datosContexto?.line?.company?.ecommerce_enabled === "boolean" && (
+      <>
+        <p className="text-sm text-gray-500">Ecommerce</p>
+        <div className={`inline-block text-xs font-semibold px-2 py-1 rounded-full
+          ${usuario.datosContexto.line.company.ecommerce_enabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+          {usuario.datosContexto.line.company.ecommerce_enabled ? 'ON' : 'OFF'}
+        </div>
+      </>
+    )}
+
+    <p className="text-sm text-gray-500">Navegador</p>
+    <div className="bg-gray-100 text-sm px-3 py-1 rounded-md text-gray-800 font-semibold">
+      {usuario?.navegador || "—"}
+    </div>
+
+    <p className="text-sm text-gray-500">País</p>
+    <div className="flex items-center gap-2 bg-gray-100 text-sm px-3 py-1 rounded-md font-semibold text-gray-800">
+      {paisAToIso(usuario?.pais) ? (
+        <img
+          src={`https://flagcdn.com/24x18/${paisAToIso(usuario.pais)}.png`}
+          alt={usuario.pais}
+          className="inline-block"
+        />
+      ) : (
+        <span>🌐</span>
+      )}
+    </div>
+
+    <p className="text-sm text-gray-500 mt-4">Historial</p>
+    <ul className="list-disc list-inside text-sm text-gray-600">
+      {(usuario?.historial || []).map((url, idx) => (
+        <li key={idx}>{url}</li>
+      ))}
+    </ul>
+  </div>
+</div>
     </div>
   );
 };

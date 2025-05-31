@@ -211,7 +211,7 @@ const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
                 console.warn("❌ Error al marcar visto", err);
               }
 
-              navigate(`/conversaciones/${c.userId.trim().toLowerCase()}`);
+              navigate(`/conversaciones/${(c.userId || "").trim().toLowerCase()}`);
             }}
             className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
           >

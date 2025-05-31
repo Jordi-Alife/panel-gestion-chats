@@ -37,14 +37,15 @@ acc[clave] = actual;
       const info = conversacionesPorUsuario[userId] || null;
 
       setUsuario({
-        ...info,
-        ...detalle,
-        datosContexto: info?.datosContexto || detalle?.datosContexto || null,
-        intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
-        pais: info?.pais || detalle?.pais || "Desconocido",
-        navegador: info?.navegador || detalle?.navegador || "Desconocido",
-        historial: info?.historial || detalle?.historial || [],
-      });
+  userId, // ✅ aseguramos que no se pierde el identificador
+  ...info,
+  ...detalle,
+  datosContexto: info?.datosContexto || detalle?.datosContexto || null,
+  intervenidaPor: info?.intervenidaPor || detalle?.intervenidaPor || null,
+  pais: info?.pais || detalle?.pais || "Desconocido",
+  navegador: info?.navegador || detalle?.navegador || "Desconocido",
+  historial: info?.historial || detalle?.historial || [],
+});
 
       if (info) {
         localStorage.setItem("estado-conversacion", info.estado || "abierta");

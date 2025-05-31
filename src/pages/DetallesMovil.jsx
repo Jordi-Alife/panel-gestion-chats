@@ -4,7 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const DetallesMovil = () => {
-  const { userId } = useParams();
+  const { userId: rawUserId } = useParams();
+  const userId = rawUserId?.trim().toLowerCase();
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
 

@@ -41,14 +41,6 @@ const DetallesMovil = () => {
   cargarUsuarioCompleto();
 }, [userId]);
 
-        // ✅ Guardar en localStorage para uso en ChatMovil
-        if (info) {
-          localStorage.setItem("estado-conversacion", info.estado || "abierta");
-          localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
-        }
-      });
-  }, [userId]);
-
   const paisAToIso = (paisTexto) => {
     const mapa = {
       Spain: "es",

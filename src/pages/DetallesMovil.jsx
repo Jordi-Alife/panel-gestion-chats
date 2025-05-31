@@ -23,7 +23,12 @@ const DetallesMovil = () => {
     // 3. Obtener los detalles adicionales desde /api/estado-conversacion/:userId
     const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
     const detalle = await convDetalle.json();
-
+    if (!detalle?.datosContexto) {
+  alert(`❌ NO hay datosContexto en detalle:\n\n${JSON.stringify(detalle, null, 2)}`);
+} else {
+  alert(`✅ datosContexto presente:\n\n${JSON.stringify(detalle.datosContexto, null, 2)}`);
+}
+    
     // 4. Combinar la información, como hace escritorio
     setUsuario({
       ...info,

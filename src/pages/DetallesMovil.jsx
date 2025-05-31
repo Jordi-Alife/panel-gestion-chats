@@ -60,13 +60,6 @@ const DetallesMovil = () => {
         ← Volver
       </button>
       <h1 className="text-xl font-semibold mb-4">Detalles del usuario</h1>
-      <div className="text-xs bg-yellow-100 text-yellow-800 p-2 rounded-md mb-4">
-  <div><strong>userId:</strong> {userId}</div>
-  <div><strong>datosContexto en usuario:</strong> {usuario?.datosContexto ? "✅ presente" : "❌ ausente"}</div>
-  <div><strong>Nombre:</strong> {usuario?.datosContexto?.user?.name || "—"}</div>
-  <div><strong>Funeraria:</strong> {usuario?.datosContexto?.line?.company?.name || "—"}</div>
-  <div><strong>Historial:</strong> {usuario?.historial?.length || 0} entradas</div>
-</div>
 
       {usuario?.intervenida ? (
         <button

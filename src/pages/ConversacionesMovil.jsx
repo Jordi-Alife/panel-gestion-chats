@@ -61,19 +61,25 @@ const ConversacionesMovil = () => {
   };
 
   const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
-    const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
-    actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
-    actual.pais = item.pais;
-    actual.navegador = item.navegador;
-    actual.historial = item.historial || [];
-    actual.intervenida = item.intervenida || false;
-    actual.chatCerrado = item.chatCerrado || false;
-    actual.estado = item.estado || "abierta";
-    actual.lastInteraction = item.lastInteraction || item.ultimaRespuesta || item.fechaInicio || new Date().toISOString();
-    actual.noVistos = item.noVistos || 0;
-    acc[item.userId] = actual;
-    return acc;
-  }, {});
+  const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
+  actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
+  actual.pais = item.pais;
+  actual.navegador = item.navegador;
+  actual.historial = item.historial || [];
+  actual.intervenida = item.intervenida || false;
+  actual.chatCerrado = item.chatCerrado || false;
+  actual.estado = item.estado || "abierta";
+  actual.lastInteraction = item.lastInteraction || item.ultimaRespuesta || item.fechaInicio || new Date().toISOString();
+  actual.noVistos = item.noVistos || 0;
+
+  // ✅ Nuevos campos
+  actual.message = item.message || null;
+  actual.lastMessage = item.lastMessage || null;
+  actual.tipoUltimoMensaje = item.tipoUltimoMensaje || null;
+
+  acc[item.userId] = actual;
+  return acc;
+}, {});
 
   const totalNoVistos = todasConversaciones.reduce(
   (acc, c) => acc + ((c.noVistos || 0) > 0 && (c.estado || "").toLowerCase() !== "cerrado" ? 1 : 0),

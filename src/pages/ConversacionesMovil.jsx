@@ -14,7 +14,8 @@ const ConversacionesMovil = () => {
   useEffect(() => {
   const cargarDatos = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipoVisualizacion}`);
+      const tipo = tipoVisualizacion === "archivadas" ? "archivo" : tipoVisualizacion;
+const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       const data = await res.json();
       setTodasConversaciones(data);
 

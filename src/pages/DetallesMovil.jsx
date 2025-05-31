@@ -11,36 +11,25 @@ const DetallesMovil = () => {
 
   const cargarUsuarioCompleto = async () => {
   try {
-    // 1. Obtener TODAS las conversaciones
     const allRes = await fetch(`${BACKEND_URL}/api/conversaciones`);
     const allData = await allRes.json();
 
-    // 2. Buscar esta conversación concreta por userId
     const info = allData.find(
       (c) => (c.userId || "").trim().toLowerCase() === userId
     );
 
-    // 3. Obtener los detalles adicionales desde /api/estado-conversacion/:userId
-    const convDetalle = await fetch(`${BACKEND_URL}/api/estado-conversacion/${userId}`);
-    const detalle = await convDetalle.json();
-    if (!detalle?.datosContexto) {
-  alert(`❌ NO hay datosContexto en detalle:\n\n${JSON.stringify(detalle, null, 2)}`);
-} else {
-  alert(`✅ datosContexto presente:\n\n${JSON.stringify(detalle.datosContexto, null, 2)}`);
-}
-    
-    // 4. Combinar la información, como hace escritorio
+    if (!info) {
+      console.warn("❌ No se encontró la conversación para userId:", userId);
+      return;
+    }
+
     setUsuario({
       ...info,
-      ...detalle,
-      userId, // para asegurarlo siempre
+      userId,
     });
 
-    // 5. Guardar estado local si existe
-    if (info) {
-      localStorage.setItem("estado-conversacion", info.estado || "abierta");
-      localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
-    }
+    localStorage.setItem("estado-conversacion", info.estado || "abierta");
+    localStorage.setItem("intervenida", info.intervenida ? "true" : "false");
   } catch (error) {
     console.error("❌ Error cargando usuario:", error);
   }

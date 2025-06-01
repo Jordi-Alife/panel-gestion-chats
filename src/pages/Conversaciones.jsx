@@ -218,9 +218,13 @@ useEffect(() => {
     cargarDatos("archivadas"); // ✅ ESTO FUNCIONA BIEN
     return;
   }
-  if (tipoVisualizacion === "recientes") {
+  useEffect(() => {
+  if (tipoVisualizacion !== "recientes") return;
+
   const estadoSeleccionado = localStorage.getItem(`estado-conversacion-${userId}`);
-  if (!userId || !["activa", "inactiva"].includes(estadoSeleccionado)) {
+  const esActiva = userId && ["activa", "inactiva"].includes((estadoSeleccionado || "").toLowerCase());
+
+  if (!esActiva) {
     console.log("🛑 No hay conversación activa o inactiva seleccionada. No refresco.");
     return;
   }
@@ -229,7 +233,7 @@ useEffect(() => {
   cargarDatos("recientes");
   const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
   return () => clearInterval(intervalo);
-}
+}, [tipoVisualizacion, userId]);
 }, [tipoVisualizacion]);
 
   useEffect(() => {

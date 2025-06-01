@@ -215,16 +215,25 @@ window.cargarMensajes = cargarMensajes;
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
     console.log("📦 Cargando archivadas");
-    cargarDatos("archivadas"); // ✅ ESTO FUNCIONA BIEN
+    cargarDatos("archivadas");
     return;
   }
+
   if (tipoVisualizacion === "recientes") {
+    const estadoSeleccionado = localStorage.getItem(`estado-conversacion-${userId}`);
+    const debeRefrescar = userId && ["activa", "inactiva"].includes((estadoSeleccionado || "").toLowerCase());
+
+    if (!debeRefrescar) {
+      console.log("🛑 No hay conversación activa o inactiva seleccionada. No refresco.");
+      return;
+    }
+
     console.log("📡 Cargando recientes con refresco cada 5s");
     cargarDatos("recientes");
     const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
     return () => clearInterval(intervalo);
   }
-}, [tipoVisualizacion]);
+}, [tipoVisualizacion, userId]);
 
   useEffect(() => {
   const refrescar = () => {

@@ -4,28 +4,17 @@ export default function Monitor() {
   const [estado, setEstado] = useState(null);
   const [openAIUsage, setOpenAIUsage] = useState(null);
 
+  // Solo cargar los datos una vez al entrar
   useEffect(() => {
-    const cargarEstado = () => {
-      fetch("/api/status")
-        .then((res) => res.json())
-        .then(setEstado)
-        .catch((e) => console.error("Error cargando estado:", e));
-    };
-    cargarEstado();
-    const intervalo = setInterval(cargarEstado, 10000);
-    return () => clearInterval(intervalo);
-  }, []);
+    fetch("/api/status")
+      .then((res) => res.json())
+      .then(setEstado)
+      .catch((e) => console.error("Error cargando estado:", e));
 
-  useEffect(() => {
-    const cargarOpenAIUsage = () => {
-      fetch("/api/openai-usage")
-        .then((res) => res.json())
-        .then(setOpenAIUsage)
-        .catch((e) => console.error("Error cargando uso OpenAI:", e));
-    };
-    cargarOpenAIUsage();
-    const intervalo = setInterval(cargarOpenAIUsage, 60000);
-    return () => clearInterval(intervalo);
+    fetch("/api/openai-usage")
+      .then((res) => res.json())
+      .then(setOpenAIUsage)
+      .catch((e) => console.error("Error cargando uso OpenAI:", e));
   }, []);
 
   if (!estado) return <div className="p-6">Cargando estado del sistema...</div>;

@@ -99,41 +99,11 @@ export default function Inicio() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Tarjeta
-          titulo="Total Chats"
-          valor={chatsEnPeriodo.length}
-          color="#0ea5e9"
-          datos={dataTotalChats}
-        />
-        <Tarjeta
-          titulo="Mensajes recibidos"
-          valor={mensajesRecibidos.length}
-          color="#3b82f6"
-          datos={dataRecibidos}
-        />
-        <Tarjeta
-          titulo="Mensajes totales enviados"
-          valor={mensajesTotales}
-          color="#8b5cf6"
-          datos={crearDatosGrafica([...respuestasGPT, ...respuestasPanel])}
-        />
-        <Tarjeta
-          titulo="Respuestas GPT"
-          valor={respuestasGPT.length}
-          color="#10b981"
-          datos={dataGPT}
-        />
-        <Tarjeta
-          titulo="Respuestas humanas"
-          valor={respuestasPanel.length}
-          color="#f97316"
-          datos={dataPanel}
-        />
-        <Tarjeta
-          titulo="Promedio de mensajes por chat"
-          valor={promedioMensajesPorChat}
-          color="#ef4444"
-          datos={dataPromedioMensajes}
-        />
+  titulo="Total de conversaciones"
+  valor={data.length}
+  color="#0ea5e9"
+  datos={[]}
+/>
       </div>
 
       <h1 className="text-lg font-semibold text-gray-700 mt-8">Resúmenes automáticos</h1>

@@ -237,6 +237,16 @@ useEffect(() => {
   }
 }, [tipoVisualizacion]);
 
+  useEffect(() => {
+  const refrescar = () => {
+    cargarMensajes(false);
+  };
+
+  refrescar(); // ⏱️ se ejecuta al entrar
+  const interval = setInterval(refrescar, 5000); // ⏱️ cada 5 segundos
+
+  return () => clearInterval(interval);
+}, [userId, limiteMensajes]);
 
   useEffect(() => {
   if (!userId) return;

@@ -1,4 +1,5 @@
 import React from "react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const DetallesUsuario = ({
   usuario,
@@ -10,7 +11,7 @@ const DetallesUsuario = ({
 }) => {
   const handleLiberar = async () => {
     try {
-      const res = await fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+      const res = await fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: usuario.userId }),
@@ -18,8 +19,8 @@ const DetallesUsuario = ({
       const data = await res.json();
       if (data.ok) {
         alert("✅ Conversación liberada");
-        await cargarDatos();
-        const actualizada = todasConversaciones.find(c => c.userId === usuario.userId);
+        const nuevas = await cargarDatos();
+        const actualizada = nuevas.find(c => c.userId === usuario.userId);
         if (actualizada) setUsuarioSeleccionado(actualizada);
       } else {
         alert("⚠️ Error al liberar conversación");
@@ -29,6 +30,8 @@ const DetallesUsuario = ({
       alert("❌ Error liberando conversación");
     }
   };
+
+  const ecommerce = usuario?.datosContexto?.line?.company?.ecommerce_enabled;
 
   return (
     <div className="w-full h-full bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 overflow-y-auto">
@@ -49,27 +52,70 @@ const DetallesUsuario = ({
       )}
 
       {usuario?.intervenida ? (
-  <div className="flex items-center gap-2 mt-2">
-    <span className="estado-tag estado-activa etiqueta-animada">
-      Intervenida
-    </span>
-    <button
-      onClick={handleLiberar}
-      className="text-xs text-blue-600 underline hover:text-blue-800 transition duration-200"
-    >
-      Liberar conversación
-    </button>
-  </div>
-) : (
-  <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded-full text-center cursor-default">
-    Traspasado a GPT
-  </div>
-)}
+        <div className="flex items-center gap-2 mt-2">
+          <span className="estado-tag estado-activa etiqueta-animada">Intervenida</span>
+          <button
+            onClick={handleLiberar}
+            className="text-xs text-blue-600 underline hover:text-blue-800 transition duration-200"
+          >
+            Liberar conversación
+          </button>
+        </div>
+      ) : (
+        <div className="mt-2 bg-gray-400 text-white text-xs px-3 py-1 rounded-full text-center cursor-default">
+          Traspasado a GPT
+        </div>
+      )}
 
       <h2 className="text-sm text-gray-400 dark:text-gray-300 font-semibold mb-2 mt-4">Datos del usuario</h2>
       {usuario ? (
-        <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
+        <div className="text-sm text-gray-700 dark:text-gray-200 space-y-3">
+
           <p>ID: {usuario.userId}</p>
+
+          {/* ✅ Datos clave */}
+          {usuario.datosContexto?.user?.name && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Nombre del usuario</p>
+              <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
+                {usuario.datosContexto.user.name}
+              </div>
+            </div>
+          )}
+
+          {usuario.datosContexto?.line?.name && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Nombre del difunto</p>
+              <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
+                {usuario.datosContexto.line.name}
+              </div>
+            </div>
+          )}
+
+          {usuario.datosContexto?.line?.company?.name && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Funeraria</p>
+              <div className="bg-gray-100 dark:bg-gray-800 text-sm px-3 py-1 rounded-md font-semibold text-gray-800 dark:text-gray-100">
+                {usuario.datosContexto.line.company.name}
+              </div>
+            </div>
+          )}
+
+          {/* ✅ Nuevo: Ecommerce ON/OFF */}
+          {typeof ecommerce === "boolean" && (
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Ecommerce</p>
+              <div className={`inline-block text-xs px-3 py-1 rounded-full font-semibold ${
+                ecommerce
+                  ? "bg-green-600 text-white"
+                  : "bg-red-600 text-white"
+              }`}>
+                {ecommerce ? "ON" : "OFF"}
+              </div>
+            </div>
+          )}
+
+          {/* ✅ Info técnica */}
           <p>Navegador: {usuario.navegador}</p>
           <p>
             País:{" "}
@@ -83,9 +129,11 @@ const DetallesUsuario = ({
               <span className="ml-1">🌐</span>
             )}
           </p>
+
           {usuario.chatCerrado && (
             <p className="text-xs text-red-500 mt-1">⚠ Usuario ha cerrado el chat</p>
           )}
+
           <p>Historial:</p>
           <ul className="list-disc list-inside text-xs text-gray-600 dark:text-gray-400">
             {usuario.historial.map((url, idx) => (

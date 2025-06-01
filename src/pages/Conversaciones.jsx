@@ -6,6 +6,10 @@ import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
 import logoFondo from "../assets/logo-fondo.svg";
 
+// ✅ Definir aquí, fuera del componente
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
+
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
@@ -29,69 +33,131 @@ export default function Conversaciones() {
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
+  // ✅ Cargar mensajes inmediatamente al seleccionar conversación
+useEffect(() => {
+  if (!userId) return;
+  cargarMensajes(false);
+}, [userId]);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {
+  try {
+    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}`;
+    const res = await fetch(url);
+
+    // 🧪 Leer la respuesta como texto para depurar
+    const text = await res.text();
+
+    // 🔎 Mostrar la respuesta cruda en consola
+    console.log(`🔎 Respuesta cruda desde /api/conversaciones?tipo=${tipo}:`, text);
+
+    let data;
     try {
-      const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones?tipo=${tipo}`);
-      const data = await res.json();
-      setTodasConversaciones(data);
-
-      const vistasRes = await fetch("https://web-production-51989.up.railway.app/api/vistas");
-      const vistasData = await vistasRes.json();
-      setVistas(vistasData);
-
-      return data;
-    } catch (err) {
-      console.error(err);
-      return [];
+      data = JSON.parse(text);
+    } catch (jsonErr) {
+      console.error("❌ Error al parsear JSON:", jsonErr);
+      return []; // devolvemos lista vacía si hay error
     }
-  };
+
+    setTodasConversaciones(data);
+
+    const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
+    const vistasData = await vistasRes.json();
+    setVistas(vistasData);
+
+    return data;
+  } catch (err) {
+    console.error("❌ Error en cargarDatos:", err);
+    return [];
+  }
+};
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;
+
+  // 🧠 Intenta usar historialFormateado si el chat está archivado o cerrado
+  const convData = localStorage.getItem(`conversacion-${userId}`);
+  let conv = null;
   try {
-    const res = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${userId}`);
+    conv = JSON.parse(convData);
+  } catch {}
+
+  if (
+    conv &&
+    ["archivado", "cerrado"].includes((conv.estado || "").toLowerCase()) &&
+    conv.historialFormateado
+  ) {
+    const lineas = conv.historialFormateado.split("\n");
+    const mensajesHist = lineas.map((linea, i) => {
+      const esUsuario = linea.startsWith("Usuario:");
+      const esAsistente = linea.startsWith("Asistente:");
+      return {
+        id: `hist-${i}`,
+        from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
+        message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
+        tipo: "texto",
+        lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
+      };
+    });
+
+    setMensajes(mensajesHist);
+    setHayMasMensajes(false);
+    return;
+  }
+
+  // 🔁 Si no hay historial formateado, cargar desde Firestore
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
     const data = await res.json();
     window.__mensajes = data;
 
     const ordenados = (data || []).sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-    const nuevosMensajes = [];
+    const mensajesConEtiqueta = [];
     let estadoActual = "gpt";
 
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
+      const ultimaEtiqueta = mensajesConEtiqueta.length
+        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+        : null;
 
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        nuevosMensajes.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
-        });
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+        }
         estadoActual = "gpt";
       }
 
       if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        nuevosMensajes.push({
-          tipo: "etiqueta",
-          mensaje: "El usuario ha cerrado el chat",
-          timestamp: msg.lastInteraction,
-        });
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+        }
       }
 
       if (msg.manual === true && estadoActual === "gpt") {
-        nuevosMensajes.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+        }
         estadoActual = "humano";
       }
 
-      nuevosMensajes.push(msg);
+      mensajesConEtiqueta.push(msg);
     }
 
     const mapa = new Map();
-    nuevosMensajes.forEach((m) => {
+    mensajesConEtiqueta.forEach((m) => {
       const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
       mapa.set(clave, m);
     });
@@ -112,17 +178,24 @@ export default function Conversaciones() {
 
     setHayMasMensajes(ordenadosFinal.length > nuevosVisibles.length);
 
-    // ✅ Usar directamente lo que ya tienes en memoria
+    // Actualizar datos del usuario
     let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
 
-    // 🛡️ Fallback si aún no está cargado
     if (!nuevaInfo) {
-      const fallback = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?tipo=recientes");
+      const fallback = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`);
       const fallbackData = await fallback.json();
       nuevaInfo = fallbackData.find((c) => c.userId === userId) || null;
     }
 
-    setUsuarioSeleccionado(nuevaInfo || null);
+        // ✅ Solo actualizar si ya hay agente o la conversación no estaba intervenida
+    setUsuarioSeleccionado((prev) => {
+      if (!prev || !prev.intervenida) {
+        return nuevaInfo || null;
+      }
+      return prev; // no sobreescribas si ya está intervenida
+    });
+
+    // ⚠️ Este sí lo puedes actualizar sin problema
     setChatCerrado(nuevaInfo?.chatCerrado || false);
 
     setTimeout(() => {
@@ -131,35 +204,46 @@ export default function Conversaciones() {
       }
     }, 100);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error en cargarMensajes:", err);
   }
 };
-  
-// ✅ Solo un useEffect, evita doble carga y conflictos
+
+// ✅ Haz visible la función para poder invocarla desde fuera
+window.cargarMensajes = cargarMensajes;
+
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
     console.log("📦 Cargando archivadas");
     cargarDatos("archivadas");
-    return; // no hay refresco
+    return;
   }
 
   if (tipoVisualizacion === "recientes") {
     console.log("📡 Cargando recientes con refresco cada 5s");
     cargarDatos("recientes");
-    const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
+
+    const intervalo = setInterval(() => {
+      // Solo refrescar si hay alguna conversación activa o inactiva visible
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+      if (hayActivas) {
+        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        cargarDatos("recientes");
+      } else {
+        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      }
+    }, 5000);
+
     return () => clearInterval(intervalo);
   }
 }, [tipoVisualizacion]);
 
   useEffect(() => {
   const refrescar = () => {
-    const estadoChat = localStorage.getItem('chatEstado');
-    if (estadoChat !== "abierto") return;
     cargarMensajes(false);
   };
 
-  refrescar();
-  const interval = setInterval(refrescar, 5000); // ⏱️ subido también a 5s
+  refrescar(); // ⏱️ se ejecuta al entrar
+  const interval = setInterval(refrescar, 5000); // ⏱️ cada 5 segundos
 
   return () => clearInterval(interval);
 }, [userId, limiteMensajes]);
@@ -200,7 +284,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (userId) {
-      fetch("https://web-production-51989.up.railway.app/api/marcar-visto", {
+      fetch(`${BACKEND_URL}/api/marcar-visto`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
@@ -272,7 +356,7 @@ const totalNoVistos = todasConversaciones.reduce(
         minutosDesdeUltimo > 10 &&
         (info.estado || "").toLowerCase() !== "cerrado"
       ) {
-        fetch("https://web-production-51989.up.railway.app/api/liberar-conversacion", {
+        fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: id }),
@@ -378,15 +462,16 @@ const totalNoVistos = todasConversaciones.reduce(
               hayMas={hayMasMensajes}
             />
             <FormularioRespuesta
-              userId={userId}
-              respuesta={respuesta}
-              setRespuesta={setRespuesta}
-              imagen={imagen}
-              setImagen={setImagen}
-              perfil={perfil}
-              cargarDatos={cargarDatos}
-              setUsuarioSeleccionado={setUsuarioSeleccionado}
-            />
+  userId={userId}
+  respuesta={respuesta}
+  setRespuesta={setRespuesta}
+  imagen={imagen}
+  setImagen={setImagen}
+  perfil={perfil}
+  cargarDatos={cargarDatos}
+  setUsuarioSeleccionado={setUsuarioSeleccionado}
+  todasConversaciones={todasConversaciones} // ✅ Añadido para actualizar correctamente el estado
+/>
           </>
         )}
       </div>

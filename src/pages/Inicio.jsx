@@ -22,19 +22,17 @@ export default function Inicio() {
     hora < 12 ? "Buenos días" : hora < 20 ? "Buenas tardes" : "Buenas noches";
 
   const cargarDatos = async () => {
-  try {
-    const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?conEstadisticas=true");
-    const conversaciones = await res.json();
-    setData(conversaciones);
-  } catch (error) {
-    console.error("❌ Error al cargar estadísticas:", error);
-  }
-};
+    try {
+      const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?conEstadisticas=true");
+      const conversaciones = await res.json();
+      setData(conversaciones);
+    } catch (error) {
+      console.error("❌ Error al cargar estadísticas:", error);
+    }
+  };
 
   useEffect(() => {
-    cargarDatos();
-    const intervalo = setInterval(cargarDatos, 5000);
-    return () => clearInterval(intervalo);
+    cargarDatos(); // ✅ Solo se carga al entrar en esta página
   }, []);
 
   const filtrarPorTiempo = (timestamp) => {
@@ -47,11 +45,10 @@ export default function Inicio() {
     return true;
   };
 
-
   const Tarjeta = ({ titulo, valor, color, datos }) => (
     <div className="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 flex flex-col">
       <h2 className="text-sm text-gray-500 dark:text-gray-300">{titulo}</h2>
-<p className="text-3xl font-bold text-gray-800 dark:text-white">{valor}</p>
+      <p className="text-3xl font-bold text-gray-800 dark:text-white">{valor}</p>
       <div className="flex-1 mt-2">
         <ResponsiveContainer width="100%" height={50}>
           <AreaChart data={datos}>
@@ -99,11 +96,11 @@ export default function Inicio() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Tarjeta
-  titulo="Total de conversaciones"
-  valor={data.length}
-  color="#0ea5e9"
-  datos={[]}
-/>
+          titulo="Total de conversaciones"
+          valor={data.length}
+          color="#0ea5e9"
+          datos={[]}
+        />
       </div>
 
       <h1 className="text-lg font-semibold text-gray-700 mt-8">Resúmenes automáticos</h1>

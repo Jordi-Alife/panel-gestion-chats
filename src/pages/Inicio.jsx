@@ -47,41 +47,6 @@ export default function Inicio() {
     return true;
   };
 
-  const crearDatosGrafica = (mensajesFiltrados) => {
-    const porHora = {};
-    mensajesFiltrados.forEach((m) => {
-      const fecha = new Date(m.lastInteraction);
-      const clave = `${fecha.getFullYear()}-${fecha.getMonth()}-${fecha.getDate()} ${fecha.getHours()}:00`;
-      porHora[clave] = (porHora[clave] || 0) + 1;
-    });
-    return Object.entries(porHora).map(([hora, cantidad]) => ({ hora, cantidad }));
-  };
-
-  const dataRecibidos = crearDatosGrafica(mensajesRecibidos);
-  const dataGPT = crearDatosGrafica(respuestasGPT);
-  const dataPanel = crearDatosGrafica(respuestasPanel);
-  const dataTotalChats = crearDatosGrafica(
-    chatsEnPeriodo.flatMap((c) => c.mensajes || [])
-  );
-
-  const dataPromedioMensajes = (() => {
-    const agrupados = {};
-    chatsEnPeriodo.forEach((c) => {
-      c.mensajes.forEach((m) => {
-        const fecha = new Date(m.lastInteraction);
-        const clave = `${fecha.getFullYear()}-${fecha.getMonth()}-${fecha.getDate()} ${fecha.getHours()}:00`;
-        if (!agrupados[clave]) agrupados[clave] = { mensajes: 0, chats: new Set() };
-        agrupados[clave].mensajes += 1;
-        agrupados[clave].chats.add(c.userId);
-      });
-    });
-    return Object.entries(agrupados).map(([hora, obj]) => ({
-      hora,
-      cantidad: obj.chats.size > 0
-        ? Math.round(obj.mensajes / obj.chats.size)
-        : 0,
-    }));
-  })();
 
   const Tarjeta = ({ titulo, valor, color, datos }) => (
     <div className="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 flex flex-col">

@@ -219,17 +219,23 @@ useEffect(() => {
   }
 
   if (tipoVisualizacion === "recientes") {
-    if (!userId) {
-      console.log("🛑 No hay conversación seleccionada. No refresco.");
-      return;
-    }
-
     console.log("📡 Cargando recientes con refresco cada 5s");
     cargarDatos("recientes");
-    const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
+
+    const intervalo = setInterval(() => {
+      // Solo refrescar si hay alguna conversación activa o inactiva visible
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+      if (hayActivas) {
+        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        cargarDatos("recientes");
+      } else {
+        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      }
+    }, 5000);
+
     return () => clearInterval(intervalo);
   }
-}, [tipoVisualizacion, userId]);
+}, [tipoVisualizacion]);
 
   useEffect(() => {
   const refrescar = () => {

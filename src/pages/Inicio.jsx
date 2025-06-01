@@ -47,23 +47,6 @@ export default function Inicio() {
     return true;
   };
 
-  const mensajes = data.flatMap((c) => c.mensajes || []).filter((m) =>
-    filtrarPorTiempo(m.lastInteraction)
-  );
-
-  const mensajesRecibidos = mensajes.filter((m) => m.from === "usuario");
-  const respuestasGPT = mensajes.filter((m) => m.from === "asistente" && !m.manual);
-  const respuestasPanel = mensajes.filter((m) => m.from === "asistente" && m.manual);
-  const mensajesTotales = respuestasGPT.length + respuestasPanel.length;
-
-  const chatsEnPeriodo = data.filter((c) =>
-    (c.mensajes || []).some((m) => filtrarPorTiempo(m.lastInteraction))
-  );
-
-  const promedioMensajesPorChat = chatsEnPeriodo.length
-    ? Math.round(mensajes.length / chatsEnPeriodo.length)
-    : 0;
-
   const crearDatosGrafica = (mensajesFiltrados) => {
     const porHora = {};
     mensajesFiltrados.forEach((m) => {

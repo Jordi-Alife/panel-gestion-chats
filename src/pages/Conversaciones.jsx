@@ -219,11 +219,17 @@ useEffect(() => {
     return;
   }
   if (tipoVisualizacion === "recientes") {
-    console.log("📡 Cargando recientes con refresco cada 5s");
-    cargarDatos("recientes");
-    const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
-    return () => clearInterval(intervalo);
+  const estadoSeleccionado = localStorage.getItem(`estado-conversacion-${userId}`);
+  if (!userId || !["activa", "inactiva"].includes(estadoSeleccionado)) {
+    console.log("🛑 No hay conversación activa o inactiva seleccionada. No refresco.");
+    return;
   }
+
+  console.log("📡 Cargando recientes con refresco cada 5s");
+  cargarDatos("recientes");
+  const intervalo = setInterval(() => cargarDatos("recientes"), 5000);
+  return () => clearInterval(intervalo);
+}
 }, [tipoVisualizacion]);
 
   useEffect(() => {

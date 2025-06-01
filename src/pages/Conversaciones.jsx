@@ -211,7 +211,6 @@ useEffect(() => {
 // ✅ Haz visible la función para poder invocarla desde fuera
 window.cargarMensajes = cargarMensajes;
 
-// ✅ Solo un useEffect, evita doble carga y conflictos
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
     console.log("📦 Cargando archivadas");
@@ -220,11 +219,8 @@ useEffect(() => {
   }
 
   if (tipoVisualizacion === "recientes") {
-    const estadoSeleccionado = localStorage.getItem(`estado-conversacion-${userId}`);
-    const debeRefrescar = userId && ["activa", "inactiva"].includes((estadoSeleccionado || "").toLowerCase());
-
-    if (!debeRefrescar) {
-      console.log("🛑 No hay conversación activa o inactiva seleccionada. No refresco.");
+    if (!userId) {
+      console.log("🛑 No hay conversación seleccionada. No refresco.");
       return;
     }
 

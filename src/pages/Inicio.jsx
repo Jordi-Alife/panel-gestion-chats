@@ -23,25 +23,11 @@ export default function Inicio() {
 
   const cargarDatos = async () => {
   try {
-    const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones");
+    const res = await fetch("https://web-production-51989.up.railway.app/api/conversaciones?conEstadisticas=true");
     const conversaciones = await res.json();
-
-    const conversacionesConMensajes = await Promise.all(
-      conversaciones.map(async (conv) => {
-        try {
-          const resMensajes = await fetch(`https://web-production-51989.up.railway.app/api/conversaciones/${conv.userId}`);
-          const mensajes = await resMensajes.json();
-          return { ...conv, mensajes };
-        } catch (e) {
-          console.warn("Error cargando mensajes para", conv.userId, e);
-          return { ...conv, mensajes: [] };
-        }
-      })
-    );
-
-    setData(conversacionesConMensajes);
+    setData(conversaciones);
   } catch (error) {
-    console.error("❌ Error al cargar datos:", error);
+    console.error("❌ Error al cargar estadísticas:", error);
   }
 };
 

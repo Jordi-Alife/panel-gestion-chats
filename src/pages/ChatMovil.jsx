@@ -217,14 +217,17 @@ const ChatMovil = () => {
   }, [userId, estado]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+  let interval;
+  if (userId) {
+    interval = setInterval(() => {
       fetch(`${BACKEND_URL}/api/escribiendo/${userId}`)
         .then((res) => res.json())
         .then((data) => setTextoEscribiendo(data.texto || ""))
         .catch(console.error);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [userId]);
+    }, 4000);
+  }
+  return () => clearInterval(interval);
+}, [userId]);
 
   const handleScroll = async () => {
     if (!chatRef.current) return;

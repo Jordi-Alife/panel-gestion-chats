@@ -220,8 +220,9 @@ const ConversacionesMovil = () => {
       <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
         {listaAgrupada.map((c) => (
           <div
-            key={c.userId}
-            onClick={async () => {
+  key={c.userId}
+  data-estado={c.estado?.toLowerCase()}
+  onClick={async () => {
               localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
               localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
 

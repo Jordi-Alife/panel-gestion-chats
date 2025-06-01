@@ -15,7 +15,7 @@ const ConversacionesMovil = () => {
   const cargarDatos = async () => {
     try {
       const tipo = tipoVisualizacion === "archivadas" ? "archivo" : tipoVisualizacion;
-const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
+      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       const data = await res.json();
       setTodasConversaciones(data);
 
@@ -27,9 +27,26 @@ const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
     }
   };
 
-  cargarDatos();
+  if (tipoVisualizacion === "archivadas") {
+    console.log("📦 Cargando archivadas");
+    cargarDatos();
+    return;
+  }
+
   if (tipoVisualizacion === "recientes") {
-    const intervalo = setInterval(cargarDatos, 5000);
+    console.log("📡 Cargando recientes con refresco cada 5s");
+    cargarDatos();
+
+    const intervalo = setInterval(() => {
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+      if (hayActivas) {
+        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        cargarDatos();
+      } else {
+        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      }
+    }, 5000);
+
     return () => clearInterval(intervalo);
   }
 }, [tipoVisualizacion]);

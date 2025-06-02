@@ -419,8 +419,6 @@ const totalNoVistos = todasConversaciones.reduce(
 }}
   filtro={filtro}
   setFiltro={setFiltro}
-  tipoVisualizacion={tipoVisualizacion}
-  setTipoVisualizacion={setTipoVisualizacion}
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
   totalNoVistos={totalNoVistos}

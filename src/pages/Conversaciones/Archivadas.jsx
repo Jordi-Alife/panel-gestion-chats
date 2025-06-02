@@ -320,6 +320,9 @@ return (
   mensajes={mensajes}
   setMensajes={setMensajes}
   setChatCerrado={setChatCerrado}
+  perfil={agente}
+  todasConversaciones={todasConversaciones}
+  setUsuarioSeleccionado={setUsuarioSeleccionado}
 />
           )}
         </>

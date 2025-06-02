@@ -315,7 +315,7 @@ return (
   imagen={imagen}
   setImagen={setImagen}
   cargarMensajes={cargarMensajes}
-  cargarDatos={cargarDatos}        {/* ✅ esta línea es la clave */}
+  cargarDatos={cargarDatos}
   userId={userId}
   mensajes={mensajes}
   setMensajes={setMensajes}

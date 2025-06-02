@@ -329,7 +329,7 @@ return (
       )}
     </div>
 
-    {/* Columna derecha: detalles */}
+       {/* Columna derecha: detalles */}
     {mostrarDetalles && (
       <div className="w-1/5 h-full overflow-y-auto">
         <DetallesUsuario
@@ -345,72 +345,6 @@ return (
         />
       </div>
     )}
-  </div>
-);
-
-    <ConversacionList
-  conversaciones={listaAgrupada}
-  userId={userId}
-  setSearchParams={setSearchParams}
-  vistas={vistas}
-  filtro={filtro}
-  setFiltro={setFiltro}
-  tipoVisualizacion={tipoVisualizacion}
-  paisAToIso={paisAToIso}
-  formatearTiempo={formatearTiempo}
-  totalNoVistos={totalNoVistos}
-  cambiarVista={handleCambioVista}
-  pagina="archivadas"
-  onSelect={(uid) => setSearchParams({ userId: uid })}
-/>
-
-    <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">
-      {userId ? (
-        <ChatPanel
-          chatRef={chatRef}
-          mensajes={mensajes}
-          originalesVisibles={originalesVisibles}
-          setOriginalesVisibles={setOriginalesVisibles}
-          textoEscribiendo={textoEscribiendo}
-          userId={userId}
-          onScroll={() => {}}
-          onToggleDetalles={() => setMostrarDetalles(true)}
-          onCargarMas={() => cargarMensajes(true)}
-          hayMas={hayMasMensajes}
-        />
-      ) : (
-        <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-          <img src={logoFondo} alt="Next Lives" className="w-32 h-32 mb-4 opacity-20" />
-          <p className="text-center">Selecciona una conversación para ver los mensajes</p>
-        </div>
-      )}
-
-      {userId && !chatCerrado && (
-        <FormularioRespuesta
-          respuesta={respuesta}
-          setRespuesta={setRespuesta}
-          imagen={imagen}
-          setImagen={setImagen}
-          cargarMensajes={cargarMensajes}
-          userId={userId}
-          mensajes={mensajes}
-          setMensajes={setMensajes}
-          setChatCerrado={setChatCerrado}
-        />
-      )}
-    </div>
-
-    <DetallesUsuario
-      mostrarDetalles={mostrarDetalles}
-      setMostrarDetalles={setMostrarDetalles}
-      userId={userId}
-      usuarioSeleccionado={usuarioSeleccionado}
-      tipoVisualizacion={tipoVisualizacion}
-      setUsuarioSeleccionado={setUsuarioSeleccionado}
-      agente={agente}
-      setAgente={setAgente}
-      cargarMensajes={cargarMensajes}
-        />
-  </div>
-);
-}
+  </div> // ← cierra el <div className="flex flex-row ...">
+);       // ← cierra el return
+}         // ← cierra la función ArchivadasNew

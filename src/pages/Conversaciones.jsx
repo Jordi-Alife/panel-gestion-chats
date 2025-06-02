@@ -212,29 +212,25 @@ useEffect(() => {
 window.cargarMensajes = cargarMensajes;
 
 useEffect(() => {
-  if (tipoVisualizacion === "archivadas") {
-    console.log("📦 Cargando archivadas");
-    cargarDatos("archivadas");
+  if (tipoVisualizacion !== "recientes") {
+    console.log("⏸ No refresco porque no estás en 'recientes'");
     return;
   }
 
-  if (tipoVisualizacion === "recientes") {
-    console.log("📡 Cargando recientes con refresco cada 5s");
-    cargarDatos("recientes");
+  console.log("📡 Cargando recientes con refresco cada 5s");
+  cargarDatos("recientes");
 
-    const intervalo = setInterval(() => {
-      // Solo refrescar si hay alguna conversación activa o inactiva visible
-      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-      if (hayActivas) {
-        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-        cargarDatos("recientes");
-      } else {
-        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
-      }
-    }, 5000);
+  const intervalo = setInterval(() => {
+    const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+    if (hayActivas) {
+      console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+      cargarDatos("recientes");
+    } else {
+      console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+    }
+  }, 5000);
 
-    return () => clearInterval(intervalo);
-  }
+  return () => clearInterval(intervalo);
 }, [tipoVisualizacion]);
 
   useEffect(() => {

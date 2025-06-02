@@ -10,7 +10,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
 export default function Archivadas() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
 
   const [mostrarDetalles, setMostrarDetalles] = useState(false);

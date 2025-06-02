@@ -269,6 +269,39 @@ const totalNoVistos = listaAgrupada.reduce(
 
 return (
   <div className="w-screen h-screen flex">
+    <div className="absolute top-4 left-4 flex gap-2 z-10">
+      <button
+        onClick={() => navigate("/conversaciones")}
+        className={`px-3 py-1 rounded-full text-sm font-medium ${
+          window.location.pathname === "/conversaciones"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        Recientes
+      </button>
+      <button
+        onClick={() => navigate("/archivadas")}
+        className={`px-3 py-1 rounded-full text-sm font-medium ${
+          window.location.pathname === "/archivadas"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        Archivadas
+      </button>
+      <button
+        onClick={() => navigate("/archivadas-new")}
+        className={`px-3 py-1 rounded-full text-sm font-medium ${
+          window.location.pathname === "/archivadas-new"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        Archivadas New
+      </button>
+    </div>
+
     <ConversacionList
       conversaciones={listaAgrupada}
       userId={userId}
@@ -285,17 +318,17 @@ return (
     <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">
       {userId ? (
         <ChatPanel
-  chatRef={chatRef}
-  mensajes={mensajes}
-  originalesVisibles={originalesVisibles}
-  setOriginalesVisibles={setOriginalesVisibles}
-  textoEscribiendo={textoEscribiendo}
-  userId={userId}
-  onScroll={() => {}}
-  onToggleDetalles={() => setMostrarDetalles(true)}
-  onCargarMas={() => cargarMensajes(true)}
-  hayMas={hayMasMensajes}
-/>
+          chatRef={chatRef}
+          mensajes={mensajes}
+          originalesVisibles={originalesVisibles}
+          setOriginalesVisibles={setOriginalesVisibles}
+          textoEscribiendo={textoEscribiendo}
+          userId={userId}
+          onScroll={() => {}}
+          onToggleDetalles={() => setMostrarDetalles(true)}
+          onCargarMas={() => cargarMensajes(true)}
+          hayMas={hayMasMensajes}
+        />
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
           <img src={logoFondo} alt="Next Lives" className="w-32 h-32 mb-4 opacity-20" />
@@ -329,6 +362,5 @@ return (
       setAgente={setAgente}
       cargarMensajes={cargarMensajes}
     />
-    </div>
-  );
-}
+  </div>
+);

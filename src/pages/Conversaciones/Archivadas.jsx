@@ -381,34 +381,9 @@ const totalNoVistos = todasConversaciones.reduce(
       
       {/* Columna izquierda */}
 <div className="w-[22%] h-full overflow-y-auto">
-  <ConversacionList
-  conversaciones={(() => {
-    const estadoFiltrado = listaAgrupada.filter((c) => {
-      const estado = c.estado || "";
-      if (tipoVisualizacion === "archivadas") {
-        return estado === "Cerrado" || estado === "Archivado";
-      } else {
-        return estado === "Activa" || estado === "Inactiva";
-      }
-    });
-    return estadoFiltrado;
-  })()}
-  userIdActual={userId}
-  onSelect={(id) => {
-  if (tipoVisualizacion === "recientes") {
-    setSearchParams({ userId: id });
-  } else {
-    console.log("⛔ No se puede abrir chats nuevos estando en archivadas");
-  }
+  onSelect={() => {
+  console.log("⛔ No se puede abrir chats desde archivadas");
 }}
-  filtro={filtro}
-  setFiltro={setFiltro}
-  tipoVisualizacion={tipoVisualizacion}
-  setTipoVisualizacion={setTipoVisualizacion}
-  paisAToIso={paisAToIso}
-  formatearTiempo={formatearTiempo}
-  totalNoVistos={totalNoVistos}
-/>
 </div>
 
       {/* Columna central */}

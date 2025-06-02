@@ -333,5 +333,3 @@ return (
     </div>
   );
 }
-
-export default Archivadas;

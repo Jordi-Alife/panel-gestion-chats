@@ -40,7 +40,11 @@ const ConversacionList = ({
       {/* NUEVO filtro Recientes / Archivadas */}
 <div className="px-4 py-2 border-b dark:border-gray-700 flex gap-2">
   <button
-    onClick={() => setTipoVisualizacion("recientes")}
+  onClick={() =>
+    typeof cambiarVista === "function"
+      ? cambiarVista("recientes")
+      : setTipoVisualizacion("recientes")
+  }
     className={`relative text-xs font-medium px-3 py-1 rounded-full ${
       tipoVisualizacion === "recientes"
         ? "bg-blue-600 text-white"
@@ -56,7 +60,11 @@ const ConversacionList = ({
   </button>
 
   <button
-    onClick={() => setTipoVisualizacion("archivadas")}
+  onClick={() =>
+    typeof cambiarVista === "function"
+      ? cambiarVista("archivadas")
+      : setTipoVisualizacion("archivadas")
+  }
     className={`text-xs font-medium px-3 py-1 rounded-full ${
       tipoVisualizacion === "archivadas"
         ? "bg-blue-600 text-white"

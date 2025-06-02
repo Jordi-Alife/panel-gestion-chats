@@ -330,5 +330,8 @@ return (
       setAgente={setAgente}
       cargarMensajes={cargarMensajes}
     />
-  </div>
-);
+    </div>
+  );
+}
+
+export default Archivadas;

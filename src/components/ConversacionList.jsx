@@ -37,10 +37,9 @@ const ConversacionList = ({
         />
       </div>
 
-      {/* NUEVO filtro Recientes / Archivadas */}
-<div className="px-4 py-2 border-b dark:border-gray-700 flex gap-2">
+      {/* NUEVO filtro Recientes / Archivadas */}<div className="px-4 py-2 border-b dark:border-gray-700 flex gap-2">
   <button
-    onClick={() => setTipoVisualizacion("recientes")}
+    onClick={() => (typeof cambiarVista === "function" ? cambiarVista("recientes") : setTipoVisualizacion("recientes"))}
     className={`relative text-xs font-medium px-3 py-1 rounded-full ${
       tipoVisualizacion === "recientes"
         ? "bg-blue-600 text-white"
@@ -56,7 +55,7 @@ const ConversacionList = ({
   </button>
 
   <button
-    onClick={() => setTipoVisualizacion("archivadas")}
+    onClick={() => (typeof cambiarVista === "function" ? cambiarVista("archivadas") : setTipoVisualizacion("archivadas"))}
     className={`text-xs font-medium px-3 py-1 rounded-full ${
       tipoVisualizacion === "archivadas"
         ? "bg-blue-600 text-white"
@@ -66,12 +65,12 @@ const ConversacionList = ({
     Archivadas
   </button>
 
-  {/* 🔹 Nuevo botón que abre la página Archivadas New */}
-  <Link to="/archivadas-new">
-    <button className="text-xs font-medium px-3 py-1 rounded-full bg-green-600 text-white hover:bg-green-700 transition">
-      Archivadas New
-    </button>
-  </Link>
+  <button
+    onClick={() => (typeof cambiarVista === "function" ? cambiarVista("archivadas-new") : null)}
+    className="text-xs font-medium px-3 py-1 rounded-full bg-green-600 text-white hover:bg-green-700 transition"
+  >
+    Archivadas New
+  </button>
 </div>
 
       {/* Lista de conversaciones scrollable */}

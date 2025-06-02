@@ -213,6 +213,7 @@ window.cargarMensajes = cargarMensajes;
 
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
+    setSearchParams({}); // 🔄 Elimina el userId de la URL y limpia la selección
     console.log("📦 Cargando archivadas");
     cargarDatos("archivadas");
     return;

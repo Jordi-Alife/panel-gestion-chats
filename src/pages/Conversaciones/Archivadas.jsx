@@ -319,6 +319,7 @@ return (
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
   totalNoVistos={totalNoVistos}
+  cambiarVista={handleCambioVista}  // 🔹 FALTABA ESTO
   pagina="archivadas"
 />
 

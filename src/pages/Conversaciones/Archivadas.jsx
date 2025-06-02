@@ -11,6 +11,7 @@ console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
 export default function Archivadas() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const userId = searchParams.get("userId") || null;
 
   const [mostrarDetalles, setMostrarDetalles] = useState(false);

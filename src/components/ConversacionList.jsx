@@ -59,21 +59,6 @@ const ConversacionList = ({
     )}
   </button>
 
-  <button
-  onClick={() =>
-    typeof cambiarVista === "function"
-      ? cambiarVista("archivadas")
-      : setTipoVisualizacion("archivadas")
-  }
-    className={`text-xs font-medium px-3 py-1 rounded-full ${
-      tipoVisualizacion === "archivadas"
-        ? "bg-blue-600 text-white"
-        : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-    }`}
-  >
-    Archivadas
-  </button>
-
   {/* 🔹 Nuevo botón que abre la página Archivadas New */}
   <Link to="/archivadas-new">
     <button className="text-xs font-medium px-3 py-1 rounded-full bg-green-600 text-white hover:bg-green-700 transition">

@@ -31,7 +31,7 @@ function HomeRedirect() {
 
   useEffect(() => {
     const isMobile = window.innerWidth <= 768;
-    navigate(isMobile ? "/conversaciones-movil" : "/conversaciones");
+    navigate(isMobile ? "/conversaciones-movil" : "/archivadas-new");
   }, [navigate]);
 
   return null;

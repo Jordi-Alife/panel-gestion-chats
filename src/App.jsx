@@ -18,7 +18,7 @@ import PerfilMovil from "./pages/PerfilMovil";
 import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import Monitor from "./pages/Monitor";
-import ArchivadasNew from "./pages/ArchivadasNew"; // ✅ Import del nuevo archivo
+import ArchivadasNew from "./pages/Conversaciones/Archivadas"; // ✅ Ruta correcta
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";

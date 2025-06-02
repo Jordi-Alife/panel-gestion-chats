@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import ConversacionList from "../../components/ConversacionList";
 import ChatPanel from "../../components/ChatPanel";

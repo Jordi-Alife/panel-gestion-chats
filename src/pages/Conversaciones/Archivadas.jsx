@@ -230,67 +230,105 @@ const listaAgrupada = Object.entries(conversacionesPorUsuario)
     chatCerrado: info.chatCerrado,
   }))
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction));
-  return (
-    <div className="w-screen h-screen flex">
-      <ConversacionList
-  todasConversaciones={listaAgrupada}
-        userId={userId}
-        setSearchParams={setSearchParams}
-        vistas={vistas}
-        filtro={filtro}
-        setFiltro={setFiltro}
-        tipoVisualizacion={tipoVisualizacion}
-      />
 
-      <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">
-        {userId ? (
-          <ChatPanel
-            chatRef={chatRef}
-            mensajes={mensajes}
-            setMensajes={setMensajes}
-            mostrarScrollBtn={mostrarScrollBtn}
-            setMostrarScrollBtn={setMostrarScrollBtn}
-            cargarMensajes={cargarMensajes}
-            hayMasMensajes={hayMasMensajes}
-            setHayMasMensajes={setHayMasMensajes}
-            scrollForzado={scrollForzado}
-            originalVisible={originalesVisibles}
-            setOriginalVisible={setOriginalesVisibles}
-            textoEscribiendo={textoEscribiendo}
-          />
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-            <img src={logoFondo} alt="Next Lives" className="w-32 h-32 mb-4 opacity-20" />
-            <p className="text-center">Selecciona una conversación para ver los mensajes</p>
-          </div>
-        )}
+const formatearTiempo = (fecha) => {
+  const ahora = new Date();
+  const pasada = new Date(fecha);
+  const diffMs = ahora - pasada;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHrs = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffSec < 60) return `hace ${diffSec}s`;
+  if (diffMin < 60) return `hace ${diffMin}m`;
+  if (diffHrs < 24) return `hace ${diffHrs}h`;
+  if (diffDays === 1) return "ayer";
+  return `hace ${diffDays}d`;
+};
 
-        {userId && !chatCerrado && (
-          <FormularioRespuesta
-            respuesta={respuesta}
-            setRespuesta={setRespuesta}
-            imagen={imagen}
-            setImagen={setImagen}
-            cargarMensajes={cargarMensajes}
-            userId={userId}
-            mensajes={mensajes}
-            setMensajes={setMensajes}
-            setChatCerrado={setChatCerrado}
-          />
-        )}
-      </div>
+const paisAToIso = (paisTexto) => {
+  const mapa = {
+    Spain: "es",
+    France: "fr",
+    Italy: "it",
+    Mexico: "mx",
+    Argentina: "ar",
+    Colombia: "co",
+    Chile: "cl",
+    Peru: "pe",
+    "United States": "us",
+  };
+  return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
+};
 
-      <DetallesUsuario
-        mostrarDetalles={mostrarDetalles}
-        setMostrarDetalles={setMostrarDetalles}
-        userId={userId}
-        usuarioSeleccionado={usuarioSeleccionado}
-        tipoVisualizacion={tipoVisualizacion}
-        setUsuarioSeleccionado={setUsuarioSeleccionado}
-        agente={agente}
-        setAgente={setAgente}
-        cargarMensajes={cargarMensajes}
-      />
+const totalNoVistos = listaAgrupada.reduce(
+  (acc, c) => acc + ((c.noVistos || 0) > 0 && (c.estado || "").toLowerCase() !== "cerrado" ? 1 : 0),
+  0
+);
+
+return (
+  <div className="w-screen h-screen flex">
+    <ConversacionList
+      conversaciones={listaAgrupada}
+      userId={userId}
+      setSearchParams={setSearchParams}
+      vistas={vistas}
+      filtro={filtro}
+      setFiltro={setFiltro}
+      tipoVisualizacion={tipoVisualizacion}
+      paisAToIso={paisAToIso}
+      formatearTiempo={formatearTiempo}
+      totalNoVistos={totalNoVistos}
+    />
+
+    <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">
+      {userId ? (
+        <ChatPanel
+          chatRef={chatRef}
+          mensajes={mensajes}
+          setMensajes={setMensajes}
+          mostrarScrollBtn={mostrarScrollBtn}
+          setMostrarScrollBtn={setMostrarScrollBtn}
+          cargarMensajes={cargarMensajes}
+          hayMasMensajes={hayMasMensajes}
+          setHayMasMensajes={setHayMasMensajes}
+          scrollForzado={scrollForzado}
+          originalVisible={originalesVisibles}
+          setOriginalVisible={setOriginalesVisibles}
+          textoEscribiendo={textoEscribiendo}
+        />
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+          <img src={logoFondo} alt="Next Lives" className="w-32 h-32 mb-4 opacity-20" />
+          <p className="text-center">Selecciona una conversación para ver los mensajes</p>
+        </div>
+      )}
+
+      {userId && !chatCerrado && (
+        <FormularioRespuesta
+          respuesta={respuesta}
+          setRespuesta={setRespuesta}
+          imagen={imagen}
+          setImagen={setImagen}
+          cargarMensajes={cargarMensajes}
+          userId={userId}
+          mensajes={mensajes}
+          setMensajes={setMensajes}
+          setChatCerrado={setChatCerrado}
+        />
+      )}
     </div>
-  );
-}
+
+    <DetallesUsuario
+      mostrarDetalles={mostrarDetalles}
+      setMostrarDetalles={setMostrarDetalles}
+      userId={userId}
+      usuarioSeleccionado={usuarioSeleccionado}
+      tipoVisualizacion={tipoVisualizacion}
+      setUsuarioSeleccionado={setUsuarioSeleccionado}
+      agente={agente}
+      setAgente={setAgente}
+      cargarMensajes={cargarMensajes}
+    />
+  </div>
+);

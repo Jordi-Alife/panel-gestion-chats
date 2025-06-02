@@ -310,16 +310,17 @@ return (
           />
           {!chatCerrado && (
             <FormularioRespuesta
-              respuesta={respuesta}
-              setRespuesta={setRespuesta}
-              imagen={imagen}
-              setImagen={setImagen}
-              cargarMensajes={cargarMensajes}
-              userId={userId}
-              mensajes={mensajes}
-              setMensajes={setMensajes}
-              setChatCerrado={setChatCerrado}
-            />
+  respuesta={respuesta}
+  setRespuesta={setRespuesta}
+  imagen={imagen}
+  setImagen={setImagen}
+  cargarMensajes={cargarMensajes}
+  cargarDatos={cargarDatos}        {/* ✅ esta línea es la clave */}
+  userId={userId}
+  mensajes={mensajes}
+  setMensajes={setMensajes}
+  setChatCerrado={setChatCerrado}
+/>
           )}
         </>
       ) : (

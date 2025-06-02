@@ -418,11 +418,7 @@ const totalNoVistos = todasConversaciones.reduce(
   })()}
   userIdActual={userId}
   onSelect={(id) => {
-  if (tipoVisualizacion === "recientes") {
-    setSearchParams({ userId: id });
-  } else {
-    console.log("⛔ No se puede abrir chats nuevos estando en archivadas");
-  }
+  setSearchParams({ userId: id });
 }}
   filtro={filtro}
   setFiltro={setFiltro}

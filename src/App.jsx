@@ -139,24 +139,26 @@ const App = () => {
         />
 
         <Route
-          path="*"
-          element={
-            usuarioActual ? (
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/conversaciones" element={<Conversaciones />} />
-                  <Route path="/agentes" element={<Agentes />} />
-                  <Route path="/agente/:uid" element={<AgenteDetalle />} />
-                  <Route path="/perfil" element={<Perfil />} />
-                  <Route path="/monitor" element={<Monitor />} />
-                  <Route path="/inicio" element={<Inicio />} />
-                </Routes>
-              </DashboardLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+  path="*"
+  element={
+    usuarioActual ? (
+      <DashboardLayout>
+        <Routes>
+          <Route path="/conversaciones" element={<Navigate to="/conversaciones/recientes" replace />} />
+          <Route path="/conversaciones/recientes" element={<Conversaciones tipo="recientes" />} />
+          <Route path="/conversaciones/archivadas" element={<Conversaciones tipo="archivadas" />} />
+          <Route path="/agentes" element={<Agentes />} />
+          <Route path="/agente/:uid" element={<AgenteDetalle />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/monitor" element={<Monitor />} />
+          <Route path="/inicio" element={<Inicio />} />
+        </Routes>
+      </DashboardLayout>
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
       </Routes>
     </Router>
   );

@@ -35,8 +35,13 @@ export default function Conversaciones() {
 
   // ✅ Cargar mensajes inmediatamente al seleccionar conversación
 useEffect(() => {
-  if (!userId) return;
-  cargarMensajes(false);
+  if (!userId) {
+    setMensajes([]); // 🧹 Limpiar los mensajes mostrados
+    setUsuarioSeleccionado(null); // 🧼 Limpiar los detalles del usuario
+    return;
+  }
+
+  cargarMensajes(false); // 🔄 Cargar mensajes si hay un userId seleccionado
 }, [userId]);
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");

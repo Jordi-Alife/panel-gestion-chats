@@ -33,8 +33,8 @@ export default function Archivadas() {
   const scrollForzado = useRef(true);
 
   useEffect(() => {
-    cargarDatos();
-  }, []);
+  cargarDatos("archivo");
+}, []);
 
   useEffect(() => {
     if (!userId) return;

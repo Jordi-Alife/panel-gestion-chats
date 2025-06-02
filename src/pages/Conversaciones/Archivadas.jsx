@@ -284,19 +284,17 @@ return (
     <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">
       {userId ? (
         <ChatPanel
-          chatRef={chatRef}
-          mensajes={mensajes}
-          setMensajes={setMensajes}
-          mostrarScrollBtn={mostrarScrollBtn}
-          setMostrarScrollBtn={setMostrarScrollBtn}
-          cargarMensajes={cargarMensajes}
-          hayMasMensajes={hayMasMensajes}
-          setHayMasMensajes={setHayMasMensajes}
-          scrollForzado={scrollForzado}
-          originalesVisibles={originalesVisibles}
-          setOriginalesVisibles={setOriginalesVisibles}
-          textoEscribiendo={textoEscribiendo}
-        />
+  chatRef={chatRef}
+  mensajes={mensajes}
+  originalesVisibles={originalesVisibles}
+  setOriginalesVisibles={setOriginalesVisibles}
+  textoEscribiendo={textoEscribiendo}
+  userId={userId}
+  onScroll={() => {}}
+  onToggleDetalles={() => setMostrarDetalles(true)}
+  onCargarMas={() => cargarMensajes(true)}
+  hayMas={hayMasMensajes}
+/>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
           <img src={logoFondo} alt="Next Lives" className="w-32 h-32 mb-4 opacity-20" />

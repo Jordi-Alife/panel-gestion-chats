@@ -23,7 +23,7 @@ export default function Conversaciones() {
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [filtro, setFiltro] = useState("todas");
-  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
+  const [tipoVisualizacion, setTipoVisualizacion] = useState("recientes");
   const [agente, setAgente] = useState(null);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");

@@ -267,6 +267,12 @@ const totalNoVistos = listaAgrupada.reduce(
   0
 );
 
+  const handleCambioVista = (vista) => {
+  if (vista === "recientes") navigate("/conversaciones");
+  else if (vista === "archivadas") navigate("/archivadas");
+  else if (vista === "archivadas-new") navigate("/archivadas-new");
+};
+
 return (
   <div className="w-screen h-screen flex">
     <div className="absolute top-4 left-4 flex gap-2 z-10">

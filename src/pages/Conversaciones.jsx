@@ -411,13 +411,9 @@ const totalNoVistos = todasConversaciones.reduce(
   <ConversacionList
   conversaciones={(() => {
     const estadoFiltrado = listaAgrupada.filter((c) => {
-      const estado = c.estado || "";
-      if (tipoVisualizacion === "archivadas") {
-        return estado === "Cerrado" || estado === "Archivado";
-      } else {
-        return estado === "Activa" || estado === "Inactiva";
-      }
-    });
+  const estado = c.estado || "";
+  return estado === "Activa" || estado === "Inactiva";
+});
     return estadoFiltrado;
   })()}
   userIdActual={userId}

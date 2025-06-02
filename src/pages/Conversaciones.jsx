@@ -352,23 +352,39 @@ const totalNoVistos = todasConversaciones.reduce(
         : Infinity;
 
       // ✅ Nueva lógica: liberar si está intervenida y pasa a Archivado
-      if (
-        info.intervenida &&
-        minutosDesdeUltimo > 10 &&
-        (info.estado || "").toLowerCase() !== "cerrado"
-      ) {
-        fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: id }),
+if (
+  info.intervenida &&
+  minutosDesdeUltimo > 10 &&
+  (info.estado || "").toLowerCase() !== "cerrado"
+) {
+  fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: id }),
+  })
+    .then(() => {
+      console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+
+      // ✅ Añadir etiqueta "Traspasado a GPT"
+      fetch(`${BACKEND_URL}/api/agregar-estado`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: id,
+          estado: "Traspasado a GPT",
+        }),
+      })
+        .then(() => {
+          console.log(`✅ Etiqueta 'Traspasado a GPT' añadida a ${id}`);
         })
-          .then(() => {
-            console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
-          })
-          .catch((err) => {
-            console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
-          });
-      }
+        .catch((err) => {
+          console.error(`❌ Error añadiendo etiqueta 'Traspasado a GPT':`, err);
+        });
+    })
+    .catch((err) => {
+      console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+    });
+}
 
       let estado = (() => {
   const base = (info.estado || "").toLowerCase();

@@ -23,6 +23,7 @@ export default function Conversaciones() {
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [filtro, setFiltro] = useState("todas");
+  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
   const [agente, setAgente] = useState(null);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");
@@ -211,21 +212,31 @@ useEffect(() => {
 window.cargarMensajes = cargarMensajes;
 
 useEffect(() => {
-  console.log("📡 Cargando recientes con refresco cada 5s");
-  cargarDatos("recientes");
+  if (tipoVisualizacion === "archivadas") {
+    setSearchParams({}); // 🔄 Elimina el userId de la URL y limpia la selección
+    console.log("📦 Cargando archivadas");
+    cargarDatos("archivadas");
+    return;
+  }
 
-  const intervalo = setInterval(() => {
-    const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-    if (hayActivas) {
-      console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-      cargarDatos("recientes");
-    } else {
-      console.log("🛑 No hay activas/inactivas visibles. No refresco.");
-    }
-  }, 5000);
+  if (tipoVisualizacion === "recientes") {
+    console.log("📡 Cargando recientes con refresco cada 5s");
+    cargarDatos("recientes");
 
-  return () => clearInterval(intervalo);
-}, []);
+    const intervalo = setInterval(() => {
+      // Solo refrescar si hay alguna conversación activa o inactiva visible
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+      if (hayActivas) {
+        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        cargarDatos("recientes");
+      } else {
+        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }
+}, [tipoVisualizacion]);
 
   useEffect(() => {
   const refrescar = () => {
@@ -419,6 +430,8 @@ const totalNoVistos = todasConversaciones.reduce(
 }}
   filtro={filtro}
   setFiltro={setFiltro}
+  tipoVisualizacion={tipoVisualizacion}
+  setTipoVisualizacion={setTipoVisualizacion}
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
   totalNoVistos={totalNoVistos}

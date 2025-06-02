@@ -335,20 +335,17 @@ return (
 
        {/* Columna derecha: detalles */}
     {mostrarDetalles && (
-      <div className="w-1/5 h-full overflow-y-auto">
-        <DetallesUsuario
-          mostrarDetalles={mostrarDetalles}
-          setMostrarDetalles={setMostrarDetalles}
-          userId={userId}
-          usuarioSeleccionado={usuarioSeleccionado}
-          tipoVisualizacion={tipoVisualizacion}
-          setUsuarioSeleccionado={setUsuarioSeleccionado}
-          agente={agente}
-          setAgente={setAgente}
-          cargarMensajes={cargarMensajes}
-        />
-      </div>
-    )}
+  <div className="w-1/5 h-full overflow-y-auto">
+    <DetallesUsuario
+      usuario={usuarioSeleccionado}
+      agente={agente}
+      setUsuarioSeleccionado={setUsuarioSeleccionado}
+      cargarDatos={cargarMensajes}
+      paisAToIso={paisAToIso}
+      todasConversaciones={todasConversaciones}
+    />
+  </div>
+)}
   </div> // ← cierra el <div className="flex flex-row ...">
 );       // ← cierra el return
 }         // ← cierra la función ArchivadasNew

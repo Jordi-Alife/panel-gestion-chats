@@ -233,7 +233,7 @@ const listaAgrupada = Object.entries(conversacionesPorUsuario)
   return (
     <div className="w-screen h-screen flex">
       <ConversacionList
-  conversaciones={listaAgrupada}
+  todasConversaciones={listaAgrupada}
         userId={userId}
         setSearchParams={setSearchParams}
         vistas={vistas}

@@ -10,7 +10,8 @@ import logoFondo from "../assets/logo-fondo.svg";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
-export default function Conversaciones() {
+export default function Recientes() {
+  const tipoVisualizacion = "recientes";
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
 

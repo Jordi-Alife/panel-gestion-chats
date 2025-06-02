@@ -319,8 +319,9 @@ return (
   paisAToIso={paisAToIso}
   formatearTiempo={formatearTiempo}
   totalNoVistos={totalNoVistos}
-  cambiarVista={handleCambioVista}  // 🔹 FALTABA ESTO
+  cambiarVista={handleCambioVista}
   pagina="archivadas"
+  onSelect={(uid) => setSearchParams({ userId: uid })}
 />
 
     <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">

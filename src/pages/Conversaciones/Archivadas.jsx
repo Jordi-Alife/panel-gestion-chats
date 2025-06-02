@@ -10,7 +10,7 @@ import logoFondo from "../assets/logo-fondo.svg";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
-export default function Conversaciones() {
+export default function Archivadas() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;
 
@@ -23,7 +23,7 @@ export default function Conversaciones() {
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [filtro, setFiltro] = useState("todas");
-  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
+  const tipoVisualizacion = "archivadas";
   const [agente, setAgente] = useState(null);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");

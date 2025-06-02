@@ -340,7 +340,7 @@ return (
           mostrarDetalles={mostrarDetalles}
           setMostrarDetalles={setMostrarDetalles}
           userId={userId}
-          usuario={usuarioSeleccionado}
+          usuarioSeleccionado={usuarioSeleccionado}
           tipoVisualizacion={tipoVisualizacion}
           setUsuarioSeleccionado={setUsuarioSeleccionado}
           agente={agente}

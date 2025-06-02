@@ -354,7 +354,7 @@ const totalNoVistos = todasConversaciones.reduce(
       // ✅ Nueva lógica: liberar si está intervenida y pasa a Archivado
 if (
   info.intervenida &&
-  minutosDesdeUltimo > 10 &&
+  minutosDesdeUltimo > 5 &&
   (info.estado || "").toLowerCase() !== "cerrado"
 ) {
   fetch(`${BACKEND_URL}/api/liberar-conversacion`, {

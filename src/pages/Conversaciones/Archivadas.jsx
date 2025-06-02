@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import ConversacionList from "../../components/ConversacionList";
 import ChatPanel from "../../components/ChatPanel";
 import FormularioRespuesta from "../../components/FormularioRespuesta";

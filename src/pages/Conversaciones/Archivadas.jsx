@@ -41,7 +41,7 @@ useEffect(() => {
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
-  const cargarDatos = async (tipo = "recientes") => {
+  const cargarDatos = async (tipo = "archivo") => {
   try {
     const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}`;
     const res = await fetch(url);

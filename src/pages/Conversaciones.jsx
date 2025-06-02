@@ -23,7 +23,9 @@ export default function Conversaciones() {
   const [vistas, setVistas] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);
   const [filtro, setFiltro] = useState("todas");
-  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
+  import { useLocation } from "react-router-dom";
+const location = useLocation();
+const tipoVisualizacion = location.pathname.includes("archivadas") ? "archivadas" : "recientes";
   const [agente, setAgente] = useState(null);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [textoEscribiendo, setTextoEscribiendo] = useState("");

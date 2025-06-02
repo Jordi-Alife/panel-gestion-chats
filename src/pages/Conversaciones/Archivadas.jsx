@@ -309,17 +309,18 @@ return (
     </div>
 
     <ConversacionList
-      conversaciones={listaAgrupada}
-      userId={userId}
-      setSearchParams={setSearchParams}
-      vistas={vistas}
-      filtro={filtro}
-      setFiltro={setFiltro}
-      tipoVisualizacion={tipoVisualizacion}
-      paisAToIso={paisAToIso}
-      formatearTiempo={formatearTiempo}
-      totalNoVistos={totalNoVistos}
-    />
+  conversaciones={listaAgrupada}
+  userId={userId}
+  setSearchParams={setSearchParams}
+  vistas={vistas}
+  filtro={filtro}
+  setFiltro={setFiltro}
+  tipoVisualizacion={tipoVisualizacion}
+  paisAToIso={paisAToIso}
+  formatearTiempo={formatearTiempo}
+  totalNoVistos={totalNoVistos}
+  pagina="archivadas"
+/>
 
     <div className="flex flex-col w-[58%] h-full border-l border-r border-gray-300 relative">
       {userId ? (

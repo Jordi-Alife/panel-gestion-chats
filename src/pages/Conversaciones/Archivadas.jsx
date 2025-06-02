@@ -293,8 +293,8 @@ return (
           hayMasMensajes={hayMasMensajes}
           setHayMasMensajes={setHayMasMensajes}
           scrollForzado={scrollForzado}
-          originalVisible={originalesVisibles}
-          setOriginalVisible={setOriginalesVisibles}
+          originalesVisibles={originalesVisibles}
+          setOriginalesVisibles={setOriginalesVisibles}
           textoEscribiendo={textoEscribiendo}
         />
       ) : (

@@ -304,7 +304,7 @@ return (
             textoEscribiendo={textoEscribiendo}
             userId={userId}
             onScroll={() => {}}
-            onToggleDetalles={() => setMostrarDetalles(true)}
+            onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
             onCargarMas={() => cargarMensajes(true)}
             hayMas={hayMasMensajes}
           />

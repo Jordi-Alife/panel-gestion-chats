@@ -9,7 +9,7 @@ import logoFondo from "../../assets/logo-fondo.svg";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
-export default function Archivadas() {
+export default function ArchivadasNew() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const userId = searchParams.get("userId") || null;

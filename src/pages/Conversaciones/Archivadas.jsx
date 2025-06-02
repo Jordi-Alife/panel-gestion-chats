@@ -204,7 +204,32 @@ export default function Archivadas() {
   };
 
   window.cargarMensajes = cargarMensajes;
+  
+  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+  const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
+  actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
+  actual.intervenida = item.intervenida || false;
+  actual.chatCerrado = item.chatCerrado || false;
+  actual.estado = item.estado || "abierta";
+  actual.lastInteraction = item.lastInteraction || item.ultimaRespuesta || item.fechaInicio || new Date().toISOString();
+  actual.noVistos = item.noVistos || 0;
+  actual.intervenidaPor = item.intervenidaPor || null;
+  acc[item.userId] = actual;
+  return acc;
+}, {});
 
+const listaAgrupada = Object.entries(conversacionesPorUsuario)
+  .map(([id, info]) => ({
+    userId: id,
+    noVistos: info.noVistos || 0,
+    estado: (info.estado || "").toLowerCase() === "cerrado" ? "Cerrado" : "Archivado",
+    lastInteraction: info.lastInteraction,
+    iniciales: id.slice(0, 2).toUpperCase(),
+    intervenida: info.intervenida,
+    intervenidaPor: info.intervenidaPor,
+    chatCerrado: info.chatCerrado,
+  }))
+  .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction));
   return (
     <div className="w-screen h-screen flex">
       <ConversacionList

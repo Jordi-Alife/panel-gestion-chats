@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import IconInicio from "../assets/dashboard-1.svg";
 import IconAgentes from "../assets/agentes.svg";
 import IconToggle from "../assets/menu.svg";
@@ -10,6 +10,7 @@ import IconMonitor from "../assets/icon-monitor-estado.svg";
 import LogoCompleto from "../assets/logo-nextlives-new(1).svg";
 import LogoPequeno from "../assets/logo-nextlives-new.svg";
 import ModoOscuroToggle from "../components/ModoOscuroToggle";
+
 
 const DashboardLayout = ({ children }) => {
   const [colapsado, setColapsado] = useState(true);

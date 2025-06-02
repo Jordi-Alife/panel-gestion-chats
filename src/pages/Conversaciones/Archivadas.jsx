@@ -361,6 +361,7 @@ return (
       agente={agente}
       setAgente={setAgente}
       cargarMensajes={cargarMensajes}
-    />
+        />
   </div>
 );
+}

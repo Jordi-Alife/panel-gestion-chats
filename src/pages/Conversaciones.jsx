@@ -219,32 +219,37 @@ useEffect(() => {
     return;
   }
 
+  useEffect(() => {
+  let intervalo;
+
+  const cargarYRefrescar = async () => {
+    const data = await cargarDatos("recientes");
+
+    // ⚠️ No montes el intervalo si no hay datos
+    if (!data || data.length === 0) {
+      console.log("🛑 No hay conversaciones recientes. No refresco.");
+      return;
+    }
+
+    intervalo = setInterval(() => {
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+      if (hayActivas) {
+        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        cargarDatos("recientes");
+      } else {
+        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      }
+    }, 5000);
+  };
+
   if (tipoVisualizacion === "recientes") {
-    console.log("📡 Cargando recientes con refresco cada 5s");
-    cargarDatos("recientes");
-
-    const intervalo = setInterval(() => {
-  const elementosConversacion = document.querySelectorAll('[data-estado]');
-  const hayActivas = Array.from(elementosConversacion).some((el) => {
-    const estado = el.getAttribute("data-estado");
-    return estado === "activa" || estado === "inactiva";
-  });
-
-  if (elementosConversacion.length === 0) {
-    console.log("🛑 No hay ninguna conversación en la lista. No refresco.");
-    return;
+    console.log("📡 Cargando recientes con lógica protegida");
+    cargarYRefrescar();
   }
 
-  if (hayActivas) {
-    console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-    cargarDatos("recientes");
-  } else {
-    console.log("🛑 Solo hay conversaciones archivadas/cerradas. No refresco.");
-  }
-}, 5000);
-
-    return () => clearInterval(intervalo);
-  }
+  return () => {
+    if (intervalo) clearInterval(intervalo);
+  };
 }, [tipoVisualizacion]);
 
   useEffect(() => {

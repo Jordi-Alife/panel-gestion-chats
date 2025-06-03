@@ -229,37 +229,24 @@ useEffect(() => {
 
     const data = await cargarDatos("recientes");
 
-    const hayActivas = (data || []).some((conv) => {
-      const estado = (conv.estado || "").toLowerCase();
-      return estado === "activa" || estado === "inactiva";
-    });
-
-    if (!hayActivas) {
-      console.log("🛑 [Recientes] No hay activas/inactivas. NO se inicia intervalo.");
+    if (!data || data.length === 0) {
+      console.log("🛑 [Recientes] No hay conversaciones. NO se inicia intervalo.");
       return;
     }
 
-    console.log("✅ [Recientes] Hay activas/inactivas. Iniciando intervalo...");
+    console.log("✅ [Recientes] Hay conversaciones. Iniciando intervalo...");
 
     intervalo = setInterval(() => {
-      console.log("🔁 [Recientes] Refrescando conversaciones...");
-      cargarDatos("recientes");
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+
+      if (hayActivas) {
+        console.log("🔄 [Recientes] Hay activas/inactivas visibles. Refrescando...");
+        cargarDatos("recientes");
+      } else {
+        console.log("🧘 [Recientes] Solo hay archivadas o ninguna. NO se refresca.");
+      }
     }, 5000);
   };
-
-  if (tipoVisualizacion === "recientes") {
-    cargarYRefrescar();
-  }
-
-  return () => {
-    if (intervalo) clearInterval(intervalo);
-  };
-}, [tipoVisualizacion]);
-
-  return () => {
-    if (intervalo) clearInterval(intervalo);
-  };
-}, [tipoVisualizacion]);
 
   if (tipoVisualizacion === "archivadas") {
     console.log("📦 [Archivadas] Cargando una sola vez.");

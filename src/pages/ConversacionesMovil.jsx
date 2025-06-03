@@ -9,11 +9,13 @@ const ConversacionesMovil = () => {
   const [vistas, setVistas] = useState({});
   const [filtro, setFiltro] = useState("todas");
   const [busqueda, setBusqueda] = useState("");
+  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
   
   useEffect(() => {
   const cargarDatos = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`);
+      const tipo = tipoVisualizacion === "archivadas" ? "archivo" : tipoVisualizacion;
+      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       const data = await res.json();
       setTodasConversaciones(data);
 
@@ -25,20 +27,29 @@ const ConversacionesMovil = () => {
     }
   };
 
-  cargarDatos(); // primera carga
+  if (tipoVisualizacion === "archivadas") {
+    console.log("📦 Cargando archivadas");
+    cargarDatos();
+    return;
+  }
 
-  const intervalo = setInterval(() => {
-    const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-    if (hayActivas) {
-      console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-      cargarDatos();
-    } else {
-      console.log("🛑 No hay activas/inactivas visibles. No refresco.");
-    }
-  }, 5000);
+  if (tipoVisualizacion === "recientes") {
+    console.log("📡 Cargando recientes con refresco cada 5s");
+    cargarDatos();
 
-  return () => clearInterval(intervalo);
-}, []);
+    const intervalo = setInterval(() => {
+      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+      if (hayActivas) {
+        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        cargarDatos();
+      } else {
+        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }
+}, [tipoVisualizacion]);
 
   const paisAToIso = (paisTexto) => {
     const mapa = {
@@ -136,7 +147,14 @@ const ConversacionesMovil = () => {
       pais: info.pais || "Desconocido",
     };
   })
- .filter((c) => c.estado === "Activa" || c.estado === "Inactiva")
+  // ✅ Filtro por tipoVisualizacion: archivadas o recientes
+  .filter((c) => {
+    if (tipoVisualizacion === "archivadas") {
+      return c.estado === "Cerrado" || c.estado === "Archivado";
+    } else {
+      return c.estado === "Activa" || c.estado === "Inactiva";
+    }
+  })
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(
     (c) =>
@@ -165,19 +183,37 @@ const ConversacionesMovil = () => {
 
 <div className="flex justify-center gap-2 px-4 py-2 border-b">
   <button
-    onClick={() => navigate("/conversacionesmovil")}
-    className="text-xs font-medium px-3 py-1 rounded-full bg-blue-600 text-white"
-    disabled
-  >
-    Recientes
-  </button>
+  onClick={() => {
+    setTipoVisualizacion("recientes");
+    localStorage.setItem("tipoVisualizacion", "recientes");
+  }}
+  className={`relative text-xs font-medium px-3 py-1 rounded-full ${
+    tipoVisualizacion === "recientes"
+      ? "bg-blue-600 text-white"
+      : "bg-gray-200 text-gray-600"
+  }`}
+>
+  Recientes
+  {totalNoVistos > 0 && (
+    <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+      {totalNoVistos}
+    </span>
+  )}
+</button>
 
-  <button
-    onClick={() => navigate("/conversacionesmovil/archivadas")}
-    className="text-xs font-medium px-3 py-1 rounded-full bg-gray-200 text-gray-600"
-  >
-    Archivadas
-  </button>
+<button
+  onClick={() => {
+    setTipoVisualizacion("archivadas");
+    localStorage.setItem("tipoVisualizacion", "archivadas");
+  }}
+  className={`text-xs font-medium px-3 py-1 rounded-full ${
+    tipoVisualizacion === "archivadas"
+      ? "bg-blue-600 text-white"
+      : "bg-gray-200 text-gray-600"
+  }`}
+>
+  Archivadas
+</button>
 </div>
 
       

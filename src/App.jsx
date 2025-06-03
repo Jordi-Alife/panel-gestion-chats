@@ -136,6 +136,11 @@ const App = () => {
         />
 
         <Route
+  path="/conversacionesmovil/archivadas"
+  element={usuarioActual ? <ConversacionesMovilArchivadas /> : <Navigate to="/login" />}
+/>
+
+        <Route
           path="/perfil-movil"
           element={usuarioActual ? <PerfilMovil /> : <Navigate to="/login" />}
         />

@@ -27,17 +27,25 @@ const ConversacionesMovil = () => {
     }
   };
 
+  // Si es archivadas, carga una vez
   if (tipoVisualizacion === "archivadas") {
     console.log("📦 Cargando archivadas");
     cargarDatos();
     return;
   }
 
+  // Si es recientes, solo refresca si hay algo
   if (tipoVisualizacion === "recientes") {
-    console.log("📡 Cargando recientes con refresco cada 5s");
+    console.log("📡 Cargando recientes");
+
     cargarDatos();
 
     const intervalo = setInterval(() => {
+      if (todasConversaciones.length === 0) {
+        console.log("🛑 No hay conversaciones recientes. No refresco.");
+        return;
+      }
+
       const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
       if (hayActivas) {
         console.log("🔄 Refrescando porque hay activas/inactivas visibles");
@@ -49,7 +57,7 @@ const ConversacionesMovil = () => {
 
     return () => clearInterval(intervalo);
   }
-}, [tipoVisualizacion]);
+}, [tipoVisualizacion, todasConversaciones.length]);
 
   const paisAToIso = (paisTexto) => {
     const mapa = {

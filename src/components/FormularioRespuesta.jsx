@@ -80,6 +80,11 @@ setTimeout(async () => {
       intervenida: datos.intervenida,
       estado: datos.estado
     });
+
+    // ✅ Añadir esta línea para refrescar el asistente
+    if (typeof window.cargarMensajes === "function") {
+      window.cargarMensajes(false);
+    }
   }
 }, 600);
 

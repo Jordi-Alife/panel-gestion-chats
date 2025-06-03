@@ -248,15 +248,24 @@ useEffect(() => {
 }, [tipoVisualizacion]);
 
   useEffect(() => {
+  const conv = todasConversaciones.find(c => c.userId === userId);
+  const estado = (conv?.estado || "").toLowerCase();
+
+  if (!userId || estado === "cerrado" || estado === "archivado") {
+    console.log("⏸️ No se refrescan mensajes: sin conversación válida");
+    return;
+  }
+
   const refrescar = () => {
+    console.log("🔁 Refrescando mensajes de:", userId);
     cargarMensajes(false);
   };
 
-  refrescar(); // ⏱️ se ejecuta al entrar
-  const interval = setInterval(refrescar, 5000); // ⏱️ cada 5 segundos
+  refrescar(); // Ejecutar al entrar
+  const interval = setInterval(refrescar, 5000);
 
   return () => clearInterval(interval);
-}, [userId, limiteMensajes]);
+}, [userId, limiteMensajes, todasConversaciones]);
 
   useEffect(() => {
   if (!userId) return;

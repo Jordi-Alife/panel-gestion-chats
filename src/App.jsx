@@ -9,6 +9,7 @@ import {
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
 import ConversacionesMovil from "./pages/ConversacionesMovil";
+import ConversacionesMovilArchivadas from "./pages/conversacionesmovil/Archivadas";
 import ChatMovil from "./pages/ChatMovil";
 import DetallesMovil from "./pages/DetallesMovil";
 import Agentes from "./pages/agentes";

@@ -11,7 +11,8 @@ const ConversacionesMovil = () => {
   const [busqueda, setBusqueda] = useState("");
   const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
   
-  useEffect(() => {
+  // Carga inicial cuando cambia la vista
+useEffect(() => {
   const cargarDatos = async () => {
     try {
       const tipo = tipoVisualizacion === "archivadas" ? "archivo" : tipoVisualizacion;
@@ -27,37 +28,30 @@ const ConversacionesMovil = () => {
     }
   };
 
-  // Si es archivadas, carga una vez
-  if (tipoVisualizacion === "archivadas") {
-    console.log("📦 Cargando archivadas");
-    cargarDatos();
-    return;
-  }
+  console.log("📥 Cargando vista:", tipoVisualizacion);
+  cargarDatos();
+}, [tipoVisualizacion]);
 
-  // Si es recientes, solo refresca si hay algo
-  if (tipoVisualizacion === "recientes") {
-    console.log("📡 Cargando recientes");
+// Refresco solo si estás en 'recientes' y hay chats activos/inactivos
+useEffect(() => {
+  if (tipoVisualizacion !== "recientes") return;
 
-    cargarDatos();
+  const intervalo = setInterval(() => {
+    const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+    if (!hayActivas) {
+      console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      return;
+    }
 
-    const intervalo = setInterval(() => {
-      if (todasConversaciones.length === 0) {
-        console.log("🛑 No hay conversaciones recientes. No refresco.");
-        return;
-      }
+    console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+    fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`)
+      .then((res) => res.json())
+      .then(setTodasConversaciones)
+      .catch(console.error);
+  }, 5000);
 
-      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-      if (hayActivas) {
-        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-        cargarDatos();
-      } else {
-        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
-      }
-    }, 5000);
-
-    return () => clearInterval(intervalo);
-  }
-}, [tipoVisualizacion, todasConversaciones.length]);
+  return () => clearInterval(intervalo);
+}, [tipoVisualizacion]);
 
   const paisAToIso = (paisTexto) => {
     const mapa = {

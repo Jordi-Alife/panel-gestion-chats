@@ -274,4 +274,4 @@ const ConversacionesMovilArchivadas = () => {
   );
 };
 
-export default ConversacionesMovil;
+export default ConversacionesMovilArchivadas;

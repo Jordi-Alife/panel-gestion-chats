@@ -73,16 +73,6 @@ export default function ArchivadasNew() {
     }
   }, [userId, todasConversaciones]);
 
-  useEffect(() => {
-    if (userId) {
-      fetch(`${BACKEND_URL}/api/marcar-visto`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-    }
-  }, [userId]);
-
   const cargarDatos = async (tipo = "archivo") => {
     try {
       const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}`;

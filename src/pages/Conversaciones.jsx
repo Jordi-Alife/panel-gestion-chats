@@ -225,31 +225,46 @@ useEffect(() => {
   let intervalo;
 
   const cargarYRefrescar = async () => {
+    console.log("🟡 [Recientes] Ejecutando cargarYRefrescar()");
+
     const data = await cargarDatos("recientes");
 
     if (!data || data.length === 0) {
-      console.log("🛑 No hay conversaciones recientes. No refresco.");
+      console.log("🛑 [Recientes] No hay conversaciones. NO se inicia intervalo.");
       return;
     }
 
+    console.log("✅ [Recientes] Hay conversaciones. Iniciando intervalo...");
+
     intervalo = setInterval(() => {
       const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+
       if (hayActivas) {
-        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+        console.log("🔄 [Recientes] Hay activas/inactivas visibles. Refrescando...");
         cargarDatos("recientes");
       } else {
-        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+        console.log("🧘 [Recientes] Solo hay archivadas o ninguna. NO se refresca.");
       }
     }, 5000);
   };
 
+  if (tipoVisualizacion === "archivadas") {
+    console.log("📦 [Archivadas] Cargando una sola vez.");
+    setSearchParams({});
+    cargarDatos("archivadas");
+    return;
+  }
+
   if (tipoVisualizacion === "recientes") {
-    console.log("📡 Cargando recientes con lógica protegida");
+    console.log("📡 [Recientes] Activando lógica de refresco.");
     cargarYRefrescar();
   }
 
   return () => {
-    if (intervalo) clearInterval(intervalo);
+    if (intervalo) {
+      console.log("🧹 [Recientes] Limpiando intervalo.");
+      clearInterval(intervalo);
+    }
   };
 }, [tipoVisualizacion]);
 

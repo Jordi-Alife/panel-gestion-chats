@@ -211,21 +211,22 @@ useEffect(() => {
 // ✅ Haz visible la función para poder invocarla desde fuera
 window.cargarMensajes = cargarMensajes;
 
+// 1. Cargar archivadas si toca
 useEffect(() => {
   if (tipoVisualizacion === "archivadas") {
-    setSearchParams({}); // 🔄 Elimina el userId de la URL y limpia la selección
+    setSearchParams({});
     console.log("📦 Cargando archivadas");
     cargarDatos("archivadas");
-    return;
   }
+}, [tipoVisualizacion]);
 
-  useEffect(() => {
+// 2. Cargar y refrescar recientes si toca
+useEffect(() => {
   let intervalo;
 
   const cargarYRefrescar = async () => {
     const data = await cargarDatos("recientes");
 
-    // ⚠️ No montes el intervalo si no hay datos
     if (!data || data.length === 0) {
       console.log("🛑 No hay conversaciones recientes. No refresco.");
       return;

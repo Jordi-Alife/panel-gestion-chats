@@ -92,19 +92,25 @@ const ConversacionesMovil = () => {
 
     let estado = "Archivado";
 
-    if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
-      fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: id }),
-      })
-        .then(() => {
-          console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
-        })
-        .catch((err) => {
-          console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
-        });
-    }
+    if (
+  info.intervenida &&
+  minutosDesdeUltimo > 10 &&
+  info.estado !== "cerrado" &&
+  !localStorage.getItem(`liberada-${id}`)
+) {
+  fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: id }),
+  })
+    .then(() => {
+      console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
+      localStorage.setItem(`liberada-${id}`, "true");
+    })
+    .catch((err) => {
+      console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
+    });
+}
 
     if ((info.estado || "").toLowerCase() === "cerrado") {
       estado = "Cerrado";

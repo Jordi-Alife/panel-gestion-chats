@@ -351,12 +351,16 @@ const totalNoVistos = todasConversaciones.reduce(
         ? (Date.now() - new Date(info.lastInteraction)) / 60000
         : Infinity;
 
-      // ✅ Nueva lógica: liberar si está intervenida y pasa a Archivado
+      // ✅ Nueva lógica: liberar si está intervenida y pasa a Archivado (con protección)
+window.__etiquetasMarcadasGPT = window.__etiquetasMarcadasGPT || {};
 if (
+  !window.__etiquetasMarcadasGPT[id] &&
   info.intervenida &&
   minutosDesdeUltimo > 5 &&
   (info.estado || "").toLowerCase() !== "cerrado"
 ) {
+  window.__etiquetasMarcadasGPT[id] = true;
+
   fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -365,7 +369,6 @@ if (
     .then(() => {
       console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
 
-      // ✅ Añadir etiqueta "Traspasado a GPT"
       fetch(`${BACKEND_URL}/api/agregar-estado`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

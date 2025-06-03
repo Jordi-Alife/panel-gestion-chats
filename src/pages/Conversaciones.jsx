@@ -224,15 +224,24 @@ useEffect(() => {
     cargarDatos("recientes");
 
     const intervalo = setInterval(() => {
-      // Solo refrescar si hay alguna conversación activa o inactiva visible
-      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-      if (hayActivas) {
-        console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-        cargarDatos("recientes");
-      } else {
-        console.log("🛑 No hay activas/inactivas visibles. No refresco.");
-      }
-    }, 5000);
+  const elementosConversacion = document.querySelectorAll('[data-estado]');
+  const hayActivas = Array.from(elementosConversacion).some((el) => {
+    const estado = el.getAttribute("data-estado");
+    return estado === "activa" || estado === "inactiva";
+  });
+
+  if (elementosConversacion.length === 0) {
+    console.log("🛑 No hay ninguna conversación en la lista. No refresco.");
+    return;
+  }
+
+  if (hayActivas) {
+    console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+    cargarDatos("recientes");
+  } else {
+    console.log("🛑 Solo hay conversaciones archivadas/cerradas. No refresco.");
+  }
+}, 5000);
 
     return () => clearInterval(intervalo);
   }

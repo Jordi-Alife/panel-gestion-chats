@@ -130,7 +130,6 @@ const ConversacionesMovil = () => {
       pais: info.pais || "Desconocido",
     };
   })
-  // ✅ Filtro por tipoVisualizacion: archivadas o recientes
   .filter((c) => c.estado === "Cerrado" || c.estado === "Archivado")
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(

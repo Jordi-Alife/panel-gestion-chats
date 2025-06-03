@@ -9,6 +9,7 @@ import {
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
 import ConversacionesMovil from "./pages/ConversacionesMovil";
+import ConversacionesMovilArchivadas from "./pages/conversacionesmovil/archivadas"; // ✅ AÑADIDO CORRECTAMENTE
 import ChatMovil from "./pages/ChatMovil";
 import DetallesMovil from "./pages/DetallesMovil";
 import Agentes from "./pages/agentes";
@@ -109,55 +110,57 @@ const App = () => {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+  <Router>
+    <Routes>
+      <Route path="/login" element={<Login />} />
 
-        {/* ✅ Redirección condicional móvil/escritorio */}
-        <Route path="/" element={<HomeRedirect />} />
+      {/* ✅ Redirección condicional móvil/escritorio */}
+      <Route path="/" element={<HomeRedirect />} />
 
-        <Route
-          path="/conversaciones/:userId"
-          element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
-        />
+      <Route
+        path="/conversaciones/:userId"
+        element={usuarioActual ? <ChatMovil /> : <Navigate to="/login" />}
+      />
 
-        <Route
-          path="/detalles/:userId"
-          element={usuarioActual ? <DetallesMovil /> : <Navigate to="/login" />}
-        />
+      <Route
+        path="/detalles/:userId"
+        element={usuarioActual ? <DetallesMovil /> : <Navigate to="/login" />}
+      />
 
-        <Route
-          path="/conversaciones-movil"
-          element={usuarioActual ? <ConversacionesMovil /> : <Navigate to="/login" />}
-        />
+      <Route
+        path="/conversaciones-movil"
+        element={usuarioActual ? <ConversacionesMovil /> : <Navigate to="/login" />}
+      />
 
-        <Route
-          path="/perfil-movil"
-          element={usuarioActual ? <PerfilMovil /> : <Navigate to="/login" />}
-        />
+      <Route
+        path="/conversaciones-movil/archivadas"
+        element={usuarioActual ? <ConversacionesMovilArchivadas /> : <Navigate to="/login" />}
+      />
 
-        <Route
-          path="*"
-          element={
-            usuarioActual ? (
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/conversaciones" element={<Conversaciones />} />
-                  <Route path="/agentes" element={<Agentes />} />
-                  <Route path="/agente/:uid" element={<AgenteDetalle />} />
-                  <Route path="/perfil" element={<Perfil />} />
-                  <Route path="/monitor" element={<Monitor />} />
-                  <Route path="/inicio" element={<Inicio />} />
-                </Routes>
-              </DashboardLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-      </Routes>
-    </Router>
-  );
-};
+      <Route
+        path="/perfil-movil"
+        element={usuarioActual ? <PerfilMovil /> : <Navigate to="/login" />}
+      />
 
-export default App;
+      <Route
+        path="*"
+        element={
+          usuarioActual ? (
+            <DashboardLayout>
+              <Routes>
+                <Route path="/conversaciones" element={<Conversaciones />} />
+                <Route path="/agentes" element={<Agentes />} />
+                <Route path="/agente/:uid" element={<AgenteDetalle />} />
+                <Route path="/perfil" element={<Perfil />} />
+                <Route path="/monitor" element={<Monitor />} />
+                <Route path="/inicio" element={<Inicio />} />
+              </Routes>
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+    </Routes>
+  </Router>
+);

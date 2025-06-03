@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const ConversacionesMovil = () => {
+const ConversacionesMovilArchivadas = () => {
   const navigate = useNavigate();
     const [todasConversaciones, setTodasConversaciones] = useState([]);
   const [vistas, setVistas] = useState({});

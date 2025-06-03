@@ -25,10 +25,15 @@ const ConversacionesMovil = () => {
   };
 
   cargarDatos();
+
+  let intervalo = null;
   if (tipoVisualizacion === "recientes") {
-    const intervalo = setInterval(cargarDatos, 5000);
-    return () => clearInterval(intervalo);
+    intervalo = setInterval(cargarDatos, 5000);
   }
+
+  return () => {
+    if (intervalo) clearInterval(intervalo);
+  };
 }, [tipoVisualizacion]);
 
   const paisAToIso = (paisTexto) => {

@@ -220,6 +220,7 @@ useEffect(() => {
   }
 }, [tipoVisualizacion]);
 
+// 2. Cargar y refrescar recientes si toca
 useEffect(() => {
   let intervalo;
 
@@ -249,6 +250,11 @@ useEffect(() => {
   if (tipoVisualizacion === "recientes") {
     cargarYRefrescar();
   }
+
+  return () => {
+    if (intervalo) clearInterval(intervalo);
+  };
+}, [tipoVisualizacion]);
 
   return () => {
     if (intervalo) clearInterval(intervalo);

@@ -229,22 +229,21 @@ useEffect(() => {
 
     const data = await cargarDatos("recientes");
 
-    if (!data || data.length === 0) {
-      console.log("🛑 [Recientes] No hay conversaciones. NO se inicia intervalo.");
+    const hayActivas = (data || []).some((conv) => {
+      const estado = (conv.estado || "").toLowerCase();
+      return estado === "activa" || estado === "inactiva";
+    });
+
+    if (!hayActivas) {
+      console.log("🛑 [Recientes] No hay activas/inactivas. NO se inicia intervalo.");
       return;
     }
 
-    console.log("✅ [Recientes] Hay conversaciones. Iniciando intervalo...");
+    console.log("✅ [Recientes] Hay activas/inactivas. Iniciando intervalo...");
 
     intervalo = setInterval(() => {
-      const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-
-      if (hayActivas) {
-        console.log("🔄 [Recientes] Hay activas/inactivas visibles. Refrescando...");
-        cargarDatos("recientes");
-      } else {
-        console.log("🧘 [Recientes] Solo hay archivadas o ninguna. NO se refresca.");
-      }
+      console.log("🔄 [Recientes] Refrescando conversaciones...");
+      cargarDatos("recientes");
     }, 5000);
   };
 
@@ -267,7 +266,6 @@ useEffect(() => {
     }
   };
 }, [tipoVisualizacion]);
-
   useEffect(() => {
   const conv = todasConversaciones.find(c => c.userId === userId);
   const estado = (conv?.estado || "").toLowerCase();

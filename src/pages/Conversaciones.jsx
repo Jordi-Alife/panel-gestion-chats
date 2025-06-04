@@ -277,8 +277,8 @@ useEffect(() => {
     const conv = todasConversaciones.find(c => c.userId === userId);
     const estado = (conv?.estado || "").toLowerCase();
 
-    if (!userId || estado === "cerrado" || estado === "archivado") {
-      console.log("🛑 Conversación cerrada o archivada. Deteniendo intervalo.");
+    if (!userId || estado === "cerrado" || estado === "archivado" || tipoVisualizacion !== "recientes") {
+      console.log("🛑 Conversación cerrada, archivada o fuera de 'recientes'. No refresca.");
       clearInterval(intervalo);
       return;
     }
@@ -287,14 +287,14 @@ useEffect(() => {
     cargarMensajes(false);
   };
 
-  refrescar(); // Ejecutar una vez al inicio
+  refrescar();
   intervalo = setInterval(refrescar, 5000);
 
   return () => {
-    console.log("🧹 Limpiando intervalo de mensajes al desmontar.");
     clearInterval(intervalo);
+    console.log("🧹 Intervalo limpiado.");
   };
-}, [userId, limiteMensajes, todasConversaciones]);
+}, [userId, limiteMensajes, tipoVisualizacion, todasConversaciones]);
   useEffect(() => {
   if (!userId) return;
 

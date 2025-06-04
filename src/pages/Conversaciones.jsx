@@ -10,6 +10,9 @@ import logoFondo from "../assets/logo-fondo.svg";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
+// Identificador único para detectar origen de peticiones
+const clientId = `client-${Math.floor(Math.random() * 100000)}-${Date.now()}`;
+
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;

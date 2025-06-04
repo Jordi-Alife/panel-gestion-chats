@@ -46,7 +46,8 @@ useEffect(() => {
 
   const cargarDatos = async (tipo = "recientes") => {
   try {
-    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}`;
+    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}&cliente=${clientId}`;
+    console.log("🛰️ Petición GET /api/conversaciones", { tipo, clientId });
     const res = await fetch(url);
 
     // 🧪 Leer la respuesta como texto para depurar

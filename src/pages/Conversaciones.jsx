@@ -271,23 +271,29 @@ useEffect(() => {
   };
 }, [tipoVisualizacion]);
   useEffect(() => {
-  const conv = todasConversaciones.find(c => c.userId === userId);
-  const estado = (conv?.estado || "").toLowerCase();
-
-  if (!userId || estado === "cerrado" || estado === "archivado") {
-    console.log("⏸️ No se refrescan mensajes: sin conversación válida");
-    return;
-  }
+  let interval = null;
 
   const refrescar = () => {
     console.log("🔁 Refrescando mensajes de:", userId);
     cargarMensajes(false);
   };
 
-  refrescar(); // Ejecutar al entrar
-  const interval = setInterval(refrescar, 5000);
+  const conv = todasConversaciones.find(c => c.userId === userId);
+  const estado = (conv?.estado || "").toLowerCase();
 
-  return () => clearInterval(interval);
+  if (userId && estado !== "cerrado" && estado !== "archivado") {
+    refrescar();
+    interval = setInterval(refrescar, 5000);
+  } else {
+    console.log("⏸️ No se refrescan mensajes: sin conversación válida");
+  }
+
+  return () => {
+    if (interval) {
+      clearInterval(interval);
+      console.log("🧹 Intervalo de refresco de mensajes detenido.");
+    }
+  };
 }, [userId, limiteMensajes, todasConversaciones]);
 
   useEffect(() => {

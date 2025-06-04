@@ -271,31 +271,30 @@ useEffect(() => {
   };
 }, [tipoVisualizacion]);
   useEffect(() => {
-  let interval = null;
+  let intervalo;
 
   const refrescar = () => {
+    const conv = todasConversaciones.find(c => c.userId === userId);
+    const estado = (conv?.estado || "").toLowerCase();
+
+    if (!userId || estado === "cerrado" || estado === "archivado") {
+      console.log("🛑 Conversación cerrada o archivada. Deteniendo intervalo.");
+      clearInterval(intervalo);
+      return;
+    }
+
     console.log("🔁 Refrescando mensajes de:", userId);
     cargarMensajes(false);
   };
 
-  const conv = todasConversaciones.find(c => c.userId === userId);
-  const estado = (conv?.estado || "").toLowerCase();
-
-  if (userId && estado !== "cerrado" && estado !== "archivado") {
-    refrescar();
-    interval = setInterval(refrescar, 5000);
-  } else {
-    console.log("⏸️ No se refrescan mensajes: sin conversación válida");
-  }
+  refrescar(); // Ejecutar una vez al inicio
+  intervalo = setInterval(refrescar, 5000);
 
   return () => {
-    if (interval) {
-      clearInterval(interval);
-      console.log("🧹 Intervalo de refresco de mensajes detenido.");
-    }
+    console.log("🧹 Limpiando intervalo de mensajes al desmontar.");
+    clearInterval(intervalo);
   };
 }, [userId, limiteMensajes, todasConversaciones]);
-
   useEffect(() => {
   if (!userId) return;
 

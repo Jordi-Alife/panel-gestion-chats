@@ -224,60 +224,20 @@ useEffect(() => {
   }
 }, [tipoVisualizacion]);
 
-// 2. Cargar y refrescar recientes si toca
+import { escucharConversacionesRecientes } from "../firebaseDB"; // asegúrate que esta línea está arriba
+
 useEffect(() => {
-  let intervalo;
+  if (tipoVisualizacion !== "recientes") return;
 
-  const cargarYRefrescar = async () => {
-    console.log("🟡 [Recientes] Ejecutando cargarYRefrescar()");
-
-    const data = await cargarDatos("recientes");
-
-    const hayActivas = (data || []).some((conv) => {
-      const estado = (conv.estado || "").toLowerCase();
-      return estado === "activa" || estado === "inactiva";
-    });
-
-    if (!hayActivas) {
-      console.log("🛑 [Recientes] No hay activas/inactivas. NO se inicia intervalo.");
-      return;
-    }
-
-    console.log("✅ [Recientes] Hay activas/inactivas. Iniciando intervalo...");
-
-    intervalo = setInterval(async () => {
-      console.log("🔄 [Recientes] Refrescando conversaciones...");
-      const nuevas = await cargarDatos("recientes");
-
-      const siguenActivas = (nuevas || []).some((conv) => {
-        const estado = (conv.estado || "").toLowerCase();
-        return estado === "activa" || estado === "inactiva";
-      });
-
-      if (!siguenActivas) {
-        console.log("🧹 [Recientes] Ya no hay activas/inactivas. Deteniendo intervalo.");
-        clearInterval(intervalo);
-      }
-    }, 5000);
-  };
-
-  if (tipoVisualizacion === "archivadas") {
-    console.log("📦 [Archivadas] Cargando una sola vez.");
-    setSearchParams({});
-    cargarDatos("archivadas");
-    return;
-  }
-
-  if (tipoVisualizacion === "recientes") {
-    console.log("📡 [Recientes] Activando lógica de refresco.");
-    cargarYRefrescar();
-  }
+  console.log("👂 Escuchando conversaciones recientes en tiempo real...");
+  const unsubscribe = escucharConversacionesRecientes((lista) => {
+    console.log("📥 Conversaciones actualizadas:", lista.length);
+    setTodasConversaciones(lista);
+  });
 
   return () => {
-    if (intervalo) {
-      console.log("🧽 [Recientes] Limpiando intervalo al desmontar.");
-      clearInterval(intervalo);
-    }
+    console.log("🧹 Parando escucha de conversaciones recientes");
+    unsubscribe();
   };
 }, [tipoVisualizacion]);
   useEffect(() => {

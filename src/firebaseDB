@@ -51,7 +51,10 @@ export const escucharConversacionesRecientes = (callback) => {
 
   return onSnapshot(ref, (snapshot) => {
     const lista = snapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .map(doc => ({
+        userId: doc.id, // ✅ Añadido: necesario para que Conversaciones.jsx lo use
+        ...doc.data()
+      }))
       .filter(c => (c.estado || "").toLowerCase() !== "cerrado" && (c.estado || "").toLowerCase() !== "archivado");
 
     callback(lista);

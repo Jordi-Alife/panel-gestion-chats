@@ -345,7 +345,9 @@ useEffect(() => {
     return mapa[paisTexto] ? mapa[paisTexto].toLowerCase() : null;
   };
 
-  const conversacionesPorUsuario = todasConversaciones.reduce((acc, item) => {
+ const conversacionesPorUsuario = todasConversaciones
+  .filter(item => item.userId) // ✅ Evita que se propaguen valores undefined
+  .reduce((acc, item) => {
   const actual = acc[item.userId] || { mensajes: [], estado: "abierta" };
   actual.mensajes = [...(actual.mensajes || []), ...(item.mensajes || [])];
   actual.pais = item.pais;

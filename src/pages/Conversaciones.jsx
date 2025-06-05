@@ -463,11 +463,7 @@ if (
       {/* Columna izquierda */}
 <div className="w-[22%] h-full overflow-y-auto">
   <ConversacionList
-  conversaciones={(() => {
-    const estadoFiltrado = listaAgrupada.filter((c) => {
-  const estado = c.estado || "";
-  return estado === "Activa" || estado === "Inactiva";
-});
+  conversaciones={listaAgrupada}
     return estadoFiltrado;
   })()}
   userIdActual={userId}

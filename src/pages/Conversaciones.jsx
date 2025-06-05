@@ -5,6 +5,7 @@ import ChatPanel from "../components/ChatPanel";
 import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
 import logoFondo from "../assets/logo-fondo.svg";
+import { escucharConversacionesRecientes } from "../firebaseDB"; // asegúrate que esta línea está arriba
 
 // ✅ Definir aquí, fuera del componente
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -223,8 +224,6 @@ useEffect(() => {
     cargarDatos("archivadas");
   }
 }, [tipoVisualizacion]);
-
-import { escucharConversacionesRecientes } from "../firebaseDB"; // asegúrate que esta línea está arriba
 
 useEffect(() => {
   if (tipoVisualizacion !== "recientes") return;

@@ -281,38 +281,39 @@ useEffect(() => {
   };
 }, [tipoVisualizacion]);
   useEffect(() => {
-  if (!userId) return;
-
   let intervalo = null;
-  let activo = true;
 
-  const refrescar = () => {
-    const conv = todasConversaciones.find((c) => c.userId === userId);
+  const refrescarMensajes = () => {
+    const conv = todasConversaciones.find(c => c.userId === userId);
     const estado = (conv?.estado || "").toLowerCase();
 
     if (!userId || estado === "cerrado" || estado === "archivado") {
-      console.log("🛑 Conversación cerrada o archivada. Deteniendo refresco.");
-      activo = false;
-      clearInterval(intervalo);
-      return;
+      console.log("🛑 No refresco. Conversación cerrada o archivada.");
+      return false; // indica que no debe seguir
     }
 
     console.log("🔁 Refrescando mensajes de:", userId);
     cargarMensajes(false);
+    return true;
   };
 
-  refrescar(); // primer fetch
+  // Ejecutar una vez
+  const seguir = refrescarMensajes();
+  if (!seguir) return;
 
   intervalo = setInterval(() => {
-    if (!activo) return;
-    refrescar();
+    const seguirIntervalo = refrescarMensajes();
+    if (!seguirIntervalo) {
+      clearInterval(intervalo);
+      console.log("🧹 Intervalo detenido por cierre de conversación.");
+    }
   }, 5000);
 
   return () => {
     clearInterval(intervalo);
-    console.log("🧹 Intervalo de mensajes limpiado al desmontar.");
+    console.log("🧽 Intervalo limpiado al desmontar.");
   };
-}, [userId, todasConversaciones.map((c) => `${c.userId}:${c.estado}`).join("|")]);
+}, [userId, todasConversaciones.map(c => `${c.userId}:${c.estado}`).join("|")]);
   
   useEffect(() => {
   if (!userId) return;

@@ -440,12 +440,14 @@ if (
       };
     })
     .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
-    .filter(
-      (c) =>
-        filtro === "todas" ||
-        (filtro === "gpt" && !c.intervenida) ||
-        (filtro === "humanas" && c.intervenida)
-    );
+    .filter((c) => {
+  const estado = (c.estado || "").toLowerCase();
+  const pasaFiltro =
+    filtro === "todas" ||
+    (filtro === "gpt" && !c.intervenida) ||
+    (filtro === "humanas" && c.intervenida);
+  return pasaFiltro && estado !== "cerrado" && estado !== "archivado";
+});
     return (
     <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">
       

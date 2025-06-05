@@ -464,12 +464,8 @@ if (
 <div className="w-[22%] h-full overflow-y-auto">
   <ConversacionList
   conversaciones={listaAgrupada}
-    return estadoFiltrado;
-  })()}
   userIdActual={userId}
-  onSelect={(id) => {
-  setSearchParams({ userId: id });
-}}
+  onSelect={(id) => setSearchParams({ userId: id })}
   filtro={filtro}
   setFiltro={setFiltro}
   paisAToIso={paisAToIso}

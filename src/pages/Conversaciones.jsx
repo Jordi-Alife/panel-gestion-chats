@@ -455,7 +455,7 @@ if (
     filtro === "todas" ||
     (filtro === "gpt" && !c.intervenida) ||
     (filtro === "humanas" && c.intervenida);
-  return pasaFiltro && estado !== "cerrado" && estado !== "archivado";
+  return pasaFiltro; // ⚠️ dejar ver también cerradas/archivadas por ahora
 });
     return (
     <div className="flex flex-row h-screen bg-[#f0f4f8] dark:bg-gray-950 overflow-hidden">

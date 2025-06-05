@@ -245,9 +245,19 @@ useEffect(() => {
 
     console.log("✅ [Recientes] Hay activas/inactivas. Iniciando intervalo...");
 
-    intervalo = setInterval(() => {
+    intervalo = setInterval(async () => {
       console.log("🔄 [Recientes] Refrescando conversaciones...");
-      cargarDatos("recientes");
+      const nuevas = await cargarDatos("recientes");
+
+      const siguenActivas = (nuevas || []).some((conv) => {
+        const estado = (conv.estado || "").toLowerCase();
+        return estado === "activa" || estado === "inactiva";
+      });
+
+      if (!siguenActivas) {
+        console.log("🧹 [Recientes] Ya no hay activas/inactivas. Deteniendo intervalo.");
+        clearInterval(intervalo);
+      }
     }, 5000);
   };
 
@@ -265,7 +275,7 @@ useEffect(() => {
 
   return () => {
     if (intervalo) {
-      console.log("🧹 [Recientes] Limpiando intervalo.");
+      console.log("🧽 [Recientes] Limpiando intervalo al desmontar.");
       clearInterval(intervalo);
     }
   };

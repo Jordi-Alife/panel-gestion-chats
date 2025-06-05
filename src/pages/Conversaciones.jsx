@@ -297,12 +297,10 @@ useEffect(() => {
 }, [userId]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
-  }, [userId]);
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+  }
+}, [mensajes.length]);
 
   useEffect(() => {
   if (chatRef.current && scrollForzado.current) {

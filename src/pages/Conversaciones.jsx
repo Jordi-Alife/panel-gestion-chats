@@ -305,6 +305,15 @@ useEffect(() => {
   }, [userId]);
 
   useEffect(() => {
+  if (chatRef.current && scrollForzado.current) {
+    chatRef.current.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+}, [mensajes]);
+  
+  useEffect(() => {
     if (!userId) return;
     const conversacion = todasConversaciones.find((c) => c.userId === userId);
     if (conversacion && conversacion.intervenidaPor) {

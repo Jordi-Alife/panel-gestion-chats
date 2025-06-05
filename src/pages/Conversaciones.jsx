@@ -281,39 +281,36 @@ useEffect(() => {
   };
 }, [tipoVisualizacion]);
   useEffect(() => {
-  let intervalo = null;
+  let intervalo;
 
-  const refrescarMensajes = () => {
-    const conv = todasConversaciones.find(c => c.userId === userId);
-    const estado = (conv?.estado || "").toLowerCase();
+  const conv = todasConversaciones.find(c => c.userId === userId);
+  const estado = (conv?.estado || "").toLowerCase();
 
-    if (!userId || estado === "cerrado" || estado === "archivado") {
-      console.log("🛑 No refresco. Conversación cerrada o archivada.");
-      return false; // indica que no debe seguir
-    }
+  const debeRefrescar = userId && (estado === "abierta" || estado === "activa" || estado === "inactiva");
 
-    console.log("🔁 Refrescando mensajes de:", userId);
+  if (debeRefrescar) {
+    console.log("✅ [Mensajes] Iniciando refresco de mensajes para", userId);
     cargarMensajes(false);
-    return true;
-  };
 
-  // Ejecutar una vez
-  const seguir = refrescarMensajes();
-  if (!seguir) return;
-
-  intervalo = setInterval(() => {
-    const seguirIntervalo = refrescarMensajes();
-    if (!seguirIntervalo) {
-      clearInterval(intervalo);
-      console.log("🧹 Intervalo detenido por cierre de conversación.");
-    }
-  }, 5000);
+    intervalo = setInterval(() => {
+      const estadoActualizado = (todasConversaciones.find(c => c.userId === userId)?.estado || "").toLowerCase();
+      if (estadoActualizado === "cerrado" || estadoActualizado === "archivado") {
+        console.log("🛑 [Mensajes] Conversación cerrada o archivada. Deteniendo intervalo.");
+        clearInterval(intervalo);
+      } else {
+        console.log("🔁 [Mensajes] Refrescando mensajes de:", userId);
+        cargarMensajes(false);
+      }
+    }, 5000);
+  } else {
+    console.log("⛔ [Mensajes] No se inicia refresco: conversación cerrada/archivada.");
+  }
 
   return () => {
     clearInterval(intervalo);
-    console.log("🧽 Intervalo limpiado al desmontar.");
+    console.log("🧹 [Mensajes] Intervalo limpiado.");
   };
-}, [userId, todasConversaciones.map(c => `${c.userId}:${c.estado}`).join("|")]);
+}, [userId, todasConversaciones]);
   
   useEffect(() => {
   if (!userId) return;

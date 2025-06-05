@@ -71,3 +71,6 @@ export const escucharMensajesUsuario = (userId, callback) => {
 };
 
 export { app, db }; // Exportamos app y db por si quieres usarlos en otros sitios
+
+window.escucharMensajesUsuario = escucharMensajesUsuario;
+

@@ -46,4 +46,16 @@ export const escucharAgentes = (callback) => {
   });
 };
 
+export const escucharConversacionesRecientes = (callback) => {
+  const ref = collection(db, "conversaciones");
+
+  return onSnapshot(ref, (snapshot) => {
+    const lista = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(c => (c.estado || "").toLowerCase() !== "cerrado" && (c.estado || "").toLowerCase() !== "archivado");
+
+    callback(lista);
+  });
+};
+
 export { app, db }; // Exportamos app y db por si quieres usarlos en otros sitios

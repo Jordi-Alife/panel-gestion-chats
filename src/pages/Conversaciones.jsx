@@ -37,6 +37,15 @@ export default function Conversaciones() {
   const chatRef = useRef(null);
   const scrollForzado = useRef(true);
 
+  // ✅ Ahora sí va aquí
+  useEffect(() => {
+    if (window.location.pathname === "/conversaciones") {
+      setTipoVisualizacion("recientes");
+    } else if (window.location.pathname === "/archivadas-new") {
+      setTipoVisualizacion("archivadas");
+    }
+  }, []);
+
   // ✅ Cargar mensajes inmediatamente al seleccionar conversación
 useEffect(() => {
   if (!userId) return;

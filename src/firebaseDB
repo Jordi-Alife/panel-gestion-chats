@@ -72,5 +72,12 @@ export const escucharMensajesUsuario = (userId, callback) => {
 
 export { app, db }; // Exportamos app y db por si quieres usarlos en otros sitios
 
-window.escucharMensajesUsuario = escucharMensajesUsuario;
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
+window.firestore = {
+  db,
+  collection,
+  query,
+  where,
+  onSnapshot
+};

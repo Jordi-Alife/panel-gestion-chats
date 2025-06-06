@@ -1,6 +1,18 @@
 // src/firebaseDB.js
+
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  where
+} from 'firebase/firestore'; // ✅ Importaciones agrupadas y arriba del todo
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -52,10 +64,13 @@ export const escucharConversacionesRecientes = (callback) => {
   return onSnapshot(ref, (snapshot) => {
     const lista = snapshot.docs
       .map(doc => ({
-        userId: doc.id, // ✅ Añadido: necesario para que Conversaciones.jsx lo use
+        userId: doc.id, // ✅ Necesario para que Conversaciones.jsx lo use
         ...doc.data()
       }))
-      .filter(c => (c.estado || "").toLowerCase() !== "cerrado" && (c.estado || "").toLowerCase() !== "archivado");
+      .filter(c =>
+        (c.estado || "").toLowerCase() !== "cerrado" &&
+        (c.estado || "").toLowerCase() !== "archivado"
+      );
 
     callback(lista);
   });
@@ -70,10 +85,10 @@ export const escucharMensajesUsuario = (userId, callback) => {
   });
 };
 
-export { app, db }; // Exportamos app y db por si quieres usarlos en otros sitios
+// ✅ Exportaciones explícitas para otros módulos del panel
+export { app, db };
 
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-
+// ✅ Exportación al window para uso en scripts planos como main.js
 window.firestore = {
   db,
   collection,

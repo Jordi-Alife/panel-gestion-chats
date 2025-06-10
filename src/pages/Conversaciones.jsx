@@ -51,6 +51,9 @@ export default function Conversaciones() {
  useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 
+  // ⚠️ Al seleccionar conversación, carga mensajes manualmente una vez
+  cargarMensajes(false);
+
   if (
     !window.firestore?.collection ||
     !window.firestore?.onSnapshot ||

@@ -11,40 +11,6 @@ import { db } from "../firebaseDB";
 
 // ✅ Definir aquí, fuera del componente
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-// 🧠 Perfil cargado desde localStorage
-const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
-
-// 🔁 Función reutilizable para cargar datos de conversaciones y vistas
-const cargarDatos = async (tipo = "recientes") => {
-  try {
-    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}&cliente=${clientId}`;
-    console.log("🛰️ Petición GET /api/conversaciones", { tipo, clientId });
-    const res = await fetch(url);
-
-    const text = await res.text();
-    console.log(`🔎 Respuesta cruda desde /api/conversaciones?tipo=${tipo}:`, text);
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (jsonErr) {
-      console.error("❌ Error al parsear JSON:", jsonErr);
-      return [];
-    }
-
-    setTodasConversaciones(data);
-
-    const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
-    const vistasData = await vistasRes.json();
-    setVistas(vistasData);
-
-    return data;
-  } catch (err) {
-    console.error("❌ Error en cargarDatos:", err);
-    return [];
-  }
-};
-
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
 // Identificador único para detectar origen de peticiones
@@ -162,23 +128,14 @@ export default function Conversaciones() {
     }
 
     // ✅ Cargar mensajes limitados
-const total = mensajesConEtiqueta.length;
-const limite = Math.max(limiteMensajes, total);
-const nuevos = mensajesConEtiqueta.slice(-limite);
+const nuevos = mensajesConEtiqueta.slice(-limiteMensajes);
 
 setMensajes((prev) => {
   const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
   return mismoContenido ? [...nuevos] : nuevos;
 });
 
-setHayMasMensajes(total > limite);
-setLimiteMensajes(limite); // opcional, para mantenerlo actualizado
-
-if (!chatRef.current) {
-  console.warn("⚠️ chatRef no está disponible todavía.");
-} else {
-  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
-}
+setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
 
 setTimeout(() => {
   const el = chatRef.current;
@@ -186,10 +143,47 @@ setTimeout(() => {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }
 }, 100);
+  });
 
-return () => {
-  console.log("🧹 Desactivando listener de mensajes de:", userId);
-  unsubscribe();
+  return () => {
+    console.log("🧹 Desactivando listener de mensajes de:", userId);
+    unsubscribe();
+  };
+}, [userId, tipoVisualizacion]);
+
+  const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
+  const cargarDatos = async (tipo = "recientes") => {
+  try {
+    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}&cliente=${clientId}`;
+    console.log("🛰️ Petición GET /api/conversaciones", { tipo, clientId });
+    const res = await fetch(url);
+
+    // 🧪 Leer la respuesta como texto para depurar
+    const text = await res.text();
+
+    // 🔎 Mostrar la respuesta cruda en consola
+    console.log(`🔎 Respuesta cruda desde /api/conversaciones?tipo=${tipo}:`, text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (jsonErr) {
+      console.error("❌ Error al parsear JSON:", jsonErr);
+      return []; // devolvemos lista vacía si hay error
+    }
+
+    setTodasConversaciones(data);
+
+    const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
+    const vistasData = await vistasRes.json();
+    setVistas(vistasData);
+
+    return data;
+  } catch (err) {
+    console.error("❌ Error en cargarDatos:", err);
+    return [];
+  }
 };
     const cargarMensajes = async (verMas = false) => {
   if (!userId) return;

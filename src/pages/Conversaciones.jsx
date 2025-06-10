@@ -48,12 +48,6 @@ export default function Conversaciones() {
     }
   }, []);
 
-  // ✅ Cargar mensajes inmediatamente al seleccionar conversación
-useEffect(() => {
-  if (!userId) return;
-  cargarMensajes(false);
-}, [userId]);
-
  useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 

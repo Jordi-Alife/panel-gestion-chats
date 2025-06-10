@@ -128,14 +128,17 @@ export default function Conversaciones() {
     }
 
     // ✅ Cargar mensajes limitados
-const nuevos = mensajesConEtiqueta.slice(-limiteMensajes);
+const total = mensajesConEtiqueta.length;
+const limite = Math.max(limiteMensajes, total);
+const nuevos = mensajesConEtiqueta.slice(-limite);
 
 setMensajes((prev) => {
   const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
   return mismoContenido ? [...nuevos] : nuevos;
 });
 
-setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
+setHayMasMensajes(total > limite);
+setLimiteMensajes(limite); // opcional, para mantenerlo actualizado
 
 setTimeout(() => {
   const el = chatRef.current;
@@ -143,8 +146,6 @@ setTimeout(() => {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }
 }, 100);
-  });
-
   return () => {
     console.log("🧹 Desactivando listener de mensajes de:", userId);
     unsubscribe();

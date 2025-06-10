@@ -57,6 +57,15 @@ useEffect(() => {
   useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 
+  if (
+    !window.firestore?.collection ||
+    !window.firestore?.onSnapshot ||
+    typeof window.firestore.collection !== "function"
+  ) {
+    console.warn("⚠️ Firestore aún no disponible.");
+    return;
+  }
+
   const ref = window.firestore
     .collection("mensajes")
     .where("idConversacion", "==", userId);
@@ -67,7 +76,7 @@ useEffect(() => {
     const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
     window.__mensajes = docs;
-    cargarMensajes(false); // puedes usar tu función actual
+    cargarMensajes(false);
   });
 
   return () => {

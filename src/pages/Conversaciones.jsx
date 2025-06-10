@@ -272,37 +272,6 @@ useEffect(() => {
     unsubscribe();
   };
 }, [tipoVisualizacion]);
-  useEffect(() => {
-  let intervalo;
-
-  const conv = todasConversaciones.find(c => c.userId === userId);
-  const estado = (conv?.estado || "").toLowerCase();
-
-  const debeRefrescar = userId && (estado === "abierta" || estado === "activa" || estado === "inactiva");
-
-  if (debeRefrescar) {
-    console.log("✅ [Mensajes] Iniciando refresco de mensajes para", userId);
-    cargarMensajes(false);
-
-    intervalo = setInterval(() => {
-      const estadoActualizado = (todasConversaciones.find(c => c.userId === userId)?.estado || "").toLowerCase();
-      if (estadoActualizado === "cerrado" || estadoActualizado === "archivado") {
-        console.log("🛑 [Mensajes] Conversación cerrada o archivada. Deteniendo intervalo.");
-        clearInterval(intervalo);
-      } else {
-        console.log("🔁 [Mensajes] Refrescando mensajes de:", userId);
-        cargarMensajes(false);
-      }
-    }, 5000);
-  } else {
-    console.log("⛔ [Mensajes] No se inicia refresco: conversación cerrada/archivada.");
-  }
-
-  return () => {
-    clearInterval(intervalo);
-    console.log("🧹 [Mensajes] Intervalo limpiado.");
-  };
-}, [userId, todasConversaciones]);
 
 useEffect(() => {
   if (!userId) return;

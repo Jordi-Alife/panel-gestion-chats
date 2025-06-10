@@ -6,6 +6,8 @@ import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
 import logoFondo from "../assets/logo-fondo.svg";
 import { escucharConversacionesRecientes } from "../firebaseDB"; // asegúrate que esta línea está arriba
+import { onSnapshot, doc } from "firebase/firestore";
+import { db } from "../firebaseDB";
 
 // ✅ Definir aquí, fuera del componente
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -280,22 +282,6 @@ useEffect(() => {
   };
 }, [userId, todasConversaciones]);
   
-  useEffect(() => {
-  if (!userId) return;
-
-  const interval = setInterval(() => {
-    const estadoChat = localStorage.getItem('chatEstado');
-    if (estadoChat !== "abierto") return; // ⛔ Evita fetch si no está abierto
-
-    fetch(`/api/escribiendo/${userId}`)
-      .then((res) => res.json())
-      .then((data) => setTextoEscribiendo(data.texto || ""))
-      .catch(console.error);
-  }, 5000); // ⏱️ reducido a cada 5s
-
-  return () => clearInterval(interval);
-}, [userId]);
-
   useEffect(() => {
   if (chatRef.current) {
     chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });

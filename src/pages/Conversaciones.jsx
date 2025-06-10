@@ -280,8 +280,8 @@ useEffect(() => {
   };
 }, [userId, todasConversaciones]);
   
-  import { onSnapshot, doc } from "firebase/firestore"; // Asegúrate de tenerlo arriba
-import { db } from "../firebaseDB"; // Ya lo tienes configurado
+import { onSnapshot, doc } from "firebase/firestore";
+import { db } from "../firebaseDB";
 
 useEffect(() => {
   if (!userId) return;

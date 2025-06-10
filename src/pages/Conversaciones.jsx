@@ -280,19 +280,20 @@ useEffect(() => {
   };
 }, [userId, todasConversaciones]);
   
-import { onSnapshot, doc } from "firebase/firestore";
-import { db } from "../firebaseDB";
-
-useEffect(() => {
+  useEffect(() => {
   if (!userId) return;
 
-  const ref = doc(db, "escribiendo", userId);
-  const unsubscribe = onSnapshot(ref, (docSnapshot) => {
-    const data = docSnapshot.data();
-    setTextoEscribiendo(data?.texto || "");
-  });
+  const interval = setInterval(() => {
+    const estadoChat = localStorage.getItem('chatEstado');
+    if (estadoChat !== "abierto") return; // ⛔ Evita fetch si no está abierto
 
-  return () => unsubscribe();
+    fetch(`/api/escribiendo/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setTextoEscribiendo(data.texto || ""))
+      .catch(console.error);
+  }, 5000); // ⏱️ reducido a cada 5s
+
+  return () => clearInterval(interval);
 }, [userId]);
 
   useEffect(() => {

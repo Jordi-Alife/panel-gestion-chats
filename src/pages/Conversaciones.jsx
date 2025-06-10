@@ -54,7 +54,7 @@ useEffect(() => {
   cargarMensajes(false);
 }, [userId]);
 
-  useEffect(() => {
+ useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 
   if (
@@ -73,60 +73,67 @@ useEffect(() => {
   console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
   const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
-  const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
+    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  // Ordenar por timestamp
-  const ordenados = docs.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    // ✅ Guardar en ventana global (solo si lo usas para debug o comparar)
+    window.__mensajes = docs;
 
-  // Aplicar etiquetas igual que en cargarMensajes
-  const mensajesConEtiqueta = [];
-  let estadoActual = "gpt";
+    console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
 
-  for (let i = 0; i < ordenados.length; i++) {
-    const msg = ordenados[i];
-    const ultimaEtiqueta = mensajesConEtiqueta.length
-      ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-      : null;
+    // ✅ Ordenar por timestamp
+    const ordenados = docs.sort(
+      (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
+    );
 
-    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
-        });
+    // ✅ Aplicar etiquetas como en cargarMensajes
+    const mensajesConEtiqueta = [];
+    let estadoActual = "gpt";
+
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
+      const ultimaEtiqueta = mensajesConEtiqueta.length
+        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+        : null;
+
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+        }
+        estadoActual = "gpt";
       }
-      estadoActual = "gpt";
+
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+        }
+      }
+
+      if (msg.manual === true && estadoActual === "gpt") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+        }
+        estadoActual = "humano";
+      }
+
+      mensajesConEtiqueta.push(msg);
     }
 
-    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "El usuario ha cerrado el chat",
-          timestamp: msg.lastInteraction,
-        });
-      }
-    }
-
-    if (msg.manual === true && estadoActual === "gpt") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
-      }
-      estadoActual = "humano";
-    }
-
-    mensajesConEtiqueta.push(msg);
-  }
-
-  setMensajes(mensajesConEtiqueta.slice(-limiteMensajes));
-  setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
-});
+    // ✅ Cargar mensajes limitados
+    setMensajes(mensajesConEtiqueta.slice(-limiteMensajes));
+    setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
+  });
 
   return () => {
     console.log("🧹 Desactivando listener de mensajes de:", userId);

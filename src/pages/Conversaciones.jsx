@@ -54,6 +54,28 @@ useEffect(() => {
   cargarMensajes(false);
 }, [userId]);
 
+  useEffect(() => {
+  if (!userId || tipoVisualizacion !== "recientes") return;
+
+  const ref = window.firestore
+    .collection("mensajes")
+    .where("idConversacion", "==", userId);
+
+  console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
+
+  const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
+    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
+    window.__mensajes = docs;
+    cargarMensajes(false); // puedes usar tu función actual
+  });
+
+  return () => {
+    console.log("🧹 Desactivando listener de mensajes de:", userId);
+    unsubscribe();
+  };
+}, [userId, tipoVisualizacion]);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {

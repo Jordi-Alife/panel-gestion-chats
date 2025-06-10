@@ -128,9 +128,16 @@ export default function Conversaciones() {
     }
 
     // ✅ Cargar mensajes limitados
-    setMensajes(mensajesConEtiqueta.slice(-limiteMensajes));
-    setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
-    setTimeout(() => {
+const nuevos = mensajesConEtiqueta.slice(-limiteMensajes);
+
+setMensajes((prev) => {
+  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+  return mismoContenido ? [...nuevos] : nuevos;
+});
+
+setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
+
+setTimeout(() => {
   const el = chatRef.current;
   if (el && scrollForzado.current) {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });

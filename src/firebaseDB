@@ -11,8 +11,9 @@ import {
   doc,
   onSnapshot,
   query,
-  where
-} from 'firebase/firestore'; // ✅ Importaciones agrupadas y arriba del todo
+  where,
+  setDoc // ✅ IMPORTANTE: añadir setDoc aquí
+} from 'firebase/firestore'; // ✅ Importaciones agrupadas
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -64,7 +65,7 @@ export const escucharConversacionesRecientes = (callback) => {
   return onSnapshot(ref, (snapshot) => {
     const lista = snapshot.docs
       .map(doc => ({
-        userId: doc.id, // ✅ Necesario para que Conversaciones.jsx lo use
+        userId: doc.id,
         ...doc.data()
       }))
       .filter(c =>
@@ -85,14 +86,16 @@ export const escucharMensajesUsuario = (userId, callback) => {
   });
 };
 
-// ✅ Exportaciones explícitas para otros módulos del panel
+// ✅ Exportaciones explícitas para módulos de React
 export { app, db };
 
-// ✅ Exportación al window para uso en scripts planos como main.js
+// ✅ Exportación global para scripts planos (main.js)
 window.firestore = {
   db,
   collection,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  doc,
+  setDoc // ✅ AÑADIDO para poder hacer window.firestore.setDoc(...) en main.js
 };

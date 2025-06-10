@@ -281,6 +281,18 @@ useEffect(() => {
     console.log("🧹 [Mensajes] Intervalo limpiado.");
   };
 }, [userId, todasConversaciones]);
+
+useEffect(() => {
+  if (!userId) return;
+
+  const ref = doc(db, "escribiendo", userId);
+  const unsubscribe = onSnapshot(ref, (docSnapshot) => {
+    const data = docSnapshot.data();
+    setTextoEscribiendo(data?.texto || "");
+  });
+
+  return () => unsubscribe();
+}, [userId]);
   
   useEffect(() => {
   if (chatRef.current) {

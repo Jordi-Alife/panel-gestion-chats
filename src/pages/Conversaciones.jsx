@@ -133,6 +133,12 @@ useEffect(() => {
     // ✅ Cargar mensajes limitados
     setMensajes(mensajesConEtiqueta.slice(-limiteMensajes));
     setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
+    setTimeout(() => {
+  const el = chatRef.current;
+  if (el && scrollForzado.current) {
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }
+}, 100);
   });
 
   return () => {

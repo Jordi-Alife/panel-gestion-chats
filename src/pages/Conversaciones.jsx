@@ -140,17 +140,22 @@ setMensajes((prev) => {
 setHayMasMensajes(total > limite);
 setLimiteMensajes(limite); // opcional, para mantenerlo actualizado
 
+if (!chatRef.current) {
+  console.warn("⚠️ chatRef no está disponible todavía.");
+} else {
+  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
+}
+
 setTimeout(() => {
   const el = chatRef.current;
   if (el && scrollForzado.current) {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }
 }, 100);
-  return () => {
-    console.log("🧹 Desactivando listener de mensajes de:", userId);
-    unsubscribe();
-  };
-}, [userId, tipoVisualizacion]);
+
+return () => {
+  console.log("🧹 Desactivando listener de mensajes de:", userId);
+  unsubscribe();
 
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 

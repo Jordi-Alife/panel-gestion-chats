@@ -11,6 +11,40 @@ import { db } from "../firebaseDB";
 
 // ✅ Definir aquí, fuera del componente
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+// 🧠 Perfil cargado desde localStorage
+const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
+
+// 🔁 Función reutilizable para cargar datos de conversaciones y vistas
+const cargarDatos = async (tipo = "recientes") => {
+  try {
+    const url = `${BACKEND_URL}/api/conversaciones?tipo=${tipo}&cliente=${clientId}`;
+    console.log("🛰️ Petición GET /api/conversaciones", { tipo, clientId });
+    const res = await fetch(url);
+
+    const text = await res.text();
+    console.log(`🔎 Respuesta cruda desde /api/conversaciones?tipo=${tipo}:`, text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (jsonErr) {
+      console.error("❌ Error al parsear JSON:", jsonErr);
+      return [];
+    }
+
+    setTodasConversaciones(data);
+
+    const vistasRes = await fetch(`${BACKEND_URL}/api/vistas`);
+    const vistasData = await vistasRes.json();
+    setVistas(vistasData);
+
+    return data;
+  } catch (err) {
+    console.error("❌ Error en cargarDatos:", err);
+    return [];
+  }
+};
+
 console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 
 // Identificador único para detectar origen de peticiones

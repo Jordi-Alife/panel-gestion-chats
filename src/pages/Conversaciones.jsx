@@ -6,13 +6,7 @@ import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
 import logoFondo from "../assets/logo-fondo.svg";
 import { escucharConversacionesRecientes } from "../firebaseDB"; // asegúrate que esta línea está arriba
-import {
-  onSnapshot,
-  doc,
-  collection,
-  query,
-  where
-} from "firebase/firestore";
+import { onSnapshot, doc } from "firebase/firestore";
 import { db } from "../firebaseDB";
 
 // ✅ Definir aquí, fuera del componente
@@ -60,19 +54,29 @@ export default function Conversaciones() {
   // ⚠️ Al seleccionar conversación, carga mensajes manualmente una vez
   cargarMensajes(false);
 
-  const ref = query(
-    collection(db, "mensajes"),
-    where("idConversacion", "==", userId)
-  );
+  if (
+    !window.firestore?.collection ||
+    !window.firestore?.onSnapshot ||
+    typeof window.firestore.collection !== "function"
+  ) {
+    console.warn("⚠️ Firestore aún no disponible.");
+    return;
+  }
+
+  const ref = window.firestore
+    .collection("mensajes")
+    .where("idConversacion", "==", userId);
 
   console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
-  const unsubscribe = onSnapshot(ref, (snapshot) => {
+  const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
     const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
-    // ✅ Guardar en ventana global (debug)
+    // ✅ Guardar en ventana global (solo si lo usas para debug o comparar)
     window.__mensajes = docs;
+
+    console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
 
     // ✅ Ordenar por timestamp
     const ordenados = docs.sort(
@@ -124,48 +128,56 @@ export default function Conversaciones() {
       mensajesConEtiqueta.push(msg);
     }
 
-    // ✅ Control de scroll y setMensajes
-    const total = mensajesConEtiqueta.length;
-    const limite = Math.max(limiteMensajes, total);
-    const nuevos = mensajesConEtiqueta.slice(-limite);
+    // ✅ Cargar mensajes limitados con control de scroll
+const total = mensajesConEtiqueta.length;
+const limite = Math.max(limiteMensajes, total);
+const nuevos = mensajesConEtiqueta.slice(-limite);
 
-    setMensajes((prev) => {
-      const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-      if (mismoContenido) {
-        console.log("📥 Mensajes iguales, forzando render con refreshId");
-        return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
-      }
-      return nuevos;
-    });
+setMensajes((prev) => {
+  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+  if (mismoContenido) {
+    console.log("📥 Mensajes iguales, forzando render con refreshId");
+    return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
+  }
+  return nuevos;
+});;
 
-    setHayMasMensajes(total > limite);
-    setLimiteMensajes(limite);
+setHayMasMensajes(total > limite);
+setLimiteMensajes(limite); // mantenemos actualizado el límite
 
-    // ✅ Actualizar detalles del usuario
-    let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
-    if (!nuevaInfo) {
-      nuevaInfo = {
-        userId,
-        chatCerrado: false,
-        intervenida: false,
-        ...docs[docs.length - 1],
-      };
-    }
+// 🔄 Actualizar también los datos del usuario seleccionado
+let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
+if (!nuevaInfo) {
+  nuevaInfo = {
+    userId,
+    chatCerrado: false,
+    intervenida: false,
+    ...docs[docs.length - 1],
+  };
+}
 
-    setUsuarioSeleccionado((prev) => {
-      if (!prev || !prev.intervenida) return nuevaInfo;
-      return prev;
-    });
+setUsuarioSeleccionado((prev) => {
+  if (!prev || !prev.intervenida) {
+    return nuevaInfo;
+  }
+  return prev;
+});
 
-    setChatCerrado(nuevaInfo?.chatCerrado || false);
+setChatCerrado(nuevaInfo?.chatCerrado || false);
 
-    // ✅ Scroll automático
-    setTimeout(() => {
-      const el = chatRef.current;
-      if (el && scrollForzado.current) {
-        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
+// Scroll si corresponde
+if (!chatRef.current) {
+  console.warn("⚠️ chatRef no está disponible todavía.");
+} else {
+  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
+}
+
+setTimeout(() => {
+  const el = chatRef.current;
+  if (el && scrollForzado.current) {
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }
+}, 100);
   });
 
   return () => {
@@ -173,6 +185,7 @@ export default function Conversaciones() {
     unsubscribe();
   };
 }, [userId, tipoVisualizacion]);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {

@@ -41,63 +41,60 @@ const ChatPanel = ({
         )}
 
         {mensajes.map((msg, index) => {
-  if (
-  !msg.message &&
-  !msg.original &&
-  !msg.mensaje && // ✅ añadido para cubrir mensajes manuales
-  msg.tipo !== "imagen" &&
-  msg.tipo !== "etiqueta" &&
-  msg.tipo !== "estado"
-) {
-  return null;
-}
+          if (
+            !msg.message &&
+            !msg.original &&
+            !msg.mensaje &&
+            msg.tipo !== "imagen" &&
+            msg.tipo !== "etiqueta" &&
+            msg.tipo !== "estado"
+          ) {
+            return null;
+          }
 
-if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
-  const textoEtiqueta = msg.mensaje || msg.estado;
+          if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
+            const textoEtiqueta = msg.mensaje || msg.estado;
 
-  // ❌ Ocultar etiquetas "Cerrado" y "Traspasado a GPT" en el historial
-  if (
-    msg.tipo === "estado" &&
-    (textoEtiqueta === "Cerrado" || textoEtiqueta === "Traspasado a GPT")
-  ) {
-    return null;
-  }
+            if (
+              msg.tipo === "estado" &&
+              (textoEtiqueta === "Cerrado" || textoEtiqueta === "Traspasado a GPT")
+            ) {
+              return null;
+            }
 
-  // ✅ Evitar duplicadas consecutivas
-  const etiquetaAnterior = mensajes[index - 1];
-  const etiquetaRepetida =
-    etiquetaAnterior &&
-    (etiquetaAnterior.tipo === "etiqueta" || etiquetaAnterior.tipo === "estado") &&
-    (etiquetaAnterior.mensaje || etiquetaAnterior.estado) === textoEtiqueta;
+            const etiquetaAnterior = mensajes[index - 1];
+            const etiquetaRepetida =
+              etiquetaAnterior &&
+              (etiquetaAnterior.tipo === "etiqueta" || etiquetaAnterior.tipo === "estado") &&
+              (etiquetaAnterior.mensaje || etiquetaAnterior.estado) === textoEtiqueta;
 
-  if (etiquetaRepetida) {
-    return null;
-  }
+            if (etiquetaRepetida) return null;
 
-  return (
-    <div key={`etiqueta-${msg.timestamp || index}`} className="flex justify-center">
-      <span
-        className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-          textoEtiqueta === "Intervenida"
-            ? "bg-blue-100 text-blue-600 border border-transparent dark:border-white"
-            : textoEtiqueta === "Traspasado a GPT"
-            ? "bg-gray-200 text-gray-800"
-            : "bg-red-100 text-red-600"
-        }`}
-      >
-        {textoEtiqueta === "Traspasado a GPT" ? "Traspasada a GPT" : textoEtiqueta} •{" "}
-        {new Date(msg.timestamp?.toDate?.() || msg.timestamp || msg.lastInteraction).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </span>
-    </div>
-  );
-}
+            return (
+              <div key={`etiqueta-${msg.timestamp || index}`} className="flex justify-center">
+                <span
+                  className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+                    textoEtiqueta === "Intervenida"
+                      ? "bg-blue-100 text-blue-600 border border-transparent dark:border-white"
+                      : textoEtiqueta === "Traspasado a GPT"
+                      ? "bg-gray-200 text-gray-800"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {textoEtiqueta === "Traspasado a GPT" ? "Traspasada a GPT" : textoEtiqueta} •{" "}
+                  {new Date(msg.timestamp?.toDate?.() || msg.timestamp || msg.lastInteraction).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+            );
+          }
 
           const isAsistente =
             msg.from?.toLowerCase() === "asistente" ||
             msg.from?.toLowerCase() === "agente";
+
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
@@ -105,23 +102,22 @@ if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
-          // 🧠 Mostrar primero la traducción (si existe), luego el original como fallback
-const textoTraducido = msg.mensaje || msg.message || msg.original || "";
-const textoOriginal = msg.original || "";
+          const textoTraducido = msg.mensaje || msg.message || msg.original || "";
+          const textoOriginal = msg.original || "";
 
-const contenidoPrincipal =
-  msg.tipo === "imagen"
-    ? msg.message
-    : msg.manual
-    ? textoOriginal // ✅ los manuales estaban al revés → original debe ser principal
-    : textoTraducido;
+          const contenidoPrincipal =
+            msg.tipo === "imagen"
+              ? msg.message
+              : msg.manual
+              ? textoOriginal
+              : textoTraducido;
 
-const contenidoSecundario =
-  msg.tipo === "imagen"
-    ? null
-    : msg.manual
-    ? textoTraducido // ✅ en manuales, la traducción debe ir como secundaria
-    : textoOriginal;
+          const contenidoSecundario =
+            msg.tipo === "imagen"
+              ? null
+              : msg.manual
+              ? textoTraducido
+              : textoOriginal;
 
           return (
             <div key={msg.__refreshId || msg.id || `${msg.tipo}-${index}`} data-id={msg.id} className={`flex ${align}`}>
@@ -164,27 +160,35 @@ const contenidoSecundario =
                 )}
 
                 <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-  {(() => {
-  const fecha =
-    msg.timestamp instanceof Date
-      ? msg.timestamp
-      : typeof msg.timestamp?.toDate === "function"
-      ? msg.timestamp.toDate()
-      : new Date(msg.timestamp || msg.lastInteraction || Date.now());
+                  {(() => {
+                    const fecha =
+                      msg.timestamp instanceof Date
+                        ? msg.timestamp
+                        : typeof msg.timestamp?.toDate === "function"
+                        ? msg.timestamp.toDate()
+                        : new Date(msg.timestamp || msg.lastInteraction || Date.now());
 
-  return fecha.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-})()}
-</div> {/* <- cierra la burbuja del mensaje */}
-</div> {/* <- cierra el contenedor general del .map (importante) */}
-))}
+                    return fecha.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                  })()}
+                </div>
+              </div>
+            </div>
+          );
+        })}
 
-{textoEscribiendo && (
-  <div className="flex justify-start">
-    <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%] dark:bg-gray-600 dark:text-white">
-      {textoEscribiendo}...
+        {textoEscribiendo && (
+          <div className="flex justify-start">
+            <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%] dark:bg-gray-600 dark:text-white">
+              {textoEscribiendo}...
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-)}
+  );
+};
+
+export default ChatPanel;

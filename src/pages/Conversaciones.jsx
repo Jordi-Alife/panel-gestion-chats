@@ -127,84 +127,45 @@ export default function Conversaciones() {
   console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
   const unsubscribe = onSnapshot(ref, (snapshot) => {
-    const docs = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      timestamp: doc.data().timestamp || doc.data().lastInteraction || new Date().toISOString()
-    }));
+  const docs = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 
-    console.log("📩 Nuevos mensajes recibidos:", docs.map(d => d.mensaje || d.message || d.original));
+  console.log("📩 Mensajes en bruto:", docs);
 
-    // Ordenar por timestamp
-    const ordenados = docs.sort((a, b) =>
-      new Date(a.timestamp) - new Date(b.timestamp)
-    );
+  const mensajesConEtiqueta = formatearMensajesConEtiquetas(docs);
+  const total = mensajesConEtiqueta.length;
+  const limite = Math.max(limiteMensajes, total);
+  const nuevos = mensajesConEtiqueta.slice(-limite);
 
-    // Aplicar etiquetas
-    const mensajesConEtiqueta = [];
-    let estadoActual = "gpt";
-
-    for (let i = 0; i < ordenados.length; i++) {
-      const msg = ordenados[i];
-      const ultimaEtiqueta = mensajesConEtiqueta.length
-        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-        : null;
-
-      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.timestamp });
-        }
-        estadoActual = "gpt";
-      }
-
-      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.timestamp });
-        }
-      }
-
-      if (msg.manual === true && estadoActual === "gpt") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.timestamp });
-        }
-        estadoActual = "humano";
-      }
-
-      mensajesConEtiqueta.push(msg);
+  setMensajes((prev) => {
+    const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+    if (mismoContenido) {
+      console.log("📥 Mensajes iguales, forzando render con refreshId");
+      return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
     }
-
-    // Actualizar lista de mensajes
-    const total = mensajesConEtiqueta.length;
-    const limite = Math.max(limiteMensajes, total);
-    const nuevos = mensajesConEtiqueta.slice(-limite);
-
-    setMensajes((prev) => {
-      const igual = JSON.stringify(prev) === JSON.stringify(nuevos);
-      if (igual) {
-        return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
-      }
-      return nuevos;
-    });
-
-    setHayMasMensajes(total > limite);
-    setLimiteMensajes(limite);
-
-    // Refrescar datos del usuario seleccionado
-    const nuevaInfo = todasConversaciones.find((c) => c.userId === userId) || {
-      userId,
-      chatCerrado: false,
-      intervenida: false,
-    };
-
-    setUsuarioSeleccionado((prev) => (!prev || !prev.intervenida ? nuevaInfo : prev));
-    setChatCerrado(nuevaInfo.chatCerrado || false);
-
-    setTimeout(() => {
-      if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
+    return nuevos;
   });
+
+  setHayMasMensajes(total > limite);
+  setLimiteMensajes(limite);
+
+  const nuevaInfo = todasConversaciones.find((c) => c.userId === userId) || {
+    userId,
+    chatCerrado: false,
+    intervenida: false,
+  };
+
+  setUsuarioSeleccionado((prev) => (!prev || !prev.intervenida ? nuevaInfo : prev));
+  setChatCerrado(nuevaInfo.chatCerrado || false);
+
+  setTimeout(() => {
+    if (scrollForzado.current && chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    }
+  }, 100);
+});
 
   return () => {
     console.log("🧹 Desactivando listener en tiempo real de:", userId);

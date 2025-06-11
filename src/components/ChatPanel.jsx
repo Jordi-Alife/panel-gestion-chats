@@ -75,7 +75,7 @@ if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
   }
 
   return (
-    <div key={`etiqueta-${index}`} className="flex justify-center">
+    <div key={`etiqueta-${msg.timestamp || index}`} className="flex justify-center">
       <span
         className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
           textoEtiqueta === "Intervenida"

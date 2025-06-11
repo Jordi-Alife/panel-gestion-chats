@@ -51,42 +51,27 @@ export default function Conversaciones() {
  useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 
-  // ⚠️ Al seleccionar conversación, carga mensajes manualmente una vez
+  // ⚠️ Al seleccionar conversación, carga mensajes una vez (por si acaso)
   cargarMensajes(false);
 
-  if (
-    !window.firestore?.collection ||
-    !window.firestore?.onSnapshot ||
-    typeof window.firestore.collection !== "function"
-  ) {
-    console.warn("⚠️ Firestore aún no disponible.");
-    return;
-  }
-
-  const ref = window.firestore
-    .collection("mensajes")
-    .where("idConversacion", "==", userId);
+  const ref = query(
+    collection(db, "mensajes"),
+    where("idConversacion", "==", userId)
+  );
 
   console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
-  const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
+  const unsubscribe = onSnapshot(ref, (snapshot) => {
     const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
+    console.log("📩 Nuevos mensajes recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
-    // ✅ Guardar en ventana global (solo si lo usas para debug o comparar)
-    window.__mensajes = docs;
-
-    console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
-
-    // ✅ Ordenar por timestamp
+    // Ordenar y formatear como ya hacías antes
     const ordenados = docs.sort(
-      (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
+      (a, b) => new Date(a.lastInteraction || a.timestamp || 0) - new Date(b.lastInteraction || b.timestamp || 0)
     );
 
-    // ✅ Aplicar etiquetas como en cargarMensajes
     const mensajesConEtiqueta = [];
     let estadoActual = "gpt";
-
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
       const ultimaEtiqueta = mensajesConEtiqueta.length
@@ -95,32 +80,20 @@ export default function Conversaciones() {
 
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
+          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction });
         }
         estadoActual = "gpt";
       }
 
       if (msg.tipo === "estado" && msg.estado === "Cerrado") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "El usuario ha cerrado el chat",
-            timestamp: msg.lastInteraction,
-          });
+          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction });
         }
       }
 
       if (msg.manual === true && estadoActual === "gpt") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
+          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.lastInteraction });
         }
         estadoActual = "humano";
       }
@@ -128,60 +101,40 @@ export default function Conversaciones() {
       mensajesConEtiqueta.push(msg);
     }
 
-    // ✅ Cargar mensajes limitados con control de scroll
-const total = mensajesConEtiqueta.length;
-const limite = Math.max(limiteMensajes, total);
-const nuevos = mensajesConEtiqueta.slice(-limite);
+    const total = mensajesConEtiqueta.length;
+    const limite = Math.max(limiteMensajes, total);
+    const nuevos = mensajesConEtiqueta.slice(-limite);
 
-setMensajes((prev) => {
-  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-  if (mismoContenido) {
-    console.log("📥 Mensajes iguales, forzando render con refreshId");
-    return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
-  }
-  return nuevos;
-});;
+    setMensajes((prev) => {
+      const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+      if (mismoContenido) {
+        console.log("📥 Mensajes iguales, forzando render con refreshId");
+        return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
+      }
+      return nuevos;
+    });
 
-setHayMasMensajes(total > limite);
-setLimiteMensajes(limite); // mantenemos actualizado el límite
+    setHayMasMensajes(total > limite);
+    setLimiteMensajes(limite);
 
-// 🔄 Actualizar también los datos del usuario seleccionado
-let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
-if (!nuevaInfo) {
-  nuevaInfo = {
-    userId,
-    chatCerrado: false,
-    intervenida: false,
-    ...docs[docs.length - 1],
-  };
-}
+    const nuevaInfo = todasConversaciones.find((c) => c.userId === userId) || {
+      userId,
+      chatCerrado: false,
+      intervenida: false,
+    };
 
-setUsuarioSeleccionado((prev) => {
-  if (!prev || !prev.intervenida) {
-    return nuevaInfo;
-  }
-  return prev;
-});
+    setUsuarioSeleccionado((prev) => (!prev || !prev.intervenida ? nuevaInfo : prev));
+    setChatCerrado(nuevaInfo.chatCerrado || false);
 
-setChatCerrado(nuevaInfo?.chatCerrado || false);
-
-// Scroll si corresponde
-if (!chatRef.current) {
-  console.warn("⚠️ chatRef no está disponible todavía.");
-} else {
-  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
-}
-
-setTimeout(() => {
-  const el = chatRef.current;
-  if (el && scrollForzado.current) {
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  }
-}, 100);
+    setTimeout(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+      }
+    }, 100);
   });
 
   return () => {
-    console.log("🧹 Desactivando listener de mensajes de:", userId);
+    console.log("🧹 Desactivando listener en tiempo real de:", userId);
     unsubscribe();
   };
 }, [userId, tipoVisualizacion]);

@@ -71,6 +71,7 @@ export default function Conversaciones() {
 
   const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
     const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
     // ✅ Guardar en ventana global (solo si lo usas para debug o comparar)
     window.__mensajes = docs;

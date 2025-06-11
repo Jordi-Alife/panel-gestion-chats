@@ -398,13 +398,6 @@ useEffect(() => {
     });
   }
 }, [mensajes]);
-
-  useEffect(() => {
-  if (scrollForzado.current && chatRef.current) {
-    console.log("🌀 Forzando scroll tras cambio completo de mensajes");
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-  }
-}, [JSON.stringify(mensajes)]);
   
   useEffect(() => {
     if (!userId) return;

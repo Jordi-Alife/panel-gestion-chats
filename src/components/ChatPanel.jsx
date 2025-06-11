@@ -105,19 +105,19 @@ if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
-          const contenidoPrincipal =
-            msg.tipo === "imagen"
-              ? msg.message
-              : msg.manual
-              ? msg.original
-              : msg.message;
+          // 🧠 Mostrar primero la traducción (si existe), luego el original como fallback
+const textoTraducido = msg.mensaje || msg.message || msg.original || "";
+const textoOriginal = msg.original || "";
 
-          const contenidoSecundario =
-            msg.tipo === "imagen"
-              ? null
-              : msg.manual
-              ? msg.message
-              : msg.original;
+const contenidoPrincipal =
+  msg.tipo === "imagen"
+    ? msg.message
+    : textoTraducido;
+
+const contenidoSecundario =
+  msg.tipo === "imagen"
+    ? null
+    : textoOriginal;
 
           return (
             <div key={msg.__refreshId || msg.id || `${msg.tipo}-${index}`} data-id={msg.id} className={`flex ${align}`}>

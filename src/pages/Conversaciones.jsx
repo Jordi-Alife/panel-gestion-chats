@@ -127,15 +127,25 @@ export default function Conversaciones() {
       mensajesConEtiqueta.push(msg);
     }
 
-    // ✅ Cargar mensajes limitados
-const nuevos = mensajesConEtiqueta.slice(-limiteMensajes);
+    // ✅ Cargar mensajes limitados con control de scroll
+const total = mensajesConEtiqueta.length;
+const limite = Math.max(limiteMensajes, total);
+const nuevos = mensajesConEtiqueta.slice(-limite);
 
 setMensajes((prev) => {
   const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
   return mismoContenido ? [...nuevos] : nuevos;
 });
 
-setHayMasMensajes(mensajesConEtiqueta.length > limiteMensajes);
+setHayMasMensajes(total > limite);
+setLimiteMensajes(limite); // mantenemos actualizado el límite
+
+// Scroll si corresponde
+if (!chatRef.current) {
+  console.warn("⚠️ chatRef no está disponible todavía.");
+} else {
+  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
+}
 
 setTimeout(() => {
   const el = chatRef.current;

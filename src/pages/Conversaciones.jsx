@@ -6,7 +6,13 @@ import FormularioRespuesta from "../components/FormularioRespuesta";
 import DetallesUsuario from "../components/DetallesUsuario";
 import logoFondo from "../assets/logo-fondo.svg";
 import { escucharConversacionesRecientes } from "../firebaseDB"; // asegúrate que esta línea está arriba
-import { onSnapshot, doc } from "firebase/firestore";
+import {
+  onSnapshot,
+  doc,
+  collection,
+  query,
+  where
+} from "firebase/firestore";
 import { db } from "../firebaseDB";
 
 // ✅ Definir aquí, fuera del componente

@@ -61,23 +61,19 @@ export default function Conversaciones() {
   cargarMensajes(false);
 
   const ref = query(
-  collection(db, "mensajes"),
-  where("idConversacion", "==", userId)
-);
+    collection(db, "mensajes"),
+    where("idConversacion", "==", userId)
+  );
 
-console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
+  console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
-const unsubscribe = onSnapshot(ref, (snapshot) => {
-  const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
+  const unsubscribe = onSnapshot(ref, (snapshot) => {
+    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
-  // ✅ Guardar en ventana global para debug
-  window.__mensajes = docs;
+    // ✅ Guardar en ventana global (debug)
+    window.__mensajes = docs;
 
-  console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
-
-  // El resto del bloque de ordenado, etiquetas, setMensajes, scroll... lo dejas IGUAL que ya tienes justo después
-});
     // ✅ Ordenar por timestamp
     const ordenados = docs.sort(
       (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
@@ -128,56 +124,48 @@ const unsubscribe = onSnapshot(ref, (snapshot) => {
       mensajesConEtiqueta.push(msg);
     }
 
-    // ✅ Cargar mensajes limitados con control de scroll
-const total = mensajesConEtiqueta.length;
-const limite = Math.max(limiteMensajes, total);
-const nuevos = mensajesConEtiqueta.slice(-limite);
+    // ✅ Control de scroll y setMensajes
+    const total = mensajesConEtiqueta.length;
+    const limite = Math.max(limiteMensajes, total);
+    const nuevos = mensajesConEtiqueta.slice(-limite);
 
-setMensajes((prev) => {
-  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-  if (mismoContenido) {
-    console.log("📥 Mensajes iguales, forzando render con refreshId");
-    return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
-  }
-  return nuevos;
-});;
+    setMensajes((prev) => {
+      const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+      if (mismoContenido) {
+        console.log("📥 Mensajes iguales, forzando render con refreshId");
+        return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
+      }
+      return nuevos;
+    });
 
-setHayMasMensajes(total > limite);
-setLimiteMensajes(limite); // mantenemos actualizado el límite
+    setHayMasMensajes(total > limite);
+    setLimiteMensajes(limite);
 
-// 🔄 Actualizar también los datos del usuario seleccionado
-let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
-if (!nuevaInfo) {
-  nuevaInfo = {
-    userId,
-    chatCerrado: false,
-    intervenida: false,
-    ...docs[docs.length - 1],
-  };
-}
+    // ✅ Actualizar detalles del usuario
+    let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
+    if (!nuevaInfo) {
+      nuevaInfo = {
+        userId,
+        chatCerrado: false,
+        intervenida: false,
+        ...docs[docs.length - 1],
+      };
+    }
 
-setUsuarioSeleccionado((prev) => {
-  if (!prev || !prev.intervenida) {
-    return nuevaInfo;
-  }
-  return prev;
-});
+    setUsuarioSeleccionado((prev) => {
+      if (!prev || !prev.intervenida) return nuevaInfo;
+      return prev;
+    });
 
-setChatCerrado(nuevaInfo?.chatCerrado || false);
+    setChatCerrado(nuevaInfo?.chatCerrado || false);
 
-// Scroll si corresponde
-if (!chatRef.current) {
-  console.warn("⚠️ chatRef no está disponible todavía.");
-} else {
-  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
-}
-
-setTimeout(() => {
-  const el = chatRef.current;
-  if (el && scrollForzado.current) {
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  }
-}, 100);
+    // ✅ Scroll automático
+    setTimeout(() => {
+      const el = chatRef.current;
+      if (el && scrollForzado.current) {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      }
+    }, 100);
   });
 
   return () => {
@@ -185,7 +173,6 @@ setTimeout(() => {
     unsubscribe();
   };
 }, [userId, tipoVisualizacion]);
-
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {

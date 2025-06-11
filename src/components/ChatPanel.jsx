@@ -112,12 +112,16 @@ const textoOriginal = msg.original || "";
 const contenidoPrincipal =
   msg.tipo === "imagen"
     ? msg.message
-    : textoOriginal;
+    : msg.manual
+    ? textoOriginal // ✅ los manuales estaban al revés → original debe ser principal
+    : textoTraducido;
 
 const contenidoSecundario =
   msg.tipo === "imagen"
     ? null
-    : textoTraducido;
+    : msg.manual
+    ? textoTraducido // ✅ en manuales, la traducción debe ir como secundaria
+    : textoOriginal;
 
           return (
             <div key={msg.__refreshId || msg.id || `${msg.tipo}-${index}`} data-id={msg.id} className={`flex ${align}`}>

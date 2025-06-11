@@ -138,6 +138,26 @@ setMensajes([...nuevos]);
 setHayMasMensajes(total > limite);
 setLimiteMensajes(limite); // mantenemos actualizado el límite
 
+// 🔄 Actualizar también los datos del usuario seleccionado
+let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
+if (!nuevaInfo) {
+  nuevaInfo = {
+    userId,
+    chatCerrado: false,
+    intervenida: false,
+    ...docs[docs.length - 1],
+  };
+}
+
+setUsuarioSeleccionado((prev) => {
+  if (!prev || !prev.intervenida) {
+    return nuevaInfo;
+  }
+  return prev;
+});
+
+setChatCerrado(nuevaInfo?.chatCerrado || false);
+
 // Scroll si corresponde
 if (!chatRef.current) {
   console.warn("⚠️ chatRef no está disponible todavía.");

@@ -135,10 +135,10 @@ if (usuarioSeleccionado?.intervenida) {
     const posicion = primerManualIndex >= 0 ? primerManualIndex : 0;
 
     mensajesConEtiqueta.splice(posicion, 0, {
-      tipo: "etiqueta",
-      mensaje: "Intervenida",
-      timestamp: mensajesConEtiqueta[posicion]?.timestamp || new Date().toISOString(),
-    });
+  tipo: "etiqueta",
+  mensaje: "Intervenida",
+  // sin timestamp para que no se desplace por orden
+});
   }
 }
   const total = mensajesConEtiqueta.length;

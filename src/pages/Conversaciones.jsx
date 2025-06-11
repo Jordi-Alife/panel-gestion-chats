@@ -68,8 +68,10 @@ export default function Conversaciones() {
 
     // ✅ Ordenar por timestamp
     const ordenados = docs.sort(
-      (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
-    );
+  (a, b) =>
+    new Date(a.timestamp || a.lastInteraction || 0) -
+    new Date(b.timestamp || b.lastInteraction || 0)
+);
 
     const mensajesConEtiqueta = [];
     let estadoActual = "gpt";

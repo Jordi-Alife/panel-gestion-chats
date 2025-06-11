@@ -51,26 +51,39 @@ export default function Conversaciones() {
  useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 
-  // ⚠️ Carga inicial (manual)
+  // ⚠️ Al seleccionar conversación, carga mensajes manualmente una vez
   cargarMensajes(false);
 
-  // ✅ Listener real con db de Firebase
-  const ref = query(
-    collection(db, "mensajes"),
-    where("idConversacion", "==", userId)
-  );
+  if (
+    !window.firestore?.collection ||
+    !window.firestore?.onSnapshot ||
+    typeof window.firestore.collection !== "function"
+  ) {
+    console.warn("⚠️ Firestore aún no disponible.");
+    return;
+  }
 
-  console.log("👂 Activando listener real para mensajes de:", userId);
+  const ref = window.firestore
+    .collection("mensajes")
+    .where("idConversacion", "==", userId);
 
-  const unsubscribe = onSnapshot(ref, (snapshot) => {
+  console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
+
+  const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
     const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log("📩 Nuevos mensajes recibidos:", docs.map(d => d.mensaje || d.message || d.original));
+    console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
+
+    // ✅ Guardar en ventana global (solo si lo usas para debug o comparar)
+    window.__mensajes = docs;
+
+    console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
 
     // ✅ Ordenar por timestamp
     const ordenados = docs.sort(
       (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
     );
 
+    // ✅ Aplicar etiquetas como en cargarMensajes
     const mensajesConEtiqueta = [];
     let estadoActual = "gpt";
 
@@ -115,55 +128,60 @@ export default function Conversaciones() {
       mensajesConEtiqueta.push(msg);
     }
 
-    const total = mensajesConEtiqueta.length;
-    const limite = Math.max(limiteMensajes, total);
-    const nuevos = mensajesConEtiqueta.slice(-limite);
+    // ✅ Cargar mensajes limitados con control de scroll
+const total = mensajesConEtiqueta.length;
+const limite = Math.max(limiteMensajes, total);
+const nuevos = mensajesConEtiqueta.slice(-limite);
 
-    setMensajes((prev) => {
-      const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-      if (mismoContenido) {
-        console.log("📥 Mensajes iguales, forzando render con clon superficial");
-        return nuevos.map((m) => ({ ...m }));
-      }
-      return nuevos;
-    });
+setMensajes((prev) => {
+  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+  if (mismoContenido) {
+    console.log("📥 Mensajes iguales, forzando render con refreshId");
+    return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
+  }
+  return nuevos;
+});;
 
-    setHayMasMensajes(total > limite);
-    setLimiteMensajes(limite);
+setHayMasMensajes(total > limite);
+setLimiteMensajes(limite); // mantenemos actualizado el límite
 
-    let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
-    if (!nuevaInfo) {
-      nuevaInfo = {
-        userId,
-        chatCerrado: false,
-        intervenida: false,
-        ...docs[docs.length - 1],
-      };
-    }
+// 🔄 Actualizar también los datos del usuario seleccionado
+let nuevaInfo = todasConversaciones.find((c) => c.userId === userId);
+if (!nuevaInfo) {
+  nuevaInfo = {
+    userId,
+    chatCerrado: false,
+    intervenida: false,
+    ...docs[docs.length - 1],
+  };
+}
 
-    setUsuarioSeleccionado((prev) => {
-      if (!prev || !prev.intervenida) return nuevaInfo;
-      return prev;
-    });
+setUsuarioSeleccionado((prev) => {
+  if (!prev || !prev.intervenida) {
+    return nuevaInfo;
+  }
+  return prev;
+});
 
-    setChatCerrado(nuevaInfo?.chatCerrado || false);
+setChatCerrado(nuevaInfo?.chatCerrado || false);
 
-    if (!chatRef.current) {
-      console.warn("⚠️ chatRef no está disponible todavía.");
-    } else {
-      console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
-    }
+// Scroll si corresponde
+if (!chatRef.current) {
+  console.warn("⚠️ chatRef no está disponible todavía.");
+} else {
+  console.log("✅ chatRef disponible para scroll:", chatRef.current.scrollHeight);
+}
 
-    setTimeout(() => {
-      const el = chatRef.current;
-      if (el && scrollForzado.current) {
-        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-      }
-    }, 100);
+setTimeout(() => {
+  const el = chatRef.current;
+  if (el && scrollForzado.current) {
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }
+}, 100);
   });
 
   return () => {
-    console.log("🧹 Desactivando listener real de mensajes de:", userId);
+    console.log("🧹 Desactivando listener de mensajes de:", userId);
     unsubscribe();
   };
 }, [userId, tipoVisualizacion]);

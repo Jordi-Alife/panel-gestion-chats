@@ -82,10 +82,19 @@ const ChatPanel = ({
                   }`}
                 >
                   {textoEtiqueta === "Traspasado a GPT" ? "Traspasada a GPT" : textoEtiqueta} •{" "}
-                  {new Date(msg.timestamp?.toDate?.() || msg.timestamp || msg.lastInteraction).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {(() => {
+  const fecha =
+    msg.timestamp instanceof Date
+      ? msg.timestamp
+      : typeof msg.timestamp?.toDate === "function"
+      ? msg.timestamp.toDate()
+      : new Date(msg.timestamp || msg.lastInteraction || Date.now());
+
+  return fecha.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+})()}
                 </span>
               </div>
             );

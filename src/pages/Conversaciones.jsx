@@ -124,6 +124,23 @@ export default function Conversaciones() {
   console.log("📩 Mensajes en bruto:", docs);
 
   const mensajesConEtiqueta = formatearMensajesConEtiquetas(docs);
+    // ✅ Insertar etiqueta "Intervenida" si aplica (evitando duplicadas)
+if (usuarioSeleccionado?.intervenida) {
+  const yaTieneEtiqueta = mensajesConEtiqueta.some(
+    (m) => m.tipo === "etiqueta" && m.mensaje === "Intervenida"
+  );
+
+  if (!yaTieneEtiqueta) {
+    const primerManualIndex = mensajesConEtiqueta.findIndex((m) => m.manual === true);
+    const posicion = primerManualIndex >= 0 ? primerManualIndex : 0;
+
+    mensajesConEtiqueta.splice(posicion, 0, {
+      tipo: "etiqueta",
+      mensaje: "Intervenida",
+      timestamp: mensajesConEtiqueta[posicion]?.timestamp || new Date().toISOString(),
+    });
+  }
+}
   const total = mensajesConEtiqueta.length;
   const limite = Math.max(limiteMensajes, total);
   const nuevos = mensajesConEtiqueta.slice(-limite);

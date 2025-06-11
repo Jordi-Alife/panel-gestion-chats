@@ -44,9 +44,10 @@ const ChatPanel = ({
   if (
   !msg.message &&
   !msg.original &&
+  !msg.mensaje && // ✅ añadido para cubrir mensajes manuales
   msg.tipo !== "imagen" &&
   msg.tipo !== "etiqueta" &&
-  msg.tipo !== "estado" // ✅ permitir estado
+  msg.tipo !== "estado"
 ) {
   return null;
 }

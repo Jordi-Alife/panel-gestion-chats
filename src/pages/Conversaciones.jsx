@@ -54,30 +54,24 @@ export default function Conversaciones() {
   // ⚠️ Al seleccionar conversación, carga mensajes manualmente una vez
   cargarMensajes(false);
 
-  if (
-    !window.firestore?.collection ||
-    !window.firestore?.onSnapshot ||
-    typeof window.firestore.collection !== "function"
-  ) {
-    console.warn("⚠️ Firestore aún no disponible.");
-    return;
-  }
+  const ref = query(
+  collection(db, "mensajes"),
+  where("idConversacion", "==", userId)
+);
 
-  const ref = window.firestore
-    .collection("mensajes")
-    .where("idConversacion", "==", userId);
+console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
-  console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
+const unsubscribe = onSnapshot(ref, (snapshot) => {
+  const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
-  const unsubscribe = window.firestore.onSnapshot(ref, (snapshot) => {
-    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log("📩 Mensajes nuevos recibidos:", docs.map(d => d.mensaje || d.message || d.original));
+  // ✅ Guardar en ventana global para debug
+  window.__mensajes = docs;
 
-    // ✅ Guardar en ventana global (solo si lo usas para debug o comparar)
-    window.__mensajes = docs;
+  console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
 
-    console.log(`📩 Nuevos mensajes recibidos (${docs.length})`);
-
+  // El resto del bloque de ordenado, etiquetas, setMensajes, scroll... lo dejas IGUAL que ya tienes justo después
+});
     // ✅ Ordenar por timestamp
     const ordenados = docs.sort(
       (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)

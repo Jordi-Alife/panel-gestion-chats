@@ -391,11 +391,16 @@ useEffect(() => {
 }, [mensajes.length]);
 
   useEffect(() => {
-  if (chatRef.current && scrollForzado.current) {
-    chatRef.current.scrollTo({
-      top: chatRef.current.scrollHeight,
-      behavior: "smooth",
-    });
+  const el = chatRef.current;
+  if (!el) return;
+
+  const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+  scrollForzado.current = alFinal;
+
+  if (alFinal) {
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  } else {
+    console.log("🛑 Usuario está leyendo arriba, no forzamos scroll");
   }
 }, [mensajes]);
   

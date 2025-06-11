@@ -24,11 +24,14 @@ const clientId = `client-${Math.floor(Math.random() * 100000)}-${Date.now()}`;
 
 function formatearMensajesConEtiquetas(docs) {
   const ordenados = docs.sort(
-    (a, b) => new Date(a.lastInteraction || a.timestamp || 0) - new Date(b.lastInteraction || b.timestamp || 0)
+    (a, b) =>
+      new Date(a.lastInteraction || a.timestamp || 0) -
+      new Date(b.lastInteraction || b.timestamp || 0)
   );
 
   const mensajesConEtiqueta = [];
   let estadoActual = "gpt";
+  let etiquetaIntervenidaInsertada = false;
 
   for (let i = 0; i < ordenados.length; i++) {
     const msg = ordenados[i];
@@ -55,6 +58,21 @@ function formatearMensajesConEtiquetas(docs) {
           timestamp: msg.lastInteraction,
         });
       }
+    }
+
+    // ✅ Insertar "Intervenida" justo antes del primer mensaje manual
+    if (
+      msg.manual === true &&
+      estadoActual === "gpt" &&
+      !etiquetaIntervenidaInsertada
+    ) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Intervenida",
+        timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+      });
+      etiquetaIntervenidaInsertada = true;
+      estadoActual = "humano";
     }
 
     // ✅ Normalización final

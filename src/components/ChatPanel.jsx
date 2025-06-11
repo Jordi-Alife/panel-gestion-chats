@@ -120,7 +120,7 @@ if (msg.tipo === "etiqueta" || msg.tipo === "estado") {
               : msg.original;
 
           return (
-            <div key={index} data-id={msg.id} className={`flex ${align}`}>
+            <div key={msg.id || `${msg.tipo}-${index}`} data-id={msg.id} className={`flex ${align}`}>
               <div className={`max-w-[70%] p-3 ${shapeClass} ${
                 msg.manual
                   ? "bg-[#2563eb] text-white"

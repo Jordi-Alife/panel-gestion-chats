@@ -33,12 +33,13 @@ function formatearMensajesConEtiquetas(docs) {
   let estadoActual = "gpt";
   let etiquetaIntervenidaInsertada = false;
 
-  for (let i = 0; i < ordenados.length; i++) {
+    for (let i = 0; i < ordenados.length; i++) {
     const msg = ordenados[i];
     const ultimaEtiqueta = mensajesConEtiqueta.length
       ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
       : null;
 
+    // ⛔️ Etiqueta "Traspasado a GPT"
     if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
         mensajesConEtiqueta.push({
@@ -48,8 +49,10 @@ function formatearMensajesConEtiquetas(docs) {
         });
       }
       estadoActual = "gpt";
+      continue; // no añadimos este mensaje como mensaje normal
     }
 
+    // ⛔️ Etiqueta "Cerrado"
     if (msg.tipo === "estado" && msg.estado === "Cerrado") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
         mensajesConEtiqueta.push({
@@ -58,9 +61,24 @@ function formatearMensajesConEtiquetas(docs) {
           timestamp: msg.lastInteraction,
         });
       }
+      continue;
     }
 
-    // ✅ Insertar "Intervenida" justo antes del primer mensaje manual
+    // ⛔️ Si el mensaje ya es una etiqueta "Intervenida", marcamos como insertado
+    if (msg.tipo === "estado" && msg.estado === "Intervenida") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      etiquetaIntervenidaInsertada = true;
+      estadoActual = "humano";
+      continue;
+    }
+
+    // ✅ Insertar etiqueta justo antes del primer mensaje manual si aún no hay estado "Intervenida"
     if (
       msg.manual === true &&
       estadoActual === "gpt" &&
@@ -75,7 +93,7 @@ function formatearMensajesConEtiquetas(docs) {
       estadoActual = "humano";
     }
 
-    // ✅ Normalización final
+    // ✅ Mensaje formateado normal
     mensajesConEtiqueta.push({
       ...msg,
       from: msg.rol || (msg.manual ? "agente" : "usuario"),

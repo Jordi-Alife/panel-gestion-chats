@@ -577,49 +577,48 @@ if (
 </div>
 
       {/* Columna central */}
-      <div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
-        {mensajes.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors">
-            <img
-              src={logoFondo}
-              alt="Logo NextLives"
-              className="w-48 opacity-30"
-            />
-          </div>
-        ) : (
-          <>
-            <ChatPanel
-              mensajes={mensajes}
-              textoEscribiendo={textoEscribiendo}
-              originalesVisibles={originalesVisibles}
-              setOriginalesVisibles={setOriginalesVisibles}
-              chatRef={chatRef}
-              onScroll={() => {
-                const el = chatRef.current;
-                if (!el) return;
-                const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
-                scrollForzado.current = alFinal;
-                setMostrarScrollBtn(!alFinal);
-              }}
-              userId={userId}
-              onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
-              onCargarMas={() => cargarMensajes(true)}
-              hayMas={hayMasMensajes}
-            />
-            <FormularioRespuesta
-  userId={userId}
-  respuesta={respuesta}
-  setRespuesta={setRespuesta}
-  imagen={imagen}
-  setImagen={setImagen}
-  perfil={perfil}
-  cargarDatos={cargarDatos}
-  setUsuarioSeleccionado={setUsuarioSeleccionado}
-  todasConversaciones={todasConversaciones} // ✅ Añadido para actualizar correctamente el estado
-/>
-          </>
-        )}
-      </div>
+<div className="flex flex-col flex-1 bg-white rounded-lg shadow-md mx-4 overflow-hidden h-full">
+  {mensajes.length === 0 && (
+    <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors">
+      <img
+        src={logoFondo}
+        alt="Logo NextLives"
+        className="w-48 opacity-30"
+      />
+    </div>
+  )}
+
+  <ChatPanel
+    mensajes={mensajes}
+    textoEscribiendo={textoEscribiendo}
+    originalesVisibles={originalesVisibles}
+    setOriginalesVisibles={setOriginalesVisibles}
+    chatRef={chatRef}
+    onScroll={() => {
+      const el = chatRef.current;
+      if (!el) return;
+      const alFinal = el.scrollHeight - el.scrollTop <= el.clientHeight + 100;
+      scrollForzado.current = alFinal;
+      setMostrarScrollBtn(!alFinal);
+    }}
+    userId={userId}
+    onToggleDetalles={() => setMostrarDetalles((prev) => !prev)}
+    onCargarMas={() => cargarMensajes(true)}
+    hayMas={hayMasMensajes}
+  />
+
+  <FormularioRespuesta
+    userId={userId}
+    respuesta={respuesta}
+    setRespuesta={setRespuesta}
+    imagen={imagen}
+    setImagen={setImagen}
+    perfil={perfil}
+    cargarDatos={cargarDatos}
+    setUsuarioSeleccionado={setUsuarioSeleccionado}
+    todasConversaciones={todasConversaciones}
+  />
+</div>
 
       {/* Columna derecha */}
       {mostrarDetalles && (

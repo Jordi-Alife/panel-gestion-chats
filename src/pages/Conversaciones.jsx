@@ -22,6 +22,64 @@ console.log("👉 BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
 // Identificador único para detectar origen de peticiones
 const clientId = `client-${Math.floor(Math.random() * 100000)}-${Date.now()}`;
 
+function formatearMensajesConEtiquetas(docs) {
+  const ordenados = docs.sort(
+    (a, b) => new Date(a.lastInteraction || a.timestamp || 0) - new Date(b.lastInteraction || b.timestamp || 0)
+  );
+
+  const mensajesConEtiqueta = [];
+  let estadoActual = "gpt";
+
+  for (let i = 0; i < ordenados.length; i++) {
+    const msg = ordenados[i];
+    const ultimaEtiqueta = mensajesConEtiqueta.length
+      ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+      : null;
+
+    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      estadoActual = "gpt";
+    }
+
+    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: msg.lastInteraction,
+        });
+      }
+    }
+
+    if (msg.manual === true && estadoActual === "gpt") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      estadoActual = "humano";
+    }
+
+    // ✅ Normalización final
+    mensajesConEtiqueta.push({
+      ...msg,
+      from: msg.rol || (msg.manual ? "agente" : "usuario"),
+      tipo: msg.tipo || "texto",
+      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString()
+    });
+  }
+
+  return mensajesConEtiqueta;
+}
+
 export default function Conversaciones() {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId") || null;

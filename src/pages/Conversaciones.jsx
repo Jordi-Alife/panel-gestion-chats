@@ -135,7 +135,11 @@ const nuevos = mensajesConEtiqueta.slice(-limite);
 
 setMensajes((prev) => {
   const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-  return mismoContenido ? prev : [...nuevos];
+  if (mismoContenido) {
+    console.log("📥 Mensajes iguales, forzando nuevo array para refresco");
+    return [...nuevos]; // fuerza refresco visual aunque no haya cambio real
+  }
+  return nuevos;
 });
 
 setHayMasMensajes(total > limite);

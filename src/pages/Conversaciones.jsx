@@ -133,7 +133,10 @@ const total = mensajesConEtiqueta.length;
 const limite = Math.max(limiteMensajes, total);
 const nuevos = mensajesConEtiqueta.slice(-limite);
 
-setMensajes([...nuevos]);
+setMensajes((prev) => {
+  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+  return mismoContenido ? [...nuevos] : nuevos;
+});
 
 setHayMasMensajes(total > limite);
 setLimiteMensajes(limite); // mantenemos actualizado el límite

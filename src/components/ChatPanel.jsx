@@ -112,12 +112,12 @@ const textoOriginal = msg.original || "";
 const contenidoPrincipal =
   msg.tipo === "imagen"
     ? msg.message
-    : textoTraducido;
+    : textoOriginal;
 
 const contenidoSecundario =
   msg.tipo === "imagen"
     ? null
-    : textoOriginal;
+    : textoTraducido;
 
           return (
             <div key={msg.__refreshId || msg.id || `${msg.tipo}-${index}`} data-id={msg.id} className={`flex ${align}`}>

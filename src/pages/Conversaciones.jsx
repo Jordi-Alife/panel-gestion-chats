@@ -57,17 +57,6 @@ function formatearMensajesConEtiquetas(docs) {
       }
     }
 
-    if (msg.manual === true && estadoActual === "gpt") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
-      }
-      estadoActual = "humano";
-    }
-
     // ✅ Normalización final
     mensajesConEtiqueta.push({
       ...msg,

@@ -63,20 +63,13 @@ export default function Conversaciones() {
   console.log("👂 Activando listener real para mensajes de:", userId);
 
   const unsubscribe = onSnapshot(ref, (snapshot) => {
-    const docsRaw = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("📩 Nuevos mensajes recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
-// Asegurarse de que cada mensaje tiene timestamp válido
-const docs = docsRaw.map((msg) => ({
-  ...msg,
-  timestamp: msg.timestamp || msg.lastInteraction || new Date().toISOString(),
-}));
-
-console.log("📩 Nuevos mensajes recibidos:", docs.map(d => d.mensaje || d.message || d.original));
-
-// ✅ Ordenar por timestamp garantizado
-const ordenados = docs.sort(
-  (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-);
+    // ✅ Ordenar por timestamp
+    const ordenados = docs.sort(
+      (a, b) => new Date(a.lastInteraction || 0) - new Date(b.lastInteraction || 0)
+    );
 
     const mensajesConEtiqueta = [];
     let estadoActual = "gpt";

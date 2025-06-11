@@ -165,30 +165,26 @@ const contenidoSecundario =
 
                 <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
   {(() => {
-    const fecha =
-      msg.timestamp instanceof Date
-        ? msg.timestamp
-        : typeof msg.timestamp?.toDate === "function"
-        ? msg.timestamp.toDate()
-        : new Date(msg.timestamp || msg.lastInteraction || Date.now());
+  const fecha =
+    msg.timestamp instanceof Date
+      ? msg.timestamp
+      : typeof msg.timestamp?.toDate === "function"
+      ? msg.timestamp.toDate()
+      : new Date(msg.timestamp || msg.lastInteraction || Date.now());
 
-    return fecha.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  })()}
-</div>
+  return fecha.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+})()}
+</div> {/* <- cierra la burbuja del mensaje */}
+</div> {/* <- cierra el contenedor general del .map (importante) */}
+))}
 
-        {textoEscribiendo && (
-          <div className="flex justify-start">
-            <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%] dark:bg-gray-600 dark:text-white">
-              {textoEscribiendo}...
-            </div>
-          </div>
-        )}
-      </div>
+{textoEscribiendo && (
+  <div className="flex justify-start">
+    <div className="bg-gray-200 text-gray-700 italic text-xs px-3 py-2 rounded-lg opacity-80 max-w-[60%] dark:bg-gray-600 dark:text-white">
+      {textoEscribiendo}...
     </div>
-  );
-};
-
-export default ChatPanel;
+  </div>
+)}

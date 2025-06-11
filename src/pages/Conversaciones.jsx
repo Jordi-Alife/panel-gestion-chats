@@ -31,13 +31,17 @@ function formatearMensajesConEtiquetas(docs) {
 
   const mensajesConEtiqueta = [];
   let estadoActual = "gpt";
-  let etiquetaIntervenidaInsertada = false; // 🧠 Añadimos este control
+  let etiquetaIntervenidaInsertada = false;
 
   for (let i = 0; i < ordenados.length; i++) {
     const msg = ordenados[i];
     const ultimaEtiqueta = mensajesConEtiqueta.length
       ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
       : null;
+
+    const esEtiquetaIntervenida =
+      (msg.tipo === "estado" && msg.estado === "Intervenida") ||
+      (msg.tipo === "etiqueta" && msg.mensaje === "Intervenida");
 
     if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
@@ -62,20 +66,17 @@ function formatearMensajesConEtiquetas(docs) {
       continue;
     }
 
-    if (msg.tipo === "estado" && msg.estado === "Intervenida") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
-      }
+    if (esEtiquetaIntervenida && !etiquetaIntervenidaInsertada) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Intervenida",
+        timestamp: msg.lastInteraction,
+      });
       estadoActual = "humano";
-      etiquetaIntervenidaInsertada = true; // 🧠 Marcamos que ya se insertó
+      etiquetaIntervenidaInsertada = true;
       continue;
     }
 
-    // ✅ Solo insertamos si aún no se había insertado antes
     if (
       msg.manual === true &&
       estadoActual === "gpt" &&

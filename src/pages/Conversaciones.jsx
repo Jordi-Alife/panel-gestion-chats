@@ -136,8 +136,8 @@ const nuevos = mensajesConEtiqueta.slice(-limite);
 setMensajes((prev) => {
   const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
   if (mismoContenido) {
-    console.log("📥 Mensajes iguales, forzando nuevo array para refresco");
-    return [...nuevos]; // fuerza refresco visual aunque no haya cambio real
+    console.log("📥 Mensajes iguales, forzando render con timestamp");
+    return [...nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }))];
   }
   return nuevos;
 });

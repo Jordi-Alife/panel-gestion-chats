@@ -51,9 +51,10 @@ export default function Conversaciones() {
  useEffect(() => {
   if (!userId || tipoVisualizacion !== "recientes") return;
 
-  // ⚠️ Al seleccionar conversación, carga mensajes una vez (por si acaso)
+  // ⚠️ Al seleccionar conversación, carga mensajes una vez por si acaso
   cargarMensajes(false);
 
+  // Listener en tiempo real desde Firebase
   const ref = query(
     collection(db, "mensajes"),
     where("idConversacion", "==", userId)
@@ -62,16 +63,23 @@ export default function Conversaciones() {
   console.log("👂 Activando listener en tiempo real para mensajes de:", userId);
 
   const unsubscribe = onSnapshot(ref, (snapshot) => {
-    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const docs = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp || doc.data().lastInteraction || new Date().toISOString()
+    }));
+
     console.log("📩 Nuevos mensajes recibidos:", docs.map(d => d.mensaje || d.message || d.original));
 
-    // Ordenar y formatear como ya hacías antes
-    const ordenados = docs.sort(
-      (a, b) => new Date(a.lastInteraction || a.timestamp || 0) - new Date(b.lastInteraction || b.timestamp || 0)
+    // Ordenar por timestamp
+    const ordenados = docs.sort((a, b) =>
+      new Date(a.timestamp) - new Date(b.timestamp)
     );
 
+    // Aplicar etiquetas
     const mensajesConEtiqueta = [];
     let estadoActual = "gpt";
+
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
       const ultimaEtiqueta = mensajesConEtiqueta.length
@@ -80,20 +88,20 @@ export default function Conversaciones() {
 
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction });
+          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Traspasado a GPT", timestamp: msg.timestamp });
         }
         estadoActual = "gpt";
       }
 
       if (msg.tipo === "estado" && msg.estado === "Cerrado") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction });
+          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "El usuario ha cerrado el chat", timestamp: msg.timestamp });
         }
       }
 
       if (msg.manual === true && estadoActual === "gpt") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.lastInteraction });
+          mensajesConEtiqueta.push({ tipo: "etiqueta", mensaje: "Intervenida", timestamp: msg.timestamp });
         }
         estadoActual = "humano";
       }
@@ -101,14 +109,14 @@ export default function Conversaciones() {
       mensajesConEtiqueta.push(msg);
     }
 
+    // Actualizar lista de mensajes
     const total = mensajesConEtiqueta.length;
     const limite = Math.max(limiteMensajes, total);
     const nuevos = mensajesConEtiqueta.slice(-limite);
 
     setMensajes((prev) => {
-      const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-      if (mismoContenido) {
-        console.log("📥 Mensajes iguales, forzando render con refreshId");
+      const igual = JSON.stringify(prev) === JSON.stringify(nuevos);
+      if (igual) {
         return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
       }
       return nuevos;
@@ -117,6 +125,7 @@ export default function Conversaciones() {
     setHayMasMensajes(total > limite);
     setLimiteMensajes(limite);
 
+    // Refrescar datos del usuario seleccionado
     const nuevaInfo = todasConversaciones.find((c) => c.userId === userId) || {
       userId,
       chatCerrado: false,

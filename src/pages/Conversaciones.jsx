@@ -31,15 +31,14 @@ function formatearMensajesConEtiquetas(docs) {
 
   const mensajesConEtiqueta = [];
   let estadoActual = "gpt";
-  let etiquetaIntervenidaInsertada = false;
+  let etiquetaIntervenidaInsertada = false; // 🧠 Añadimos este control
 
-    for (let i = 0; i < ordenados.length; i++) {
+  for (let i = 0; i < ordenados.length; i++) {
     const msg = ordenados[i];
     const ultimaEtiqueta = mensajesConEtiqueta.length
       ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
       : null;
 
-    // ⛔️ Etiqueta "Traspasado a GPT"
     if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
         mensajesConEtiqueta.push({
@@ -49,10 +48,9 @@ function formatearMensajesConEtiquetas(docs) {
         });
       }
       estadoActual = "gpt";
-      continue; // no añadimos este mensaje como mensaje normal
+      continue;
     }
 
-    // ⛔️ Etiqueta "Cerrado"
     if (msg.tipo === "estado" && msg.estado === "Cerrado") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
         mensajesConEtiqueta.push({
@@ -64,7 +62,6 @@ function formatearMensajesConEtiquetas(docs) {
       continue;
     }
 
-    // ⛔️ Si el mensaje ya es una etiqueta "Intervenida", marcamos como insertado
     if (msg.tipo === "estado" && msg.estado === "Intervenida") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
         mensajesConEtiqueta.push({
@@ -73,12 +70,12 @@ function formatearMensajesConEtiquetas(docs) {
           timestamp: msg.lastInteraction,
         });
       }
-      etiquetaIntervenidaInsertada = true;
       estadoActual = "humano";
+      etiquetaIntervenidaInsertada = true; // 🧠 Marcamos que ya se insertó
       continue;
     }
 
-    // ✅ Insertar etiqueta justo antes del primer mensaje manual si aún no hay estado "Intervenida"
+    // ✅ Solo insertamos si aún no se había insertado antes
     if (
       msg.manual === true &&
       estadoActual === "gpt" &&
@@ -89,16 +86,16 @@ function formatearMensajesConEtiquetas(docs) {
         mensaje: "Intervenida",
         timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
       });
-      etiquetaIntervenidaInsertada = true;
       estadoActual = "humano";
+      etiquetaIntervenidaInsertada = true;
     }
 
-    // ✅ Mensaje formateado normal
     mensajesConEtiqueta.push({
       ...msg,
       from: msg.rol || (msg.manual ? "agente" : "usuario"),
       tipo: msg.tipo || "texto",
-      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString()
+      timestamp:
+        msg.lastInteraction || msg.timestamp || new Date().toISOString(),
     });
   }
 

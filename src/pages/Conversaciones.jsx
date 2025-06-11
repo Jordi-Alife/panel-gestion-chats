@@ -136,8 +136,8 @@ const nuevos = mensajesConEtiqueta.slice(-limite);
 setMensajes((prev) => {
   const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
   if (mismoContenido) {
-    console.log("📥 Mensajes iguales, forzando render con timestamp");
-    return [...nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }))];
+    console.log("📥 Mensajes iguales, forzando render con clon superficial");
+    return nuevos.map((m) => ({ ...m }));
   }
   return nuevos;
 });

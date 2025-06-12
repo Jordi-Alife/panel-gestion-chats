@@ -223,21 +223,27 @@ useEffect(() => {
   key={c.userId}
   data-estado={c.estado?.toLowerCase()}
   onClick={async () => {
-              localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
-              localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
+  localStorage.setItem(`estado-conversacion-${c.userId}`, c.estado?.toLowerCase() || "");
+  localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
 
-              try {
-                await fetch(`${BACKEND_URL}/api/marcar-visto`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: c.userId }),
-                });
-              } catch (err) {
-                console.warn("❌ Error al marcar visto", err);
-              }
+  // 🔁 Guarda la conversación completa en localStorage
+  const encontrada = todasConversaciones.find(conv => conv.userId === c.userId);
+  if (encontrada) {
+    localStorage.setItem(`conversacion-${c.userId}`, JSON.stringify(encontrada));
+  }
 
-              navigate(`/conversaciones/${(c.userId || "").trim().toLowerCase()}`);
-            }}
+  try {
+    await fetch(`${BACKEND_URL}/api/marcar-visto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: c.userId }),
+    });
+  } catch (err) {
+    console.warn("❌ Error al marcar visto", err);
+  }
+
+  navigate(`/conversaciones/${(c.userId || "").trim().toLowerCase()}`);
+}}
             className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
           >
             <div className="flex items-center gap-3">

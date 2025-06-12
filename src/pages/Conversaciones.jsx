@@ -459,14 +459,14 @@ useEffect(() => {
   }, [userId, todasConversaciones]);
 
   useEffect(() => {
-    if (userId) {
-      fetch(`${BACKEND_URL}/api/marcar-visto`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-    }
-  }, [userId]);
+  if (!userId || !document.hasFocus()) return;
+
+  fetch(`${BACKEND_URL}/api/marcar-visto`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
+  });
+}, [userId]);
 
   const formatearTiempo = (fecha) => {
     const ahora = new Date();

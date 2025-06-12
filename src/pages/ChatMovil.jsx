@@ -174,6 +174,18 @@ const ChatMovil = () => {
   return () => stop(); // Detener el listener
 }, [userId, estado]);
 
+  useEffect(() => {
+  if (!userId) return;
+
+  const stop = window.escucharTextoEscribiendo(userId, (nuevoTexto) => {
+    setTextoEscribiendo(nuevoTexto);
+  });
+
+  return () => {
+    if (stop) stop();
+  };
+}, [userId]);
+
   const handleScroll = async () => {
     if (!chatRef.current) return;
     const el = chatRef.current;

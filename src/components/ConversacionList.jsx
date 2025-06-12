@@ -44,26 +44,31 @@ const enArchivadas = location.pathname.includes("archivadas");
       {/* NUEVO filtro Recientes / Archivadas */}
 <div className="px-4 py-2 border-b dark:border-gray-700 flex gap-2">
   <Link to="/conversaciones">
-  <button
-    className={`relative text-xs font-medium px-3 py-1 rounded-full ${
-      tipoVisualizacion === "recientes"
-        ? "bg-blue-600 text-white"
-        : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-    }`}
-  >
-    Recientes
-    {totalNoVistos > 0 && (
-      <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-        {totalNoVistos}
-      </span>
-    )}
-  </button>
-</Link>
+    <button
+      className={`relative text-xs font-medium px-3 py-1 rounded-full ${
+        !enArchivadas
+          ? "bg-blue-600 text-white"
+          : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+      }`}
+    >
+      Recientes
+      {totalNoVistos > 0 && (
+        <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+          {totalNoVistos}
+        </span>
+      )}
+    </button>
+  </Link>
 
-  {/* 🔹 Nuevo botón que abre la página Archivadas New */}
   <Link to="/archivadas-new">
-    <button className="text-xs font-medium px-3 py-1 rounded-full bg-green-600 text-white hover:bg-green-700 transition">
-      Archivadas New
+    <button
+      className={`text-xs font-medium px-3 py-1 rounded-full ${
+        enArchivadas
+          ? "bg-blue-600 text-white"
+          : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+      }`}
+    >
+      Archivadas
     </button>
   </Link>
 </div>

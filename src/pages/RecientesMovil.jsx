@@ -9,7 +9,6 @@ const ConversacionesMovil = () => {
   const [vistas, setVistas] = useState({});
   const [filtro, setFiltro] = useState("todas");
   const [busqueda, setBusqueda] = useState("");
-  const [tipoVisualizacion, setTipoVisualizacion] = useState("archivadas");
   
   // Carga inicial cuando cambia la vista
 useEffect(() => {

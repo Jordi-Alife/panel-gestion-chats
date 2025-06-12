@@ -238,8 +238,9 @@ useEffect(() => {
     }`}
   >
     Archivadas
-        </button>
-    </div>
+                </button>
+      </div>
+    </div> {/* Este cierra el return general */}
   );
 };
 

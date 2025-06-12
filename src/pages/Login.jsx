@@ -28,35 +28,43 @@ const Login = () => {
   };
 
   const handleRecuperarPassword = async () => {
-    setError("");
-    setMensaje("");
+  setError("");
+  setMensaje("");
 
-    if (!email) {
-      setError("Por favor, introduce tu email primero");
+  if (!email) {
+    setError("Por favor, introduce tu email primero");
+    return;
+  }
+
+  const db = getFirestore(app);
+
+  try {
+    const agentesRef = collection(db, "agentes");
+    const q = query(agentesRef, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      setError("No existe ninguna cuenta registrada con ese email.");
       return;
     }
 
-    const db = getFirestore(app);
+    const auth = getAuth();
+    await sendPasswordResetEmail(auth, email);
+    setMensaje("Te hemos enviado un correo para restablecer la contraseña.");
+  } catch (err) {
+    console.error("❌ Error al enviar recuperación:", err);
 
-    try {
-      const agentesRef = collection(db, "agentes");
-      const q = query(agentesRef, where("email", "==", email));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        setError("No existe ninguna cuenta registrada con ese email.");
-        return;
-      }
-
-      const auth = getAuth();
-      await sendPasswordResetEmail(auth, email);
-      setMensaje("Te hemos enviado un correo para restablecer la contraseña.");
-    } catch (err) {
-      console.error("❌ Error al enviar recuperación:", err);
-      setError("No se pudo enviar el email de recuperación.");
+    if (err.code === "auth/user-not-found") {
+      setError("No hay ninguna cuenta registrada con ese email.");
+    } else if (err.code === "auth/invalid-email") {
+      setError("El email introducido no es válido.");
+    } else if (err.code === "auth/missing-email") {
+      setError("Por favor, introduce tu email.");
+    } else {
+      setError("No se pudo enviar el email de recuperación. Inténtalo más tarde.");
     }
-  };
-
+  }
+};
   return (
     <div className="min-h-screen bg-[#1E2431] flex items-center justify-center p-4">
       <div className="flex flex-col items-center space-y-6">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ModalCrearAgente from "../components/ModalCrearAgente";
-import { escucharAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB";
+import { obtenerAgentes, crearAgente, actualizarAgente, eliminarAgente } from "../firebaseDB";
 import { useNavigate } from "react-router-dom";
 
 const Agentes = () => {

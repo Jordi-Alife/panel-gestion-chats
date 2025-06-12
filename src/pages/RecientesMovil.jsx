@@ -10,12 +10,11 @@ const ConversacionesMovil = () => {
   const [filtro, setFiltro] = useState("todas");
   const [busqueda, setBusqueda] = useState("");
   
-  // Carga inicial cuando cambia la vista
+
 useEffect(() => {
   const cargarDatos = async () => {
     try {
-      const tipo = tipoVisualizacion === "archivadas" ? "archivo" : tipoVisualizacion;
-      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
+      const res = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`);
       const data = await res.json();
       setTodasConversaciones(data);
 
@@ -27,9 +26,9 @@ useEffect(() => {
     }
   };
 
-  console.log("📥 Cargando vista:", tipoVisualizacion);
+  console.log("📥 Cargando conversaciones recientes...");
   cargarDatos();
-}, [tipoVisualizacion]);
+}, []);
 
 // Refresco solo si estás en 'recientes' y hay chats activos/inactivos
 useEffect(() => {

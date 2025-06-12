@@ -36,19 +36,8 @@ const Login = () => {
     return;
   }
 
-  const db = getFirestore(app);
-
+  const auth = getAuth();
   try {
-    const agentesRef = collection(db, "agentes");
-    const q = query(agentesRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      setError("No existe ninguna cuenta registrada con ese email.");
-      return;
-    }
-
-    const auth = getAuth();
     await sendPasswordResetEmail(auth, email);
     setMensaje("Te hemos enviado un correo para restablecer la contraseña.");
   } catch (err) {

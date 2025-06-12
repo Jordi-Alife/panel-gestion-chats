@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { escucharConversacionesRecientes } from "../../firebaseDB"; // Ajusta si la ruta es diferente
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -31,21 +32,17 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  const intervalo = setInterval(() => {
-    const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
-    if (!hayActivas) {
-      console.log("🛑 No hay activas/inactivas visibles. No refresco.");
-      return;
-    }
+  console.log("👂 Escuchando conversaciones recientes en tiempo real...");
 
-    console.log("🔄 Refrescando porque hay activas/inactivas visibles");
-    fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`)
-      .then((res) => res.json())
-      .then(setTodasConversaciones)
-      .catch(console.error);
-  }, 5000);
+  const unsubscribe = escucharConversacionesRecientes((data) => {
+    console.log("📡 Recibidas conversaciones recientes:", data);
+    setTodasConversaciones(data);
+  });
 
-  return () => clearInterval(intervalo);
+  return () => {
+    console.log("🧹 Parando escucha de conversaciones recientes...");
+    unsubscribe();
+  };
 }, []);
   
   const paisAToIso = (paisTexto) => {

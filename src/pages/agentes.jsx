@@ -12,25 +12,21 @@ const Agentes = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const desuscribir = escucharAgentes((nuevosAgentes) => {
-      setAgentes(nuevosAgentes);
-    });
+  obtenerAgentes().then(setAgentes);
 
-    const listener = () => {
-      setAgenteEditar(null);
-      setMostrarModal(true);
-    };
-    window.addEventListener("crear-agente", listener);
+  const listener = () => {
+    setAgenteEditar(null);
+    setMostrarModal(true);
+  };
+  window.addEventListener("crear-agente", listener);
 
-    const rolGuardado = localStorage.getItem("rol-usuario-panel");
-    if (rolGuardado) setRolUsuario(rolGuardado);
+  const rolGuardado = localStorage.getItem("rol-usuario-panel");
+  if (rolGuardado) setRolUsuario(rolGuardado);
 
-    return () => {
-      desuscribir();
-      window.removeEventListener("crear-agente", listener);
-    };
-  }, []);
-
+  return () => {
+    window.removeEventListener("crear-agente", listener);
+  };
+}, []);
   const abrirEditar = (agente) => {
     setAgenteEditar(agente);
     setMostrarModal(true);

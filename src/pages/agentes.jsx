@@ -33,25 +33,27 @@ const Agentes = () => {
   };
 
   const guardarAgente = async (nuevo) => {
-    try {
-      if (agenteEditar) {
-        await actualizarAgente(agenteEditar.id, {
-          ...nuevo,
-          ultimaConexion: new Date().toISOString(),
-        });
-        setMensajeExito("Agente actualizado correctamente");
-      } else {
-        await crearAgente({
-          ...nuevo,
-          ultimaConexion: new Date().toISOString(),
-        });
-        setMensajeExito("Agente creado correctamente");
-      }
-      setTimeout(() => setMensajeExito(""), 3000);
-    } catch (error) {
-      console.error("Error guardando agente:", error);
+  try {
+    if (agenteEditar) {
+      await actualizarAgente(agenteEditar.id, {
+        ...nuevo,
+        ultimaConexion: new Date().toISOString(),
+      });
+      setMensajeExito("Agente actualizado correctamente");
+      await obtenerAgentes().then(setAgentes); // ✅ Refrescar lista
+    } else {
+      await crearAgente({
+        ...nuevo,
+        ultimaConexion: new Date().toISOString(),
+      });
+      setMensajeExito("Agente creado correctamente");
+      await obtenerAgentes().then(setAgentes); // ✅ Refrescar lista
     }
-  };
+    setTimeout(() => setMensajeExito(""), 3000);
+  } catch (error) {
+    console.error("Error guardando agente:", error);
+  }
+};
 
   const eliminarAgenteClick = async (id) => {
     if (confirm("¿Seguro que quieres eliminar este agente?")) {

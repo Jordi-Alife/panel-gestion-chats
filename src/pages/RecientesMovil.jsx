@@ -92,29 +92,8 @@ useEffect(() => {
       ? (Date.now() - new Date(info.lastInteraction)) / 60000
       : Infinity;
 
-    let estado = "Archivado";
-
-    if (info.intervenida && minutosDesdeUltimo > 10 && info.estado !== "cerrado") {
-      fetch(`${BACKEND_URL}/api/liberar-conversacion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: id }),
-      })
-        .then(() => {
-          console.log(`✅ Conversación ${id} liberada automáticamente al pasar a Archivado`);
-        })
-        .catch((err) => {
-          console.error(`❌ Error liberando conversación ${id} automáticamente:`, err);
-        });
-    }
-
-    if ((info.estado || "").toLowerCase() === "cerrado") {
-      estado = "Cerrado";
-    } else if (minutosDesdeUltimo <= 2) {
-      estado = "Activa";
-    } else if (minutosDesdeUltimo <= 10) {
-      estado = "Inactiva";
-    }
+    let estado = "Inactiva";
+if (minutosDesdeUltimo <= 2) estado = "Activa";
 
     return {
       userId: id,

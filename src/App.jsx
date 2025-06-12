@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Conversaciones from "./pages/Conversaciones";
-import ConversacionesMovil from "./pages/ConversacionesMovil";
+import RecientesMovil from './pages/conversacionesmovil/RecientesMovil';
 import ChatMovil from "./pages/ChatMovil";
 import DetallesMovil from "./pages/DetallesMovil";
 import Agentes from "./pages/agentes";

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const ConversacionList = ({
   conversaciones,
@@ -14,6 +14,10 @@ const ConversacionList = ({
   totalNoVistos, // ✅ AÑADIDO CORRECTAMENTE
 }) => {
   const [busqueda, setBusqueda] = useState("");
+
+// ✅ Paso 2: Detectar si estamos en la vista de archivadas
+const location = useLocation();
+const enArchivadas = location.pathname.includes("archivadas");
 
   const filtradas = conversaciones.filter((c) => {
     const texto = busqueda.toLowerCase();

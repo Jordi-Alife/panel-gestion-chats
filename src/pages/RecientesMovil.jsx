@@ -230,4 +230,4 @@ useEffect(() => {
   );
 };
 
-export default ConversacionesMovil;
+export default RecientesMovil;

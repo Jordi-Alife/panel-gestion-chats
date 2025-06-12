@@ -135,6 +135,11 @@ const App = () => {
   element={usuarioActual ? <RecientesMovil /> : <Navigate to="/login" />}
 />
 
+<Route
+  path="/archivadas-movil"
+  element={usuarioActual ? <ArchivadasMovil /> : <Navigate to="/login" />}
+/>
+        
         <Route
           path="/perfil-movil"
           element={usuarioActual ? <PerfilMovil /> : <Navigate to="/login" />}

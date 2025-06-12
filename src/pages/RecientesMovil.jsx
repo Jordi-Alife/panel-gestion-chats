@@ -238,7 +238,9 @@ useEffect(() => {
     }`}
   >
     Archivadas
-  </button>
-</div>
+        </button>
+    </div>
+  );
+};
 
 export default RecientesMovil;

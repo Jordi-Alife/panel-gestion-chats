@@ -72,4 +72,16 @@ export const escucharMensajesUsuario = (userId, callback) => {
 
 export { app, db }; // Exportamos app y db por si quieres usarlos en otros sitios
 
-window.escucharMensajesUsuario = escucharMensajesUsuario;
+export const escucharTextoEscribiendo = (userId, callback) => {
+  const docRef = doc(db, "escribiendo", userId);
+  return onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      callback(data.texto || "");
+    } else {
+      callback("");
+    }
+  });
+};
+
+window.escucharTextoEscribiendo = escucharTextoEscribiendo;

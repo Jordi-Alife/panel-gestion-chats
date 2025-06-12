@@ -19,7 +19,7 @@ import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import Monitor from "./pages/Monitor";
 import ArchivadasNew from "./pages/Conversaciones/Archivadas"; // ✅ Ruta correcta
-import ArchivadasMovil from "./pages/conversacionesmovil/ArchivadasMovil";
+import ArchivadasMovil from "./pages/ArchivadasMovil";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from "./firebaseAuth";

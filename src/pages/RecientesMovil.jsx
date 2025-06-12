@@ -218,29 +218,29 @@ useEffect(() => {
         ))}
       </div>
 
-      <div className="flex justify-around items-center border-t bg-white py-8">
-  <button
-    onClick={() => navigate("/conversaciones-movil")}
-    className={`text-sm font-medium ${
-      window.location.pathname === "/conversaciones-movil"
-        ? "text-blue-600 font-semibold"
-        : "text-gray-600"
-    }`}
-  >
-    Recientes
-  </button>
-  <button
-    onClick={() => navigate("/archivadas-movil")}
-    className={`text-sm font-medium ${
-      window.location.pathname === "/archivadas-movil"
-        ? "text-blue-600 font-semibold"
-        : "text-gray-600"
-    }`}
-  >
-    Archivadas
-                </button>
+            <div className="flex justify-around items-center border-t bg-white py-8">
+        <button
+          onClick={() => navigate("/conversaciones-movil")}
+          className={`text-sm font-medium ${
+            window.location.pathname === "/conversaciones-movil"
+              ? "text-blue-600 font-semibold"
+              : "text-gray-600"
+          }`}
+        >
+          Recientes
+        </button>
+        <button
+          onClick={() => navigate("/archivadas-movil")}
+          className={`text-sm font-medium ${
+            window.location.pathname === "/archivadas-movil"
+              ? "text-blue-600 font-semibold"
+              : "text-gray-600"
+          }`}
+        >
+          Archivadas
+        </button>
       </div>
-    </div> {/* Este cierra el return general */}
+    </div>
   );
 };
 

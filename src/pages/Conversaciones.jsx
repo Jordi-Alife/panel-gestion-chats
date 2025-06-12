@@ -397,6 +397,10 @@ useEffect(() => {
 
 useEffect(() => {
   if (tipoVisualizacion !== "recientes") return;
+  if (!document.hasFocus()) {
+    console.log("🚫 Pestaña no activa. No se inicia listener de conversaciones.");
+    return;
+  }
 
   console.log("👂 Escuchando conversaciones recientes en tiempo real...");
   const unsubscribe = escucharConversacionesRecientes((lista) => {

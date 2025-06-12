@@ -45,8 +45,7 @@ const ChatMovil = () => {
     .catch(console.error);
 }, [userId]);
 
-  const cargarMensajes = async (desdeTimestamp = null) => {
-  // ⚡ Optimización: usar historialFormateado si está disponible
+  const cargarMensajes = async () => {
   const convData = localStorage.getItem(`conversacion-${userId}`);
   let conv = null;
   try {
@@ -59,24 +58,55 @@ const ChatMovil = () => {
     conv.historialFormateado
   ) {
     const lineas = conv.historialFormateado.split("\n");
-    const mensajes = lineas.map((linea, i) => {
+    const mensajes = [];
+    let estadoActual = "gpt";
+
+    for (let i = 0; i < lineas.length; i++) {
+      const linea = lineas[i].trim();
       const esUsuario = linea.startsWith("Usuario:");
       const esAsistente = linea.startsWith("Asistente:");
-      return {
+
+      if (linea.includes("Traspasado a GPT") && estadoActual !== "gpt") {
+        mensajes.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
+        });
+        estadoActual = "gpt";
+      }
+
+      if (linea.toLowerCase().includes("cerrado") || linea.toLowerCase().includes("cerró el chat")) {
+        mensajes.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
+        });
+      }
+
+      if (linea.includes("Agente:") && estadoActual === "gpt") {
+        mensajes.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
+        });
+        estadoActual = "humano";
+      }
+
+      mensajes.push({
         id: `hist-${i}`,
         from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
-        message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
+        message: linea.replace(/^Usuario:\s?|^Asistente:\s?|^Agente:\s?/, ""),
         tipo: "texto",
-        lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
-      };
-    });
+        lastInteraction: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
+      });
+    }
 
     setMensajes(mensajes);
     oldestTimestampRef.current = null;
     setHasMore(false);
     return;
   }
-  };
+};
 
   useEffect(() => {
   if (!userId || !estado) return;

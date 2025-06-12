@@ -213,6 +213,17 @@ if (usuarioSeleccionado?.intervenida) {
   };
 }, [userId, tipoVisualizacion]);
 
+  useEffect(() => {
+  if (!userId) return;
+
+  const sigueExistiendo = todasConversaciones.some((c) => c.userId === userId);
+
+  if (!sigueExistiendo) {
+    console.log(`⚠️ Conversación ${userId} ya no está en la vista actual. Deseleccionando...`);
+    setSearchParams({});
+  }
+}, [userId, todasConversaciones]);
+
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   const cargarDatos = async (tipo = "recientes") => {

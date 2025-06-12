@@ -182,42 +182,6 @@ useEffect(() => {
           style={{ fontSize: "16px" }}
         />
       </div>
-
-<div className="flex justify-center gap-2 px-4 py-2 border-b">
-  <button
-  onClick={() => {
-    setTipoVisualizacion("recientes");
-    localStorage.setItem("tipoVisualizacion", "recientes");
-  }}
-  className={`relative text-xs font-medium px-3 py-1 rounded-full ${
-    tipoVisualizacion === "recientes"
-      ? "bg-blue-600 text-white"
-      : "bg-gray-200 text-gray-600"
-  }`}
->
-  Recientes
-  {totalNoVistos > 0 && (
-    <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-      {totalNoVistos}
-    </span>
-  )}
-</button>
-
-<button
-  onClick={() => {
-    setTipoVisualizacion("archivadas");
-    localStorage.setItem("tipoVisualizacion", "archivadas");
-  }}
-  className={`text-xs font-medium px-3 py-1 rounded-full ${
-    tipoVisualizacion === "archivadas"
-      ? "bg-blue-600 text-white"
-      : "bg-gray-200 text-gray-600"
-  }`}
->
-  Archivadas
-</button>
-</div>
-
       
       <div className="flex-1 overflow-y-auto p-2 space-y-3 pb-24">
         {listaAgrupada.map((c) => (

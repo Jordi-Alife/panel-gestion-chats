@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { escucharConversacionesRecientes } from "../../firebaseDB"; // Ajusta si la ruta es diferente
+import { escucharConversacionesRecientes } from "../firebaseDB";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 

@@ -30,6 +30,24 @@ useEffect(() => {
   cargarDatos();
 }, []);
 
+useEffect(() => {
+  const intervalo = setInterval(() => {
+    const hayActivas = document.querySelector('[data-estado="activa"], [data-estado="inactiva"]');
+    if (!hayActivas) {
+      console.log("🛑 No hay activas/inactivas visibles. No refresco.");
+      return;
+    }
+
+    console.log("🔄 Refrescando porque hay activas/inactivas visibles");
+    fetch(`${BACKEND_URL}/api/conversaciones?tipo=recientes`)
+      .then((res) => res.json())
+      .then(setTodasConversaciones)
+      .catch(console.error);
+  }, 5000);
+
+  return () => clearInterval(intervalo);
+}, []);
+  
   const paisAToIso = (paisTexto) => {
     const mapa = {
       Spain: "es",

@@ -211,9 +211,99 @@ const ChatMovil = () => {
   };
 
   useEffect(() => {
-  if (estado) {
-    cargarMensajes();
-  }
+  if (!userId || !estado) return;
+
+  const stop = escucharMensajesUsuario(userId, (docs) => {
+    const ordenados = docs.sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+
+    const mensajesConEtiqueta = [];
+    let estadoActual = "gpt";
+
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
+      const ultimaEtiqueta = mensajesConEtiqueta.length ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1] : null;
+
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+        }
+        estadoActual = "gpt";
+      }
+
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+        }
+      }
+
+      if (msg.manual === true && estadoActual === "gpt") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+        }
+        estadoActual = "humano";
+      }
+
+      mensajesConEtiqueta.push(msg);
+    }
+
+    // Aplicar filtros y limitar a los últimos 50
+    const mapa = new Map();
+    mensajesConEtiqueta.forEach((m) => {
+      const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+      mapa.set(clave, m);
+    });
+
+    let ordenadosFinal = Array.from(mapa.values()).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+
+    const filtradoSinDuplicados = [];
+    let ultimaEtiqueta = null;
+
+    for (const msg of ordenadosFinal) {
+      if (
+        msg.tipo === "etiqueta" &&
+        ultimaEtiqueta &&
+        ultimaEtiqueta.tipo === "etiqueta" &&
+        ultimaEtiqueta.mensaje === msg.mensaje &&
+        Math.abs(new Date(ultimaEtiqueta.timestamp) - new Date(msg.timestamp)) < 3000
+      ) {
+        continue;
+      }
+
+      filtradoSinDuplicados.push(msg);
+      if (msg.tipo === "etiqueta") ultimaEtiqueta = msg;
+    }
+
+    if (filtradoSinDuplicados.length > 50) {
+      filtradoSinDuplicados.splice(0, filtradoSinDuplicados.length - 50);
+    }
+
+    setMensajes(filtradoSinDuplicados);
+
+    requestAnimationFrame(() => {
+      if (scrollForzado.current && chatRef.current) {
+        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+      }
+      setAnimacionesActivas(true);
+    });
+  });
+
+  return () => stop(); // Detener el listener
 }, [userId, estado]);
 
   useEffect(() => {

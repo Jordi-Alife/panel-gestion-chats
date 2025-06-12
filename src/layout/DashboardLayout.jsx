@@ -100,9 +100,9 @@ const DashboardLayout = ({ children }) => {
               <Link to="/inicio" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
                 <img src={IconInicio} alt="Inicio" className="w-5 h-5" /> Inicio
               </Link>
-              <Link to="/conversaciones-movil" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
-                <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" /> Conversaciones
-              </Link>
+              <Link to="/archivadas-new" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
+  <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" /> Conversaciones
+</Link>
               <Link to="/monitor" onClick={() => setMenuMovilAbierto(false)} className="block py-2 flex items-center gap-2">
                 <img src={IconMonitor} alt="Monitor" className="w-5 h-5" /> Monitor
               </Link>

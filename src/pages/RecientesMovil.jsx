@@ -86,25 +86,23 @@ useEffect(() => {
 
   const listaAgrupada = Object.entries(conversacionesPorUsuario)
   .map(([id, info]) => {
-    const ultimaVista = vistas[id];
+  const minutosDesdeUltimo = info.lastInteraction
+    ? (Date.now() - new Date(info.lastInteraction)) / 60000
+    : Infinity;
 
-    const minutosDesdeUltimo = info.lastInteraction
-      ? (Date.now() - new Date(info.lastInteraction)) / 60000
-      : Infinity;
+  let estado = "Inactiva";
+  if (minutosDesdeUltimo <= 2) estado = "Activa";
 
-    let estado = "Inactiva";
-if (minutosDesdeUltimo <= 2) estado = "Activa";
-
-    return {
-      userId: id,
-      nuevos: info.noVistos || 0,
-      estado,
-      lastInteraction: info.lastInteraction,
-      iniciales: id.slice(0, 2).toUpperCase(),
-      intervenida: info.intervenida,
-      pais: info.pais || "Desconocido",
-    };
-  })
+  return {
+    userId: id,
+    nuevos: info.noVistos || 0,
+    estado,
+    lastInteraction: info.lastInteraction,
+    iniciales: id.slice(0, 2).toUpperCase(),
+    intervenida: info.intervenida,
+    pais: info.pais || "Desconocido",
+  };
+})
   .filter((c) => c.estado === "Activa" || c.estado === "Inactiva")
   .sort((a, b) => new Date(b.lastInteraction) - new Date(a.lastInteraction))
   .filter(

@@ -174,19 +174,6 @@ const ChatMovil = () => {
   return () => stop(); // Detener el listener
 }, [userId, estado]);
 
-  useEffect(() => {
-  let interval;
-  if (userId) {
-    interval = setInterval(() => {
-      fetch(`${BACKEND_URL}/api/escribiendo/${userId}`)
-        .then((res) => res.json())
-        .then((data) => setTextoEscribiendo(data.texto || ""))
-        .catch(console.error);
-    }, 4000);
-  }
-  return () => clearInterval(interval);
-}, [userId]);
-
   const handleScroll = async () => {
     if (!chatRef.current) return;
     const el = chatRef.current;

@@ -219,33 +219,26 @@ useEffect(() => {
       </div>
 
       <div className="flex justify-around items-center border-t bg-white py-8">
-        <button
-          onClick={() => setFiltro("todas")}
-          className={`text-sm ${
-            filtro === "todas" ? "text-blue-600 font-semibold" : "text-gray-600"
-          }`}
-        >
-          Todas
-        </button>
-        <button
-          onClick={() => setFiltro("gpt")}
-          className={`text-sm ${
-            filtro === "gpt" ? "text-blue-600 font-semibold" : "text-gray-600"
-          }`}
-        >
-          GPT
-        </button>
-        <button
-          onClick={() => setFiltro("humanas")}
-          className={`text-sm ${
-            filtro === "humanas" ? "text-blue-600 font-semibold" : "text-gray-600"
-          }`}
-        >
-          Humanas
-        </button>
-      </div>
-    </div>
-  );
-};
+  <button
+    onClick={() => navigate("/conversaciones-movil")}
+    className={`text-sm font-medium ${
+      window.location.pathname === "/conversaciones-movil"
+        ? "text-blue-600 font-semibold"
+        : "text-gray-600"
+    }`}
+  >
+    Recientes
+  </button>
+  <button
+    onClick={() => navigate("/archivadas-movil")}
+    className={`text-sm font-medium ${
+      window.location.pathname === "/archivadas-movil"
+        ? "text-blue-600 font-semibold"
+        : "text-gray-600"
+    }`}
+  >
+    Archivadas
+  </button>
+</div>
 
 export default RecientesMovil;

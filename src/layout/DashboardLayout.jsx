@@ -146,15 +146,15 @@ const DashboardLayout = ({ children }) => {
                 {!colapsado && <span>Inicio</span>}
               </Link>
 
-              <Link to="/conversaciones" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${colapsado ? "justify-center" : "gap-3"}`}>
-                <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
-                {!colapsado && <span>Conversaciones</span>}
-                {notificaciones > 0 && (
-                  <span className="absolute -top-1.5 right-2 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
-                    {notificaciones}
-                  </span>
-                )}
-              </Link>
+              <Link to="/archivadas-new" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition relative ${colapsado ? "justify-center" : "gap-3"}`}>
+  <img src={IconConversaciones} alt="Conversaciones" className="w-5 h-5" />
+  {!colapsado && <span>Conversaciones</span>}
+  {notificaciones > 0 && (
+    <span className="absolute -top-1.5 right-2 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+      {notificaciones}
+    </span>
+  )}
+</Link>
 
               <Link to="/monitor" className={`flex items-center py-2 pl-6 pr-3 text-white hover:bg-[#2d3444] rounded transition ${colapsado ? "justify-center" : "gap-3"}`}>
                 <img src={IconMonitor} alt="Monitor" className="w-5 h-5" />

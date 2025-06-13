@@ -122,11 +122,11 @@ const ChatPanel = ({
     : textoTraducido;
 
           const contenidoSecundario =
-            msg.tipo === "imagen"
-              ? null
-              : msg.manual
-              ? textoTraducido
-              : textoOriginal;
+  (msg.tipo === "imagen" || !!msg.image_url)
+    ? null
+    : msg.manual
+    ? textoTraducido
+    : textoOriginal;
 
           return (
             <div key={msg.__refreshId || msg.id || `${msg.tipo}-${index}`} data-id={msg.id} className={`flex ${align}`}>

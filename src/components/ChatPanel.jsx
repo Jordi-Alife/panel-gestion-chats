@@ -138,11 +138,16 @@ const ChatPanel = ({
                   : "bg-[#eaeaea] text-gray-900 dark:bg-gray-700 dark:text-white"
               }`}>
                 {(msg.tipo === "imagen" || !!msg.image_url) ? (
-  <img
-    src={msg.image_url || contenidoPrincipal}
-    alt="Imagen enviada"
-    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-  />
+  {msg.tipo === "imagen" ? (
+  contenidoPrincipal ? (
+    <img
+      src={contenidoPrincipal}
+      alt="Imagen enviada"
+      className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+    />
+  ) : (
+    <p className="italic text-sm opacity-50">[Imagen no disponible]</p>
+  )
 ) : (
   <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
 )}

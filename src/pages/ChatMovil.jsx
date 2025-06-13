@@ -317,6 +317,11 @@ const mensajesHist = lineas.map((linea, i) => {
       </div>
 
       <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2" onScroll={handleScroll}>
+        {mensajes.length === 0 && (
+  <div className="text-center text-sm text-gray-500 mt-8">
+    ⚠️ No hay mensajes que mostrar (mensajes.length = 0)
+  </div>
+)}
   {mensajes.map((msg, index) => {
     // 🔒 Evitar renderizar mensajes vacíos que no sean imagen ni etiqueta
     if (

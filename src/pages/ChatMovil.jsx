@@ -27,9 +27,14 @@ const ChatMovil = () => {
   const perfil = JSON.parse(localStorage.getItem("perfil-usuario-panel") || "{}");
 
   useEffect(() => {
-    const est = localStorage.getItem(`estado-conversacion-${userId}`);
-    if (est) setEstado(est);
-  }, [userId]);
+  const est = localStorage.getItem(`estado-conversacion-${userId}`);
+  if (est) {
+    setEstado(est);
+  } else {
+    // Forzar estado si no está disponible (archivadas por defecto)
+    setEstado("cerrado");
+  }
+}, [userId]);
   useEffect(() => {
   if (!estado || !userId) return;
   cargarMensajes();

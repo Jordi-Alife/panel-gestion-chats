@@ -157,9 +157,11 @@ const ConversacionesMovil = () => {
               localStorage.setItem(`intervenida-${c.userId}`, c.intervenida ? "true" : "false");
 
               const encontrada = todasConversaciones.find(conv => conv.userId === c.userId);
-              if (encontrada) {
-                localStorage.setItem(`conversacion-${c.userId}`, JSON.stringify(encontrada));
-              }
+if (encontrada) {
+  // Añadir estado antes de guardar
+  encontrada.estado = c.estado || "cerrado";
+  localStorage.setItem(`conversacion-${c.userId}`, JSON.stringify(encontrada));
+}
 
               try {
                 await fetch(`${BACKEND_URL}/api/marcar-visto`, {

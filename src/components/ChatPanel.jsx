@@ -116,7 +116,7 @@ const ChatPanel = ({
 
           const contenidoPrincipal =
             msg.tipo === "imagen"
-              ? msg.message
+  ? msg.image_url || msg.message
               : msg.manual
               ? textoOriginal
               : textoTraducido;
@@ -138,15 +138,14 @@ const ChatPanel = ({
                   : "bg-[#eaeaea] text-gray-900 dark:bg-gray-700 dark:text-white"
               }`}>
                 {msg.tipo === "imagen" ? (
-                  <img
-                    src={contenidoPrincipal}
-                    alt="Imagen enviada"
-                    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
-                  />
-                ) : (
-                  <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
-                )}
-
+  <img
+    src={msg.image_url || contenidoPrincipal}
+    alt="Imagen enviada"
+    className="rounded-lg max-w-full max-h-[300px] mb-2 object-contain"
+  />
+) : (
+  <p className="whitespace-pre-wrap text-[15px]">{contenidoPrincipal}</p>
+)}
                 {contenidoSecundario && msg.tipo !== "imagen" && (
                   <div className="mt-2 text-[11px] text-right">
                     <button

@@ -170,6 +170,8 @@ const ConversacionesMovil = () => {
                 console.warn("❌ Error al marcar visto", err);
               }
 
+              localStorage.setItem(`estado-conversacion-${c.userId}`, "cerrado");
+
               navigate(`/archivadas-movil/${(c.userId || "").trim().toLowerCase()}`);
             }}
             className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"

@@ -137,7 +137,7 @@ const ChatPanel = ({
                   ? "bg-[#2f2f2f] text-white border border-transparent dark:bg-[#3a3a3a] dark:text-white"
                   : "bg-[#eaeaea] text-gray-900 dark:bg-gray-700 dark:text-white"
               }`}>
-                {msg.tipo === "imagen" ? (
+                {(msg.tipo === "imagen" || !!msg.image_url) ? (
   <img
     src={msg.image_url || contenidoPrincipal}
     alt="Imagen enviada"

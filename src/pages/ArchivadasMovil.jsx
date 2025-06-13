@@ -246,10 +246,11 @@ useEffect(() => {
               >
                 {c.estado}
               </span>
-            </div>
+                        </div>
           </div>
         ))}
       </div>
+    </div> {/* ← ESTE cierre faltaba: cierra el div principal de layout */}
   );
 };
 

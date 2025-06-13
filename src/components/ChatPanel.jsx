@@ -115,11 +115,11 @@ const ChatPanel = ({
           const textoOriginal = msg.original || "";
 
           const contenidoPrincipal =
-            msg.tipo === "imagen"
-  ? msg.image_url || msg.message
-              : msg.manual
-              ? textoOriginal
-              : textoTraducido;
+  (msg.tipo === "imagen" || !!msg.image_url)
+    ? msg.image_url || msg.message
+    : msg.manual
+    ? textoOriginal
+    : textoTraducido;
 
           const contenidoSecundario =
             msg.tipo === "imagen"

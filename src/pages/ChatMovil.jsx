@@ -30,6 +30,10 @@ const ChatMovil = () => {
     const est = localStorage.getItem(`estado-conversacion-${userId}`);
     if (est) setEstado(est);
   }, [userId]);
+  useEffect(() => {
+  if (!estado || !userId) return;
+  cargarMensajes();
+}, [estado, userId]);
 
   useEffect(() => {
   if (!userId) return;

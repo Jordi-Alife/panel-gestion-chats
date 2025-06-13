@@ -115,6 +115,12 @@ const ChatMovil = () => {
   useEffect(() => {
   if (!userId || !estado) return;
 
+  const tipo = (estado || "").toLowerCase();
+  if (["cerrado", "archivado"].includes(tipo)) {
+    cargarMensajes(); // ✅ usa historialFormateado si está disponible
+    return;
+  }
+
   const stop = escucharMensajesUsuario(userId, (docs) => {
     const ordenados = docs.sort(
       (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
@@ -125,7 +131,9 @@ const ChatMovil = () => {
 
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
-      const ultimaEtiqueta = mensajesConEtiqueta.length ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1] : null;
+      const ultimaEtiqueta = mensajesConEtiqueta.length
+        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+        : null;
 
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
@@ -139,7 +147,10 @@ const ChatMovil = () => {
       }
 
       if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+        if (
+          !ultimaEtiqueta ||
+          ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat"
+        ) {
           mensajesConEtiqueta.push({
             tipo: "etiqueta",
             mensaje: "El usuario ha cerrado el chat",
@@ -162,7 +173,6 @@ const ChatMovil = () => {
       mensajesConEtiqueta.push(msg);
     }
 
-    // Aplicar filtros y limitar a los últimos 50
     const mapa = new Map();
     mensajesConEtiqueta.forEach((m) => {
       const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
@@ -192,20 +202,26 @@ const ChatMovil = () => {
     }
 
     if (filtradoSinDuplicados.length > 50) {
-      filtradoSinDuplicados.splice(0, filtradoSinDuplicados.length - 50);
+      filtradoSinDuplicados.splice(
+        0,
+        filtradoSinDuplicados.length - 50
+      );
     }
 
     setMensajes(filtradoSinDuplicados);
 
     requestAnimationFrame(() => {
       if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "auto",
+        });
       }
       setAnimacionesActivas(true);
     });
   });
 
-  return () => stop(); // Detener el listener
+  return () => stop();
 }, [userId, estado]);
 
   useEffect(() => {

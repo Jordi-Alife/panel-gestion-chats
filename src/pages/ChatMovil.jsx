@@ -320,13 +320,14 @@ const mensajesHist = lineas.map((linea, i) => {
   {mensajes.map((msg, index) => {
     // 🔒 Evitar renderizar mensajes vacíos que no sean imagen ni etiqueta
     if (
-      !msg.message &&
-      !msg.original &&
-      msg.tipo !== "imagen" &&
-      msg.tipo !== "etiqueta"
-    ) {
-      return null;
-    }
+  !msg.message &&
+  !msg.mensaje &&
+  !msg.original &&
+  msg.tipo !== "imagen" &&
+  msg.tipo !== "etiqueta"
+) {
+  return null;
+}
 
     if (msg.tipo === "etiqueta") {
       return (

@@ -115,8 +115,8 @@ const ChatPanel = ({
           const textoOriginal = msg.original || "";
 
           const contenidoPrincipal =
-  (msg.tipo === "imagen" || !!msg.image_url)
-    ? msg.image_url || msg.message
+  msg.tipo === "imagen"
+    ? msg.image_url || (msg.message?.startsWith("https://") ? msg.message : null)
     : msg.manual
     ? textoOriginal
     : textoTraducido;

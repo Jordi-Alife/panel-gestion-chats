@@ -132,7 +132,7 @@ const App = () => {
 
         <Route
   path="/conversaciones-movil"
-  element={<Navigate to="/archivadas-movil" replace />}
+  element={usuarioActual ? <RecientesMovil /> : <Navigate to="/login" />}
 />
 
 <Route

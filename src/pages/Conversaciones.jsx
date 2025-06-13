@@ -180,14 +180,13 @@ if (usuarioSeleccionado?.intervenida) {
   const nuevos = mensajesConEtiqueta.slice(-limite);
 
   setMensajes((prev) => {
-    const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
-    if (mismoContenido) {
-      console.log("📥 Mensajes iguales, forzando render con refreshId");
-      return nuevos.map((m, i) => ({ ...m, __refreshId: `${i}-${Date.now()}` }));
-    }
-    return nuevos;
-  });
-
+  const mismoContenido = JSON.stringify(prev) === JSON.stringify(nuevos);
+  if (mismoContenido) {
+    console.log("📥 Mensajes iguales, forzando render con clon profundo");
+    return [...nuevos.map((m) => ({ ...m }))]; // <- esto sí forza el render incluso si son "iguales"
+  }
+  return nuevos;
+});
   setHayMasMensajes(total > limite);
   setLimiteMensajes(limite);
 

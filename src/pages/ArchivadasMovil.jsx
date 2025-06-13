@@ -170,7 +170,7 @@ const ConversacionesMovil = () => {
                 console.warn("❌ Error al marcar visto", err);
               }
 
-              navigate(`/conversaciones/${(c.userId || "").trim().toLowerCase()}`);
+              navigate(`/archivadas-movil/${(c.userId || "").trim().toLowerCase()}`);
             }}
             className="flex items-center justify-between bg-white rounded-lg shadow p-4 cursor-pointer"
           >

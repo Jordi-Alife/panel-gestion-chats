@@ -55,6 +55,7 @@ const ChatMovil = () => {
 }, [userId]);
 
   const cargarMensajes = async () => {
+  if (!userId) return;
   const convData = localStorage.getItem(`conversacion-${userId}`);
   let conv = null;
   try {
@@ -67,53 +68,76 @@ const ChatMovil = () => {
     conv.historialFormateado
   ) {
     const lineas = conv.historialFormateado.split("\n");
-    const mensajes = [];
-    let estadoActual = "gpt";
-
-    for (let i = 0; i < lineas.length; i++) {
-      const linea = lineas[i].trim();
+    const mensajesHist = lineas.map((linea, i) => {
       const esUsuario = linea.startsWith("Usuario:");
       const esAsistente = linea.startsWith("Asistente:");
-
-      if (linea.includes("Traspasado a GPT") && estadoActual !== "gpt") {
-        mensajes.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
-        });
-        estadoActual = "gpt";
-      }
-
-      if (linea.toLowerCase().includes("cerrado") || linea.toLowerCase().includes("cerró el chat")) {
-        mensajes.push({
-          tipo: "etiqueta",
-          mensaje: "El usuario ha cerrado el chat",
-          timestamp: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
-        });
-      }
-
-      if (linea.includes("Agente:") && estadoActual === "gpt") {
-        mensajes.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
-        });
-        estadoActual = "humano";
-      }
-
-      mensajes.push({
+      return {
         id: `hist-${i}`,
         from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
-        message: linea.replace(/^Usuario:\s?|^Asistente:\s?|^Agente:\s?/, ""),
+        message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
         tipo: "texto",
-        lastInteraction: conv.lastInteraction || conv.fechaInicio || new Date().toISOString(),
-      });
-    }
-
-    setMensajes(mensajes);
+        lastInteraction: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
+      };
+    });
+    setMensajes(mensajesHist);
     oldestTimestampRef.current = null;
     setHasMore(false);
     return;
+  }
+
+  // fallback si no hay historialFormateado
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
+    const data = await res.json();
+    const ordenados = (data || []).sort(
+      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+    );
+
+    const mensajesConEtiqueta = [];
+    let estadoActual = "gpt";
+
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
+      const ultimaEtiqueta = mensajesConEtiqueta.length ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1] : null;
+
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+        }
+        estadoActual = "gpt";
+      }
+
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+        }
+      }
+
+      if (msg.manual === true && estadoActual === "gpt") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+        }
+        estadoActual = "humano";
+      }
+
+      mensajesConEtiqueta.push(msg);
+    }
+
+    setMensajes(mensajesConEtiqueta);
+  } catch (err) {
+    console.error("❌ Error cargando mensajes fallback:", err);
   }
 };
 

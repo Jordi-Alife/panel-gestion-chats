@@ -36,9 +36,15 @@ const ChatMovil = () => {
   }
 }, [userId]);
   useEffect(() => {
-  if (!estado || !userId) return;
-  cargarMensajes();
-}, [estado, userId]);
+  if (!userId) return;
+
+  // Esperar 50ms para asegurar que estado ya está definido
+  const timeout = setTimeout(() => {
+    cargarMensajes();
+  }, 50);
+
+  return () => clearTimeout(timeout);
+}, [userId, estado]);
 
   useEffect(() => {
   if (!userId) return;

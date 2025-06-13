@@ -284,7 +284,15 @@ const ChatMovil = () => {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-3 border-b">
-        <button onClick={() => navigate("/conversaciones-movil")} className="text-xl">←</button>
+        <button
+  onClick={() => {
+    const vieneDeArchivadas = window.location.pathname.includes("archivadas-movil");
+    navigate(vieneDeArchivadas ? "/archivadas-movil" : "/conversaciones-movil");
+  }}
+  className="text-xl"
+>
+  ←
+</button>
         <div className="flex items-center gap-2">
           <div className="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm">
             {userId.slice(0, 2).toUpperCase()}

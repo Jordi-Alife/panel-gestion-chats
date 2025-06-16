@@ -161,8 +161,6 @@ const ChatMovil = () => {
   const tipo = (estado || "").toLowerCase();
 const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
 
-const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
-
 if (estaEnRecientes || !["cerrado", "archivado"].includes(tipo)) {
   // ✅ Activar listener en tiempo real
   const stop = escucharMensajesUsuario(userId, (docs) => {

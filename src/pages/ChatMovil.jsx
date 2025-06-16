@@ -542,12 +542,25 @@ setEnviando(true);
 
             setRespuesta("");
 
-            
-            setTimeout(() => {
-              if (chatRef.current) {
-                chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-              }
-            }, 350);
+// ✅ Añade el mensaje manual al instante
+setMensajes((prev) => [
+  ...prev,
+  {
+    id: `temp-${Date.now()}`,
+    from: "agente",
+    tipo: "texto",
+    manual: true,
+    message: respuesta.trim(),
+    original: respuesta.trim(),
+    timestamp: new Date().toISOString(),
+  },
+]);
+
+setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+  }
+}, 350);
           }}
           className="flex items-center gap-2"
         >

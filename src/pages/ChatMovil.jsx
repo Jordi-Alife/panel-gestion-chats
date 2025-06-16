@@ -273,12 +273,15 @@ cargarMensajes();
 });
 
     requestAnimationFrame(() => {
-      if (scrollForzado.current && chatRef.current) {
-        chatRef.current.scrollTo({
-          top: chatRef.current.scrollHeight,
-          behavior: "auto",
-        });
-      }
+      requestAnimationFrame(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+  setAnimacionesActivas(true);
+});
       setAnimacionesActivas(true);
     });
   });

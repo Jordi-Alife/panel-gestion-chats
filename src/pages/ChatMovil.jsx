@@ -538,7 +538,7 @@ return;
 
             setRespuesta("");
 
-            setTimeout(() => cargarMensajes(), 300);
+            
             setTimeout(() => {
               if (chatRef.current) {
                 chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });

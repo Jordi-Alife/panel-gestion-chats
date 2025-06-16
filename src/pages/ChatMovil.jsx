@@ -157,6 +157,11 @@ return;
     }
 
     setMensajes(mensajesConEtiqueta);
+    setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+  }
+}, 100);
   } catch (err) {
     console.error("❌ Error cargando mensajes fallback:", err);
   }

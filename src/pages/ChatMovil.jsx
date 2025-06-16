@@ -234,7 +234,13 @@ return;
     // ⬇️ ESTE es el mensaje real que se mostrará, y aquí va el cambio:
     mensajesConEtiqueta.push({
   ...msg,
-  from: msg.from || (msg.manual ? "agente" : "asistente"),
+  from:
+    msg.from ||
+    (msg.manual
+      ? "agente"
+      : msg.rol === "usuario"
+      ? "usuario"
+      : "asistente"),
   tipo: msg.tipo || "texto",
   message: msg.message || msg.mensaje || msg.original || "",
   original: msg.original || msg.message || msg.mensaje || "",

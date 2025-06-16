@@ -185,113 +185,112 @@ return;
     return;
   }
 
-  // ✅ Si estamos en recientes o chat abierto, activar listener
   const stop = escucharMensajesUsuario(userId, (docs) => {
-    const ordenados = docs.sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
+  const ordenados = docs.sort(
+    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+  );
 
-    const mensajesConEtiqueta = [];
-    let estadoActual = "gpt";
+  const mensajesConEtiqueta = [];
+  let estadoActual = "gpt";
 
-    for (let i = 0; i < ordenados.length; i++) {
-      const msg = ordenados[i];
-      const ultimaEtiqueta = mensajesConEtiqueta.length
-        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-        : null;
+  for (let i = 0; i < ordenados.length; i++) {
+    const msg = ordenados[i];
+    const ultimaEtiqueta = mensajesConEtiqueta.length
+      ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+      : null;
 
-      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-        }
-        estadoActual = "gpt";
-      }
-
-      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        if (
-          !ultimaEtiqueta ||
-          ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat"
-        ) {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "El usuario ha cerrado el chat",
-            timestamp: msg.lastInteraction,
-          });
-        }
-      }
-
-      if (msg.manual === true && estadoActual === "gpt") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-        }
-        estadoActual = "humano";
-      }
-
-      mensajesConEtiqueta.push({
-  ...msg,
-  from: msg.from || (msg.manual ? "agente" : "usuario"),
-  tipo: msg.tipo || "texto",
-  message: msg.message || msg.mensaje || msg.original || "",
-  original: msg.original || msg.message || msg.mensaje || "",
-  timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-});
-    }
-
-    const mapa = new Map();
-    mensajesConEtiqueta.forEach((m) => {
-      const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-      mapa.set(clave, m);
-    });
-
-    const ordenadosFinal = Array.from(mapa.values()).sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
-
-    const filtradoSinDuplicados = [];
-    let ultimaEtiqueta = null;
-
-    for (const msg of ordenadosFinal) {
-      if (
-        msg.tipo === "etiqueta" &&
-        ultimaEtiqueta &&
-        ultimaEtiqueta.tipo === "etiqueta" &&
-        ultimaEtiqueta.mensaje === msg.mensaje &&
-        Math.abs(new Date(ultimaEtiqueta.timestamp) - new Date(msg.timestamp)) < 3000
-      ) {
-        continue;
-      }
-
-      filtradoSinDuplicados.push(msg);
-      if (msg.tipo === "etiqueta") ultimaEtiqueta = msg;
-    }
-
-    setMensajes((prev) => {
-      const mismoContenido = JSON.stringify(prev) === JSON.stringify(filtradoSinDuplicados);
-      if (mismoContenido) {
-        console.log("📥 Mensajes iguales, forzando render en ChatMovil");
-        return [...filtradoSinDuplicados.map((m) => ({ ...m }))];
-      }
-      return filtradoSinDuplicados;
-    });
-
-    requestAnimationFrame(() => {
-      if (chatRef.current) {
-        chatRef.current.scrollTo({
-          top: chatRef.current.scrollHeight,
-          behavior: "smooth",
+    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
         });
       }
-      setAnimacionesActivas(true);
+      estadoActual = "gpt";
+    }
+
+    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: msg.lastInteraction,
+        });
+      }
+    }
+
+    if (msg.manual === true && estadoActual === "gpt") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      estadoActual = "humano";
+    }
+
+    // ⬇️ ESTE es el mensaje real que se mostrará, y aquí va el cambio:
+    mensajesConEtiqueta.push({
+      ...msg,
+      from: msg.from || (msg.manual ? "agente" : "usuario"),
+      tipo: msg.tipo || "texto",
+      message: msg.message || msg.mensaje || msg.original || "",
+      original: msg.original || msg.message || msg.mensaje || "",
+      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
     });
+  }
+
+  // Sin duplicados
+  const mapa = new Map();
+  mensajesConEtiqueta.forEach((m) => {
+    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
+    mapa.set(clave, m);
   });
+
+  const ordenadosFinal = Array.from(mapa.values()).sort(
+    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+  );
+
+  const filtradoSinDuplicados = [];
+  let ultimaEtiqueta = null;
+
+  for (const msg of ordenadosFinal) {
+    if (
+      msg.tipo === "etiqueta" &&
+      ultimaEtiqueta &&
+      ultimaEtiqueta.tipo === "etiqueta" &&
+      ultimaEtiqueta.mensaje === msg.mensaje &&
+      Math.abs(new Date(ultimaEtiqueta.timestamp) - new Date(msg.timestamp)) < 3000
+    ) {
+      continue;
+    }
+
+    filtradoSinDuplicados.push(msg);
+    if (msg.tipo === "etiqueta") ultimaEtiqueta = msg;
+  }
+
+  setMensajes((prev) => {
+    const mismoContenido = JSON.stringify(prev) === JSON.stringify(filtradoSinDuplicados);
+    if (mismoContenido) {
+      console.log("📥 Mensajes iguales, forzando render en ChatMovil");
+      return [...filtradoSinDuplicados.map((m) => ({ ...m }))];
+    }
+    return filtradoSinDuplicados;
+  });
+
+  requestAnimationFrame(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+    setAnimacionesActivas(true);
+  });
+});
 
   return () => stop();
 }, [userId, estado]);

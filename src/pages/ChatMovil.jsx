@@ -288,15 +288,17 @@ return;
     return filtradoSinDuplicados;
   });
 
+  setTimeout(() => {
   requestAnimationFrame(() => {
-  if (chatRef.current && scrollForzado.current) {
-    chatRef.current.scrollTo({
-      top: chatRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-  setAnimacionesActivas(true);
-});
+    if (chatRef.current && scrollForzado.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+    setAnimacionesActivas(true);
+  });
+}, 100);
 });
 
   return () => stop();

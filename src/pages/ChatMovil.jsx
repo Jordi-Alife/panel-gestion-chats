@@ -521,6 +521,7 @@ setEnviando(true);
 
               setImagen(null);
               return;
+              setEnviando(false);
             }
 
             if (!respuesta.trim()) return;

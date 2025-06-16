@@ -131,7 +131,6 @@ return;
     });
   }
   estadoActual = "gpt";
-  continue; // 👈 importante para que no se duplique o mezcle
 }
 
 if (msg.tipo === "estado" && msg.estado === "Cerrado") {

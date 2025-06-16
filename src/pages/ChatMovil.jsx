@@ -116,50 +116,51 @@ return;
     let estadoActual = "gpt";
 
     for (let i = 0; i < ordenados.length; i++) {
-      const msg = ordenados[i];
-      const ultimaEtiqueta = mensajesConEtiqueta.length
-        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-        : null;
+  const msg = ordenados[i];
+  const ultimaEtiqueta = mensajesConEtiqueta.length
+    ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+    : null;
 
-      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-        }
-        estadoActual = "gpt";
-      }
-
-      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "El usuario ha cerrado el chat",
-            timestamp: msg.lastInteraction,
-          });
-        }
-      }
-
-      if (msg.manual === true && estadoActual === "gpt") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-        }
-        estadoActual = "humano";
-      }
-
+  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
       mensajesConEtiqueta.push({
-  ...msg,
-  message: msg.message || msg.mensaje || msg.original || "",
-  original: msg.original || msg.message || msg.mensaje || "",
-  timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-});
+        tipo: "etiqueta",
+        mensaje: "Traspasado a GPT",
+        timestamp: msg.lastInteraction,
+      });
     }
+    estadoActual = "gpt";
+  }
+
+  if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "El usuario ha cerrado el chat",
+        timestamp: msg.lastInteraction,
+      });
+    }
+  }
+
+  if (msg.manual === true && estadoActual === "gpt") {
+    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Intervenida",
+        timestamp: msg.lastInteraction,
+      });
+    }
+    estadoActual = "humano";
+  }
+
+  // ✅ Aquí el cambio que tienes que hacer
+  mensajesConEtiqueta.push({
+    ...msg,
+    message: msg.message || msg.mensaje || msg.original || "",
+    original: msg.original || msg.message || msg.mensaje || "",
+    timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+  });
+}
 
     setMensajes(mensajesConEtiqueta);
     setTimeout(() => {

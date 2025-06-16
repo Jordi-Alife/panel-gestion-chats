@@ -153,7 +153,12 @@ return;
         estadoActual = "humano";
       }
 
-      mensajesConEtiqueta.push(msg);
+      mensajesConEtiqueta.push({
+  ...msg,
+  message: msg.message || msg.mensaje || msg.original || "",
+  original: msg.original || msg.message || msg.mensaje || "",
+  timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+});
     }
 
     setMensajes(mensajesConEtiqueta);

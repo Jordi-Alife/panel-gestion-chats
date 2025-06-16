@@ -62,45 +62,45 @@ const ChatMovil = () => {
 
   const cargarMensajes = async () => {
   if (!userId) return;
+
   const convData = localStorage.getItem(`conversacion-${userId}`);
   let conv = null;
   try {
     conv = JSON.parse(convData);
   } catch {}
 
+  // ✅ Usa historial formateado si está
   if (
-    conv &&
-    ["archivado", "cerrado"].includes((conv.estado || "").toLowerCase()) &&
-    conv.historialFormateado
+    conv?.historialFormateado &&
+    ["archivado", "cerrado"].includes((estado || "").toLowerCase())
   ) {
     const lineas = conv.historialFormateado.split("\n");
-const mensajesHist = lineas.map((linea, i) => {
-  const esUsuario = linea.startsWith("Usuario:");
-  const esAsistente = linea.startsWith("Asistente:");
+    const mensajesHist = lineas.map((linea, i) => {
+      const esUsuario = linea.startsWith("Usuario:");
+      const esAsistente = linea.startsWith("Asistente:");
+      const rol = esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema";
+      const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 
-  const rol = esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema";
-  const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
+      return {
+        id: `hist-${i}`,
+        from: rol,
+        tipo: "texto",
+        message: contenido,
+        mensaje: contenido,
+        original: contenido,
+        timestamp: new Date().toISOString(),
+      };
+    });
 
-  return {
-    id: `hist-${i}`,
-    from: rol,
-    tipo: "texto",
-    message: contenido,
-    mensaje: contenido, // ✅ para el render
-    original: contenido,
-    timestamp: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
-  };
-});
     setMensajes(mensajesHist);
-    oldestTimestampRef.current = null;
-    setHasMore(false);
     return;
   }
 
-  // fallback si no hay historialFormateado
+  // 🔁 Si no hay historial, usa fetch (opcional, fallback)
   try {
     const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
     const data = await res.json();
+
     const ordenados = (data || []).sort(
       (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
     );
@@ -110,7 +110,9 @@ const mensajesHist = lineas.map((linea, i) => {
 
     for (let i = 0; i < ordenados.length; i++) {
       const msg = ordenados[i];
-      const ultimaEtiqueta = mensajesConEtiqueta.length ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1] : null;
+      const ultimaEtiqueta = mensajesConEtiqueta.length
+        ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+        : null;
 
       if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
         if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {

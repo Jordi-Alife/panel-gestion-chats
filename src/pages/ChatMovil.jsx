@@ -494,35 +494,35 @@ return;
 setEnviando(true);
 
             if (imagen) {
-              const formData = new FormData();
-              formData.append("file", imagen);
-              formData.append("userId", userId);
-              formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+  const formData = new FormData();
+  formData.append("file", imagen);
+  formData.append("userId", userId);
+  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-              try {
-                const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-                  method: "POST",
-                  body: formData,
-                });
+  try {
+    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+      method: "POST",
+      body: formData,
+    });
 
-                const result = await res.json();
-                if (!res.ok || !result.imageUrl) {
-                  alert("Hubo un problema al subir la imagen.");
-                } else {
-                  setTimeout(() => {
-                    if (chatRef.current) {
-                      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-                    }
-                  }, 350);
-                }
-              } catch (err) {
-                alert("Error al subir imagen.");
-              }
+    const result = await res.json();
+    if (!res.ok || !result.imageUrl) {
+      alert("Hubo un problema al subir la imagen.");
+    } else {
+      setTimeout(() => {
+        if (chatRef.current) {
+          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+        }
+      }, 350);
+    }
+  } catch (err) {
+    alert("Error al subir imagen.");
+  }
 
-              setImagen(null);
-              return;
-              setEnviando(false);
-            }
+  setImagen(null);
+  setEnviando(false); // ✅ Ahora sí se ejecuta
+  return;
+}
 
             if (!respuesta.trim()) return;
 

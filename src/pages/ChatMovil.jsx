@@ -435,11 +435,20 @@ return;
                   </div>
                 )}
                 <div className={`text-[10px] mt-1 opacity-60 text-right ${isAsistente || msg.manual ? "text-white" : "text-gray-500"}`}>
-                  {new Date(msg.lastInteraction).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
+  {(() => {
+    const fecha =
+      msg.timestamp instanceof Date
+        ? msg.timestamp
+        : typeof msg.timestamp?.toDate === "function"
+        ? msg.timestamp.toDate()
+        : new Date(msg.timestamp || msg.lastInteraction || Date.now());
+
+    return fecha.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  })()}
+</div>
               </div>
             </div>
           );

@@ -197,32 +197,33 @@ if (
 
   const mensajesConEtiqueta = [];
   let estadoActual = "gpt";
+  let ultimaEtiqueta = null;
 
   for (let i = 0; i < ordenados.length; i++) {
     const msg = ordenados[i];
-    const ultimaEtiqueta = mensajesConEtiqueta.length
-      ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-      : null;
+    const esEstado = msg.tipo === "estado";
 
-    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
-        });
-      }
-      estadoActual = "gpt";
-    }
-
-    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+    if (esEstado && msg.estado === "Cerrado") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
           mensaje: "El usuario ha cerrado el chat",
           timestamp: msg.lastInteraction,
         });
+        ultimaEtiqueta = { mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction };
       }
+    }
+
+    if (esEstado && msg.estado === "Traspasado a GPT") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+        ultimaEtiqueta = { mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction };
+      }
+      estadoActual = "gpt";
     }
 
     if (msg.manual === true && estadoActual === "gpt") {
@@ -232,67 +233,33 @@ if (
           mensaje: "Intervenida",
           timestamp: msg.lastInteraction,
         });
+        ultimaEtiqueta = { mensaje: "Intervenida", timestamp: msg.lastInteraction };
       }
       estadoActual = "humano";
     }
 
-    // ⬇️ ESTE es el mensaje real que se mostrará, y aquí va el cambio:
     mensajesConEtiqueta.push({
-  ...msg,
-  from:
-    msg.from ||
-    (msg.manual
-      ? "agente"
-      : msg.rol === "usuario"
-      ? "usuario"
-      : "asistente"),
-  tipo: msg.tipo || "texto",
-  message: msg.message || msg.mensaje || msg.original || "",
-  original: msg.original || msg.message || msg.mensaje || "",
-  lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-  timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-});
-  }
-
-  // Sin duplicados
-  const mapa = new Map();
-  mensajesConEtiqueta.forEach((m) => {
-    const clave = m.id || `${m.timestamp}-${m.rol}-${m.tipo}-${m.message}`;
-    mapa.set(clave, m);
-  });
-
-  const ordenadosFinal = Array.from(mapa.values()).sort(
-    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-  );
-
-  const filtradoSinDuplicados = [];
-  let ultimaEtiqueta = null;
-
-  for (const msg of ordenadosFinal) {
-    if (
-      msg.tipo === "etiqueta" &&
-      ultimaEtiqueta &&
-      ultimaEtiqueta.tipo === "etiqueta" &&
-      ultimaEtiqueta.mensaje === msg.mensaje &&
-      Math.abs(new Date(ultimaEtiqueta.timestamp) - new Date(msg.timestamp)) < 3000
-    ) {
-      continue;
-    }
-
-    filtradoSinDuplicados.push(msg);
-    if (msg.tipo === "etiqueta") ultimaEtiqueta = msg;
+      ...msg,
+      from:
+        msg.from ||
+        (msg.manual
+          ? "agente"
+          : msg.rol === "usuario"
+          ? "usuario"
+          : "asistente"),
+      tipo: msg.tipo || "texto",
+      message: msg.message || msg.mensaje || msg.original || "",
+      original: msg.original || msg.message || msg.mensaje || "",
+      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+    });
   }
 
   setMensajes((prev) => {
-    const mismoContenido = JSON.stringify(prev) === JSON.stringify(filtradoSinDuplicados);
-    if (mismoContenido) {
-      console.log("📥 Mensajes iguales, forzando render en ChatMovil");
-      return [...filtradoSinDuplicados.map((m) => ({ ...m }))];
-    }
-    return filtradoSinDuplicados;
+    const igual = JSON.stringify(prev) === JSON.stringify(mensajesConEtiqueta);
+    return igual ? [...mensajesConEtiqueta.map((m) => ({ ...m }))] : mensajesConEtiqueta;
   });
 
-  setTimeout(() => {
   requestAnimationFrame(() => {
     if (chatRef.current && scrollForzado.current) {
       chatRef.current.scrollTo({
@@ -302,9 +269,7 @@ if (
     }
     setAnimacionesActivas(true);
   });
-}, 100);
 });
-
   return () => stop();
 }, [userId, estado]);
 

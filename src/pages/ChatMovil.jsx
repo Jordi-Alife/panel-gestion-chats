@@ -93,7 +93,14 @@ const ChatMovil = () => {
     });
 
     setMensajes(mensajesHist);
-    return;
+
+setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
+  }
+}, 100);
+
+return;
   }
 
   // 🔁 Si no hay historial, usa fetch (opcional, fallback)

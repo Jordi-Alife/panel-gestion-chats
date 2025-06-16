@@ -12,7 +12,7 @@ const DetallesMovil = () => {
   const cargarUsuarioCompleto = async () => {
   try {
     const tipo = localStorage.getItem("tipoVisualizacion") === "archivadas" ? "archivo" : "recientes";
-const allRes = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
+    const allRes = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
     const allData = await allRes.json();
 
     const info = allData.find(
@@ -24,8 +24,14 @@ const allRes = await fetch(`${BACKEND_URL}/api/conversaciones?tipo=${tipo}`);
       return;
     }
 
+    // 👉 Obtener más detalles desde /api/conversaciones/:userId
+    const detalleRes = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
+    const detalleData = await detalleRes.json();
+
+    // 👉 Combinar info general con detalles
     setUsuario({
       ...info,
+      ...detalleData?.[0],
       userId,
     });
 

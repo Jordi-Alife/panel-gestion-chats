@@ -253,7 +253,14 @@ if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
       );
     }
 
-    setMensajes(filtradoSinDuplicados);
+    setMensajes((prev) => {
+  const mismoContenido = JSON.stringify(prev) === JSON.stringify(filtradoSinDuplicados);
+  if (mismoContenido) {
+    console.log("📥 Mensajes iguales, forzando render en ChatMovil");
+    return [...filtradoSinDuplicados.map((m) => ({ ...m }))];
+  }
+  return filtradoSinDuplicados;
+});
 
     requestAnimationFrame(() => {
       if (scrollForzado.current && chatRef.current) {

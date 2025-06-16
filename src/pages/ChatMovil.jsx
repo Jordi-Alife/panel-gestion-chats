@@ -159,10 +159,12 @@ const ChatMovil = () => {
   if (!userId || !estado) return;
 
   const tipo = (estado || "").toLowerCase();
-  if (["cerrado", "archivado"].includes(tipo)) {
-    cargarMensajes(); // ✅ usa historialFormateado si está disponible
-    return;
-  }
+const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
+
+if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
+  cargarMensajes(); // ✅ solo usamos historial si estamos en archivadas
+  return;
+}
 
   const stop = escucharMensajesUsuario(userId, (docs) => {
     const ordenados = docs.sort(

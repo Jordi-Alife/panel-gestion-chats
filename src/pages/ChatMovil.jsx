@@ -489,63 +489,48 @@ return;
       <div className="p-4 bg-white border-t">
         <form
           onSubmit={async (e) => {
-            e.preventDefault();
-            if (enviando) return;
-setEnviando(true);
+  e.preventDefault();
+  if (enviando) return;
+  setEnviando(true);
 
-            if (imagen) {
-  const formData = new FormData();
-  formData.append("file", imagen);
-  formData.append("userId", userId);
-  formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
+  if (imagen) {
+    const formData = new FormData();
+    formData.append("file", imagen);
+    formData.append("userId", userId);
+    formData.append("agenteUid", localStorage.getItem("id-usuario-panel") || "");
 
-  try {
-    const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch("https://web-production-51989.up.railway.app/api/upload-agente", {
+        method: "POST",
+        body: formData,
+      });
 
-    const result = await res.json();
-    if (!res.ok || !result.imageUrl) {
-      alert("Hubo un problema al subir la imagen.");
-    } else {
-      setTimeout(() => {
-        if (chatRef.current) {
-          chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-        }
-      }, 350);
+      const result = await res.json();
+      if (!res.ok || !result.imageUrl) {
+        alert("Hubo un problema al subir la imagen.");
+      } else {
+        setTimeout(() => {
+          if (chatRef.current) {
+            chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+          }
+        }, 350);
+      }
+    } catch (err) {
+      alert("Error al subir imagen.");
     }
-  } catch (err) {
-    alert("Error al subir imagen.");
+
+    setImagen(null);
+    setEnviando(false);
+    return;
   }
 
-  setImagen(null);
-  setEnviando(false); // ✅ Ahora sí se ejecuta
-  return;
-}
+  if (!respuesta.trim()) {
+    setEnviando(false);
+    return;
+  }
 
-            if (!respuesta.trim()) return;
-
-            await fetch(`${BACKEND_URL}/api/send-to-user`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                message: respuesta,
-                agente: {
-                  nombre: perfil.nombre || "",
-                  foto: perfil.foto || "",
-                  uid: localStorage.getItem("id-usuario-panel") || null,
-                },
-              }),
-            });
-
-            setRespuesta("");
-
-// ✅ Añade el mensaje manual al instante
-setMensajes((prev) => [
-  ...prev,
-  {
+  // Mostrar el mensaje inmediatamente
+  const nuevoMensaje = {
     id: `temp-${Date.now()}`,
     from: "agente",
     tipo: "texto",
@@ -553,15 +538,38 @@ setMensajes((prev) => [
     message: respuesta.trim(),
     original: respuesta.trim(),
     timestamp: new Date().toISOString(),
-  },
-]);
+  };
 
-setTimeout(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+  setMensajes((prev) => [...prev, nuevoMensaje]);
+
+  setRespuesta("");
+
+  setTimeout(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    }
+  }, 350);
+
+  try {
+    await fetch(`${BACKEND_URL}/api/send-to-user`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        message: nuevoMensaje.message,
+        agente: {
+          nombre: perfil.nombre || "",
+          foto: perfil.foto || "",
+          uid: localStorage.getItem("id-usuario-panel") || null,
+        },
+      }),
+    });
+  } catch (err) {
+    console.error("❌ Error al enviar mensaje manual:", err);
   }
-}, 350);
-          }}
+
+  setEnviando(false);
+}}
           className="flex items-center gap-2"
         >
           <label className="w-6 h-6 cursor-pointer">

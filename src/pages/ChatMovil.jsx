@@ -123,36 +123,40 @@ return;
     : null;
 
   if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-      mensajesConEtiqueta.push({
-        tipo: "etiqueta",
-        mensaje: "Traspasado a GPT",
-        timestamp: msg.lastInteraction,
-      });
-    }
-    estadoActual = "gpt";
+  if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "Traspasado a GPT",
+      timestamp: msg.lastInteraction,
+    });
   }
+  estadoActual = "gpt";
+  continue; // 👈 importante para que no se duplique o mezcle
+}
 
-  if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-      mensajesConEtiqueta.push({
-        tipo: "etiqueta",
-        mensaje: "El usuario ha cerrado el chat",
-        timestamp: msg.lastInteraction,
-      });
-    }
+if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+  if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+    mensajesConEtiqueta.push({
+      tipo: "etiqueta",
+      mensaje: "El usuario ha cerrado el chat",
+      timestamp: msg.lastInteraction,
+    });
   }
+  continue; // 👈 lo mismo
+}
 
-  if (msg.manual === true && estadoActual === "gpt") {
-    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-      mensajesConEtiqueta.push({
-        tipo: "etiqueta",
-        mensaje: "Intervenida",
-        timestamp: msg.lastInteraction,
-      });
-    }
-    estadoActual = "humano";
-  }
+if (
+  msg.manual === true &&
+  estadoActual === "gpt" &&
+  !mensajesConEtiqueta.some((m) => m.tipo === "etiqueta" && m.mensaje === "Intervenida")
+) {
+  mensajesConEtiqueta.push({
+    tipo: "etiqueta",
+    mensaje: "Intervenida",
+    timestamp: msg.lastInteraction,
+  });
+  estadoActual = "humano";
+}
 
   // ✅ Aquí el cambio que tienes que hacer
   mensajesConEtiqueta.push({

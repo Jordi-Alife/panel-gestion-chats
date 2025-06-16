@@ -233,14 +233,14 @@ return;
 
     // ⬇️ ESTE es el mensaje real que se mostrará, y aquí va el cambio:
     mensajesConEtiqueta.push({
-      ...msg,
-      from: msg.from || (msg.manual ? "agente" : "usuario"),
-      tipo: msg.tipo || "texto",
-      message: msg.message || msg.mensaje || msg.original || "",
-      original: msg.original || msg.message || msg.mensaje || "",
-      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-    });
+  ...msg,
+  from: msg.from || (msg.manual ? "agente" : "asistente"),
+  tipo: msg.tipo || "texto",
+  message: msg.message || msg.mensaje || msg.original || "",
+  original: msg.original || msg.message || msg.mensaje || "",
+  lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+  timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+});
   }
 
   // Sin duplicados

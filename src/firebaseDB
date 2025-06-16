@@ -61,10 +61,14 @@ export const escucharConversacionesRecientes = (callback) => {
   });
 };
 
-export const escucharMensajesUsuario = (userId, callback) => {
-  const mensajesRef = collection(db, "conversaciones", userId, "mensajes");
+import { query, where } from 'firebase/firestore';
 
-  return onSnapshot(mensajesRef, (snapshot) => {
+export const escucharMensajesUsuario = (userId, callback) => {
+  const mensajesRef = collection(db, "mensajes");
+
+  const q = query(mensajesRef, where("idConversacion", "==", userId));
+
+  return onSnapshot(q, (snapshot) => {
     const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     callback(lista);
   });

@@ -378,21 +378,27 @@ if (
 }
 
     if (msg.tipo === "etiqueta") {
-      return (
-        <div key={`etiqueta-${index}`} className="flex justify-center">
-          <span className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
-            msg.mensaje === "Intervenida"
-              ? "bg-blue-100 text-blue-600"
-              : msg.mensaje === "Traspasado a GPT"
-              ? "bg-gray-200 text-gray-800"
-              : "bg-red-100 text-red-600"
-          }`}>
-            {msg.mensaje === "Traspasado a GPT" ? "Traspasada a GPT" : msg.mensaje} •{" "}
-            {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-      );
-    }
+  const texto = msg.mensaje || msg.message || "";
+  return (
+    <div key={`etiqueta-${index}`} className="flex justify-center">
+      <span
+        className={`text-xs uppercase tracking-wide px-3 py-1 rounded-2xl font-semibold fade-in ${
+          texto === "Intervenida"
+            ? "bg-blue-100 text-blue-600"
+            : texto === "Traspasado a GPT"
+            ? "bg-gray-200 text-gray-800"
+            : "bg-red-100 text-red-600"
+        }`}
+      >
+        {texto === "Traspasado a GPT" ? "Traspasada a GPT" : texto} •{" "}
+        {new Date(msg.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </span>
+    </div>
+  );
+}
 
           const isAsistente = msg.from?.toLowerCase() === "asistente" || msg.from?.toLowerCase() === "agente";
           const align = isAsistente ? "justify-end" : "justify-start";

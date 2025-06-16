@@ -159,21 +159,15 @@ const ChatMovil = () => {
   if (!userId || !estado) return;
 
   const tipo = (estado || "").toLowerCase();
-const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
+  const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
 
-if (estaEnRecientes || !["cerrado", "archivado"].includes(tipo)) {
-  // ✅ Activar listener en tiempo real
-  const stop = escucharMensajesUsuario(userId, (docs) => {
-    // 👇 Aquí va todo tu bloque actual de procesamiento de mensajes
-    // (ordenados, etiquetas, filtrado, setMensajes, scroll, etc.)
-  });
+  // ✅ Si estamos en archivadas con chat cerrado, solo cargar historial
+  if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
+    cargarMensajes();
+    return;
+  }
 
-  return () => stop();
-}
-
-// 🧠 Si estamos en archivadas y el chat está cerrado/archivado, solo usamos el historial
-cargarMensajes();
-
+  // ✅ Si estamos en recientes o chat abierto, activar listener
   const stop = escucharMensajesUsuario(userId, (docs) => {
     const ordenados = docs.sort(
       (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
@@ -232,7 +226,7 @@ cargarMensajes();
       mapa.set(clave, m);
     });
 
-    let ordenadosFinal = Array.from(mapa.values()).sort(
+    const ordenadosFinal = Array.from(mapa.values()).sort(
       (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
     );
 
@@ -254,32 +248,22 @@ cargarMensajes();
       if (msg.tipo === "etiqueta") ultimaEtiqueta = msg;
     }
 
-    if (filtradoSinDuplicados.length > 50) {
-      filtradoSinDuplicados.splice(
-        0,
-        filtradoSinDuplicados.length - 50
-      );
-    }
-
     setMensajes((prev) => {
-  const mismoContenido = JSON.stringify(prev) === JSON.stringify(filtradoSinDuplicados);
-  if (mismoContenido) {
-    console.log("📥 Mensajes iguales, forzando render en ChatMovil");
-    return [...filtradoSinDuplicados.map((m) => ({ ...m }))];
-  }
-  return filtradoSinDuplicados;
-});
+      const mismoContenido = JSON.stringify(prev) === JSON.stringify(filtradoSinDuplicados);
+      if (mismoContenido) {
+        console.log("📥 Mensajes iguales, forzando render en ChatMovil");
+        return [...filtradoSinDuplicados.map((m) => ({ ...m }))];
+      }
+      return filtradoSinDuplicados;
+    });
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({
-      top: chatRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-  setAnimacionesActivas(true);
-});
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
       setAnimacionesActivas(true);
     });
   });

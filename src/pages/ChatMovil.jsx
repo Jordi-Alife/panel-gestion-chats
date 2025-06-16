@@ -541,46 +541,33 @@ if (
     return;
   }
 
-  // Mostrar el mensaje inmediatamente
-  const nuevoMensaje = {
-    id: `temp-${Date.now()}`,
-    from: "agente",
-    tipo: "texto",
-    manual: true,
-    message: respuesta.trim(),
-    original: respuesta.trim(),
-    timestamp: new Date().toISOString(),
-  };
-
-  setMensajes((prev) => [...prev, nuevoMensaje]);
-
   setRespuesta("");
 
-  setTimeout(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-    }
-  }, 350);
-
-  try {
-    await fetch(`${BACKEND_URL}/api/send-to-user`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        message: nuevoMensaje.message,
-        agente: {
-          nombre: perfil.nombre || "",
-          foto: perfil.foto || "",
-          uid: localStorage.getItem("id-usuario-panel") || null,
-        },
-      }),
-    });
-  } catch (err) {
-    console.error("❌ Error al enviar mensaje manual:", err);
+setTimeout(() => {
+  if (chatRef.current) {
+    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }
+}, 350);
 
-  setEnviando(false);
+try {
+  await fetch(`${BACKEND_URL}/api/send-to-user`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId,
+      message: respuesta.trim(),
+      agente: {
+        nombre: perfil.nombre || "",
+        foto: perfil.foto || "",
+        uid: localStorage.getItem("id-usuario-panel") || null,
+      },
+    }),
+  });
+} catch (err) {
+  console.error("❌ Error al enviar mensaje manual:", err);
+}
+
+setEnviando(false);
 }}
           className="flex items-center gap-2"
         >

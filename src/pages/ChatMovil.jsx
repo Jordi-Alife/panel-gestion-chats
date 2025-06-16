@@ -130,6 +130,7 @@ return;
       timestamp: msg.lastInteraction,
     });
   }
+  ultimaEtiqueta = { mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction }; // ✅ IMPORTANTE
   estadoActual = "gpt";
 }
 

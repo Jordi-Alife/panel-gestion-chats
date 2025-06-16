@@ -472,7 +472,6 @@ if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
                 if (!res.ok || !result.imageUrl) {
                   alert("Hubo un problema al subir la imagen.");
                 } else {
-                  setTimeout(() => cargarMensajes(), 300);
                   setTimeout(() => {
                     if (chatRef.current) {
                       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });

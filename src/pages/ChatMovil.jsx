@@ -234,7 +234,14 @@ return;
         estadoActual = "humano";
       }
 
-      mensajesConEtiqueta.push(msg);
+      mensajesConEtiqueta.push({
+  ...msg,
+  from: msg.from || (msg.manual ? "agente" : "usuario"),
+  tipo: msg.tipo || "texto",
+  message: msg.message || msg.mensaje || msg.original || "",
+  original: msg.original || msg.message || msg.mensaje || "",
+  timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+});
     }
 
     const mapa = new Map();

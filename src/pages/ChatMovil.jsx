@@ -490,6 +490,8 @@ return;
         <form
           onSubmit={async (e) => {
             e.preventDefault();
+            if (enviando) return;
+setEnviando(true);
 
             if (imagen) {
               const formData = new FormData();

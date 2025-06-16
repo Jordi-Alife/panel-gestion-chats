@@ -141,7 +141,8 @@ if (msg.tipo === "estado" && msg.estado === "Cerrado") {
       timestamp: msg.lastInteraction,
     });
   }
-  continue; // 👈 lo mismo
+  ultimaEtiqueta = { mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction }; // ✅ IMPORTANTE
+  continue;
 }
 
 if (

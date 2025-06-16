@@ -173,76 +173,75 @@ return;
   }
 };
 
+  useEffect(() => {
+  if (!userId || !estado) return;
+
+  const tipo = (estado || "").toLowerCase();
+  const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
+
+  // ✅ Si estamos en archivadas con chat cerrado, solo cargar historial
+  if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
+    cargarMensajes();
+    return;
+  }
+
+  const stop = escucharMensajesUsuario(userId, (docs) => {
+  const ordenados = docs.sort(
+    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
+  );
+
   const mensajesConEtiqueta = [];
-let estadoActual = "gpt";
+  let estadoActual = "gpt";
 
-for (let i = 0; i < ordenados.length; i++) {
-  const msg = ordenados[i];
-  const ultimaEtiqueta = mensajesConEtiqueta.length
-    ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-    : null;
+  for (let i = 0; i < ordenados.length; i++) {
+    const msg = ordenados[i];
+    const ultimaEtiqueta = mensajesConEtiqueta.length
+      ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+      : null;
 
-  const esEtiquetaIntervenida =
-    (msg.tipo === "estado" && msg.estado === "Intervenida") ||
-    (msg.tipo === "etiqueta" && msg.mensaje === "Intervenida");
-
-  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-      mensajesConEtiqueta.push({
-        tipo: "etiqueta",
-        mensaje: "Traspasado a GPT",
-        timestamp: msg.lastInteraction,
-      });
+    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      estadoActual = "gpt";
     }
-    estadoActual = "gpt";
-    continue;
-  }
 
-  if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-      mensajesConEtiqueta.push({
-        tipo: "etiqueta",
-        mensaje: "El usuario ha cerrado el chat",
-        timestamp: msg.lastInteraction,
-      });
+    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: msg.lastInteraction,
+        });
+      }
     }
-    continue;
-  }
 
-  if (esEtiquetaIntervenida) {
-    if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-      mensajesConEtiqueta.push({
-        tipo: "etiqueta",
-        mensaje: "Intervenida",
-        timestamp: msg.lastInteraction,
-      });
+    if (msg.manual === true && estadoActual === "gpt") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Intervenida",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      estadoActual = "humano";
     }
-    estadoActual = "humano";
-    continue;
-  }
 
-  if (
-    msg.manual === true &&
-    estadoActual === "gpt" &&
-    !mensajesConEtiqueta.some((m) => m.tipo === "etiqueta" && m.mensaje === "Intervenida")
-  ) {
+    // ⬇️ ESTE es el mensaje real que se mostrará, y aquí va el cambio:
     mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "Intervenida",
-      timestamp: msg.lastInteraction,
+      ...msg,
+      from: msg.from || (msg.manual ? "agente" : "usuario"),
+      tipo: msg.tipo || "texto",
+      message: msg.message || msg.mensaje || msg.original || "",
+      original: msg.original || msg.message || msg.mensaje || "",
+      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
     });
-    estadoActual = "humano";
   }
-
-  mensajesConEtiqueta.push({
-    ...msg,
-    from: msg.from || (msg.manual ? "agente" : "asistente"),
-    tipo: msg.tipo || "texto",
-    message: msg.message || msg.mensaje || msg.original || "",
-    original: msg.original || msg.message || msg.mensaje || "",
-    timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-  });
-}
 
   // Sin duplicados
   const mapa = new Map();

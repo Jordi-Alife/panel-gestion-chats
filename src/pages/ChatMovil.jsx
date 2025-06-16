@@ -11,6 +11,7 @@ const ChatMovil = () => {
   const navigate = useNavigate();
   const [mensajes, setMensajes] = useState([]);
   const [respuesta, setRespuesta] = useState("");
+  const [enviando, setEnviando] = useState(false);
   const [imagen, setImagen] = useState(null);
   const [originalesVisibles, setOriginalesVisibles] = useState({});
   const [mostrarScrollBtn, setMostrarScrollBtn] = useState(false);

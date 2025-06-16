@@ -161,10 +161,20 @@ const ChatMovil = () => {
   const tipo = (estado || "").toLowerCase();
 const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
 
-if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
-  cargarMensajes(); // ✅ solo usamos historial si estamos en archivadas
-  return;
+const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
+
+if (estaEnRecientes || !["cerrado", "archivado"].includes(tipo)) {
+  // ✅ Activar listener en tiempo real
+  const stop = escucharMensajesUsuario(userId, (docs) => {
+    // 👇 Aquí va todo tu bloque actual de procesamiento de mensajes
+    // (ordenados, etiquetas, filtrado, setMensajes, scroll, etc.)
+  });
+
+  return () => stop();
 }
+
+// 🧠 Si estamos en archivadas y el chat está cerrado/archivado, solo usamos el historial
+cargarMensajes();
 
   const stop = escucharMensajesUsuario(userId, (docs) => {
     const ordenados = docs.sort(

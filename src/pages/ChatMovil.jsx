@@ -246,17 +246,14 @@ if (msg.tipo === "estado" && msg.estado === "Cerrado") {
 
 if (
   msg.manual === true &&
-  estadoActual === "gpt" &&
   !mensajesConEtiqueta.some((m) => m.tipo === "etiqueta" && m.mensaje === "Intervenida")
 ) {
   mensajesConEtiqueta.push({
     tipo: "etiqueta",
     mensaje: "Intervenida",
-    timestamp: msg.lastInteraction,
+    timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
   });
-  estadoActual = "humano";
 }
-
   // ✅ Aquí el cambio que tienes que hacer
   mensajesConEtiqueta.push({
     ...msg,

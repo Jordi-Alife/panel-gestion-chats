@@ -189,7 +189,7 @@ const ChatMovil = () => {
       message: contenido,
       mensaje: contenido,
       original: contenido,
-      timestamp: new Date().toISOString(),
+      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString()
     };
   });
 

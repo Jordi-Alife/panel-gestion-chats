@@ -271,78 +271,23 @@ if (
   }
 
   const stop = escucharMensajesUsuario(userId, (docs) => {
-    const ordenados = docs.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
-    const mensajesConEtiqueta = [];
-    let estadoActual = "gpt";
-    let ultimaEtiqueta = null;
+  const mensajesConEtiqueta = formatearMensajesConEtiquetas(docs);
 
-    for (let i = 0; i < ordenados.length; i++) {
-      const msg = ordenados[i];
+  setMensajes((prev) => {
+    const igual = JSON.stringify(prev) === JSON.stringify(mensajesConEtiqueta);
+    return igual ? [...mensajesConEtiqueta.map((m) => ({ ...m }))] : mensajesConEtiqueta;
+  });
 
-      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "El usuario ha cerrado el chat",
-            timestamp: msg.lastInteraction,
-          });
-          ultimaEtiqueta = { mensaje: "El usuario ha cerrado el chat" };
-        }
-        continue;
-      }
-
-      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Traspasado a GPT",
-            timestamp: msg.lastInteraction,
-          });
-          ultimaEtiqueta = { mensaje: "Traspasado a GPT" };
-        }
-        estadoActual = "gpt";
-      }
-
-      if (msg.manual && estadoActual === "gpt") {
-        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-          mensajesConEtiqueta.push({
-            tipo: "etiqueta",
-            mensaje: "Intervenida",
-            timestamp: msg.lastInteraction,
-          });
-          ultimaEtiqueta = { mensaje: "Intervenida" };
-        }
-        estadoActual = "humano";
-      }
-
-      mensajesConEtiqueta.push({
-        ...msg,
-        from:
-          msg.from ||
-          (msg.manual ? "agente" : msg.rol === "usuario" ? "usuario" : "asistente"),
-        tipo: msg.tipo || "texto",
-        message: msg.message || msg.mensaje || msg.original || "",
-        original: msg.original || msg.message || msg.mensaje || "",
-        lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-        timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+  requestAnimationFrame(() => {
+    if (chatRef.current && scrollForzado.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
       });
     }
-
-    setMensajes((prev) => {
-      const igual = JSON.stringify(prev) === JSON.stringify(mensajesConEtiqueta);
-      return igual ? [...mensajesConEtiqueta.map((m) => ({ ...m }))] : mensajesConEtiqueta;
-    });
-
-    requestAnimationFrame(() => {
-      if (chatRef.current && scrollForzado.current) {
-        chatRef.current.scrollTo({
-          top: chatRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }
-      setAnimacionesActivas(true);
-    });
+    setAnimacionesActivas(true);
   });
+});
 
   return () => stop();
 }, [userId, estado]);

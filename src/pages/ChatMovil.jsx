@@ -200,70 +200,23 @@ return;
   // 🔁 Si no hay historial, usa fetch (opcional, fallback)
   try {
     const res = await fetch(`${BACKEND_URL}/api/conversaciones/${userId}`);
-    const data = await res.json();
+const data = await res.json();
 
-    const ordenados = (data || []).sort(
-      (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-    );
+// ✅ Usar siempre la misma función reutilizable que ya está definida arriba
+const mensajesConEtiqueta = formatearMensajesConEtiquetas(data || []);
 
-    const mensajesConEtiqueta = [];
-    let estadoActual = "gpt";
+setMensajes(mensajesConEtiqueta);
 
-    for (let i = 0; i < ordenados.length; i++) {
-  const msg = ordenados[i];
-  const ultimaEtiqueta = mensajesConEtiqueta.length
-    ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
-    : null;
-
-  if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-  if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "Traspasado a GPT",
-      timestamp: msg.lastInteraction,
-    });
-  }
-  ultimaEtiqueta = { mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction }; // ✅ IMPORTANTE
-  estadoActual = "gpt";
-}
-
-if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-  if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-    mensajesConEtiqueta.push({
-      tipo: "etiqueta",
-      mensaje: "El usuario ha cerrado el chat",
-      timestamp: msg.lastInteraction,
-    });
-  }
-  ultimaEtiqueta = { mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction }; // ✅ IMPORTANTE
-  continue;
-}
-
-if (
-  msg.manual === true &&
-  !mensajesConEtiqueta.some((m) => m.tipo === "etiqueta" && m.mensaje === "Intervenida")
-) {
-  mensajesConEtiqueta.push({
-    tipo: "etiqueta",
-    mensaje: "Intervenida",
-    timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+setTimeout(() => {
+  requestAnimationFrame(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "auto",
+      });
+    }
   });
-}
-  // ✅ Aquí el cambio que tienes que hacer
-  mensajesConEtiqueta.push({
-    ...msg,
-    message: msg.message || msg.mensaje || msg.original || "",
-    original: msg.original || msg.message || msg.mensaje || "",
-    timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-  });
-}
-
-    setMensajes(mensajesConEtiqueta);
-    setTimeout(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-  }
-}, 100);
+}, 50);
   } catch (err) {
     console.error("❌ Error cargando mensajes fallback:", err);
   }

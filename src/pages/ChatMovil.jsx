@@ -173,15 +173,19 @@ const ChatMovil = () => {
 const mensajesHist = lineas.map((linea, i) => {
   const esUsuario = linea.startsWith("Usuario:");
   const esAsistente = linea.startsWith("Asistente:");
+  const rol = esUsuario
+    ? "usuario"
+    : esAsistente
+    ? "asistente"
+    : "sistema";
 
-  const from = esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema";
   const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 
   return {
     id: `hist-${i}`,
-    from,
+    from: rol,
     tipo: "texto",
-    manual: from === "asistente", // ✅ esto es lo que estaba mal
+    manual: rol === "agente" || rol === "asistente", // 👉 esto corrige el color y el lado
     message: contenido,
     mensaje: contenido,
     original: contenido,

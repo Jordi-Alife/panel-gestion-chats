@@ -6,6 +6,86 @@ import { escucharMensajesUsuario } from "../firebaseDB";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+function formatearMensajesConEtiquetas(docs) {
+  const ordenados = docs.sort(
+    (a, b) =>
+      new Date(a.lastInteraction || a.timestamp || 0) -
+      new Date(b.lastInteraction || b.timestamp || 0)
+  );
+
+  const mensajesConEtiqueta = [];
+  let estadoActual = "gpt";
+  let etiquetaIntervenidaInsertada = false;
+
+  for (let i = 0; i < ordenados.length; i++) {
+    const msg = ordenados[i];
+    const ultimaEtiqueta = mensajesConEtiqueta.length
+      ? mensajesConEtiqueta[mensajesConEtiqueta.length - 1]
+      : null;
+
+    const esEtiquetaIntervenida =
+      (msg.tipo === "estado" && msg.estado === "Intervenida") ||
+      (msg.tipo === "etiqueta" && msg.mensaje === "Intervenida");
+
+    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      estadoActual = "gpt";
+      continue;
+    }
+
+    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "El usuario ha cerrado el chat",
+          timestamp: msg.lastInteraction,
+        });
+      }
+      continue;
+    }
+
+    if (esEtiquetaIntervenida && !etiquetaIntervenidaInsertada) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Intervenida",
+        timestamp: msg.lastInteraction,
+      });
+      estadoActual = "humano";
+      etiquetaIntervenidaInsertada = true;
+      continue;
+    }
+
+    if (
+      msg.manual === true &&
+      estadoActual === "gpt" &&
+      !etiquetaIntervenidaInsertada
+    ) {
+      mensajesConEtiqueta.push({
+        tipo: "etiqueta",
+        mensaje: "Intervenida",
+        timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+      });
+      estadoActual = "humano";
+      etiquetaIntervenidaInsertada = true;
+    }
+
+    mensajesConEtiqueta.push({
+      ...msg,
+      from: msg.rol || (msg.manual ? "agente" : "usuario"),
+      tipo: msg.tipo || "texto",
+      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+    });
+  }
+
+  return mensajesConEtiqueta;
+}
+
 const ChatMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();

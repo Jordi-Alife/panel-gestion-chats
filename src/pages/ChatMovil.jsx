@@ -525,55 +525,56 @@ if (
     return;
   }
 
-  // Limpiar input
-setRespuesta("");
+  // 🧹 Limpiar input
+  const texto = respuesta.trim();
+  setRespuesta("");
 
-// 🔁 Inyectar el nuevo mensaje con el mismo formato que el resto
-const nuevoMensaje = {
-  id: `temp-${Date.now()}`,
-  from: "agente",
-  tipo: "texto",
-  manual: true,
-  message: respuesta.trim(),
-  original: respuesta.trim(),
-  timestamp: new Date().toISOString(),
-};
+  // 👤 Crear mensaje manual temporal
+  const nuevoMensaje = {
+    id: `temp-${Date.now()}`,
+    from: "agente",
+    tipo: "texto",
+    manual: true,
+    message: texto,
+    original: texto,
+    timestamp: new Date().toISOString(),
+  };
 
-// ⚠️ IMPORTANTE: usar formatearMensajesConEtiquetas para mantener etiquetas y formato
-setMensajes((prev) => {
-  const lista = [...prev, nuevoMensaje];
-  return formatearMensajesConEtiquetas(lista);
-});
-
-// Hacer scroll hacia abajo suavemente
-setTimeout(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({
-      top: chatRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-}, 350);
-
-try {
-  await fetch(`${BACKEND_URL}/api/send-to-user`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId,
-      message: respuesta.trim(),
-      agente: {
-        nombre: perfil.nombre || "",
-        foto: perfil.foto || "",
-        uid: localStorage.getItem("id-usuario-panel") || null,
-      },
-    }),
+  // 📌 Actualizar mensajes con el nuevo
+  setMensajes((prev) => {
+    const lista = [...prev, nuevoMensaje];
+    return formatearMensajesConEtiquetas(lista);
   });
-} catch (err) {
-  console.error("❌ Error al enviar mensaje manual:", err);
-}
 
-setEnviando(false);
+  // 👇 Hacer scroll hacia el final
+  setTimeout(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, 350);
+
+  try {
+    await fetch(`${BACKEND_URL}/api/send-to-user`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        message: texto,
+        agente: {
+          nombre: perfil.nombre || "",
+          foto: perfil.foto || "",
+          uid: localStorage.getItem("id-usuario-panel") || null,
+        },
+      }),
+    });
+  } catch (err) {
+    console.error("❌ Error al enviar mensaje manual:", err);
+  }
+
+  setEnviando(false);
 }}
           className="flex items-center gap-2"
         >

@@ -322,6 +322,19 @@ if (
   };
 }, [userId]);
 
+  useEffect(() => {
+  if (!textoEscribiendo) return;
+
+  requestAnimationFrame(() => {
+    if (chatRef.current && scrollForzado.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  });
+}, [textoEscribiendo]);
+
   const handleScroll = async () => {
     if (!chatRef.current) return;
     const el = chatRef.current;

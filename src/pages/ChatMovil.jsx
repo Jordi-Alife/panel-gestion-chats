@@ -174,15 +174,20 @@ const mensajesHist = lineas.map((linea, i) => {
   const esUsuario = linea.startsWith("Usuario:");
   const esAsistente = linea.startsWith("Asistente:");
 
+  const from = esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema";
+  const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
+
   return {
     id: `hist-${i}`,
-    from: esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema",
-    message: linea.replace(/^Usuario:\s?|^Asistente:\s?/, ""),
+    from,
     tipo: "texto",
-    timestamp: conv.ultimaRespuesta || conv.fechaInicio || new Date().toISOString(),
+    manual: from === "asistente", // ✅ esto es lo que estaba mal
+    message: contenido,
+    mensaje: contenido,
+    original: contenido,
+    timestamp: new Date().toISOString(),
   };
 });
-
 setMensajes(mensajesHist);
 
 setTimeout(() => {

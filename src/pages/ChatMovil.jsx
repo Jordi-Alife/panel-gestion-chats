@@ -182,93 +182,87 @@ if (
   useEffect(() => {
   if (!userId || !estado) return;
 
-  const tipo = (estado || "").toLowerCase();
   const estaEnRecientes = window.location.pathname.includes("conversaciones-movil");
+  const esChatArchivado = ["cerrado", "archivado"].includes((estado || "").toLowerCase());
 
-  if (!estaEnRecientes && ["cerrado", "archivado"].includes(tipo)) {
+  if (!estaEnRecientes && esChatArchivado) {
     cargarMensajes();
     return;
   }
 
   const stop = escucharMensajesUsuario(userId, (docs) => {
-  const ordenados = docs.sort(
-    (a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction)
-  );
+    const ordenados = docs.sort((a, b) => new Date(a.lastInteraction) - new Date(b.lastInteraction));
+    const mensajesConEtiqueta = [];
+    let estadoActual = "gpt";
+    let ultimaEtiqueta = null;
 
-  const mensajesConEtiqueta = [];
-  let estadoActual = "gpt";
-  let ultimaEtiqueta = null;
+    for (let i = 0; i < ordenados.length; i++) {
+      const msg = ordenados[i];
 
-  for (let i = 0; i < ordenados.length; i++) {
-    const msg = ordenados[i];
-
-    if (msg.tipo === "estado" && msg.estado === "Cerrado") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "El usuario ha cerrado el chat",
-          timestamp: msg.lastInteraction,
-        });
-        ultimaEtiqueta = { mensaje: "El usuario ha cerrado el chat", timestamp: msg.lastInteraction };
+      if (msg.tipo === "estado" && msg.estado === "Cerrado") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "El usuario ha cerrado el chat",
+            timestamp: msg.lastInteraction,
+          });
+          ultimaEtiqueta = { mensaje: "El usuario ha cerrado el chat" };
+        }
+        continue;
       }
-    }
 
-    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
-        });
-        ultimaEtiqueta = { mensaje: "Traspasado a GPT", timestamp: msg.lastInteraction };
+      if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Traspasado a GPT",
+            timestamp: msg.lastInteraction,
+          });
+          ultimaEtiqueta = { mensaje: "Traspasado a GPT" };
+        }
+        estadoActual = "gpt";
       }
-      estadoActual = "gpt";
-    }
 
-    if (msg.manual === true && estadoActual === "gpt") {
-      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
-        mensajesConEtiqueta.push({
-          tipo: "etiqueta",
-          mensaje: "Intervenida",
-          timestamp: msg.lastInteraction,
-        });
-        ultimaEtiqueta = { mensaje: "Intervenida", timestamp: msg.lastInteraction };
+      if (msg.manual && estadoActual === "gpt") {
+        if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Intervenida") {
+          mensajesConEtiqueta.push({
+            tipo: "etiqueta",
+            mensaje: "Intervenida",
+            timestamp: msg.lastInteraction,
+          });
+          ultimaEtiqueta = { mensaje: "Intervenida" };
+        }
+        estadoActual = "humano";
       }
-      estadoActual = "humano";
-    }
 
-    mensajesConEtiqueta.push({
-      ...msg,
-      from:
-        msg.from ||
-        (msg.manual
-          ? "agente"
-          : msg.rol === "usuario"
-          ? "usuario"
-          : "asistente"),
-      tipo: msg.tipo || "texto",
-      message: msg.message || msg.mensaje || msg.original || "",
-      original: msg.original || msg.message || msg.mensaje || "",
-      lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-    });
-  }
-
-  setMensajes((prev) => {
-    const igual = JSON.stringify(prev) === JSON.stringify(mensajesConEtiqueta);
-    return igual ? [...mensajesConEtiqueta.map((m) => ({ ...m }))] : mensajesConEtiqueta;
-  });
-
-  requestAnimationFrame(() => {
-    if (chatRef.current && scrollForzado.current) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "smooth",
+      mensajesConEtiqueta.push({
+        ...msg,
+        from:
+          msg.from ||
+          (msg.manual ? "agente" : msg.rol === "usuario" ? "usuario" : "asistente"),
+        tipo: msg.tipo || "texto",
+        message: msg.message || msg.mensaje || msg.original || "",
+        original: msg.original || msg.message || msg.mensaje || "",
+        lastInteraction: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+        timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
       });
     }
-    setAnimacionesActivas(true);
+
+    setMensajes((prev) => {
+      const igual = JSON.stringify(prev) === JSON.stringify(mensajesConEtiqueta);
+      return igual ? [...mensajesConEtiqueta.map((m) => ({ ...m }))] : mensajesConEtiqueta;
+    });
+
+    requestAnimationFrame(() => {
+      if (chatRef.current && scrollForzado.current) {
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+      setAnimacionesActivas(true);
+    });
   });
-});
 
   return () => stop();
 }, [userId, estado]);

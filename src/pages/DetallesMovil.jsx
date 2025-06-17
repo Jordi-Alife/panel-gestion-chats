@@ -31,7 +31,7 @@ const DetallesMovil = () => {
     // 👉 Combinar info general con detalles
     setUsuario({
       ...info,
-      ...detalleData?.[0],
+      ...(Array.isArray(detalleData) ? detalleData[0] : detalleData),
       userId,
     });
 

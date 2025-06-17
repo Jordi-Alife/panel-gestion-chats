@@ -75,12 +75,19 @@ function formatearMensajesConEtiquetas(docs) {
       etiquetaIntervenidaInsertada = true;
     }
 
-    mensajesConEtiqueta.push({
-      ...msg,
-      from: msg.rol || (msg.manual ? "agente" : "usuario"),
-      tipo: msg.tipo || "texto",
-      timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-    });
+    const timestampFinal =
+  msg.timestamp instanceof Date
+    ? msg.timestamp.toISOString()
+    : typeof msg.timestamp?.toDate === "function"
+    ? msg.timestamp.toDate().toISOString()
+    : msg.timestamp || msg.lastInteraction || new Date().toISOString();
+
+mensajesConEtiqueta.push({
+  ...msg,
+  from: msg.rol || (msg.manual ? "agente" : "usuario"),
+  tipo: msg.tipo || "texto",
+  timestamp: timestampFinal,
+});
   }
 
   return mensajesConEtiqueta;

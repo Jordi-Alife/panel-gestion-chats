@@ -399,19 +399,20 @@ if (
             ? "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[4px] rounded-bl-[20px]"
             : "rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[4px]";
 
-          const contenidoPrincipal =
-            msg.tipo === "imagen"
-              ? msg.message
-              : msg.manual
-              ? msg.original
-              : msg.message;
+          const textoTraducido = msg.mensaje || msg.message || msg.original || "";
+const textoOriginal = msg.original || "";
 
-          const contenidoSecundario =
-            msg.tipo === "imagen"
-              ? null
-              : msg.manual
-              ? msg.message
-              : msg.original;
+// Mostrar traducción como principal (como en escritorio)
+const contenidoPrincipal =
+  msg.tipo === "imagen"
+    ? msg.image_url || (msg.message?.startsWith("https://") ? msg.message : null)
+    : textoTraducido;
+
+// Mostrar original debajo solo si es manual y diferente
+const contenidoSecundario =
+  msg.tipo === "imagen" || !textoOriginal || textoOriginal === textoTraducido
+    ? null
+    : textoOriginal;
 
           return (
             <div key={index} data-id={msg.id} className={`flex ${align} ${animacionesActivas ? "transition-all duration-300 ease-out" : "opacity-0"}`}>

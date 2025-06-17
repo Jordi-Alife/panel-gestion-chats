@@ -32,7 +32,7 @@ function formatearMensajesConEtiquetas(docs) {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
           mensaje: "Traspasado a GPT",
-          timestamp: msg.lastInteraction,
+          timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
         });
       }
       estadoActual = "gpt";
@@ -44,7 +44,7 @@ function formatearMensajesConEtiquetas(docs) {
         mensajesConEtiqueta.push({
           tipo: "etiqueta",
           mensaje: "El usuario ha cerrado el chat",
-          timestamp: msg.lastInteraction,
+          timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
         });
       }
       continue;
@@ -54,7 +54,7 @@ function formatearMensajesConEtiquetas(docs) {
       mensajesConEtiqueta.push({
         tipo: "etiqueta",
         mensaje: "Intervenida",
-        timestamp: msg.lastInteraction,
+        timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
       });
       estadoActual = "humano";
       etiquetaIntervenidaInsertada = true;

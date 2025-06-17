@@ -525,11 +525,33 @@ if (
     return;
   }
 
-  setRespuesta("");
+  // Limpiar input
+setRespuesta("");
 
+// 🔁 Inyectar el nuevo mensaje con el mismo formato que el resto
+const nuevoMensaje = {
+  id: `temp-${Date.now()}`,
+  from: "agente",
+  tipo: "texto",
+  manual: true,
+  message: respuesta.trim(),
+  original: respuesta.trim(),
+  timestamp: new Date().toISOString(),
+};
+
+// ⚠️ IMPORTANTE: usar formatearMensajesConEtiquetas para mantener etiquetas y formato
+setMensajes((prev) => {
+  const lista = [...prev, nuevoMensaje];
+  return formatearMensajesConEtiquetas(lista);
+});
+
+// Hacer scroll hacia abajo suavemente
 setTimeout(() => {
   if (chatRef.current) {
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    chatRef.current.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }
 }, 350);
 

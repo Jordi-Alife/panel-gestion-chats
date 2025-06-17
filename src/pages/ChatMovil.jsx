@@ -174,10 +174,10 @@ const ChatMovil = () => {
     const esUsuario = linea.startsWith("Usuario:");
     const esAsistente = linea.startsWith("Asistente:");
     const rol = esUsuario
-      ? "usuario"
-      : esAsistente
-      ? "agente" // 👈 encaja con el diseño actual
-      : "sistema";
+  ? "usuario"
+  : esAsistente
+  ? "asistente" // 👈 esta es la clave para que se muestre bien visualmente
+  : "sistema";
 
     const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 

@@ -170,42 +170,43 @@ const ChatMovil = () => {
 ) {
   const lineas = conv.historialFormateado.split("\n");
 
-const mensajesHist = lineas.map((linea, i) => {
-  const esUsuario = linea.startsWith("Usuario:");
-  const esAsistente = linea.startsWith("Asistente:");
-  const rol = esUsuario
-    ? "usuario"
-    : esAsistente
-    ? "asistente"
-    : "sistema";
+  const mensajesHist = lineas.map((linea, i) => {
+    const esUsuario = linea.startsWith("Usuario:");
+    const esAsistente = linea.startsWith("Asistente:");
+    const rol = esUsuario
+      ? "usuario"
+      : esAsistente
+      ? "asistente"
+      : "sistema";
 
-  const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
+    const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 
-  return {
-    id: `hist-${i}`,
-    from: rol,
-    tipo: "texto",
-    manual: rol === "agente" || rol === "asistente", // 👉 esto corrige el color y el lado
-    message: contenido,
-    mensaje: contenido,
-    original: contenido,
-    timestamp: new Date().toISOString(),
-  };
-});
-setMensajes(mensajesHist);
-
-setTimeout(() => {
-  requestAnimationFrame(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "auto",
-      });
-    }
+    return {
+      id: `hist-${i}`,
+      from: rol,
+      tipo: "texto",
+      manual: false, // ❌ IMPORTANTE: nunca true aquí
+      message: contenido,
+      mensaje: contenido,
+      original: contenido,
+      timestamp: new Date().toISOString(),
+    };
   });
-}, 50);
 
-return;
+  setMensajes(mensajesHist);
+
+  setTimeout(() => {
+    requestAnimationFrame(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "auto",
+        });
+      }
+    });
+  }, 50);
+
+  return;
 }
 
   // 🔁 Si no hay historial, usa fetch (opcional, fallback)

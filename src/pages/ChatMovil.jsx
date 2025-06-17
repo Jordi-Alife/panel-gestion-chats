@@ -160,46 +160,49 @@ const ChatMovil = () => {
 
   // ✅ Usa historial formateado si está
   if (
-    conv?.historialFormateado &&
-    ["archivado", "cerrado"].includes((estado || "").toLowerCase())
-  ) {
-    const lineas = conv.historialFormateado.split("\n");
-    const mensajesHist = lineas.map((linea, i) => {
-      const esUsuario = linea.startsWith("Usuario:");
-      const esAsistente = linea.startsWith("Asistente:");
-      const rol = esUsuario
-  ? "usuario"
-  : esAsistente
-  ? "agente" // 👈 así encaja perfectamente con los mensajes manuales y el diseño actual
-  : "sistema";
-      const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
+  conv?.historialFormateado &&
+  ["archivado", "cerrado"].includes((estado || "").toLowerCase())
+) {
+  const lineas = conv.historialFormateado.split("\n");
 
-      return {
-  id: `hist-${i}`,
-  from: rol === "agente" ? "agente" : rol, // asegura que "agente" esté bien marcado
-  tipo: "texto",
-  manual: rol === "agente", // esto es clave para marcarlo como mensaje del agente
-  message: contenido,
-  mensaje: contenido,
-  original: contenido,
-  timestamp: new Date().toISOString(),
-};
+  const mensajesHist = lineas.map((linea, i) => {
+    const esUsuario = linea.startsWith("Usuario:");
+    const esAsistente = linea.startsWith("Asistente:");
+    const rol = esUsuario
+      ? "usuario"
+      : esAsistente
+      ? "agente" // 👈 encaja con el diseño actual
+      : "sistema";
 
-    setMensajes(mensajesHist);
+    const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 
-setTimeout(() => {
-  requestAnimationFrame(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "auto", // o "smooth" si quieres animación al abrir
-      });
-    }
+    return {
+      id: `hist-${i}`,
+      from: rol,
+      tipo: "texto",
+      manual: rol === "agente",
+      message: contenido,
+      mensaje: contenido,
+      original: contenido,
+      timestamp: new Date().toISOString(),
+    };
   });
-}, 50);
 
-return;
-  }
+  setMensajes(mensajesHist);
+
+  setTimeout(() => {
+    requestAnimationFrame(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "auto", // o "smooth" si quieres
+        });
+      }
+    });
+  }, 50);
+
+  return;
+}
 
   // 🔁 Si no hay historial, usa fetch (opcional, fallback)
   try {

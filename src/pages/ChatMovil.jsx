@@ -167,19 +167,23 @@ const ChatMovil = () => {
     const mensajesHist = lineas.map((linea, i) => {
       const esUsuario = linea.startsWith("Usuario:");
       const esAsistente = linea.startsWith("Asistente:");
-      const rol = esUsuario ? "usuario" : esAsistente ? "asistente" : "sistema";
+      const rol = esUsuario
+  ? "usuario"
+  : esAsistente
+  ? "agente" // 👈 así encaja perfectamente con los mensajes manuales y el diseño actual
+  : "sistema";
       const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 
       return {
-        id: `hist-${i}`,
-        from: rol,
-        tipo: "texto",
-        message: contenido,
-        mensaje: contenido,
-        original: contenido,
-        timestamp: new Date().toISOString(),
-      };
-    });
+  id: `hist-${i}`,
+  from: rol === "agente" ? "agente" : rol, // asegura que "agente" esté bien marcado
+  tipo: "texto",
+  manual: rol === "agente", // esto es clave para marcarlo como mensaje del agente
+  message: contenido,
+  mensaje: contenido,
+  original: contenido,
+  timestamp: new Date().toISOString(),
+};
 
     setMensajes(mensajesHist);
 

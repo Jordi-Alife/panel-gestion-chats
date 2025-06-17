@@ -382,10 +382,19 @@ if (
         }`}
       >
         {texto === "Traspasado a GPT" ? "Traspasada a GPT" : texto} •{" "}
-        {new Date(msg.timestamp).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
+        {(() => {
+  const fecha =
+    msg.timestamp instanceof Date
+      ? msg.timestamp
+      : typeof msg.timestamp?.toDate === "function"
+      ? msg.timestamp.toDate()
+      : new Date(msg.timestamp || msg.lastInteraction || Date.now());
+
+  return fecha.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+})()}
       </span>
     </div>
   );

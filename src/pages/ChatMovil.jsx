@@ -308,6 +308,20 @@ if (
 }, [userId, estado]);
 
   useEffect(() => {
+  if (!chatRef.current || mensajes.length === 0) return;
+
+  const ultimo = mensajes[mensajes.length - 1];
+  if (!ultimo || ultimo.tipo === "etiqueta") return;
+
+  requestAnimationFrame(() => {
+    chatRef.current.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  });
+}, [mensajes]);
+
+  useEffect(() => {
   if (!userId) return;
 
   const stop = window.escucharTextoEscribiendo(userId, (nuevoTexto) => {

@@ -24,26 +24,20 @@ function formatearMensajesConEtiquetas(docs) {
       : null;
 
     const esEtiquetaIntervenida =
-  (msg.tipo === "estado" && msg.estado === "Intervenida") ||
-  (msg.tipo === "etiqueta" && msg.mensaje === "Intervenida");
+      (msg.tipo === "estado" && msg.estado === "Intervenida") ||
+      (msg.tipo === "etiqueta" && msg.mensaje === "Intervenida");
 
-if (esEtiquetaIntervenida && !etiquetaIntervenidaInsertada) {
-  mensajesConEtiqueta.push({
-    tipo: "etiqueta",
-    mensaje: "Intervenida",
-    timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
-  });
-  estadoActual = "humano";
-  etiquetaIntervenidaInsertada = true;
-  continue;
-}
-
-// ⚠️ Esto se añade para asegurarse de que, si ya venía etiquetado,
-// aunque no se haya hecho el push manualmente, se marque igualmente como insertado
-if (esEtiquetaIntervenida) {
-  etiquetaIntervenidaInsertada = true;
-  estadoActual = "humano";
-}
+    if (msg.tipo === "estado" && msg.estado === "Traspasado a GPT") {
+      if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "Traspasado a GPT") {
+        mensajesConEtiqueta.push({
+          tipo: "etiqueta",
+          mensaje: "Traspasado a GPT",
+          timestamp: msg.lastInteraction || msg.timestamp || new Date().toISOString(),
+        });
+      }
+      estadoActual = "gpt";
+      continue;
+    }
 
     if (msg.tipo === "estado" && msg.estado === "Cerrado") {
       if (!ultimaEtiqueta || ultimaEtiqueta.mensaje !== "El usuario ha cerrado el chat") {
@@ -82,23 +76,24 @@ if (esEtiquetaIntervenida) {
     }
 
     const timestampFinal =
-  msg.timestamp instanceof Date
-    ? msg.timestamp.toISOString()
-    : typeof msg.timestamp?.toDate === "function"
-    ? msg.timestamp.toDate().toISOString()
-    : msg.timestamp || msg.lastInteraction || new Date().toISOString();
+      msg.timestamp instanceof Date
+        ? msg.timestamp.toISOString()
+        : typeof msg.timestamp?.toDate === "function"
+        ? msg.timestamp.toDate().toISOString()
+        : msg.timestamp || msg.lastInteraction || new Date().toISOString();
 
-mensajesConEtiqueta.push({
-  ...msg,
-  from: msg.rol || (msg.manual ? "agente" : "usuario"),
-  tipo: msg.tipo || "texto",
-  timestamp: timestampFinal,
-});
+    mensajesConEtiqueta.push({
+      ...msg,
+      message: msg.message || msg.mensaje || msg.original || "",
+      original: msg.original || msg.message || msg.mensaje || "",
+      from: msg.rol || (msg.manual ? "agente" : "usuario"),
+      tipo: msg.tipo || "texto",
+      timestamp: timestampFinal,
+    });
   }
 
   return mensajesConEtiqueta;
 }
-
 const ChatMovil = () => {
   const { userId } = useParams();
   const navigate = useNavigate();

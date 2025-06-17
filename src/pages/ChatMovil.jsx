@@ -189,10 +189,15 @@ const ChatMovil = () => {
     setMensajes(mensajesHist);
 
 setTimeout(() => {
-  if (chatRef.current) {
-    chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "auto" });
-  }
-}, 100);
+  requestAnimationFrame(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "auto", // o "smooth" si quieres animación al abrir
+      });
+    }
+  });
+}, 50);
 
 return;
   }

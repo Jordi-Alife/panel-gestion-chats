@@ -415,12 +415,15 @@ const textoOriginal = msg.original || "";
 const contenidoPrincipal =
   msg.tipo === "imagen"
     ? msg.image_url || (msg.message?.startsWith("https://") ? msg.message : null)
+    : msg.manual
+    ? textoOriginal
     : textoTraducido;
 
-// Mostrar original debajo solo si es manual y diferente
 const contenidoSecundario =
   msg.tipo === "imagen" || !textoOriginal || textoOriginal === textoTraducido
     ? null
+    : msg.manual
+    ? textoTraducido
     : textoOriginal;
 
           return (

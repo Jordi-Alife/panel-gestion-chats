@@ -86,7 +86,12 @@ function formatearMensajesConEtiquetas(docs) {
       ...msg,
       message: msg.message || msg.mensaje || msg.original || "",
       original: msg.original || msg.message || msg.mensaje || "",
-      from: msg.rol || (msg.manual ? "agente" : "usuario"),
+      from:
+  msg.rol === "asistente"
+    ? "asistente"
+    : msg.manual
+    ? "agente"
+    : "usuario",
       tipo: msg.tipo || "texto",
       timestamp: timestampFinal,
     });

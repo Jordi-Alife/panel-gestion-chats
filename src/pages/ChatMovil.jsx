@@ -174,23 +174,23 @@ const ChatMovil = () => {
     const esUsuario = linea.startsWith("Usuario:");
     const esAsistente = linea.startsWith("Asistente:");
     const rol = esUsuario
-      ? "usuario"
-      : esAsistente
-      ? "asistente"
-      : "sistema";
+  ? "usuario"
+  : esAsistente
+  ? "asistente"
+  : "sistema";
 
-    const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
+const contenido = linea.replace(/^Usuario:\s?|^Asistente:\s?/, "");
 
-    return {
-      id: `hist-${i}`,
-      from: rol,
-      tipo: "texto",
-      manual: false, // ❌ IMPORTANTE: nunca true aquí
-      message: contenido,
-      mensaje: contenido,
-      original: contenido,
-      timestamp: new Date().toISOString(),
-    };
+return {
+  id: `hist-${i}`,
+  from: rol,
+  tipo: "texto",
+  manual: rol === "asistente", // ✅ SOLO si es asistente (GPT)
+  message: contenido,
+  mensaje: contenido,
+  original: contenido,
+  timestamp: new Date().toISOString(),
+};
   });
 
   setMensajes(mensajesHist);

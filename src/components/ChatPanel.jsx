@@ -101,8 +101,7 @@ const ChatPanel = ({
           }
 
           const isAsistente =
-            msg.from?.toLowerCase() === "asistente" ||
-            msg.from?.toLowerCase() === "agente";
+  ["asistente", "assistant", "agente", "gpt"].includes(msg.from?.toLowerCase?.());
 
           const align = isAsistente ? "justify-end" : "justify-start";
           const shapeClass = msg.manual
